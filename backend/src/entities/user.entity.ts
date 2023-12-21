@@ -1,5 +1,6 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm'
+import { BeforeInsert, BeforeUpdate, Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm'
 import { City } from './city.entity'
+import { hash, compare } from 'bcryptjs'
 
 @Entity()
 export class User {
@@ -47,4 +48,22 @@ export class User {
 
     @ManyToOne(() => City, city => city.users)
     city: City
+
+    @BeforeInsert()
+    @BeforeUpdate()
+    async hashPassword() {
+        if (!this.password) {
+            return
+        } else {
+            this.password = await hash(this.password, 10)
+        }
+    }
+
+    async comparePassword(password: string) {
+        if (await compare(password, this.password)) {
+            return true
+        } else {
+            return false
+        }
+    }
 }

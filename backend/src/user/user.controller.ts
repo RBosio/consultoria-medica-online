@@ -1,18 +1,12 @@
-import { Controller, Get, Body, Param, Delete, Patch, HttpException, Post } from '@nestjs/common';
+import { Controller, Get, Body, Param, Delete, Patch, HttpException } from '@nestjs/common';
 import { updateUserDto } from './dto/update-user.dto';
 import { UserService } from './user.service';
 import { User } from 'src/entities/user.entity';
-import { createUserDto } from './dto/create-user.dto';
 
 @Controller('user')
 export class UserController {
 
     constructor(private userService: UserService) {}
-
-    @Post()
-    newUser(@Body() asd: createUserDto) {
-        this.userService.create(asd)
-    }
 
     @Get()
     getUsers(): Promise<User[]> {

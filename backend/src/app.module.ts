@@ -11,6 +11,7 @@ import { ProvinceModule } from './province/province.module';
 import { CityModule } from './city/city.module';
 import { User } from './entities/user.entity';
 import { UserModule } from './user/user.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -33,7 +34,8 @@ import { UserModule } from './user/user.module';
     CountryModule,
     ProvinceModule,
     CityModule,
-    UserModule
+    UserModule,
+    AuthModule
     ],
   controllers: [AppController],
   providers: [AppService]

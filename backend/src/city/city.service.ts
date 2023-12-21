@@ -18,7 +18,7 @@ export class CityService {
         })
     }
     
-    async findOne(zipCode: string): Promise<City | HttpException> {
+    async findOne(zipCode: string): Promise<City> {
         const cityFound = await this.cityRepository.findOne({
             where: {
                 zipCode

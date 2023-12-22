@@ -12,6 +12,10 @@ import { CityModule } from './city/city.module';
 import { User } from './entities/user.entity';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
+import { Doctor } from './entities/doctor.entity';
+import { Schedule } from './entities/schedules';
+import { MedicalRecord } from './entities/medical_record.entity';
+import { DoctorModule } from './doctor/doctor.module';
 
 @Module({
   imports: [
@@ -25,7 +29,7 @@ import { AuthModule } from './auth/auth.module';
         username: configService.get('DB_USERNAME'),
         password: configService.get('DB_PASSWORD'),
         database: configService.get('DB_DATABASE'),
-        entities: [Country, Province, City, User],
+        entities: [Country, Province, City, User, Doctor, Schedule, MedicalRecord],
         synchronize: configService.get('DB_SYNC'),
         dropSchema: configService.get('DB_DROP')
       }),
@@ -35,7 +39,8 @@ import { AuthModule } from './auth/auth.module';
     ProvinceModule,
     CityModule,
     UserModule,
-    AuthModule
+    AuthModule,
+    DoctorModule
     ],
   controllers: [AppController],
   providers: [AppService]

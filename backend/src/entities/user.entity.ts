@@ -1,6 +1,7 @@
-import { BeforeInsert, BeforeUpdate, Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm'
+import { BeforeInsert, BeforeUpdate, Column, Entity, ManyToOne, OneToOne, PrimaryGeneratedColumn } from 'typeorm'
 import { City } from './city.entity'
 import { hash, compare } from 'bcryptjs'
+import { Doctor } from './doctor.entity'
 
 @Entity()
 export class User {
@@ -48,6 +49,12 @@ export class User {
 
     @ManyToOne(() => City, city => city.users)
     city: City
+
+    @OneToOne(() => Doctor, {nullable: false})
+    doctor: Doctor
+
+    // @OneToMany(() => Consultation, consultations => consultations.user)
+    // consultations: Consultation[]
 
     @BeforeInsert()
     @BeforeUpdate()

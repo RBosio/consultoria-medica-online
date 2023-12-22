@@ -5,11 +5,14 @@ import { createUserDto } from './dto/create-user.dto';
 import { updateUserDto } from './dto/update-user.dto';
 import { User } from 'src/entities/user.entity';
 import { CityService } from 'src/city/city.service';
+import { Doctor } from 'src/entities/doctor.entity';
+import { createDoctorDto } from 'src/doctor/dto/create-doctor.dto';
 
 @Injectable()
 export class UserService {
     constructor(
         @InjectRepository(User) private userRepository: Repository<User>,
+        @InjectRepository(Doctor) private doctorRepository: Repository<Doctor>,
         private cityService: CityService
         ) {}
 
@@ -43,7 +46,7 @@ export class UserService {
         return userFound
     }
 
-    async create(user: createUserDto) {
+    async create(user: createUserDto, doctor: createDoctorDto) {
         const userFoundDni = await this.userRepository.findOne({
             where: {
                 dni: user.dni
@@ -62,15 +65,23 @@ export class UserService {
             throw new HttpException('El email ya existe', HttpStatus.BAD_REQUEST)
         }
 
-        const newUser = this.userRepository.create(user)
+        let newUser = this.userRepository.create(user)
         
         const city = await this.cityService.findOne(user.zipCode)
         if (!city) {
             throw new HttpException('Ciudad no encontrada', HttpStatus.BAD_REQUEST)
         }
         newUser.city = city
+
+        newUser = await this.userRepository.save(newUser)
+
+        if(doctor) {
+            const newDoctor = this.doctorRepository.create(doctor)
+            newDoctor.user = newUser
+            await this.doctorRepository.save(newDoctor)
+        }
         
-        return this.userRepository.save(newUser)
+        return newUser
     }
 
     async update(dni: string, user: updateUserDto) {

@@ -1,3 +1,5 @@
+import { createDoctorDto } from "src/doctor/dto/create-doctor.dto"
+
 export class createUserDto {
     name: string
     surname: string
@@ -10,4 +12,5 @@ export class createUserDto {
     admin?: boolean
     gender: boolean
     zipCode: string
+    doctor?: createDoctorDto
 }

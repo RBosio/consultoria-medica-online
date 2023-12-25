@@ -7,13 +7,16 @@ export class Schedule {
     id: number
 
     @Column()
-    day: string
+    day: number
     
     @Column()
-    start_hour: string
+    start_hour: number
         
     @Column()
-    end_hour: string
+    end_hour: number
+
+    @Column()
+    doctorId: number
     
     @ManyToOne(() => Doctor, doctor => doctor.schedules, {nullable: false})
     doctor: Doctor

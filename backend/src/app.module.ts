@@ -13,11 +13,12 @@ import { User } from './entities/user.entity';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { Doctor } from './entities/doctor.entity';
-import { Schedule } from './entities/schedules';
 import { MedicalRecord } from './entities/medical_record.entity';
 import { DoctorModule } from './doctor/doctor.module';
 import { Speciality } from './entities/speciality.entity';
 import { SpecialityModule } from './speciality/speciality.module';
+import { Schedule } from './entities/schedule.entity';
+import { ScheduleModule } from './schedule/schedule.module';
 
 @Module({
   imports: [
@@ -43,7 +44,8 @@ import { SpecialityModule } from './speciality/speciality.module';
     UserModule,
     AuthModule,
     DoctorModule,
-    SpecialityModule
+    SpecialityModule,
+    ScheduleModule
     ],
   controllers: [AppController],
   providers: [AppService]

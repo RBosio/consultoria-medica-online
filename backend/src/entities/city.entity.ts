@@ -13,10 +13,10 @@ export class City {
     @Column()
     provinceId: number
 
-    @ManyToOne(() => Province, province => province.cities)
+    @ManyToOne(() => Province, province => province.cities, {nullable: false})
     province: Province
 
-    @OneToMany(() => User, user => user.city)
+    @OneToMany(() => User, user => user.city, {nullable: false})
     users: User[]
     
     @Column({type: Date, default: () => 'CURRENT_TIMESTAMP'})

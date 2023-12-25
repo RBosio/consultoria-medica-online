@@ -1,6 +1,6 @@
 import { Column, Entity, JoinColumn, JoinTable, ManyToMany, OneToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm'
 import { User } from './user.entity'
-import { Schedule } from './schedules'
+import { Schedule } from './schedule.entity'
 import { Speciality } from './speciality.entity'
 
 @Entity()
@@ -16,6 +16,9 @@ export class Doctor {
     
     @Column()
     title: string
+
+    @Column()
+    userId: number
     
     @OneToOne(() => User, {nullable: false})
     @JoinColumn()

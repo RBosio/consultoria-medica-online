@@ -13,7 +13,7 @@ export class Province {
     @Column()
     countryId: number
 
-    @ManyToOne(() => Country, country => country.provinces)
+    @ManyToOne(() => Country, country => country.provinces, {nullable: false})
     country: Country
 
     @OneToMany(() => City, cities => cities.province)

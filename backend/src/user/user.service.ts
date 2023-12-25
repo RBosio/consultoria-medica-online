@@ -77,7 +77,12 @@ export class UserService {
 
         if(doctor) {
             const newDoctor = this.doctorRepository.create(doctor)
+
+            const { specialities } = doctor
+            newDoctor.specialities = specialities
+            
             newDoctor.user = newUser
+
             await this.doctorRepository.save(newDoctor)
         }
         

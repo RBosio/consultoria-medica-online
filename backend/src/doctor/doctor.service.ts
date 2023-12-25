@@ -17,6 +17,16 @@ export class DoctorService {
             relations: ['user', 'schedules']
         })
     }
+
+    findDoctorsBySpeciality(id: number): Promise<Doctor[]> {
+        return this.doctorRepository.find({
+            where: {
+                specialities: {
+                    id
+                }
+            }
+        })
+    }
     
     async findOne(id: number) {
         const doctorFound = await this.doctorRepository.findOne({

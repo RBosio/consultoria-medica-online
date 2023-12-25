@@ -17,6 +17,11 @@ export class DoctorController {
     getDoctor(@Param('id') id: number): Promise<Doctor | HttpException> {
         return this.doctorService.findOne(id)
     }
+    
+    @Get('category/:idSpec')
+    getDoctorsBySpeciality(@Param('idSpec') idSpec: number): Promise<Doctor[]> {
+        return this.doctorService.findDoctorsBySpeciality(idSpec)
+    }
 
     @Patch(':id')
     updateDoctor(@Param('id') id: number, @Body() doctor: updateDoctorDto) {

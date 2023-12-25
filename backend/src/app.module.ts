@@ -16,6 +16,8 @@ import { Doctor } from './entities/doctor.entity';
 import { Schedule } from './entities/schedules';
 import { MedicalRecord } from './entities/medical_record.entity';
 import { DoctorModule } from './doctor/doctor.module';
+import { Speciality } from './entities/speciality.entity';
+import { SpecialityModule } from './speciality/speciality.module';
 
 @Module({
   imports: [
@@ -29,7 +31,7 @@ import { DoctorModule } from './doctor/doctor.module';
         username: configService.get('DB_USERNAME'),
         password: configService.get('DB_PASSWORD'),
         database: configService.get('DB_DATABASE'),
-        entities: [Country, Province, City, User, Doctor, Schedule, MedicalRecord],
+        entities: [Country, Province, City, User, Doctor, Schedule, MedicalRecord, Speciality],
         synchronize: configService.get('DB_SYNC'),
         dropSchema: configService.get('DB_DROP')
       }),
@@ -40,7 +42,8 @@ import { DoctorModule } from './doctor/doctor.module';
     CityModule,
     UserModule,
     AuthModule,
-    DoctorModule
+    DoctorModule,
+    SpecialityModule
     ],
   controllers: [AppController],
   providers: [AppService]

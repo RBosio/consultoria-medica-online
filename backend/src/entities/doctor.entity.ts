@@ -1,6 +1,7 @@
-import { Column, Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm'
+import { Column, Entity, JoinColumn, JoinTable, ManyToMany, OneToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm'
 import { User } from './user.entity'
 import { Schedule } from './schedules'
+import { Speciality } from './speciality.entity'
 
 @Entity()
 export class Doctor {
@@ -9,9 +10,6 @@ export class Doctor {
 
     @Column()
     registration: string
-    
-    @Column()
-    speciality: string
     
     @Column()
     cuil: string
@@ -28,4 +26,8 @@ export class Doctor {
 
     @OneToMany(() => Schedule, schedules => schedules.doctor)
     schedules: Schedule[]
+    
+    @ManyToMany(() => Speciality, specialities => specialities.doctors)
+    @JoinTable()
+    specialities: Speciality[]
 }

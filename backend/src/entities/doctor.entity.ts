@@ -2,6 +2,7 @@ import { Column, Entity, JoinColumn, JoinTable, ManyToMany, OneToMany, OneToOne,
 import { User } from './user.entity'
 import { Schedule } from './schedule.entity'
 import { Speciality } from './speciality.entity'
+import { Meeting } from './meeting.entity'
 
 @Entity()
 export class Doctor {
@@ -33,8 +34,8 @@ export class Doctor {
     @JoinColumn()
     user: User
     
-    // @OneToMany(() => Consultation, consultations => consultations.doctor)
-    // consultations: Consultation[]
+    @OneToMany(() => Meeting, meetings => meetings.doctor)
+    meetings: Meeting[]
 
     @OneToMany(() => Schedule, schedules => schedules.doctor)
     schedules: Schedule[]

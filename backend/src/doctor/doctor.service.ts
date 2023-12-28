@@ -42,6 +42,22 @@ export class DoctorService {
         
         return doctorFound
     }
+    
+    async verify(id: number) {
+        const doctorFound = await this.doctorRepository.findOne({
+            where: {
+                id
+            }
+        })
+        
+        if (!doctorFound) {
+            throw new HttpException('Medico no encontrado', HttpStatus.NOT_FOUND)
+        }
+
+        doctorFound.verified = true
+
+        return this.doctorRepository.save(doctorFound)
+    }
 
     async update(id: number, doctor: updateDoctorDto) {
         const doctorFound = await this.doctorRepository.findOne({

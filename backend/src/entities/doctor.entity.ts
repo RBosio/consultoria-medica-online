@@ -16,6 +16,15 @@ export class Doctor {
     
     @Column()
     title: string
+    
+    @Column({nullable: true})
+    durationMeeting: number
+
+    @Column({nullable: true})
+    priceMeeting: number
+    
+    @Column({default: false})
+    verified: boolean
 
     @Column()
     userId: number

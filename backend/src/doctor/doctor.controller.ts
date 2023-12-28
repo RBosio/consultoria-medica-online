@@ -23,6 +23,11 @@ export class DoctorController {
         return this.doctorService.findDoctorsBySpeciality(idSpec)
     }
 
+    @Patch('verify/:id')
+    verifyDoctor(@Param('id') id: number) {
+        return this.doctorService.verify(id)
+    }
+    
     @Patch(':id')
     updateDoctor(@Param('id') id: number, @Body() doctor: updateDoctorDto) {
         return this.doctorService.update(id, doctor)

@@ -4,5 +4,7 @@ export class updateDoctorDto {
     registration?: string
     cuil?: string
     title?: string
+    durationMeeting?: number
+    priceMeeting?: number
     specialities: Speciality[]
 }

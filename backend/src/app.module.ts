@@ -13,7 +13,7 @@ import { User } from './entities/user.entity';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { Doctor } from './entities/doctor.entity';
-import { MedicalRecord } from './entities/medical_record.entity';
+import { MedicalRecord } from './entities/medical-record.entity';
 import { DoctorModule } from './doctor/doctor.module';
 import { Speciality } from './entities/speciality.entity';
 import { SpecialityModule } from './speciality/speciality.module';
@@ -21,6 +21,7 @@ import { Schedule } from './entities/schedule.entity';
 import { ScheduleModule } from './schedule/schedule.module';
 import { MeetingModule } from './meeting/meeting.module';
 import { Meeting } from './entities/meeting.entity';
+import { MedicalRecordModule } from './country copy/medical-record.module';
 
 @Module({
   imports: [
@@ -34,7 +35,7 @@ import { Meeting } from './entities/meeting.entity';
         username: configService.get('DB_USERNAME'),
         password: configService.get('DB_PASSWORD'),
         database: configService.get('DB_DATABASE'),
-        entities: [Country, Province, City, User, Doctor, Schedule, MedicalRecord, Speciality, Meeting],
+        entities: [Country, Province, City, User, Doctor, Schedule, Speciality, Meeting, MedicalRecord],
         synchronize: configService.get('DB_SYNC'),
         dropSchema: configService.get('DB_DROP')
       }),
@@ -48,7 +49,8 @@ import { Meeting } from './entities/meeting.entity';
     DoctorModule,
     SpecialityModule,
     ScheduleModule,
-    MeetingModule
+    MeetingModule,
+    MedicalRecordModule
     ],
   controllers: [AppController],
   providers: [AppService]

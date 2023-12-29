@@ -18,6 +18,15 @@ export class MeetingService {
         })
     }
     
+    findByUser(userId: number): Promise<Meeting[]> {
+        return this.meetingRepository.find({
+            where: {
+                userId
+            },
+            relations: ['user', 'doctor', 'medicalRecord']
+        })
+    }
+    
     async findOne(userId: number, startDatetime: Date) {
         const meetingFound = await this.meetingRepository.findOne({
             where: {

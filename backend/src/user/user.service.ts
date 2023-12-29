@@ -20,6 +20,19 @@ export class UserService {
         return this.userRepository.find()
     }
     
+    async findOne(id: number) {
+        const userFound = await this.userRepository.findOne({
+            where: {
+                id
+            }
+        })
+        if (!userFound) {
+            throw new HttpException('Usuario no encontrado', HttpStatus.NOT_FOUND)
+        }
+        
+        return userFound
+    }
+
     async findOneByDni(dni: string) {
         const userFound = await this.userRepository.findOne({
             where: {

@@ -2,6 +2,7 @@ import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryColu
 import { User } from './user.entity'
 import { Doctor } from './doctor.entity'
 import { MedicalRecord } from './medical-record.entity'
+import { Comment } from './comment.entity'
 
 @Entity()
 export class Meeting {
@@ -31,10 +32,13 @@ export class Meeting {
 
     @ManyToOne(() => Doctor, doctor => doctor.meetings, {nullable: false})
     doctor: Doctor
-
+    
     @OneToOne(() => MedicalRecord, medicalRecord => medicalRecord.meeting)
     @JoinColumn()
     medicalRecord: MedicalRecord
+    
+    @OneToMany(() => Comment, comment => comment.meeting, {nullable: false})
+    comments: Comment
     
     @Column({type: Date, default: () => 'CURRENT_TIMESTAMP'})
     created_at: Date

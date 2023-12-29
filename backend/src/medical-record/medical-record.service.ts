@@ -7,12 +7,14 @@ import { MedicalRecord } from 'src/entities/medical-record.entity';
 import { MeetingService } from 'src/meeting/meeting.service';
 import { Meeting } from 'src/entities/meeting.entity';
 import { UserService } from 'src/user/user.service';
+import { File } from 'src/entities/file.entity';
 
 @Injectable()
 export class MedicalRecordService {
 
     constructor(
         @InjectRepository(MedicalRecord) private medicalRecordRepository: Repository<MedicalRecord>,
+        @InjectRepository(File) private fileRepository: Repository<File>,
         private meetingService: MeetingService,
         private userService: UserService
         ) {}
@@ -96,5 +98,21 @@ export class MedicalRecordService {
         }
 
         return result
+    }
+    
+    async uploadImage(datetime: Date, url: string) {
+        const medicalRecord = await this.medicalRecordRepository.findOne({
+            where: {
+                datetime
+            }
+        })
+        if (!medicalRecord) {
+            throw new HttpException('Registro no encontrado', HttpStatus.NOT_FOUND)
+        }
+        
+        const newFile = this.fileRepository.create({url, medicalRecordDatetime: datetime})
+        await this.fileRepository.save(newFile)
+        // medicalRecord.files.push(newFile)
+        // return this.medicalRecordRepository.save(medicalRecord)
     }
 }

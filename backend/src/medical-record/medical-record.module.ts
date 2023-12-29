@@ -10,9 +10,10 @@ import { Doctor } from 'src/entities/doctor.entity';
 import { City } from 'src/entities/city.entity';
 import { UserService } from 'src/user/user.service';
 import { CityService } from 'src/city/city.service';
+import { File } from 'src/entities/file.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([MedicalRecord, Meeting, User, Doctor, City])],
+  imports: [TypeOrmModule.forFeature([MedicalRecord, Meeting, User, Doctor, City, File])],
   controllers: [MedicalRecordController],
   providers: [
     MedicalRecordService,

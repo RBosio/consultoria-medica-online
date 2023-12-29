@@ -4,7 +4,6 @@ import { Repository } from 'typeorm';
 import { updateMeetingDto } from './dto/update-meeting.dto';
 import { Meeting } from 'src/entities/meeting.entity';
 import { createMeetingDto } from './dto/create-meeting.dto';
-import * as moment from "moment-timezone"; 
 
 @Injectable()
 export class MeetingService {

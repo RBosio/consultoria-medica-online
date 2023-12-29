@@ -1,5 +1,6 @@
-import { Column, Entity, OneToOne, PrimaryColumn } from 'typeorm'
+import { Column, Entity, OneToMany, OneToOne, PrimaryColumn } from 'typeorm'
 import { Meeting } from './meeting.entity'
+import { File } from './file.entity'
 
 @Entity()
 export class MedicalRecord {
@@ -14,4 +15,7 @@ export class MedicalRecord {
 
     @OneToOne(() => Meeting, meeting => meeting.medicalRecord, {nullable: false})
     meeting: Meeting
+
+    @OneToMany(() => File, files => files.medicalRecord)
+    files: File[]
 }

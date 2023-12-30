@@ -17,14 +17,17 @@ export class UserService {
         ) {}
 
     findAll(): Promise<User[]> {
-        return this.userRepository.find()
+        return this.userRepository.find({
+            relations: ['healthInsurance']
+        })
     }
     
     async findOne(id: number) {
         const userFound = await this.userRepository.findOne({
             where: {
                 id
-            }
+            },
+            relations: ['healthInsurance']
         })
         if (!userFound) {
             throw new HttpException('Usuario no encontrado', HttpStatus.NOT_FOUND)

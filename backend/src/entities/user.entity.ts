@@ -3,6 +3,7 @@ import { City } from './city.entity'
 import { hash, compare } from 'bcryptjs'
 import { Doctor } from './doctor.entity'
 import { Meeting } from './meeting.entity'
+import { HealthInsurance } from './health-insurance.entity'
 
 @Entity()
 export class User {
@@ -45,11 +46,18 @@ export class User {
     @Column({nullable: true})
     photo: string
 
+    @Column({default: false})
+    validateHealthInsurance: boolean
+    
     @Column({type: Date, default: () => 'CURRENT_TIMESTAMP'})
     created_at: Date
 
     @ManyToOne(() => City, city => city.users)
     city: City
+    
+    @ManyToOne(() => HealthInsurance, healthInsurance => healthInsurance.users)
+    healthInsurance: HealthInsurance
+
 
     @OneToOne(() => Doctor, {nullable: false})
     doctor: Doctor

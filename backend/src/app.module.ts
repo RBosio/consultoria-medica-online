@@ -25,6 +25,8 @@ import { MedicalRecordModule } from './medical-record/medical-record.module';
 import { Comment } from './entities/comment.entity';
 import { CommentModule } from './comment/comment.module';
 import { File } from './entities/file.entity';
+import { HealthInsurance } from './entities/health-insurance.entity';
+import { HealthInsuranceModule } from './health-insurance/health-insurance.module';
 
 @Module({
   imports: [
@@ -38,7 +40,7 @@ import { File } from './entities/file.entity';
         username: configService.get('DB_USERNAME'),
         password: configService.get('DB_PASSWORD'),
         database: configService.get('DB_DATABASE'),
-        entities: [Country, Province, City, User, Doctor, Schedule, Speciality, Meeting, MedicalRecord, Comment, File],
+        entities: [Country, Province, City, User, Doctor, Schedule, Speciality, Meeting, MedicalRecord, Comment, File, HealthInsurance],
         synchronize: configService.get('DB_SYNC'),
         dropSchema: configService.get('DB_DROP')
       }),
@@ -54,7 +56,8 @@ import { File } from './entities/file.entity';
     ScheduleModule,
     MeetingModule,
     MedicalRecordModule,
-    CommentModule
+    CommentModule,
+    HealthInsuranceModule
     ],
   controllers: [AppController],
   providers: [AppService]

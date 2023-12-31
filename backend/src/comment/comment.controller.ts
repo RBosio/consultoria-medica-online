@@ -3,7 +3,6 @@ import { createCommentDto } from './dto/create-comment.dto';
 import { updateCommentDto } from './dto/update-comment.dto';
 import { CommentService } from './comment.service';
 import { Comment } from 'src/entities/comment.entity';
-import { Meeting } from 'src/entities/meeting.entity';
 
 @Controller('comment')
 export class CommentController {
@@ -18,6 +17,11 @@ export class CommentController {
     @Get(':userId/:datetime')
     getComment(@Param('userId') userId: number, @Param('datetime') datetime: Date): Promise<Comment | HttpException> {
         return this.commentService.findOne(userId, datetime)
+    }
+    
+    @Get('meeting/:userId/:meetingStartDatetime')
+    getCommentsMeeting(@Param('userId') userId: number, @Param('meetingStartDatetime') meetingStartDatetime: Date): Promise<Comment | HttpException> {
+        return this.commentService.findOneMeeting(userId, meetingStartDatetime)
     }
 
     @Post()

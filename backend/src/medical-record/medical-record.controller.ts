@@ -58,11 +58,10 @@ export class MedicalRecordController {
             }
         )
     )
-    @Post(':datetime/image')
-    uploadImage(@Param('datetime') datetime: Date, @Req() request: Request) {
+    @Post(':datetime/file')
+    uploadFile(@Param('datetime') datetime: Date, @Req() request: Request) {
         const { body } = request
-        console.log(body)
 
-        return this.medicalRecordService.uploadImage(datetime, body.url)
+        return this.medicalRecordService.uploadFile(datetime, body.url)
     }
 }

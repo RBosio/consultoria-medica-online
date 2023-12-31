@@ -100,7 +100,7 @@ export class MedicalRecordService {
         return result
     }
     
-    async uploadImage(datetime: Date, url: string) {
+    async uploadFile(datetime: Date, url: string) {
         const medicalRecord = await this.medicalRecordRepository.findOne({
             where: {
                 datetime
@@ -111,8 +111,6 @@ export class MedicalRecordService {
         }
         
         const newFile = this.fileRepository.create({url, medicalRecordDatetime: datetime})
-        await this.fileRepository.save(newFile)
-        // medicalRecord.files.push(newFile)
-        // return this.medicalRecordRepository.save(medicalRecord)
+        return await this.fileRepository.save(newFile)
     }
 }

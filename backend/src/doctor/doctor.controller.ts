@@ -18,7 +18,7 @@ export class DoctorController {
         return this.doctorService.findOne(id)
     }
     
-    @Get('category/:idSpec')
+    @Get('speciality/:idSpec')
     getDoctorsBySpeciality(@Param('idSpec') idSpec: number): Promise<Doctor[]> {
         return this.doctorService.findDoctorsBySpeciality(idSpec)
     }

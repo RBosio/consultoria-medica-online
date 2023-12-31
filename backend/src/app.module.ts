@@ -27,9 +27,14 @@ import { CommentModule } from './comment/comment.module';
 import { File } from './entities/file.entity';
 import { HealthInsurance } from './entities/health-insurance.entity';
 import { HealthInsuranceModule } from './health-insurance/health-insurance.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'public'),
+    }),
     ConfigModule.forRoot(),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],

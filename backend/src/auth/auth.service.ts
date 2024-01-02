@@ -6,6 +6,7 @@ import { loginResponseDto } from './dto/login-response.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Doctor } from 'src/entities/doctor.entity';
 import { Repository } from 'typeorm';
+import { jwtConstants } from './constants';
 
 @Injectable()
 export class AuthService {
@@ -34,7 +35,10 @@ export class AuthService {
 
             const payload = { name: userFound.name, surname: userFound.surname, sub: userFound.dni, role };
 
-            return {token: await this.jwtService.signAsync(payload)}
+            return {token: await this.jwtService.signAsync(payload,
+                {
+                  secret: jwtConstants.secret
+                })}
         } else {
             throw new HttpException('Email o contraseña incorrectos', HttpStatus.UNAUTHORIZED)
         }

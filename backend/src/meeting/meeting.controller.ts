@@ -1,5 +1,5 @@
-import { Controller, Get, Body, Param, Delete, Patch, HttpException, Post, UseGuards } from '@nestjs/common';
-import { MeetingService } from './meeting.service';
+import { Controller, Get, Body, Param, Delete, Patch, HttpException, Post, UseGuards, Req } from '@nestjs/common';
+import { MeetingService, RequestT } from './meeting.service';
 import { Meeting } from 'src/entities/meeting.entity';
 import { createMeetingDto } from './dto/create-meeting.dto';
 import { updateMeetingDto } from './dto/update-meeting.dto';
@@ -7,6 +7,7 @@ import { AuthGuard } from 'src/auth/auth.guard';
 import { RolesGuard } from 'src/auth/roles.guard';
 import { Roles } from 'src/auth/roles.decorator';
 import { RoleEnum } from 'src/enums/role.enum';
+import { joinMeetingResponseDto } from './dto/join-meeting-response.dto';
 
 @Controller('meeting')
 @UseGuards(AuthGuard, RolesGuard)
@@ -30,6 +31,12 @@ export class MeetingController {
     @Roles(RoleEnum.User)
     createMeeting(@Body() meeting: createMeetingDto): Promise<Meeting | HttpException> {
         return this.meetingService.create(meeting)
+    }
+
+    @Post('join/:id/:startDatetime')
+    @Roles(RoleEnum.User, RoleEnum.Doctor)
+    joinMeeting(@Req() req: RequestT, @Param('id') id: number, @Param('startDatetime') startDatetime: Date): Promise<joinMeetingResponseDto | HttpException> {
+        return this.meetingService.joinMeeting(req, id, startDatetime)
     }
 
     @Patch(':id/:startDatetime')

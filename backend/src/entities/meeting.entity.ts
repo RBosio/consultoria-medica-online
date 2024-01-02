@@ -27,6 +27,9 @@ export class Meeting {
     @Column({nullable: true})
     medicalRecordDatetime: Date
 
+    @Column()
+    tpc: string
+
     @ManyToOne(() => User, user => user.meetings, {nullable: false})
     user: User
 

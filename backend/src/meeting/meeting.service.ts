@@ -4,11 +4,22 @@ import { Repository } from 'typeorm';
 import { updateMeetingDto } from './dto/update-meeting.dto';
 import { Meeting } from 'src/entities/meeting.entity';
 import { createMeetingDto } from './dto/create-meeting.dto';
+import { uuidv4 } from 'uuid'
+import { JwtService } from '@nestjs/jwt'
+import { Request } from 'express';
+import { joinMeetingResponseDto } from './dto/join-meeting-response.dto';
+
+export interface RequestT extends Request {
+    user: {
+        role
+    }
+}
 
 @Injectable()
 export class MeetingService {
     constructor(
         @InjectRepository(Meeting) private meetingRepository: Repository<Meeting>,
+        private jwtService: JwtService
         ) {}
 
     findAll(): Promise<Meeting[]> {
@@ -54,9 +65,30 @@ export class MeetingService {
             throw new HttpException('Reunion existente', HttpStatus.BAD_REQUEST)
         }
 
+        
         const newMeeting = this.meetingRepository.create(meeting)
-
+        newMeeting.tpc = uuidv4()
+        
         return this.meetingRepository.save(newMeeting)
+    }
+
+    async joinMeeting(req: RequestT, id: number, startDatetime: Date): Promise<joinMeetingResponseDto | HttpException> {
+        const meeting = await this.findOne(id, startDatetime)
+        
+        const { user } = req
+        const { role } = user
+        const tpc = meeting.tpc
+                
+        const payloadMeeting = {
+            "app_key": process.env.ZOOM_VIDEO_SDK_KEY,
+            "role_type": role === 'doctor' ? 1 : 0,
+            tpc,
+            "version": 1
+          }
+        
+        return {tokenMeeting: await this.jwtService.signAsync(payloadMeeting, {
+            secret: process.env.ZOOM_VIDEO_SDK_SECRET
+        })}
     }
 
     async update(userId: number, startDatetime: Date, meeting: updateMeetingDto) {

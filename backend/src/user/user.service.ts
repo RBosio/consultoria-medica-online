@@ -128,4 +128,64 @@ export class UserService {
 
         return result
     }
+
+    async loadUsers() {
+        await this.create({
+            dni: '33429120',
+            email: 'user@gmail.com',
+            name: 'User',
+            surname: 'User',
+            password: '123456',
+            phone: '33-333333',
+            cuit: "20-33429120-1",
+            birthday: new Date("1993-04-01"),
+            admin: false,
+            gender: false,
+            zipCode: "2000",
+            healthInsuranceId: 1
+        }, null)
+        
+        await this.create({
+            dni: '38233911',
+            email: 'doctor@gmail.com',
+            name: 'Doctor',
+            surname: 'Doctor',
+            password: '123456',
+            phone: '44-444444',
+            cuit: "20-38233911-1",
+            birthday: new Date("1998-08-14"),
+            admin: false,
+            gender: true,
+            zipCode: "2000",
+            healthInsuranceId: 1
+        }, {
+            cuil: "20-38233911-1",
+            durationMeeting: 30,
+            priceMeeting: 3000,
+            registration: "slaoeiwmdjsq-mskrieldsx-qmaisd.pdf",
+            title: "nfsakjfnaskf-dmasiodmsa-mdasod.pdf",
+            specialities: [{
+                id: 1,
+                name: "",
+                doctors: [],
+                created_at: new Date(),
+                meetings: []
+            }]
+        })
+        
+        await this.create({
+            dni: '34266592',
+            email: 'admin@gmail.com',
+            name: 'Admin',
+            surname: 'Admin',
+            password: '123456',
+            phone: '55-555555',
+            cuit: "20-33429120-1",
+            birthday: new Date("1993-04-01"),
+            admin: true,
+            gender: true,
+            zipCode: "2000",
+            healthInsuranceId: 1
+        }, null)
+    }
 }

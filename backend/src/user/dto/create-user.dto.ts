@@ -12,5 +12,6 @@ export class createUserDto {
     admin?: boolean
     gender: boolean
     zipCode: string
+    healthInsuranceId: number
     doctor?: createDoctorDto
 }

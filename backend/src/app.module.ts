@@ -29,6 +29,9 @@ import { HealthInsurance } from './entities/health-insurance.entity';
 import { HealthInsuranceModule } from './health-insurance/health-insurance.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { DataSource } from 'typeorm';
+import * as fs from "fs";
+import { UserService } from './user/user.service';
 
 @Module({
   imports: [
@@ -68,5 +71,37 @@ import { join } from 'path';
   providers: [AppService]
 })
 export class AppModule {
-
+  constructor(
+    private dataSource: DataSource,
+    private userService: UserService
+    ) {
+      const queryRunner = this.dataSource.createQueryRunner()
+        
+      const queries = readSqlFile('public/defaultData.sql')
+      queries.forEach((query, i) => {
+        if(i < 10) {
+          queryRunner.query(query)
+        }
+      })
+    
+      setTimeout(() => {
+        this.userService.loadUsers()
+        .then(() => {
+          queries.forEach((query, i) => {
+            if(i >= 10) {
+              queryRunner.query(query)
+            }
+          })
+        })
+      }, 1000)
+      }
 }
+
+const readSqlFile = (filepath: string): string[] => {
+  return fs
+    .readFileSync(join(__dirname, '..', filepath))
+    .toString()
+    .replace(/\r?\n|\r/g, '')
+    .split(';')
+    .filter((query) => query?.length);
+};

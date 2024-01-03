@@ -46,6 +46,9 @@ export class User {
     @Column({nullable: true})
     photo: string
 
+    @Column()
+    healthInsuranceId: number
+    
     @Column({default: false})
     validateHealthInsurance: boolean
     
@@ -57,7 +60,6 @@ export class User {
     
     @ManyToOne(() => HealthInsurance, healthInsurance => healthInsurance.users)
     healthInsurance: HealthInsurance
-
 
     @OneToOne(() => Doctor, {nullable: false})
     doctor: Doctor

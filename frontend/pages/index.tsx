@@ -1,14 +1,31 @@
-import Image from 'next/image'
-import { Inter } from 'next/font/google'
+import withAuth from '@/lib/withAuth'
+import { Auth } from '../../shared/types';
+import axios from 'axios';
+import Layout from '@/components/layout';
 
-const inter = Inter({ subsets: ['latin'] })
-
-export default function Home() {
+export default function Home(props: any) {
   return (
-    <main
-      className={`flex min-h-screen flex-col items-center justify-between p-24 ${inter.className}`}
-    >
+    <Layout>
+      <div className=''>
+        <p>
 
-    </main>
+          {JSON.stringify(props.doctors)}
+        </p>
+      </div>
+    </Layout>
   )
 }
+
+export const getServerSideProps = withAuth(async (auth: Auth | null) => {
+
+  const doctorsResponse = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/doctor`);
+  const doctorsData = doctorsResponse.data;
+
+  return {
+    props: {
+      doctors: doctorsData,
+      auth
+    }
+  }
+
+}, true)

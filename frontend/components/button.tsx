@@ -1,5 +1,5 @@
 import MUIButton, { ButtonProps } from "@mui/material/Button";
-import { roboto } from "@/utils/fonts";
+import { roboto } from "@/lib/fonts";
 
 const Button: React.FC<ButtonProps> = (props) => {
     

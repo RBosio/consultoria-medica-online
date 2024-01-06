@@ -2,7 +2,7 @@ import Layout from "@/components/layout";
 import { Formik } from "formik";
 import Input from "@/components/input";
 import Button from "@/components/button";
-import { roboto, robotoSemiBold, robotoBold } from '@/utils/fonts';
+import { roboto, robotoSemiBold, robotoBold } from '@/lib/fonts';
 import { useTheme } from "@mui/material";
 import Image from "next/image";
 import Link from "next/link";

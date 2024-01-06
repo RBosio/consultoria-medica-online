@@ -14,7 +14,7 @@ export class DoctorService {
 
     findAll(): Promise<Doctor[]> {
         return this.doctorRepository.find({
-            relations: ['user', 'schedules']
+            relations: ['user', 'schedules', 'specialities']
         })
     }
 

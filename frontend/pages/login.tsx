@@ -1,25 +1,24 @@
 import Layout from "@/components/layout";
 import { Formik } from "formik";
-import { Roboto } from "next/font/google";
-
-const robotoBold = Roboto({weight:"900", subsets:["latin"]});
+import Input from "@/components/input";
+import Button from "@/components/button";
+import { robotoBold } from '@/utils/fonts';
+import Image from "next/image";
+import Link from "next/link";
 
 export default function Login() {
 
     return (
         <Layout>
             <section className="h-full flex">
-
-                <div className="h-full grow flex items-center justify-center">
-
+                <div className="h-full grow flex flex-col items-center justify-center">
+                    <Image src="/logo.png" width={300} height={300} alt="Logo HealthTech" />
                     <div className="px-12 w-full sm:px-0 sm:w-[25rem] md:w-[30rem]">
-                        
-                        <h2 className={`text-center my-6 text-emerald-400 font-bold text-2xl ${robotoBold.className}`}>Ingresar</h2>
-
+                        <h2 className={`text-center mb-6 mt-12 text-primary font-bold text-2xl ${robotoBold.className} uppercase`}>Ingresar</h2>
                         <Formik
                             initialValues={{ email: '', password: '' }}
                             validate={values => {
-                                const errors = {email: ""};
+                                const errors = { email: "" };
                                 if (!values.email) {
                                     errors.email = 'Required';
                                 } else if (
@@ -44,41 +43,39 @@ export default function Login() {
                                 handleBlur,
                                 handleSubmit,
                                 isSubmitting,
-                                /* and other goodies */
                             }) => (
-                                <form className="flex flex-col gap-6" onSubmit={handleSubmit}>
-                                    <input
-                                        className="border-2 outline-0 text-emerald-400 rounded p-3"
-                                        type="email"
-                                        name="email"
-                                        onChange={handleChange}
-                                        onBlur={handleBlur}
-                                        value={values.email}
-                                        placeholder="Email"
-                                    />
-                                    <input
-                                    className="border-2 outline-0 text-emerald-400 rounded p-3"
+                                <form className="flex flex-col gap-y-6" onSubmit={handleSubmit}>
+                                    <Input label="E-Mail" />
+                                    <Input
                                         type="password"
                                         name="password"
                                         onChange={handleChange}
                                         onBlur={handleBlur}
                                         value={values.password}
-                                        placeholder="Contraseña"
+                                        label="Contraseña"
                                     />
-                                    <button className="bg-emerald-400 rounded p-3" type="submit" disabled={isSubmitting}>
-                                        Ingresar
-                                    </button>
+                                    <Button className="mt-6 mb-4">
+                                        Acceder
+                                    </Button>
                                 </form>
                             )}
                         </Formik>
-
+                        <p className="text-center text-black">¿Olvidaste tu contraseña?
+                            <Link className={`font-bold cursor-pointer text-primary  hover:underline mx-1`} href="#">
+                                Recupérala aquí
+                            </Link>
+                        </p>
                     </div>
                 </div>
 
-                <div className="
-            sm:bg-emerald-400 sm:w-4/12 md:w-5/12 h-full
-            bg-gradient-to-l from-emerald-500 to-emerald-200
-            ">
+                <div className="hidden sm:block sm:bg-primary sm:w-4/12 md:w-5/12 h-full relative overflow-hidden">
+                    <video className="h-full object-cover" autoPlay muted loop id="video-background">
+                        <source src={`/${Math.floor(Math.random() * 4) + 1}.mp4`} type="video/mp4" />
+                        Tu navegador no soporta el elemento de video.
+                    </video>
+                    <div className="flex justify-center bg-gradient-to-b from-emerald-900 to-black opacity-85 absolute top-0 right-0 h-full w-full">
+                    </div>
+
 
                 </div>
 

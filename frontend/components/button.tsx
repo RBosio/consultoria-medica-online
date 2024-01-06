@@ -8,6 +8,7 @@ const Button: React.FC<ButtonProps> = (props) => {
         className={`bg-primary text-white font-bold ${roboto.className} ${props.className}`} 
         color="primary" 
         variant="contained"
+        type={props.type}
         onClick={props.onClick}
         >
             {props.children}

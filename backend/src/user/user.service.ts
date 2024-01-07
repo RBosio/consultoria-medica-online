@@ -176,8 +176,6 @@ export class UserService {
             cuil: "20-38233911-1",
             durationMeeting: 30,
             priceMeeting: 3000,
-            registration: "slaoeiwmdjsq-mskrieldsx-qmaisd.pdf",
-            title: "nfsakjfnaskf-dmasiodmsa-mdasod.pdf",
             specialities: [{
                 id: 1,
                 name: "",

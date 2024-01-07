@@ -46,7 +46,7 @@ export class UserController {
             }
         )
     )
-    @Post(':id/file')
+    @Post(':id/image')
     uploadFile(@Param('id') id: number, @Req() request: Request) {
         const { body } = request
 

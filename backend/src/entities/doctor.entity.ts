@@ -9,13 +9,13 @@ export class Doctor {
     @PrimaryGeneratedColumn()
     id: number
 
-    @Column()
+    @Column({nullable: true})
     registration: string
     
     @Column()
     cuil: string
     
-    @Column()
+    @Column({nullable: true})
     title: string
     
     @Column({nullable: true})

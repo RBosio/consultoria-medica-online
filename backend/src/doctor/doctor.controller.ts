@@ -1,7 +1,11 @@
-import { Controller, Get, Body, Param, Delete, Patch, HttpException } from '@nestjs/common';
+import { Controller, Get, Body, Param, Delete, Patch, HttpException, UseInterceptors, Post, Req } from '@nestjs/common';
 import { updateDoctorDto } from './dto/update-doctor.dto';
 import { DoctorService } from './doctor.service';
 import { Doctor } from 'src/entities/doctor.entity';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { v4 as uuidv4 } from 'uuid';
+import { Request } from 'express';
 
 @Controller('doctor')
 export class DoctorController {
@@ -36,5 +40,47 @@ export class DoctorController {
     @Delete(':id')
     deleteDoctor(@Param('id') id: number) {
         return this.doctorService.delete(id)
+    }
+
+    @UseInterceptors(
+        FileInterceptor(
+            'file',
+            {
+                storage: diskStorage({
+                    destination: './public/uploads/doctor/registration',
+                    filename: (req, file, cb) => {
+                        req.body.url = uuidv4() + '.' + file.originalname.split('.').slice(-1)
+                        cb(null, req.body.url)
+                    }
+                })
+            }
+        )
+    )
+    @Post(':id/registration')
+    uploadRegistration(@Param('id') id: number, @Req() request: Request) {
+        const { body } = request
+
+        return this.doctorService.uploadRegistration(id, body.url)
+    }
+    
+    @UseInterceptors(
+        FileInterceptor(
+            'file',
+            {
+                storage: diskStorage({
+                    destination: './public/uploads/doctor/title',
+                    filename: (req, file, cb) => {
+                        req.body.url = uuidv4() + '.' + file.originalname.split('.').slice(-1)
+                        cb(null, req.body.url)
+                    }
+                })
+            }
+        )
+    )
+    @Post(':id/title')
+    uploadTitle(@Param('id') id: number, @Req() request: Request) {
+        const { body } = request
+
+        return this.doctorService.uploadTitle(id, body.url)
     }
 }

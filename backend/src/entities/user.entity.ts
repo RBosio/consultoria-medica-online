@@ -55,6 +55,9 @@ export class User {
     @Column({type: Date, default: () => 'CURRENT_TIMESTAMP'})
     created_at: Date
 
+    @Column({nullable: true})
+    image: string
+
     @ManyToOne(() => City, city => city.users)
     city: City
     

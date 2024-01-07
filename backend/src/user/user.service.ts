@@ -129,6 +129,20 @@ export class UserService {
         return result
     }
 
+    async uploadFile(id: number, url: string) {
+        const userFound = await this.userRepository.findOne({
+            where: {
+                id
+            }
+        })
+        if (!userFound) {
+            throw new HttpException('Usuario no encontrado', HttpStatus.NOT_FOUND)
+        }
+
+        userFound.image = url
+        return this.userRepository.save(userFound)
+    }
+
     async loadUsers() {
         await this.create({
             dni: '33429120',

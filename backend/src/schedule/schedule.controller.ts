@@ -7,6 +7,7 @@ import { AuthGuard } from 'src/auth/auth.guard';
 import { RolesGuard } from 'src/auth/roles.guard';
 import { Roles } from 'src/auth/roles.decorator';
 import { RoleEnum } from 'src/enums/role.enum';
+import { ScheduleResponseDto } from './dto/schedule-response.dto';
 
 @Controller('schedule')
 @UseGuards(AuthGuard, RolesGuard)
@@ -20,10 +21,10 @@ export class ScheduleController {
         return this.scheduleService.findAll()
     }
     
-    @Get('doctor/:id')
+    @Get('doctor/:doctorId')
     @Roles(RoleEnum.User, RoleEnum.Doctor)
-    getSchedulesByDoctor(@Param('id', ParseIntPipe) id: number): Promise<Schedule[]> {
-        return this.scheduleService.findByDoctor(id)
+    getSchedulesByDoctor(@Param('doctorId', ParseIntPipe) doctorId: number): Promise<ScheduleResponseDto[]> {
+        return this.scheduleService.findByDoctor(doctorId)
     }
     
     @Get(':id')

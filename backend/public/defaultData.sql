@@ -13,12 +13,14 @@ INSERT INTO speciality (name) VALUES ('Cardiologia');
 
 INSERT INTO health_insurance (name, discount) VALUES ('OSDE', 0.30);
 
+INSERT INTO schedule (day, start_hour, end_hour, doctorId) VALUES (0, 14, 18, 1);
 INSERT INTO schedule (day, start_hour, end_hour, doctorId) VALUES (1, 14, 18, 1);
 INSERT INTO schedule (day, start_hour, end_hour, doctorId) VALUES (2, 14, 18, 1);
 INSERT INTO schedule (day, start_hour, end_hour, doctorId) VALUES (3, 14, 18, 1);
 INSERT INTO schedule (day, start_hour, end_hour, doctorId) VALUES (4, 14, 18, 1);
 INSERT INTO schedule (day, start_hour, end_hour, doctorId) VALUES (5, 9, 12, 1);
 INSERT INTO schedule (day, start_hour, end_hour, doctorId) VALUES (5, 14, 18, 1);
+INSERT INTO schedule (day, start_hour, end_hour, doctorId) VALUES (6, 14, 18, 1);
 
 INSERT INTO medical_record (datetime, detail) VALUES ("2024-01-20T20:00:00", "Detalle");
 

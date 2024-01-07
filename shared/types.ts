@@ -5,6 +5,7 @@ interface Auth {
     admin: boolean,
     photo: string,
     email: string,
+    dni: string,
 }
 
 

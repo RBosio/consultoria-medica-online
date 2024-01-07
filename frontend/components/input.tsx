@@ -32,11 +32,13 @@ const Input: React.FC<ExtendedTextFieldProps> = (props) => {
             onBlur={props.onBlur}
             value={props.value}
             placeholder={props.placeholder}
+            helperText={props.helperText}
             label={props.label}
+            error={props.error}
             InputLabelProps={{
-                style: {
-                    color: theme.palette.primary.main,
-                }
+                sx: {
+                    "&": {color: theme.palette.primary.main}
+                }   
             }}
             InputProps={{
                 startAdornment: props.startAdornment,

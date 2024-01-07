@@ -1,5 +1,5 @@
 import Layout from "@/components/layout";
-import { Formik } from "formik";
+import { useFormik } from "formik";
 import Input from "@/components/input";
 import Button from "@/components/button";
 import { robotoBold } from '@/lib/fonts';
@@ -10,66 +10,86 @@ import { GoDotFill } from "react-icons/go";
 import { Divider } from "@mui/material";
 import withAuth from "@/lib/withAuth";
 import { Auth } from "../../shared/types";
+import axios from "axios";
+import * as Yup from 'yup';
+import Alert from "@mui/material/Alert";
+import Snackbar from "@mui/material/Snackbar";
+import { useState } from "react";
+import { useRouter } from "next/router";
 
 export default function Login(props: any) {
 
+    const router = useRouter();
     const theme = useTheme();
+    const [formError, setFormError] = useState(false);
+    const loginForm = useFormik({
+        initialValues: {
+            email: '',
+            password: '',
+        },
+        validationSchema: Yup.object({
+            email: Yup.string().required('Debes ingresar tu e-mail').email('Debes ingresar un mail válido'),
+            password: Yup.string().required('Debes ingresar tu contraseña'),
+
+        }),
+        onSubmit: async (values, { setSubmitting }) => {
+            try {
+                let loginReq = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, values, { withCredentials: true });
+                loginReq = loginReq.data;
+                router.push(`/`);
+            }
+            catch (error: any) {
+                if ([404, 401].includes(error.response.status)) {
+                    loginForm.errors.email = "Las credenciales ingresadas no coinciden con ningún usuario";
+                    loginForm.values.password = "";
+                } else {
+                    setFormError(true);
+                };
+            }
+            finally {
+                setSubmitting(false);
+            }
+        },
+    });
 
     return (
-        <Layout auth={props.auth} renderNavbar={false} renderSidebar={false} className="p-0">
+        <Layout auth={props.auth} renderNavbar={false} renderSidebar={false}>
             <section className="h-full flex">
                 <div className="h-full grow flex flex-col items-center justify-center">
                     <Image src="/logo.png" width={300} height={300} alt="Logo HealthTech" />
                     <div className="px-12 w-full sm:px-0 sm:w-[25rem] lg:w-[30rem]">
                         <h2 className={`text-center mb-6 mt-12 text-primary font-bold text-2xl ${robotoBold.className} uppercase`}>Ingresar</h2>
-                        <Formik
-                            initialValues={{ email: '', password: '' }}
-                            validate={values => {
-                                const errors = { email: "" };
-                                if (!values.email) {
-                                    errors.email = 'Required';
-                                } else if (
-                                    !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(values.email)
-                                ) {
-                                    errors.email = 'Invalid email address';
-                                }
-                                return errors;
-                            }}
-                            onSubmit={(values, { setSubmitting }) => {
-                                setTimeout(() => {
-                                    alert(JSON.stringify(values, null, 2));
-                                    setSubmitting(false);
-                                }, 400);
-                            }}
-                        >
-                            {({
-                                values,
-                                errors,
-                                touched,
-                                handleChange,
-                                handleBlur,
-                                handleSubmit,
-                                isSubmitting,
-                            }) => (
-                                <form method="post" action={"/login"} className="flex flex-col gap-y-6" onSubmit={handleSubmit}>
-                                    <Input label="E-Mail" />
-                                    <Input
-                                        type="password"
-                                        name="password"
-                                        onChange={handleChange}
-                                        onBlur={handleBlur}
-                                        value={values.password}
-                                        label="Contraseña"
-                                    />
-                                    <Link className={`cursor-pointer text-right text-base text-secondary hover:underline`} href="#">
-                                        ¿Olvidaste tu contraseña?
-                                    </Link>
-                                    <Button type="submit">
-                                        Acceder
-                                    </Button>
-                                </form>
-                            )}
-                        </Formik>
+                        <Snackbar open={formError} anchorOrigin={{ vertical: "top", horizontal: "center" }} autoHideDuration={4000} onClose={() => { setFormError(false) }}>
+                            <Alert elevation={6} variant="filled" severity="error">Se ha producido un error</Alert>
+                        </Snackbar>
+                        <form className="flex flex-col gap-y-6" onSubmit={loginForm.handleSubmit}>
+                            <Input
+                                type="email"
+                                name="email"
+                                onChange={loginForm.handleChange}
+                                onBlur={loginForm.handleBlur}
+                                value={loginForm.values.email}
+                                label="E-Mail"
+                                error={Boolean(loginForm.touched.email && loginForm.errors.email)}
+                                helperText={loginForm.errors.email && loginForm.touched.email && loginForm.errors.email}
+                            />
+                            <Input
+                                type="password"
+                                name="password"
+                                onChange={loginForm.handleChange}
+                                onBlur={loginForm.handleBlur}
+                                value={loginForm.values.password}
+                                label="Contraseña"
+                                error={Boolean(loginForm.touched.password && loginForm.errors.password)}
+                                helperText={loginForm.errors.password && loginForm.touched.password && loginForm.errors.password}
+                            />
+                            <Link className={`cursor-pointer text-right text-base text-secondary hover:underline`} href="#">
+                                ¿Olvidaste tu contraseña?
+                            </Link>
+                            <Button disabled={loginForm.isSubmitting} type="submit">
+                                Acceder
+                            </Button>
+                        </form>
                         <Divider sx={{
                             "&": {
                                 "margin": "1.5rem 0"
@@ -98,12 +118,22 @@ export default function Login(props: any) {
                 </div>
 
             </section>
-        </Layout>
+        </Layout >
     );
 
 };
 
 export const getServerSideProps = withAuth(async (auth: Auth | null) => {
+
+    if (auth) {
+        return {
+            redirect: {
+                destination: '/',
+                permanent: false
+            }
+        }
+    }
+
     return {
         props: {
             auth,

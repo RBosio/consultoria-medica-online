@@ -19,9 +19,6 @@ export class Meeting {
     @Column()
     doctorId: number
     
-    @Column({nullable: true})
-    url: string
-    
     @Column({default: true})
     status: boolean
     

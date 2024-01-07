@@ -16,10 +16,13 @@ export class UserService {
         private cityService: CityService
         ) {}
 
-    findAll(): Promise<User[]> {
-        return this.userRepository.find({
-            relations: ['healthInsurance']
+    async findAll(): Promise<User[]> {
+        const usersFound = await this.userRepository.find({
+            relations: ['healthInsurance']  
         })
+        usersFound.map(user => user.password = "")
+
+        return usersFound
     }
     
     async findOne(id: number) {
@@ -32,7 +35,8 @@ export class UserService {
         if (!userFound) {
             throw new HttpException('Usuario no encontrado', HttpStatus.NOT_FOUND)
         }
-        
+        userFound.password = ""
+    
         return userFound
     }
 
@@ -45,6 +49,7 @@ export class UserService {
         if (!userFound) {
             throw new HttpException('Usuario no encontrado', HttpStatus.NOT_FOUND)
         }
+        userFound.password = ""
         
         return userFound
     }
@@ -101,6 +106,7 @@ export class UserService {
 
             await this.doctorRepository.save(newDoctor)
         }
+        newUser.password = ""
         
         return newUser
     }
@@ -129,10 +135,10 @@ export class UserService {
         return result
     }
 
-    async uploadFile(id: number, url: string) {
+    async uploadFile(dni: string, url: string) {
         const userFound = await this.userRepository.findOne({
             where: {
-                id
+                dni
             }
         })
         if (!userFound) {

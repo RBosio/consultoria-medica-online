@@ -46,10 +46,10 @@ export class UserController {
             }
         )
     )
-    @Post(':id/image')
-    uploadFile(@Param('id') id: number, @Req() request: Request) {
+    @Post(':dni/image')
+    uploadFile(@Param('dni') dni: string, @Req() request: Request) {
         const { body } = request
 
-        return this.userService.uploadFile(id, body.url)
+        return this.userService.uploadFile(dni, body.url)
     }
 }

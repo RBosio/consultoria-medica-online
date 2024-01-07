@@ -52,4 +52,12 @@ export class AuthService {
             res.status(401).json({ error: "Email o contraseña incorrectos" });
         }
     }
+    
+    async logout(res: Response) {
+        res.clearCookie('token')
+
+        return res.status(200).json({
+            "message": "Cierre de sesion exitoso"
+        })
+    }
 }

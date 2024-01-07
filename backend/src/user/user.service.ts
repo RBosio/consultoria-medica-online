@@ -16,10 +16,13 @@ export class UserService {
         private cityService: CityService
         ) {}
 
-    findAll(): Promise<User[]> {
-        return this.userRepository.find({
-            relations: ['healthInsurance']
+    async findAll(): Promise<User[]> {
+        const usersFound = await this.userRepository.find({
+            relations: ['healthInsurance']  
         })
+        usersFound.map(user => user.password = "")
+
+        return usersFound
     }
     
     async findOne(id: number) {
@@ -32,7 +35,8 @@ export class UserService {
         if (!userFound) {
             throw new HttpException('Usuario no encontrado', HttpStatus.NOT_FOUND)
         }
-        
+        userFound.password = ""
+    
         return userFound
     }
 
@@ -45,6 +49,7 @@ export class UserService {
         if (!userFound) {
             throw new HttpException('Usuario no encontrado', HttpStatus.NOT_FOUND)
         }
+        userFound.password = ""
         
         return userFound
     }
@@ -101,6 +106,7 @@ export class UserService {
 
             await this.doctorRepository.save(newDoctor)
         }
+        newUser.password = ""
         
         return newUser
     }
@@ -127,6 +133,20 @@ export class UserService {
         }
 
         return result
+    }
+
+    async uploadFile(dni: string, url: string) {
+        const userFound = await this.userRepository.findOne({
+            where: {
+                dni
+            }
+        })
+        if (!userFound) {
+            throw new HttpException('Usuario no encontrado', HttpStatus.NOT_FOUND)
+        }
+
+        userFound.image = url
+        return this.userRepository.save(userFound)
     }
 
     async loadUsers() {
@@ -162,8 +182,6 @@ export class UserService {
             cuil: "20-38233911-1",
             durationMeeting: 30,
             priceMeeting: 3000,
-            registration: "slaoeiwmdjsq-mskrieldsx-qmaisd.pdf",
-            title: "nfsakjfnaskf-dmasiodmsa-mdasod.pdf",
             specialities: [{
                 id: 1,
                 name: "",

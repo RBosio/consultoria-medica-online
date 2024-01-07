@@ -24,7 +24,8 @@ export class DoctorService {
                 specialities: {
                     id
                 }
-            }
+            },
+            relations: ['user', 'schedules', 'specialities']
         })
     }
     
@@ -47,7 +48,8 @@ export class DoctorService {
         const doctorFound = await this.doctorRepository.findOne({
             where: {
                 id
-            }
+            },
+            relations: ['user']
         })
         
         if (!doctorFound) {
@@ -63,7 +65,8 @@ export class DoctorService {
         const doctorFound = await this.doctorRepository.findOne({
             where: {
                 id
-            }
+            },
+            relations: ['user']
         })
 
         if (!doctorFound) {
@@ -92,5 +95,35 @@ export class DoctorService {
         await this.userService.delete(doctor.user.dni)
         
         return result
+    }
+
+    async uploadRegistration(id: number, url: string) {
+        const doctorFound = await this.doctorRepository.findOne({
+            where: {
+                id
+            },
+            relations: ['user']
+        })
+        if (!doctorFound) {
+            throw new HttpException('Medico no encontrado', HttpStatus.NOT_FOUND)
+        }
+
+        doctorFound.registration = url
+        return this.doctorRepository.save(doctorFound)
+    }
+    
+    async uploadTitle(id: number, url: string) {
+        const doctorFound = await this.doctorRepository.findOne({
+            where: {
+                id
+            },
+            relations: ['user']
+        })
+        if (!doctorFound) {
+            throw new HttpException('Medico no encontrado', HttpStatus.NOT_FOUND)
+        }
+
+        doctorFound.title = url
+        return this.doctorRepository.save(doctorFound)
     }
 }

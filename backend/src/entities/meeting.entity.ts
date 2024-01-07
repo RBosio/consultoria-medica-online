@@ -19,16 +19,13 @@ export class Meeting {
     @Column()
     doctorId: number
     
-    @Column({nullable: true})
-    url: string
-    
     @Column({default: true})
     status: boolean
     
     @Column({nullable: true})
     medicalRecordDatetime: Date
 
-    @Column()
+    @Column({nullable: true})
     tpc: string
 
     @ManyToOne(() => User, user => user.meetings, {nullable: false})

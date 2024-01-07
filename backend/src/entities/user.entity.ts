@@ -44,7 +44,7 @@ export class User {
     status: boolean
  
     @Column({nullable: true})
-    photo: string
+    image: string
 
     @Column()
     healthInsuranceId: number

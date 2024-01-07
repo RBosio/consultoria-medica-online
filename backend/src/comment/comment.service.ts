@@ -31,19 +31,14 @@ export class CommentService {
         return commentFound
     }
     
-    async findOneMeeting(meetingUserId: number, meetingStartDatetime: Date): Promise<Comment> {
-        const commentFound = await this.commentRepository.findOne({
+    async findOneMeeting(meetingUserId: number, meetingStartDatetime: Date): Promise<Comment[]> {
+        return this.commentRepository.find({
             where: {
                 meetingUserId,
                 meetingStartDatetime
             },
             relations: ['meeting']
         })
-        if (!commentFound) {
-            throw new HttpException('Comentario no encontrado', HttpStatus.NOT_FOUND)
-        }
-        
-        return commentFound
     }
 
     async create(comment: createCommentDto): Promise<Comment | HttpException> {

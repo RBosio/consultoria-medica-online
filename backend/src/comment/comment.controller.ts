@@ -20,7 +20,7 @@ export class CommentController {
     }
     
     @Get('meeting/:userId/:meetingStartDatetime')
-    getCommentsMeeting(@Param('userId') userId: number, @Param('meetingStartDatetime') meetingStartDatetime: Date): Promise<Comment | HttpException> {
+    getCommentsMeeting(@Param('userId') userId: number, @Param('meetingStartDatetime') meetingStartDatetime: Date): Promise<Comment[] | HttpException> {
         return this.commentService.findOneMeeting(userId, meetingStartDatetime)
     }
 

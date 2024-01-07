@@ -2,7 +2,7 @@ import axios from 'axios'
 import { NextPageContext } from 'next'
 import { Auth } from '../../shared/types'
 
-const url = process.env.NEXT_PUBLIC_API_URL
+const url = process.env.NEXT_PUBLIC_API_URL;
 
 export default function withAuth(
     cb: null | ((auth: Auth | null, context: NextPageContext) => {}),
@@ -19,8 +19,12 @@ export default function withAuth(
 
             const loginRequest = {
                 data: {
-                    name: "testing_user",
-                    email: "testing_user@gmail.com",
+                    id: 1,
+                    name: "Ricardo",
+                    surname: "Pérez",
+                    admin: true,
+                    photo: "123asd214.png",
+                    email: "ricardoperez@gmail.com",
                 }
             };
 

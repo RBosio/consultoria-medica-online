@@ -5,12 +5,8 @@ import Layout from '@/components/layout';
 
 export default function Home(props: any) {
   return (
-    <Layout>
+    <Layout auth={props.auth}>
       <div className=''>
-        <p>
-
-          {JSON.stringify(props.doctors)}
-        </p>
       </div>
     </Layout>
   )

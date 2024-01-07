@@ -2,19 +2,21 @@ import Layout from "@/components/layout";
 import { Formik } from "formik";
 import Input from "@/components/input";
 import Button from "@/components/button";
-import { roboto, robotoSemiBold, robotoBold } from '@/lib/fonts';
+import { robotoBold } from '@/lib/fonts';
 import { useTheme } from "@mui/material";
 import Image from "next/image";
 import Link from "next/link";
 import { GoDotFill } from "react-icons/go";
 import { Divider } from "@mui/material";
+import withAuth from "@/lib/withAuth";
+import { Auth } from "../../shared/types";
 
 export default function Login(props: any) {
 
     const theme = useTheme();
 
     return (
-        <Layout>
+        <Layout auth={props.auth} renderNavbar={false} renderSidebar={false} className="p-0">
             <section className="h-full flex">
                 <div className="h-full grow flex flex-col items-center justify-center">
                     <Image src="/logo.png" width={300} height={300} alt="Logo HealthTech" />
@@ -101,13 +103,15 @@ export default function Login(props: any) {
 
 };
 
-export async function getServerSideProps() {
-
+export const getServerSideProps = withAuth(async (auth: Auth | null) => {
     return {
         props: {
+            auth,
             //Por el momento genera números del 1 al 4 porque en la carpeta public hay solo 4 videos
             chosenVideo: Math.floor(Math.random() * 4) + 1,
         },
     };
-}
+
+}, false)
+
 

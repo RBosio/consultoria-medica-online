@@ -1,18 +1,24 @@
 import { roboto } from '@/lib/fonts';
 import Sidebar from './sidebar';
 import Navbar from './navbar';
+import { Auth } from '../../../shared/types';
 
 interface LayoutProps {
     children: React.ReactElement,
+    renderNavbar?: boolean,
+    renderSidebar?: boolean,
+    className?: string,
+    auth: Auth,
 }
 
-const Layout: React.FC<LayoutProps> = ({ children }) => {
+const Layout: React.FC<LayoutProps> = ({ children, renderNavbar = true, renderSidebar = true, className, auth }) => {
+
     return (
         <main className={`h-full ${roboto.className} bg-slate-200 flex`}>
-            <Sidebar />
-            <section className="grow w-full break-all overflow-hidden">
-                <Navbar />
-                <div className="p-4 overflow-y-auto h-[calc(100%-5rem)]">
+            {renderSidebar && <Sidebar auth={auth}/>}
+            <section className="grow w-full break-all overflow-hidden flex flex-col">
+                {renderNavbar && <Navbar auth={auth} />}
+                <div className={`p-4 overflow-y-auto grow ${className}`}>
                     {children}
                 </div>
             </section>

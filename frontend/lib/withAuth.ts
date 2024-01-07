@@ -10,23 +10,13 @@ export default function withAuth(
 ) {
     return async (context: any) => {
         try {
-            // const loginRequest = await axios.get(`${url}/users/session`, {
-            //     withCredentials: true,
-            //     headers: {
-            //         Authorization: `Bearer ${context.req.cookies['token']}`
-            //     }
-            // });
-
-            const loginRequest = {
-                data: {
-                    id: 1,
-                    name: "Ricardo",
-                    surname: "Pérez",
-                    admin: true,
-                    photo: "123asd214.png",
-                    email: "ricardoperez@gmail.com",
+            
+            const loginRequest = await axios.get(`${url}/auth/session`, {
+                withCredentials: true,
+                headers: {
+                    Authorization: `Bearer ${context.req.cookies['token']}`
                 }
-            };
+            });
 
             if (cb) return cb(loginRequest.data, context);
 

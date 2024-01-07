@@ -10,6 +10,7 @@ const Button: React.FC<ButtonProps> = (props) => {
         variant="contained"
         type={props.type}
         onClick={props.onClick}
+        disabled={props.disabled}
         >
             {props.children}
         </MUIButton>

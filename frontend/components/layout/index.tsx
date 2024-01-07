@@ -18,7 +18,7 @@ const Layout: React.FC<LayoutProps> = ({ children, renderNavbar = true, renderSi
             {renderSidebar && <Sidebar auth={auth}/>}
             <section className="grow w-full break-all overflow-hidden flex flex-col">
                 {renderNavbar && <Navbar auth={auth} />}
-                <div className={`p-4 overflow-y-auto grow ${className}`}>
+                <div className={`${className} overflow-y-auto grow`}>
                     {children}
                 </div>
             </section>

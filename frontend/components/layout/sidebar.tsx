@@ -55,7 +55,7 @@ const Sidebar: React.FC<SidebarProps> = (props) => {
     };
 
     return (
-        <div ref={root} className="absolute transition-[left] duration-300 ease-in-out top-0 left-[-15rem] sm:static sm:w-48 md:w-56 shrink-0 bg-white h-full shadow-lg z-10">
+        <section ref={root} className="absolute transition-[left] duration-300 ease-in-out top-0 left-[-15rem] sm:static sm:w-48 md:w-56 shrink-0 bg-white h-full shadow-lg z-10">
             <div className="h-20 flex items-center justify-center shadow-md z-20">
                 <Image src="/logo.png" width={200} height={200} alt="Logo HealthTech" />
             </div>
@@ -79,7 +79,7 @@ const Sidebar: React.FC<SidebarProps> = (props) => {
                                         <Link key={route.name} href={route.path}>
                                             <ListItemButton sx={{
                                                 background: selected ? theme.palette.primary.main : null,
-                                                color: selected ? "#ffffff" : theme.palette.primary.main,
+                                                color: selected ? "#ffffff" : theme.palette.secondary.main,
                                                 "&:hover": {
                                                     background: selected ? theme.palette.primary.main : null,
                                                 },
@@ -101,7 +101,7 @@ const Sidebar: React.FC<SidebarProps> = (props) => {
             </div>
 
 
-        </div>
+        </section>
     );
 };
 

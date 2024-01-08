@@ -1,5 +1,5 @@
 import type { Config } from 'tailwindcss'
-import { PRIMARY_COLOR, SECONDARY_COLOR } from './constants'
+import { PRIMARY_COLOR, PRIMARY_COLOR_LIGHT, SECONDARY_COLOR } from './constants'
 
 const config: Config = {
   content: [
@@ -16,6 +16,7 @@ const config: Config = {
       },
       colors:{
         "primary": PRIMARY_COLOR,
+        "primary_light": PRIMARY_COLOR_LIGHT,
         "secondary": SECONDARY_COLOR,
       }
     },

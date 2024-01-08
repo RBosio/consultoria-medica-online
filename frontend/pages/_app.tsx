@@ -1,12 +1,13 @@
 import '@/styles/globals.css'
 import type { AppProps } from 'next/app'
 import { ThemeProvider, createTheme } from '@mui/material';
-import { PRIMARY_COLOR, SECONDARY_COLOR } from "@/constants";
+import { PRIMARY_COLOR, SECONDARY_COLOR, PRIMARY_COLOR_LIGHT } from "@/constants";
 
 const theme = createTheme({
   palette: {
     primary: {
       main: PRIMARY_COLOR,
+      light: PRIMARY_COLOR_LIGHT
     },
     secondary: {
       main: SECONDARY_COLOR,

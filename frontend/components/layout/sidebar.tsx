@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Image from "next/image";
-import { List, ListItemButton, ListItemIcon, ListItemText } from "@mui/material";
+import { Backdrop, IconButton, List, ListItemButton, ListItemIcon, ListItemText } from "@mui/material";
 import { MdSpaceDashboard } from "react-icons/md";
 import { MdOutlineAdminPanelSettings } from "react-icons/md";
 import { PiGearSix } from "react-icons/pi";
@@ -11,9 +11,13 @@ import { useRouter } from "next/router";
 import Link from "next/link";
 import { useRef } from "react";
 import { Auth } from "../../../shared/types";
+import { IoIosCloseCircleOutline } from "react-icons/io";
+import Avatar from "../avatar";
 
 interface SidebarProps {
-    auth: Auth
+    auth: Auth,
+    setSidebarOpened: any,
+    sidebarOpened: boolean,
 }
 
 const Sidebar: React.FC<SidebarProps> = (props) => {
@@ -54,17 +58,33 @@ const Sidebar: React.FC<SidebarProps> = (props) => {
         ],
     };
 
+
     return (
-        <section ref={root} className="absolute transition-[left] duration-300 ease-in-out top-0 left-[-15rem] sm:static sm:w-48 md:w-56 shrink-0 bg-white h-full shadow-lg z-10">
-            <div className="h-20 flex items-center justify-center shadow-md z-20">
+        <section ref={root} className={`
+        absolute transition-[left] 
+        duration-300 ease-in
+        top-0 ${props.sidebarOpened ? "left-0" : "left-[-48rem]"} 
+        w-full md:w-60
+        shrink-0 bg-white h-full 
+        z-30 shadow-lg md:static`}>
+            <div className="h-20 flex items-center justify-center shadow-md p-4 md:p-0">
                 <Image src="/logo.png" width={200} height={200} alt="Logo HealthTech" />
+                <IconButton onClick={() => props.setSidebarOpened(false)} className="ml-auto md:hidden" color="primary">
+                    <IoIosCloseCircleOutline color={theme.palette.primary.main} size="35" />
+                </IconButton>
             </div>
-            <div className="flex flex-col h-[calc(100%-5rem)] justify-between">
+            <div className="flex flex-col h-[calc(100%-5rem)] items-center md:justify-between">
+                <Avatar className="md:hidden my-6" 
+                size={56} 
+                labelProps={{position: "bottom"}} 
+                name={props.auth.name} 
+                surname={props.auth.surname} 
+                photo={props.auth.photo} />
                 {
                     (Object.keys(routes) as ("top" | "bottom")[]).map(section => (
                         <List
                             key={section}
-                            sx={{ width: '100%', maxWidth: 360, padding: "0 0" }}
+                            sx={{ width: '100%', padding: "0 0" }}
                             component="nav"
                         >
                             {
@@ -83,6 +103,13 @@ const Sidebar: React.FC<SidebarProps> = (props) => {
                                                 "&:hover": {
                                                     background: selected ? theme.palette.primary.main : null,
                                                 },
+                                                "& .MuiTypography-root": {
+                                                    textAlign: "center",
+
+                                                },
+                                                "& .MuiListItemIcon-root": {
+                                                    margin: 0,
+                                                }
                                             }}>
                                                 <ListItemIcon sx={{ minWidth: 0, marginRight: 2, fontSize: "1.3em", color: selected ? "#ffffff" : theme.palette.primary.main }}>
                                                     {route.icon}
@@ -99,8 +126,6 @@ const Sidebar: React.FC<SidebarProps> = (props) => {
                 }
 
             </div>
-
-
         </section>
     );
 };

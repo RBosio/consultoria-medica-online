@@ -6,9 +6,13 @@ import { useTheme } from "@mui/material";
 import { GrLogout } from "react-icons/gr";
 import { IoPersonSharp } from "react-icons/io5";
 import Link from "next/link";
+import { Sling as Hamburger } from 'hamburger-react'
+import Image from "next/image";
 
 interface NavbarProps {
     auth: Auth,
+    setSidebarOpened: any,
+    sidebarOpened: boolean,
 }
 
 
@@ -25,17 +29,16 @@ const Navbar: React.FC<NavbarProps> = (props) => {
     };
 
     return (
-        <section className="p-4 bg-white w-full shrink-0 h-20 shadow-lg flex items-center justify-between sm:justify-end">
-            <button className="sm:hidden">CERRAR</button>
+        <section className="p-4 bg-white w-full shrink-0 h-20 shadow-lg flex items-center justify-between md:justify-end">
+            <div className="md:hidden">
+                <Hamburger size={28} color={theme.palette.primary.main} toggled={props.sidebarOpened} toggle={() => props.setSidebarOpened(!props.sidebarOpened)} />
+            </div>
+            <Image className="md:hidden" src="/logo.png" width={180} height={180} alt="Logo HealthTech" />
             <div className="flex items-center justify-center">
                 <Tooltip placement="right" title="Perfil">
-                    <IconButton className={`group gap-2 ml-2 rounded-md p-2 hover:bg-primary_light ${menuPosition ? "bg-primary" : ""}`} onClick={handleClick}
-                        size="small"
-                        aria-controls={true ? 'Perfil' : undefined}
-                        aria-haspopup="true"
-                        aria-expanded={true ? 'true' : undefined}>
-                        <Avatar name={props.auth.name} surname={props.auth.surname} photo={props.auth.photo} />
-                        <span className={`text-secondary ${menuPosition ? "text-white" : ""}`}>{props.auth.name} {props.auth.surname}</span>
+                    <IconButton className={`rounded-md hover:bg-primary_light ${menuPosition ? "bg-primary" : ""}`} onClick={handleClick}
+                        size="small">
+                        <Avatar labelProps={{className: `${menuPosition ? "text-white" : ""}`}} name={props.auth.name} surname={props.auth.surname} photo={props.auth.photo} />
                     </IconButton>
                 </Tooltip>
                 <Menu
@@ -64,7 +67,7 @@ const Navbar: React.FC<NavbarProps> = (props) => {
                             Ir a Perfil
                         </MenuItem>
                     </Link>
-                    <Divider sx={{margin: "0.5em 0"}} color="#ffffff" />
+                    <Divider sx={{ margin: "0.5em 0" }} color="#ffffff" />
                     <Link href="/logout">
                         <MenuItem sx={{ color: "#ffffff" }} onClick={handleClose}>
                             <ListItemIcon>

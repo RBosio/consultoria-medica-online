@@ -1,6 +1,6 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { MoreThan, Repository } from 'typeorm';
 import { updateMeetingDto } from './dto/update-meeting.dto';
 import { Meeting } from 'src/entities/meeting.entity';
 import { createMeetingDto } from './dto/create-meeting.dto';
@@ -34,6 +34,22 @@ export class MeetingService {
                 userId
             },
             relations: ['user', 'doctor', 'medicalRecord']
+        })
+    }
+    
+    findByDoctor(doctorId: number): Promise<Meeting[]> {
+        return this.meetingRepository.find({
+            select: {
+                startDatetime: true,
+                doctor: {
+                    durationMeeting: true
+                }
+            },
+            where: {
+                doctorId,
+                startDatetime: MoreThan(new Date())
+            },
+            relations: ['doctor']
         })
     }
     

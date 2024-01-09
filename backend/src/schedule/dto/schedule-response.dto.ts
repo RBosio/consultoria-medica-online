@@ -1,4 +1,9 @@
 export class ScheduleResponseDto {
     day: number
-    schedule: string[]
+    schedule: ScheduleAvailable[]
+}
+
+class ScheduleAvailable {
+    time: string
+    available: boolean
 }

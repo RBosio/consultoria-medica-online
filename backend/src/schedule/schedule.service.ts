@@ -8,13 +8,16 @@ import * as Moment from 'moment';
 import { extendMoment } from 'moment-range';
 import { ScheduleResponseDto } from './dto/schedule-response.dto';
 import { DoctorService } from 'src/doctor/doctor.service';
+import { MeetingService } from 'src/meeting/meeting.service';
+import { Meeting } from 'src/entities/meeting.entity';
 
 @Injectable()
 export class ScheduleService {
 
     constructor(
         @InjectRepository(Schedule) private scheduleRepository: Repository<Schedule>,
-        private doctorService: DoctorService
+        private doctorService: DoctorService,
+        private meetingService: MeetingService
         ) {}
 
     findAll(): Promise<Schedule[]> {
@@ -38,6 +41,8 @@ export class ScheduleService {
 
         const doctorFound = await this.doctorService.findOne(doctorId)
 
+        const meetingsFound = await this.meetingService.findByDoctor(doctorId)
+
         let dayAnt = -1        
         schedulesFound.map(schedule => {
             const day_start = moment().startOf('day').hours(schedule.start_hour)
@@ -46,12 +51,17 @@ export class ScheduleService {
             const time_slots = Array.from(day.by('minutes', {step: doctorFound.durationMeeting}))
 
             const test = time_slots.map(time => time.format('HH:mm'))
+
+            const s = test.map(time => {
+                return {time, available: this.isAvailable(meetingsFound, time, schedule.day)}
+                })
+
             if(schedule.day === dayAnt) {
-                response[dayAnt].schedule = response[dayAnt].schedule.concat(test)
+                response[dayAnt].schedule = response[dayAnt].schedule.concat(s)
             } else {
                 response.push({
                     "day": schedule.day,
-                    schedule: test
+                    schedule: s
                 })
             }
             dayAnt = schedule.day
@@ -129,5 +139,22 @@ export class ScheduleService {
         }
 
         return result
+    }
+    
+    isAvailable(meetings: Meeting[], time: string, day: number): boolean {
+        let available = true
+
+        meetings.map(meeting => {
+            const { startDatetime } = meeting
+            if(startDatetime.getDay() === day) {
+                const moment = extendMoment(Moment);
+
+                if(moment(startDatetime).format('HH:mm') === time) {
+                    available = false
+                }
+            }
+        })
+
+        return available
     }
 }

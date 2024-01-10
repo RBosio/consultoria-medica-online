@@ -7,46 +7,59 @@ import { UserService } from 'src/user/user.service';
 import { getDoctorsDto } from './dto/get-doctors.dto';
 import * as Moment from 'moment';
 import { extendMoment } from 'moment-range';
+import { SpecialityService } from 'src/speciality/speciality.service';
 
 @Injectable()
 export class DoctorService {
     constructor(
         @InjectRepository(Doctor) private doctorRepository: Repository<Doctor>,
-        private userService: UserService
+        private userService: UserService,
+        private specialityService: SpecialityService
         ) {}
 
     async findAll(query: getDoctorsDto): Promise<Doctor[]> {
-        const { name, avgRate, seniority, specialityId } = query
+        const { name, avgRate, seniority, specialityId, planId } = query
         const moment = extendMoment(Moment)
         
-        const doctorsFound = await this.doctorRepository.find({
-            relations: ['user'],
-            where: {
-                user: {
-                    name
-                },
-                avgRate: MoreThan(avgRate),
-                specialities: {
-                    id: specialityId
-                }
-            }
+        let doctorsFound = await this.doctorRepository.find({
+            relations: ['user', 'specialities', 'plan']
         })
 
-        let doctors = doctorsFound
+        if(!name && !avgRate && !seniority && !specialityId && !planId) {
+            return doctorsFound
+        }        
 
-        if(seniority) {
-            const dateNow = moment(new Date())
-            doctors = doctorsFound.map(doctor => {
-                const employmentDate = moment(doctor.employmentDate)
-                const diff = dateNow.diff(employmentDate, 'years')
-                
-                return { ...doctor, seniority: diff }
-            })
-
-            doctors = doctors.filter(doctor => doctor.seniority >= seniority)
+        if(name) {
+           doctorsFound = doctorsFound.filter(doctor => doctor.user.name === name) 
+        }
+        
+        if(avgRate) {
+           doctorsFound = doctorsFound.filter(doctor => doctor.avgRate >= avgRate) 
         }
 
-        return doctors
+        if(specialityId) {
+            const speciality = await this.specialityService.findOne(specialityId)
+            
+            doctorsFound = doctorsFound.filter(doctor => doctor.specialities.some(val => val.id === speciality.id))
+        }
+
+        if(planId) {
+            doctorsFound = doctorsFound.filter(doctor => doctor.plan ? doctor.plan.id == planId : false) 
+        }
+
+        const dateNow = moment(new Date())
+        doctorsFound = doctorsFound.map(doctor => {
+            const employmentDate = moment(doctor.employmentDate)
+            const diff = dateNow.diff(employmentDate, 'years')
+            
+            return { ...doctor, seniority: diff }
+        })
+
+        if(seniority) {
+            doctorsFound = doctorsFound.filter(doctor => doctor.seniority >= seniority)
+        }
+
+        return doctorsFound
     }
     
     async findOne(id: number) {

@@ -3,4 +3,5 @@ export class getDoctorsDto {
     avgRate?: number
     seniority?: number
     specialityId?: number
+    planId?: number
 }

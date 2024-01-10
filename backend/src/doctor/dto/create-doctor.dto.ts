@@ -5,5 +5,6 @@ export class createDoctorDto {
     durationMeeting: number
     priceMeeting: number
     employmentDate: Date
+    planId: number
     specialities: Speciality[]
 }

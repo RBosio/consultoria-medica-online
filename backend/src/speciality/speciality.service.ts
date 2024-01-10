@@ -14,7 +14,7 @@ export class SpecialityService {
         return this.specialityRepository.find()
     }
     
-    async findOne(id: number): Promise<Speciality | HttpException> {
+    async findOne(id: number): Promise<Speciality> {
         const specialityFound = await this.specialityRepository.findOne({
             where: {
                 id

@@ -34,6 +34,8 @@ import * as fs from "fs";
 import { UserService } from './user/user.service';
 import { Plan } from './entities/plan.entity';
 import { PlanModule } from './plan/plan.module';
+import { Benefit } from './entities/benefit.entity';
+import { BenefitModule } from './benefit/benefit.module';
 
 @Module({
   imports: [
@@ -50,7 +52,7 @@ import { PlanModule } from './plan/plan.module';
         username: configService.get('DB_USERNAME'),
         password: configService.get('DB_PASSWORD'),
         database: configService.get('DB_DATABASE'),
-        entities: [Country, Province, City, User, Doctor, Schedule, Speciality, Meeting, MedicalRecord, Comment, File, HealthInsurance, Plan],
+        entities: [Country, Province, City, User, Doctor, Schedule, Speciality, Meeting, MedicalRecord, Comment, File, HealthInsurance, Plan, Benefit],
         synchronize: configService.get('DB_SYNC'),
         dropSchema: configService.get('DB_DROP')
       }),
@@ -68,7 +70,8 @@ import { PlanModule } from './plan/plan.module';
     MedicalRecordModule,
     CommentModule,
     HealthInsuranceModule,
-    PlanModule
+    PlanModule,
+    BenefitModule
     ],
   controllers: [AppController],
   providers: [AppService]

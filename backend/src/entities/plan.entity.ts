@@ -1,5 +1,6 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm'
+import { Column, Entity, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn } from 'typeorm'
 import { Doctor } from './doctor.entity'
+import { Benefit } from './benefit.entity'
 
 @Entity()
 export class Plan {
@@ -14,6 +15,10 @@ export class Plan {
     
     @OneToMany(() => Doctor, doctors => doctors.plan)
     doctors: Doctor[]
+
+    @ManyToMany(() => Benefit, benefits => benefits.plans)
+    @JoinTable()
+    benefits: Benefit[]
     
     @Column({type: Date, default: () => 'CURRENT_TIMESTAMP'})
     created_at: Date

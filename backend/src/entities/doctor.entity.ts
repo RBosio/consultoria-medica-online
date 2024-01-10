@@ -20,13 +20,16 @@ export class Doctor {
     
     @Column({nullable: true})
     durationMeeting: number
-
-    @Column({nullable: true})
+    
+    @Column({default: 0})
     priceMeeting: number
     
     @Column({default: false})
     verified: boolean
-
+    
+    @Column({default: 0, type: 'decimal', precision: 2, scale: 1})
+    avgRate: number
+    
     @Column()
     userId: number
     
@@ -43,4 +46,6 @@ export class Doctor {
     @ManyToMany(() => Speciality, specialities => specialities.doctors)
     @JoinTable()
     specialities: Speciality[]
+
+    
 }

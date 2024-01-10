@@ -14,7 +14,7 @@ export class Meeting {
     startDatetime: Date
 
     @Column({nullable: true})
-    calification: number
+    rate: number
     
     @Column()
     doctorId: number

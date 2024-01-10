@@ -8,6 +8,7 @@ import { uuidv4 } from 'uuid'
 import { JwtService } from '@nestjs/jwt'
 import { Request } from 'express';
 import { joinMeetingResponseDto } from './dto/join-meeting-response.dto';
+import { DoctorService } from 'src/doctor/doctor.service';
 
 export interface RequestT extends Request {
     user: {
@@ -19,7 +20,8 @@ export interface RequestT extends Request {
 export class MeetingService {
     constructor(
         @InjectRepository(Meeting) private meetingRepository: Repository<Meeting>,
-        private jwtService: JwtService
+        private jwtService: JwtService,
+        private doctorService: DoctorService
         ) {}
 
     findAll(): Promise<Meeting[]> {
@@ -119,8 +121,20 @@ export class MeetingService {
             throw new HttpException('Reunion no encontrada', HttpStatus.NOT_FOUND)
         }
         
+        if (meeting.rate && !(meeting.rate >= 0 && meeting.rate <= 5)) {
+            throw new HttpException('Puntuacion invalida... [0-5]', HttpStatus.CONFLICT)
+        }
+        
         const updateMeeting = Object.assign(meetingFound, meeting)
-        return this.meetingRepository.save(updateMeeting)
+        await this.meetingRepository.save(updateMeeting)
+        
+        const avgRate = await this.meetingRepository.average('rate', { doctorId: meetingFound.doctorId })
+
+        await this.doctorService.update(meetingFound.doctorId, {
+            avgRate
+        })
+    
+        return updateMeeting
     }
     
     async delete(userId: number, startDatetime: Date) {

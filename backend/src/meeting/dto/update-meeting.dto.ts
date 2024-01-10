@@ -1,4 +1,4 @@
 export class updateMeetingDto {
     startDatetime?: Date
-    calification?: number
+    rate?: number
 }

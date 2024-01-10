@@ -11,6 +11,7 @@ import { City } from 'src/entities/city.entity';
 import { UserService } from 'src/user/user.service';
 import { CityService } from 'src/city/city.service';
 import { File } from 'src/entities/file.entity';
+import { DoctorService } from 'src/doctor/doctor.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([MedicalRecord, Meeting, User, Doctor, City, File])],
@@ -18,6 +19,7 @@ import { File } from 'src/entities/file.entity';
   providers: [
     MedicalRecordService,
     MeetingService,
+    DoctorService,
     UserService,
     CityService
   ]

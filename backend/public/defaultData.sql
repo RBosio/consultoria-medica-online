@@ -13,6 +13,9 @@ INSERT INTO speciality (name) VALUES ('Cardiologia');
 
 INSERT INTO health_insurance (name, discount) VALUES ('OSDE', 0.30);
 
+INSERT INTO plan (name, price) VALUES ('Plan 1', 12000);
+INSERT INTO plan (name, price) VALUES ('Plan 2', 20000);
+
 INSERT INTO schedule (day, start_hour, end_hour, doctorId) VALUES (0, 14, 18, 1);
 INSERT INTO schedule (day, start_hour, end_hour, doctorId) VALUES (1, 14, 18, 1);
 INSERT INTO schedule (day, start_hour, end_hour, doctorId) VALUES (2, 14, 18, 1);

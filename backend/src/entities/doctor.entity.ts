@@ -1,8 +1,9 @@
-import { Column, Entity, JoinColumn, JoinTable, ManyToMany, OneToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm'
+import { Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm'
 import { User } from './user.entity'
 import { Schedule } from './schedule.entity'
 import { Speciality } from './speciality.entity'
 import { Meeting } from './meeting.entity'
+import { Plan } from './plan.entity'
 
 @Entity()
 export class Doctor {
@@ -36,6 +37,9 @@ export class Doctor {
     @Column()
     userId: number
     
+    @Column({nullable: true})
+    planId: number
+    
     seniority: number
     
     @OneToOne(() => User, {nullable: false})
@@ -47,6 +51,9 @@ export class Doctor {
 
     @OneToMany(() => Schedule, schedules => schedules.doctor)
     schedules: Schedule[]
+
+    @ManyToOne(() => Plan, plan => plan.doctors)
+    plan: Plan
     
     @ManyToMany(() => Speciality, specialities => specialities.doctors)
     @JoinTable()

@@ -32,6 +32,8 @@ import { join } from 'path';
 import { DataSource } from 'typeorm';
 import * as fs from "fs";
 import { UserService } from './user/user.service';
+import { Plan } from './entities/plan.entity';
+import { PlanModule } from './plan/plan.module';
 
 @Module({
   imports: [
@@ -48,7 +50,7 @@ import { UserService } from './user/user.service';
         username: configService.get('DB_USERNAME'),
         password: configService.get('DB_PASSWORD'),
         database: configService.get('DB_DATABASE'),
-        entities: [Country, Province, City, User, Doctor, Schedule, Speciality, Meeting, MedicalRecord, Comment, File, HealthInsurance],
+        entities: [Country, Province, City, User, Doctor, Schedule, Speciality, Meeting, MedicalRecord, Comment, File, HealthInsurance, Plan],
         synchronize: configService.get('DB_SYNC'),
         dropSchema: configService.get('DB_DROP')
       }),
@@ -65,7 +67,8 @@ import { UserService } from './user/user.service';
     MeetingModule,
     MedicalRecordModule,
     CommentModule,
-    HealthInsuranceModule
+    HealthInsuranceModule,
+    PlanModule
     ],
   controllers: [AppController],
   providers: [AppService]

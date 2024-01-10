@@ -28,7 +28,7 @@ export class ScheduleService {
 
     async findByDoctor(doctorId: number): Promise<ScheduleResponseDto[]> {
         let response: ScheduleResponseDto[] = []
-        const moment = extendMoment(Moment);
+        const moment = extendMoment(Moment)
 
         const schedulesFound = await this.scheduleRepository.find({
             where: {

@@ -29,9 +29,14 @@ export class Doctor {
     
     @Column({default: 0, type: 'decimal', precision: 2, scale: 1})
     avgRate: number
+
+    @Column()
+    employmentDate: Date
     
     @Column()
     userId: number
+    
+    seniority: number
     
     @OneToOne(() => User, {nullable: false})
     @JoinColumn()
@@ -46,6 +51,5 @@ export class Doctor {
     @ManyToMany(() => Speciality, specialities => specialities.doctors)
     @JoinTable()
     specialities: Speciality[]
-
     
 }

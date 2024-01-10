@@ -1,9 +1,12 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { MoreThan, Repository } from 'typeorm';
 import { updateDoctorDto } from './dto/update-doctor.dto';
 import { Doctor } from 'src/entities/doctor.entity';
 import { UserService } from 'src/user/user.service';
+import { getDoctorsDto } from './dto/get-doctors.dto';
+import * as Moment from 'moment';
+import { extendMoment } from 'moment-range';
 
 @Injectable()
 export class DoctorService {
@@ -12,21 +15,38 @@ export class DoctorService {
         private userService: UserService
         ) {}
 
-    findAll(): Promise<Doctor[]> {
-        return this.doctorRepository.find({
-            relations: ['user', 'schedules', 'specialities']
-        })
-    }
-
-    findDoctorsBySpeciality(id: number): Promise<Doctor[]> {
-        return this.doctorRepository.find({
+    async findAll(query: getDoctorsDto): Promise<Doctor[]> {
+        const { name, avgRate, seniority, specialityId } = query
+        const moment = extendMoment(Moment)
+        
+        const doctorsFound = await this.doctorRepository.find({
+            relations: ['user'],
             where: {
+                user: {
+                    name
+                },
+                avgRate: MoreThan(avgRate),
                 specialities: {
-                    id
+                    id: specialityId
                 }
-            },
-            relations: ['user', 'schedules', 'specialities']
+            }
         })
+
+        let doctors = doctorsFound
+
+        if(seniority) {
+            const dateNow = moment(new Date())
+            doctors = doctorsFound.map(doctor => {
+                const employmentDate = moment(doctor.employmentDate)
+                const diff = dateNow.diff(employmentDate, 'years')
+                
+                return { ...doctor, seniority: diff }
+            })
+
+            doctors = doctors.filter(doctor => doctor.seniority >= seniority)
+        }
+
+        return doctors
     }
     
     async findOne(id: number) {

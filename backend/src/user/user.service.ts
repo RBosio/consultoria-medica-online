@@ -182,6 +182,7 @@ export class UserService {
             cuil: "20-38233911-1",
             durationMeeting: 30,
             priceMeeting: 3000,
+            employmentDate: new Date('1998-04-08T06:00:00'),
             specialities: [{
                 id: 1,
                 name: "",

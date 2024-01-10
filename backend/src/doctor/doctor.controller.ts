@@ -1,4 +1,4 @@
-import { Controller, Get, Body, Param, Delete, Patch, HttpException, UseGuards, UseInterceptors, Post, Req } from '@nestjs/common';
+import { Controller, Get, Body, Param, Delete, Patch, HttpException, UseGuards, UseInterceptors, Post, Req, Query } from '@nestjs/common';
 import { updateDoctorDto } from './dto/update-doctor.dto';
 import { DoctorService } from './doctor.service';
 import { Doctor } from 'src/entities/doctor.entity';
@@ -10,6 +10,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { v4 as uuidv4 } from 'uuid';
 import { Request } from 'express';
+import { getDoctorsDto } from './dto/get-doctors.dto';
 
 @Controller('doctor')
 @UseGuards(AuthGuard, RolesGuard)
@@ -19,20 +20,14 @@ export class DoctorController {
 
     @Get()
     @Roles(RoleEnum.User, RoleEnum.Doctor)
-    getDoctors(): Promise<Doctor[]> {
-        return this.doctorService.findAll()
+    getDoctors(@Query() query: getDoctorsDto): Promise<Doctor[]> {
+        return this.doctorService.findAll(query)
     }
     
     @Get(':id')
     @Roles(RoleEnum.User, RoleEnum.Doctor, RoleEnum.Admin)
     getDoctor(@Param('id') id: number): Promise<Doctor | HttpException> {
         return this.doctorService.findOne(id)
-    }
-    
-    @Get('speciality/:idSpec')
-    @Roles(RoleEnum.User, RoleEnum.Doctor)
-    getDoctorsBySpeciality(@Param('idSpec') idSpec: number): Promise<Doctor[]> {
-        return this.doctorService.findDoctorsBySpeciality(idSpec)
     }
 
     @Patch('verify/:id')

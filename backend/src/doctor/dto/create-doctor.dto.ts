@@ -4,5 +4,6 @@ export class createDoctorDto {
     cuil: string
     durationMeeting: number
     priceMeeting: number
+    employmentDate: Date
     specialities: Speciality[]
 }

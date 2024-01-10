@@ -17,8 +17,8 @@ export class DoctorService {
         private specialityService: SpecialityService
         ) {}
 
-    async findAll(query: getDoctorsDto): Promise<Doctor[]> {
-        const { name, avgRate, seniority, specialityId, planId } = query
+    async findAll(query: getDoctorsDto) {
+        const { name, avgRate, seniority, specialityId, planId, page, perPage } = query
         const moment = extendMoment(Moment)
         
         let doctorsFound = await this.doctorRepository.find({
@@ -59,8 +59,22 @@ export class DoctorService {
             doctorsFound = doctorsFound.filter(doctor => doctor.seniority >= seniority)
         }
 
-        return doctorsFound
+        return this.paginate(doctorsFound, page, perPage)
     }
+
+    paginate(items, page = 1, perPage = 10) {
+        const offset = perPage * (page - 1);
+        const totalPages = Math.ceil(items.length / perPage);
+        const paginatedItems = items.slice(offset, perPage * page);
+      
+        return {
+            previousPage: page - 1 ? page - 1 : null,
+            nextPage: (totalPages > page) ? page + 1 : null,
+            total: items.length,
+            totalPages: totalPages,
+            items: paginatedItems
+        };
+    };
     
     async findOne(id: number) {
         const doctorFound = await this.doctorRepository.findOne({

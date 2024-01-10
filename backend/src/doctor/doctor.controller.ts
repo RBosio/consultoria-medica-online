@@ -20,7 +20,7 @@ export class DoctorController {
 
     @Get()
     @Roles(RoleEnum.User, RoleEnum.Doctor)
-    getDoctors(@Query() query: getDoctorsDto): Promise<Doctor[]> {
+    getDoctors(@Query() query: getDoctorsDto) {
         return this.doctorService.findAll(query)
     }
     

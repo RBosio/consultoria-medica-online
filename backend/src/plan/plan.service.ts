@@ -11,7 +11,9 @@ export class PlanService {
     constructor(@InjectRepository(Plan) private planRepository: Repository<Plan>) {}
 
     findAll(): Promise<Plan[]> {
-        return this.planRepository.find()
+        return this.planRepository.find({
+            relations: ['benefits']
+        })
     }
     
     async findOne(id: number): Promise<Plan | HttpException> {
@@ -36,7 +38,6 @@ export class PlanService {
         if (planFound) {
             throw new HttpException('El nombre ya existe', HttpStatus.BAD_REQUEST)
         }
-
         const newPlan = this.planRepository.create(plan)
 
         return this.planRepository.save(newPlan)

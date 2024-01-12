@@ -30,11 +30,15 @@ export class DoctorService {
         }        
 
         if(name) {
-           doctorsFound = doctorsFound.filter(doctor => doctor.user.name === name) 
+            doctorsFound = doctorsFound.filter(doctor => {
+                const fullName = `${doctor.user.name} ${doctor.user.surname}`.toLowerCase();
+                const nameToSearch = name.toLowerCase();
+                return fullName.includes(nameToSearch);
+            }) 
         }
         
         if(avgRate) {
-           doctorsFound = doctorsFound.filter(doctor => doctor.avgRate >= avgRate) 
+            doctorsFound = doctorsFound.filter(doctor => doctor.avgRate >= avgRate) 
         }
 
         if(specialityId) {

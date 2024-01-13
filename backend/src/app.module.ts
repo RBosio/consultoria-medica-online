@@ -93,6 +93,10 @@ export class AppModule {
       setTimeout(() => {
         this.userService.loadUsers()
         .then(() => {
+          const doctorsQueries = readSqlFile('public/doctors.sql')
+          doctorsQueries.forEach((query, i) => {
+              queryRunner.query(query)
+          })
           queries.forEach((query, i) => {
             if(i >= 12) {
               queryRunner.query(query)
@@ -100,7 +104,8 @@ export class AppModule {
           })
         })
       }, 1000)
-      }
+      
+    }
 }
 
 const readSqlFile = (filepath: string): string[] => {

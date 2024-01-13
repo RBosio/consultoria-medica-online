@@ -4,6 +4,7 @@ export class getDoctorsDto {
     seniority?: number
     specialityId?: number
     planId?: number
-    page: number
+    orderBy?: string
+    page?: number
     perPage?: number
 }

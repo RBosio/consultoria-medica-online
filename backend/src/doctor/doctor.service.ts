@@ -18,17 +18,15 @@ export class DoctorService {
         ) {}
 
     async findAll(query: getDoctorsDto) {
-        const { name, avgRate, seniority, specialityId, planId, page, perPage } = query
+        const { name, avgRate, seniority, specialityId, planId, orderBy, page, perPage } = query
         const moment = extendMoment(Moment)
-        
+        const [ param, order ] = orderBy.split('_')
+
         let doctorsFound = await this.doctorRepository.find({
             relations: ['user', 'specialities', 'plan']
         })
 
-        if(!name && !avgRate && !seniority && !specialityId && !planId) {
-            return this.paginate(doctorsFound, page, perPage)
-        }        
-
+        // FILTER
         if(name) {
             doctorsFound = doctorsFound.filter(doctor => {
                 const fullName = `${doctor.user.name} ${doctor.user.surname}`.toLowerCase();
@@ -62,7 +60,35 @@ export class DoctorService {
         if(seniority) {
             doctorsFound = doctorsFound.filter(doctor => doctor.seniority >= seniority)
         }
-
+        
+        // ORDER
+        if(param === 'name') {
+            if(order.toLowerCase() === 'asc') {
+                doctorsFound = doctorsFound.sort((x, y) => x.user.name > y.user.name ? 1 : -1)
+            }
+            if(order.toLowerCase() === 'desc') {
+                doctorsFound = doctorsFound.sort((x, y) => x.user.name > y.user.name ? -1 : 1)
+            }
+        }
+        
+        if(param === 'avgRate') {
+            if(order.toLowerCase() === 'asc') {
+                doctorsFound = doctorsFound.sort((x, y) => x.avgRate > y.avgRate ? 1 : -1)
+            }
+            if(order.toLowerCase() === 'desc') {
+                doctorsFound = doctorsFound.sort((x, y) => x.avgRate > y.avgRate ? -1 : 1)
+            }
+        }
+        
+        if(param === 'seniority') {
+            if(order.toLowerCase() === 'asc') {
+                doctorsFound = doctorsFound.sort((x, y) => x.seniority > y.seniority ? 1 : -1)
+            }
+            if(order.toLowerCase() === 'desc') {
+                doctorsFound = doctorsFound.sort((x, y) => x.seniority > y.seniority ? -1 : 1)
+            }
+        }
+        
         return this.paginate(doctorsFound, page, perPage)
     }
 

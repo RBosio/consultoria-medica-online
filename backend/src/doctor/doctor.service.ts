@@ -26,7 +26,7 @@ export class DoctorService {
         })
 
         if(!name && !avgRate && !seniority && !specialityId && !planId) {
-            return doctorsFound
+            return this.paginate(doctorsFound, page, perPage)
         }        
 
         if(name) {

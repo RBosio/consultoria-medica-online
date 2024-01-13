@@ -13,8 +13,22 @@ import { IoMdSearch } from "react-icons/io";
 import Slider from '@/components/slider';
 import { IoStar } from "react-icons/io5";
 import { IoMdTime } from "react-icons/io";
+import { useTheme } from '@mui/material';
+import Doctor from '@/components/doctor';
+import { robotoBold } from '@/lib/fonts';
+import Divider from '@mui/material/Divider';
+import Input from '@/components/input';
+import { FaUserDoctor } from "react-icons/fa6";
+import Button from '@/components/button';
+import { IoMdSearch } from "react-icons/io";
+import Slider from '@/components/slider';
+import { IoStar } from "react-icons/io5";
+import { IoMdTime } from "react-icons/io";
 
 export default function Home(props: any) {
+
+  const theme = useTheme();
+
 
   const theme = useTheme();
 

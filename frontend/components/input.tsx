@@ -25,10 +25,12 @@ const Input: React.FC<ExtendedTextFieldProps> = (props) => {
 
     return (
         <TextField
+            {...props}
             className={props.className}
             type={props.type === "password" && showPassword ? "text" : props.type}
             name={props.name}
             onChange={props.onChange}
+            fullWidth={props.fullWidth}
             onBlur={props.onBlur}
             value={props.value}
             placeholder={props.placeholder}
@@ -37,8 +39,8 @@ const Input: React.FC<ExtendedTextFieldProps> = (props) => {
             error={props.error}
             InputLabelProps={{
                 sx: {
-                    "&": {color: theme.palette.primary.main}
-                }   
+                    "&": { color: theme.palette.primary.main }
+                }
             }}
             InputProps={{
                 startAdornment: props.startAdornment,
@@ -54,7 +56,8 @@ const Input: React.FC<ExtendedTextFieldProps> = (props) => {
                 },
                 "& .MuiInput-root:hover:not(.Mui-disabled, .Mui-error):before": {
                     borderBottom: `1px solid #166534`,
-                }
+                }, 
+                ...props.sx
             }}
         />
     );

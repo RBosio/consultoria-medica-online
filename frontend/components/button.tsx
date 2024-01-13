@@ -5,6 +5,7 @@ const Button: React.FC<ButtonProps> = (props) => {
     
     return (
         <MUIButton 
+        {...props}
         className={`bg-primary text-white font-bold ${roboto.className} ${props.className}`} 
         color="primary" 
         variant="contained"

@@ -29,7 +29,7 @@ const Navbar: React.FC<NavbarProps> = (props) => {
     };
 
     return (
-        <section className="p-4 bg-white w-full shrink-0 h-20 shadow-lg flex items-center justify-between md:justify-end">
+        <section className="p-4 bg-white w-full shrink-0 h-20 shadow-md flex items-center justify-between md:justify-end z-10">
             <div className="md:hidden">
                 <Hamburger size={28} color={theme.palette.primary.main} toggled={props.sidebarOpened} toggle={() => props.setSidebarOpened(!props.sidebarOpened)} />
             </div>

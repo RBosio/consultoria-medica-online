@@ -5,8 +5,8 @@ import { BsEye, BsEyeSlash } from "react-icons/bs";
 import IconButton from '@mui/material/IconButton';
 
 type ExtendedTextFieldProps = TextFieldProps & {
-    startAdornment?: any;
-    endAdornment?: any;
+    startadornment?: any;
+    endadornment?: any;
 };
 
 const Input: React.FC<ExtendedTextFieldProps> = (props) => {
@@ -43,8 +43,8 @@ const Input: React.FC<ExtendedTextFieldProps> = (props) => {
                 }
             }}
             InputProps={{
-                startAdornment: props.startAdornment,
-                endAdornment: props.type === "password" ? passwordHandler : props.endAdornment,
+                startAdornment: props.startadornment,
+                endAdornment: props.type === "password" ? passwordHandler : props.endadornment,
             }}
             variant='standard'
             sx={{

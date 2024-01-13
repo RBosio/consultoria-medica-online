@@ -26,7 +26,7 @@ export default function Home(props: any) {
           <div className="px-4 w-full">
           <Divider/>
             <div className="py-3 flex flex-col gap-8">
-              <Input startAdornment={<FaUserDoctor color={theme.palette.primary.main} />} fullWidth label="Nombre" />
+              <Input startadornment={<FaUserDoctor color={theme.palette.primary.main} />} fullWidth label="Nombre" />
               <Slider icon={<IoStar/>} label='Puntuación mayor que' marks={[{ value: 0, label: "0" }, { value: 2.4, label: "2.4" }, { value: 4.8, label: "4.8" }]} defaultValue={0} step={0.1} max={4.8} aria-label="Default" valueLabelDisplay="auto" />
               <Slider icon={<IoMdTime/>} label='Experiencia mayor que' marks={[{ value: 0, label: "0" }, { value: 15, label: "15" }, { value: 30, label: "30" }]} defaultValue={0} max={30} aria-label="Default" valueLabelDisplay="auto" />
               <Button size='large' startIcon={<IoMdSearch />}>Buscar</Button>

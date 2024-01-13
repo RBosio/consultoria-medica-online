@@ -19,7 +19,7 @@ const Layout: React.FC<LayoutProps> = ({ children, renderNavbar = true, renderSi
     return (
         <main className={`h-full ${roboto.className} bg-slate-200 flex`}>
             {renderSidebar && <Sidebar auth={auth} sidebarOpened={sidebarOpened} setSidebarOpened={setSidebarOpened} />}
-            <section className="grow w-full break-all overflow-hidden flex flex-col">
+            <section className="grow w-full overflow-hidden flex flex-col">
                 {renderNavbar && <Navbar auth={auth} sidebarOpened={sidebarOpened} setSidebarOpened={setSidebarOpened}/>}
                 <div className={`${className} overflow-y-auto grow`}>
                     {children}

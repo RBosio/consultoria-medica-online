@@ -9,7 +9,6 @@ interface AvatarProps {
         className?: string,
         position?: "top" | "left" | "right" | "bottom",
     },
-    labelClassName?: string,
     size?: number,
     className? : string,
 }

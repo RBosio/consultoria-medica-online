@@ -40,11 +40,13 @@ const Input: React.FC<ExtendedTextFieldProps> = (props) => {
             InputLabelProps={{
                 sx: {
                     "&": { color: theme.palette.primary.main }
-                }
+                },
+                shrink: true,
             }}
             InputProps={{
                 startAdornment: props.startadornment,
                 endAdornment: props.type === "password" ? passwordHandler : props.endadornment,
+                ...props.InputProps,
             }}
             variant='standard'
             sx={{
@@ -56,7 +58,7 @@ const Input: React.FC<ExtendedTextFieldProps> = (props) => {
                 },
                 "& .MuiInput-root:hover:not(.Mui-disabled, .Mui-error):before": {
                     borderBottom: `1px solid #166534`,
-                }, 
+                },
                 ...props.sx
             }}
         />

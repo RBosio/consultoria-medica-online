@@ -15,88 +15,63 @@ export class DoctorService {
         @InjectRepository(Doctor) private doctorRepository: Repository<Doctor>,
         private userService: UserService,
         private specialityService: SpecialityService
-        ) {}
+    ) { }
 
     async findAll(query: getDoctorsDto) {
         const { name, avgRate, seniority, specialityId, planId, orderBy, page, perPage } = query
         const moment = extendMoment(Moment)
-        const [ param, order ] = orderBy.split('_')
 
         let doctorsFound = await this.doctorRepository.find({
             relations: ['user', 'specialities', 'plan']
         })
 
         // FILTER
-        if(name) {
+        if (name) {
             doctorsFound = doctorsFound.filter(doctor => {
                 const fullName = `${doctor.user.name} ${doctor.user.surname}`.toLowerCase();
                 const nameToSearch = name.toLowerCase();
                 return fullName.includes(nameToSearch);
-            }) 
-        }
-        
-        if(avgRate) {
-            doctorsFound = doctorsFound.filter(doctor => doctor.avgRate >= avgRate) 
+            })
         }
 
-        if(specialityId) {
+        if (avgRate) {
+            doctorsFound = doctorsFound.filter(doctor => doctor.avgRate >= avgRate)
+        }
+
+        if (specialityId) {
             const speciality = await this.specialityService.findOne(specialityId)
-            
             doctorsFound = doctorsFound.filter(doctor => doctor.specialities.some(val => val.id === speciality.id))
         }
 
-        if(planId) {
-            doctorsFound = doctorsFound.filter(doctor => doctor.plan ? doctor.plan.id == planId : false) 
+        if (planId) {
+            doctorsFound = doctorsFound.filter(doctor => doctor.plan ? doctor.plan.id == planId : false)
         }
 
         const dateNow = moment(new Date())
         doctorsFound = doctorsFound.map(doctor => {
             const employmentDate = moment(doctor.employmentDate)
             const diff = dateNow.diff(employmentDate, 'years')
-            
+
             return { ...doctor, seniority: diff }
         })
 
-        if(seniority) {
+        if (seniority) {
             doctorsFound = doctorsFound.filter(doctor => doctor.seniority >= seniority)
         }
-        
-        // ORDER
-        if(param === 'name') {
-            if(order.toLowerCase() === 'asc') {
-                doctorsFound = doctorsFound.sort((x, y) => x.user.name > y.user.name ? 1 : -1)
-            }
-            if(order.toLowerCase() === 'desc') {
-                doctorsFound = doctorsFound.sort((x, y) => x.user.name > y.user.name ? -1 : 1)
-            }
-        }
-        
-        if(param === 'avgRate') {
-            if(order.toLowerCase() === 'asc') {
-                doctorsFound = doctorsFound.sort((x, y) => x.avgRate > y.avgRate ? 1 : -1)
-            }
-            if(order.toLowerCase() === 'desc') {
-                doctorsFound = doctorsFound.sort((x, y) => x.avgRate > y.avgRate ? -1 : 1)
-            }
-        }
-        
-        if(param === 'seniority') {
-            if(order.toLowerCase() === 'asc') {
-                doctorsFound = doctorsFound.sort((x, y) => x.seniority > y.seniority ? 1 : -1)
-            }
-            if(order.toLowerCase() === 'desc') {
-                doctorsFound = doctorsFound.sort((x, y) => x.seniority > y.seniority ? -1 : 1)
-            }
-        }
-        
-        return this.paginate(doctorsFound, page, perPage)
+
+        let paginatedItems = this.paginate(doctorsFound, page, perPage);
+
+        if (orderBy) paginatedItems = this.order(paginatedItems, orderBy);
+
+        return paginatedItems;
+
     }
 
     paginate(items, page = 1, perPage = 10) {
         const offset = perPage * (page - 1);
         const totalPages = Math.ceil(items.length / perPage);
         const paginatedItems = items.slice(offset, perPage * page);
-      
+
         return {
             previousPage: page - 1 ? page - 1 : null,
             nextPage: (totalPages > page) ? page + 1 : null,
@@ -105,7 +80,45 @@ export class DoctorService {
             items: paginatedItems
         };
     };
-    
+
+    order(paginatedItems, orderBy) {
+        const regex = /^(.+)_(asc|desc)$/;
+        const paginatedItemsCpy = { ...paginatedItems };
+        if (!regex.test(orderBy)) throw new HttpException('orderBy debe ser de formato: (param)_[asc|desc]', HttpStatus.BAD_REQUEST);
+
+        const [param, order] = orderBy.split('_');
+
+        if (param === 'name') {
+            if (order.toLowerCase() === 'asc') {
+                paginatedItemsCpy.items = paginatedItemsCpy.items.sort((x, y) => x.user.name > y.user.name ? 1 : -1)
+            }
+            if (order.toLowerCase() === 'desc') {
+                paginatedItemsCpy.items = paginatedItemsCpy.items.sort((x, y) => x.user.name > y.user.name ? -1 : 1)
+            }
+        }
+
+        if (param === 'avgRate') {
+            if (order.toLowerCase() === 'asc') {
+                paginatedItemsCpy.items = paginatedItemsCpy.items.sort((x, y) => x.avgRate > y.avgRate ? 1 : -1)
+            }
+            if (order.toLowerCase() === 'desc') {
+                paginatedItemsCpy.items = paginatedItemsCpy.items.sort((x, y) => x.avgRate > y.avgRate ? -1 : 1)
+            }
+        }
+
+        if (param === 'seniority') {
+            if (order.toLowerCase() === 'asc') {
+                paginatedItemsCpy.items = paginatedItemsCpy.items.sort((x, y) => x.seniority > y.seniority ? 1 : -1)
+            }
+            if (order.toLowerCase() === 'desc') {
+                paginatedItemsCpy.items = paginatedItemsCpy.items.sort((x, y) => x.seniority > y.seniority ? -1 : 1)
+            }
+        }
+
+        return paginatedItemsCpy;
+
+    }
+
     async findOne(id: number) {
         const doctorFound = await this.doctorRepository.findOne({
             where: {
@@ -113,14 +126,14 @@ export class DoctorService {
             },
             relations: ['user', 'schedules']
         })
-        
+
         if (!doctorFound) {
             throw new HttpException('Medico no encontrado', HttpStatus.NOT_FOUND)
         }
-        
+
         return doctorFound
     }
-    
+
     async verify(id: number) {
         const doctorFound = await this.doctorRepository.findOne({
             where: {
@@ -128,7 +141,7 @@ export class DoctorService {
             },
             relations: ['user']
         })
-        
+
         if (!doctorFound) {
             throw new HttpException('Medico no encontrado', HttpStatus.NOT_FOUND)
         }
@@ -149,11 +162,11 @@ export class DoctorService {
         if (!doctorFound) {
             throw new HttpException('Medico no encontrado', HttpStatus.NOT_FOUND)
         }
-        
+
         const updateDoctor = Object.assign(doctorFound, doctor)
         return this.doctorRepository.save(updateDoctor)
     }
-    
+
     async delete(id: number) {
         const doctor = await this.doctorRepository.findOne({
             where: {
@@ -162,15 +175,15 @@ export class DoctorService {
             relations: ['user']
         })
 
-        
-        const result = await this.doctorRepository.delete({id})
-        
+
+        const result = await this.doctorRepository.delete({ id })
+
         if (result.affected == 0) {
             throw new HttpException('Medico no encontrado', HttpStatus.NOT_FOUND)
         }
-        
+
         await this.userService.delete(doctor.user.dni)
-        
+
         return result
     }
 
@@ -188,7 +201,7 @@ export class DoctorService {
         doctorFound.registration = url
         return this.doctorRepository.save(doctorFound)
     }
-    
+
     async uploadTitle(id: number, url: string) {
         const doctorFound = await this.doctorRepository.findOne({
             where: {

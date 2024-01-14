@@ -31,6 +31,9 @@ export class Doctor {
     @Column({default: 0, type: 'decimal', precision: 2, scale: 1})
     avgRate: number
 
+    @Column({ type: 'text', nullable: true})
+    description: string
+
     @Column()
     employmentDate: Date
     

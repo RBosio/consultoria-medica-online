@@ -7,6 +7,7 @@ export class updateDoctorDto {
     durationMeeting?: number
     priceMeeting?: number
     avgRate?: number
+    description?: string
     planId?: number
     specialities?: Speciality[]
 }

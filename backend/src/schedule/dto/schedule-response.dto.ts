@@ -1,5 +1,6 @@
 export class ScheduleResponseDto {
-    day: number
+    day?: number
+    date?: string
     schedule: ScheduleAvailable[]
 }
 

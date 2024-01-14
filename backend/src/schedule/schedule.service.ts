@@ -38,11 +38,11 @@ export class ScheduleService {
                 "day": "ASC"
             }
         })
-
+        
         const doctorFound = await this.doctorService.findOne(doctorId)
-
+        
         const meetingsFound = await this.meetingService.findByDoctor(doctorId)
-
+        
         let dayAnt = -1        
         schedulesFound.map(schedule => {
             const day_start = moment().startOf('day').hours(schedule.start_hour)
@@ -66,7 +66,20 @@ export class ScheduleService {
             }
             dayAnt = schedule.day
         })
-
+        
+        const temp = response.filter(s => s.day >= new Date().getDay())
+        const temp2 = response.filter(s => s.day < new Date().getDay())
+        response = temp.concat(temp2)
+        
+        
+        moment.locale('es')
+        let day = 0
+        response = response.map(res => {
+            const d = moment(new Date()).add(day, 'd').format('LLLL').split(' ')[0]
+            
+            return { date: d + ' ' + moment(new Date()).add(day++, 'd').format('LL'), schedule: res.schedule }
+        })
+        
         return response
     }
     

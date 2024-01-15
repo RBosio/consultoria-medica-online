@@ -9,6 +9,8 @@ import { JwtService } from '@nestjs/jwt'
 import { Request } from 'express';
 import { joinMeetingResponseDto } from './dto/join-meeting-response.dto';
 import { DoctorService } from 'src/doctor/doctor.service';
+import * as Moment from 'moment';
+import { extendMoment } from 'moment-range';
 
 export interface RequestT extends Request {
     user: {
@@ -24,13 +26,36 @@ export class MeetingService {
         private doctorService: DoctorService
         ) {}
 
-    findAll(): Promise<Meeting[]> {
+    async findAll(): Promise<Meeting[]> {
         return this.meetingRepository.find({
             relations: ['user', 'doctor']
         })
     }
     
-    findByUser(userId: number): Promise<Meeting[]> {
+    async findAllByUser(userId: number): Promise<Meeting[]> {
+        let meetings = await this.meetingRepository.find({
+            relations: {
+                user: true,
+                doctor: {
+                    user: true
+                },
+                speciality: true
+            },
+            where: {
+                userId
+            }
+        })
+        const moment = extendMoment(Moment)
+        meetings = meetings.map(m => {
+            let { startDatetime, ...c} = m
+            startDatetime = moment(startDatetime).subtract(3, 'hours').toDate()
+            return { startDatetime, ...c}
+        })
+
+        return meetings
+    }
+    
+    async findByUser(userId: number): Promise<Meeting[]> {
         return this.meetingRepository.find({
             where: {
                 userId
@@ -39,7 +64,7 @@ export class MeetingService {
         })
     }
     
-    findByDoctor(doctorId: number): Promise<Meeting[]> {
+    async findByDoctor(doctorId: number): Promise<Meeting[]> {
         return this.meetingRepository.find({
             select: {
                 startDatetime: true,

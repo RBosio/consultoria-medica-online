@@ -1,4 +1,4 @@
-import { Controller, Get, Body, Param, Delete, Patch, HttpException, Post, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, Body, Param, Delete, Patch, HttpException, Post, UseGuards, Req, ParseIntPipe } from '@nestjs/common';
 import { MeetingService, RequestT } from './meeting.service';
 import { Meeting } from 'src/entities/meeting.entity';
 import { createMeetingDto } from './dto/create-meeting.dto';
@@ -19,6 +19,12 @@ export class MeetingController {
     @Roles(RoleEnum.User, RoleEnum.Doctor)
     getMeetings(): Promise<Meeting[]> {
         return this.meetingService.findAll()
+    }
+    
+    @Get('user/:userId')
+    @Roles(RoleEnum.User, RoleEnum.Doctor)
+    getMeetingsByUser(@Param('userId', ParseIntPipe) userId: number): Promise<Meeting[]> {
+        return this.meetingService.findAllByUser(userId)
     }
     
     @Get(':id/:startDatetime')

@@ -4,7 +4,8 @@ import { Backdrop, IconButton, List, ListItemButton, ListItemIcon, ListItemText 
 import { MdSpaceDashboard } from "react-icons/md";
 import { MdOutlineAdminPanelSettings } from "react-icons/md";
 import { PiGearSix } from "react-icons/pi";
-import { FaUserDoctor } from "react-icons/fa6"
+import { FaUserDoctor, FaVideo } from "react-icons/fa6"
+import { FaCalendarDays } from "react-icons/fa6"
 import { GrLogout } from "react-icons/gr";
 import { useTheme } from "@mui/material";
 import { useRouter } from "next/router";
@@ -42,6 +43,11 @@ const Sidebar: React.FC<SidebarProps> = (props) => {
                 name: "Configuración",
                 path: "/config",
                 icon: <PiGearSix />,
+            },
+            {
+                name: "Mis reuniones",
+                path: `/meetings/user/${props.auth.id}`,
+                icon: <FaVideo />,
             },
         ],
         bottom: [

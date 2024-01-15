@@ -1,12 +1,9 @@
 import React from 'react';
-import { IoStar } from "react-icons/io5";
-import { IoStarHalf } from "react-icons/io5";
-import { IoStarOutline } from "react-icons/io5";
 import { useTheme } from '@mui/material';
 import Rating from '@mui/material/Rating';
 
 interface RateProps {
-    rate: string,
+    rate: number,
     className?: string,
 }
 
@@ -23,7 +20,7 @@ const Rate: React.FC<RateProps> = (props) => {
                 '& .MuiRating-iconHover': {
                     color: theme.palette.primary.main,
                 },
-            }} color='primary' value={4.7} precision={0.5} readOnly />
+            }} color='primary' value={props.rate} precision={0.5} readOnly />
             <span className="text-md font-bold md:ml-2">{props.rate}</span>
         </div>
     );

@@ -6,12 +6,12 @@ import { robotoBold } from '@/lib/fonts';
 import Button from './button';
 import { FaUserDoctor } from "react-icons/fa6";
 
-interface DoctorProps {
+export interface DoctorProps {
     fullName: string,
     photo?: string,
     description: string,
     id: number,
-    rate: string,
+    rate: number,
     specialities: any[],
 
 }

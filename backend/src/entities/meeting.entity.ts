@@ -19,8 +19,8 @@ export class Meeting {
     @Column()
     doctorId: number
     
-    @Column({default: true})
-    status: boolean
+    @Column({default: 'Pendiente'})
+    status: string
     
     @Column({nullable: true})
     medicalRecordDatetime: Date

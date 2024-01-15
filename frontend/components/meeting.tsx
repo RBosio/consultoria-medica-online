@@ -31,7 +31,10 @@ const Meeting: React.FC<MeetingResponseDto> = (props) => {
   }, []);
 
   return (
-    <div className="bg-white rounded-md shadow-md h-auto flex flex-col m-4 relative overflow-hidden" style={{minWidth: 'calc(25% - 32px)'}}>
+    <div
+      className="bg-white rounded-md shadow-md h-auto flex flex-col m-4 relative overflow-hidden"
+      style={{ minWidth: "calc(25% - 32px)" }}
+    >
       {props.doctor.user.photo ? (
         <img
           src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/user/${props.doctor.user.photo}`}
@@ -57,38 +60,28 @@ const Meeting: React.FC<MeetingResponseDto> = (props) => {
           color="primary"
           label={props.speciality.name}
         />
-        {/* <Divider
-          sx={{
-            "&": {
-              margin: "1.5rem 0",
-            },
-            "&::before,&::after": {
-              borderTop: `thin solid ${theme.palette.primary.main}`,
-            },
-          }}
-          >
-          <GoDotFill color={theme.palette.primary.main} />
-        </Divider> */}
-        <div className="bg-emerald-600 text-white flex items-center p-1 rounded-lg">
+        <div className="w-3/4 h-2 border-t-2 border-emerald-200 mb-3"></div>
+        <div className="border-b border-b-emerald-800 text-white bg-emerald-600 flex items-center p-1 rounded-lg">
           <FaCalendarDays />
           <p className="ml-2">
             {startDate} - {startTime}
           </p>
         </div>
-        <Link href={`${props.user.id}/${props.startDatetime.toString().split('T')[0]}T${props.startDatetime.toString().split('T')[1].split('.')[0]}`}>
+        <Link
+          href={`${props.user.id}/${
+            props.startDatetime.toString().split("T")[0]
+          }T${props.startDatetime.toString().split("T")[1].split(".")[0]}`}
+          className="mt-10 mb-6">
           <Button
             onClick={onConsultClick}
             size="medium"
             startIcon={<FaCircleInfo />}
-            className="mt-10 mb-6"
           >
             DETALLES
           </Button>
         </Link>
       </div>
-      <div className="w-6 h-6 bg-red-700 rounded-full absolute -bottom-2 -right-2">
-
-      </div>
+      <div className="w-6 h-6 bg-red-700 rounded-full absolute -bottom-2 -right-2"></div>
     </div>
   );
 };

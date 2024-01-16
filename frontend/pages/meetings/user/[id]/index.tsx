@@ -2,20 +2,10 @@ import withAuth from "@/lib/withAuth";
 import { Auth } from "../../../../../shared/types";
 import axios from "axios";
 import Layout from "@/components/layout";
-import {
-  Autocomplete,
-  FormControl,
-  FormControlLabel,
-  FormLabel,
-  Radio,
-  RadioGroup,
-  ToggleButton,
-  ToggleButtonGroup,
-  useTheme,
-} from "@mui/material";
+import { Autocomplete, useTheme } from "@mui/material";
 import Meeting from "@/components/meeting";
 import { useRouter } from "next/router";
-import { ChangeEvent, useEffect, useState } from "react";
+import { useState } from "react";
 import { FaChevronLeft, FaChevronRight, FaUserDoctor } from "react-icons/fa6";
 import Input from "@/components/input";
 import { useFormik } from "formik";
@@ -37,6 +27,8 @@ export default function Home(props: Test) {
 
   const [index, setIndex] = useState(0);
   const [position, setPosition] = useState(0);
+  let i: number = 5;
+  let page: number = 0;
 
   const back = () => {
     const carouselInner = document.getElementById("carouselInner");
@@ -46,6 +38,7 @@ export default function Home(props: Test) {
         carouselInner.style.transform = `translateX(${position + 100}%)`;
       }
       setPosition(position + 100);
+      page = index;
     }
   };
 
@@ -57,16 +50,41 @@ export default function Home(props: Test) {
         carouselInner.style.transform = `translateX(${position - 100}%)`;
       }
       setPosition(position - 100);
+      page = index;
     }
   };
 
-  const testss = (length: number) => {
-    for (let index = 0; index < length; index++) {
-      <>
-        <div className="w-4 h-4 rounded-full bg-secondary"></div>
-      </>;
+  const points = (ind: number) => {
+    if (ind + 1 == i) {
+      i += 4;
+      page++;
+      return (
+        <div
+          onClick={handleClick}
+          id={page.toString()}
+          className={`w-4 h-4 rounded-full ${
+            page == index ? "bg-secondary" : "bg-primary"
+          } m-2 hover:cursor-pointer`}
+        >
+        </div>
+      );
     }
   };
+
+  function handleClick($e: any) {
+    page = Number($e.target.id);
+    const carouselInner = document.getElementById("carouselInner");
+    setIndex(page);
+    if (carouselInner) {
+      if (page == 0) {
+        setPosition(0);
+        carouselInner.style.transform = `translateX(0%)`;
+      } else {
+        setPosition(-100 * page);
+        carouselInner.style.transform = `translateX(${-100 * page}%)`;
+      }
+    }
+  }
 
   const filtersForm = useFormik({
     initialValues: {
@@ -189,8 +207,17 @@ export default function Home(props: Test) {
               ;
             </div>
             <div className="flex justify-center">
+              <div
+                onClick={handleClick}
+                id={page.toString()}
+                className={`w-4 h-4 rounded-full ${
+                  page === index ? "bg-secondary" : "bg-primary"
+                } m-2 hover:cursor-pointer`}
+              ></div>
               {props.meetings.length / 4 > 1
-                ? ""
+                ? props.meetings.map((m, i) => {
+                    return points(i);
+                  })
                 : ""}
             </div>
             <button

@@ -1,4 +1,4 @@
-import { Controller, Get, Body, Param, Delete, Patch, HttpException, Post, UseGuards, Req, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Body, Param, Delete, Patch, HttpException, Post, UseGuards, Req, ParseIntPipe, Query } from '@nestjs/common';
 import { MeetingService, RequestT } from './meeting.service';
 import { Meeting } from 'src/entities/meeting.entity';
 import { createMeetingDto } from './dto/create-meeting.dto';
@@ -8,6 +8,7 @@ import { RolesGuard } from 'src/auth/roles.guard';
 import { Roles } from 'src/auth/roles.decorator';
 import { RoleEnum } from 'src/enums/role.enum';
 import { joinMeetingResponseDto } from './dto/join-meeting-response.dto';
+import { getMeetingsDto } from './dto/get-meetings.dto';
 
 @Controller('meeting')
 @UseGuards(AuthGuard, RolesGuard)
@@ -23,8 +24,8 @@ export class MeetingController {
     
     @Get('user/:userId')
     @Roles(RoleEnum.User, RoleEnum.Doctor)
-    getMeetingsByUser(@Param('userId', ParseIntPipe) userId: number): Promise<Meeting[]> {
-        return this.meetingService.findAllByUser(userId)
+    getMeetingsByUser(@Param('userId', ParseIntPipe) userId: number, @Query() query: getMeetingsDto): Promise<Meeting[]> {
+        return this.meetingService.findAllByUser(userId, query)
     }
     
     @Get(':id/:startDatetime')

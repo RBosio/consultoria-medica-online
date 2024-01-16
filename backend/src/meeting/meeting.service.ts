@@ -11,6 +11,7 @@ import { joinMeetingResponseDto } from './dto/join-meeting-response.dto';
 import { DoctorService } from 'src/doctor/doctor.service';
 import * as Moment from 'moment';
 import { extendMoment } from 'moment-range';
+import { getMeetingsDto } from './dto/get-meetings.dto';
 
 export interface RequestT extends Request {
     user: {
@@ -32,8 +33,10 @@ export class MeetingService {
         })
     }
     
-    async findAllByUser(userId: number): Promise<Meeting[]> {
-        let meetings = await this.meetingRepository.find({
+    async findAllByUser(userId: number, query: getMeetingsDto): Promise<Meeting[]> {
+        const { name, specialityId, status } = query
+        
+        let meetingsFound = await this.meetingRepository.find({
             relations: {
                 user: true,
                 doctor: {
@@ -45,14 +48,31 @@ export class MeetingService {
                 userId
             }
         })
+        
         const moment = extendMoment(Moment)
-        meetings = meetings.map(m => {
+        meetingsFound = meetingsFound.map(m => {
             let { startDatetime, ...c} = m
             startDatetime = moment(startDatetime).subtract(3, 'hours').toDate()
             return { startDatetime, ...c}
         })
 
-        return meetings
+        if (name) {
+            meetingsFound = meetingsFound.filter(meeting => {
+                const fullName = `${meeting.doctor.user.name} ${meeting.doctor.user.surname}`.toLowerCase();
+                const nameToSearch = name.toLowerCase();
+                return fullName.includes(nameToSearch);
+            })
+        }
+
+        if (specialityId) {
+            meetingsFound = meetingsFound.filter(meeting => meeting.speciality.id == specialityId)
+        }
+        
+        if (status) {
+            meetingsFound = meetingsFound.filter(meeting => meeting.status === status)
+        }
+
+        return meetingsFound
     }
     
     async findByUser(userId: number): Promise<Meeting[]> {

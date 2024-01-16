@@ -3,6 +3,7 @@ import { SpecialityResponseDto } from "./speciality.dto";
 import { UserResponseDto } from "./user.dto";
 
 export interface MeetingResponseDto {
+    id : number
     startDatetime: Date
     user: UserResponseDto
     doctor: DoctorResponseDto

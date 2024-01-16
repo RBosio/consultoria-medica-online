@@ -27,8 +27,15 @@ INSERT INTO schedule (day, start_hour, end_hour, doctorId) VALUES (6, 14, 18, 1)
 
 INSERT INTO medical_record (datetime, detail) VALUES ("2024-01-20T20:00:00", "Detalle");
 
-INSERT INTO meeting (userId, startDatetime, doctorId, medicalRecordDatetime, specialityId) VALUES (1, "2024-01-15T14:00:00", 1, "2024-01-20T20:00:00", 1);
-INSERT INTO meeting (userId, startDatetime, doctorId, specialityId) VALUES (1, "2024-01-17T09:30:00", 1, 2);
+INSERT INTO meeting (userId, startDatetime, doctorId, status, specialityId) VALUES (1, "2024-01-17T10:30:00", 1, "Pendiente", 1);
+INSERT INTO meeting (userId, startDatetime, doctorId, status, specialityId) VALUES (1, "2024-01-23T09:30:00", 1, "Pendiente", 2);
+INSERT INTO meeting (userId, startDatetime, doctorId, status, specialityId) VALUES (1, "2024-02-17T18:00:00", 1, "Pendiente", 2);
+INSERT INTO meeting (userId, startDatetime, doctorId, status, specialityId) VALUES (1, "2024-02-09T09:00:00", 1, "Finalizada", 2);
+INSERT INTO meeting (userId, startDatetime, doctorId, status, specialityId) VALUES (1, "2024-02-18T14:30:00", 1, "Cancelada", 1);
+INSERT INTO meeting (userId, startDatetime, doctorId, status, specialityId) VALUES (1, "2024-04-24T14:00:00", 1, "Finalizada", 1);
+INSERT INTO meeting (userId, startDatetime, doctorId, status, specialityId) VALUES (1, "2024-04-19T14:45:00", 1, "Finalizada", 1);
+INSERT INTO meeting (userId, startDatetime, doctorId, status, specialityId) VALUES (1, "2024-04-29T09:00:00", 1, "Finalizada", 2);
+INSERT INTO meeting (userId, startDatetime, doctorId, status, specialityId) VALUES (1, "2024-05-10T16:30:00", 1, "Cancelada", 1);
 
-INSERT INTO comment (datetime, meetingUserId, meetingStartDatetime, comment, userCommentId) VALUES ("2024-01-15T14:32:48", 1, "2024-01-17T09:30:00", "Comentario 1", 1);
-INSERT INTO comment (datetime, meetingUserId, meetingStartDatetime, comment, userCommentId) VALUES ("2024-01-15T15:14:26", 1, "2024-01-17T09:30:00", "Comentario 2", 2);
+INSERT INTO comment (datetime, meetingUserId, meetingStartDatetime, comment, userCommentId) VALUES ("2024-01-15T14:32:48", 1, "2024-04-19T14:45:00", "Comentario 1", 1);
+INSERT INTO comment (datetime, meetingUserId, meetingStartDatetime, comment, userCommentId) VALUES ("2024-01-15T15:14:26", 1, "2024-05-10T16:30:00", "Comentario 2", 2);

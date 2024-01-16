@@ -48,13 +48,6 @@ export class MeetingService {
                 userId
             }
         })
-        
-        const moment = extendMoment(Moment)
-        meetingsFound = meetingsFound.map(m => {
-            let { startDatetime, ...c} = m
-            startDatetime = moment(startDatetime).subtract(3, 'hours').toDate()
-            return { startDatetime, ...c}
-        })
 
         if (name) {
             meetingsFound = meetingsFound.filter(meeting => {

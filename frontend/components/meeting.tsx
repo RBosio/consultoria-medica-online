@@ -1,10 +1,7 @@
-import { Chip, Divider, useTheme } from "@mui/material";
-import React, { useEffect, useState } from "react";
-import { IoIosArrowForward } from "react-icons/io";
-import Rate from "./rate";
+import { Chip, useTheme } from "@mui/material";
+import React from "react";
 import { robotoBold } from "@/lib/fonts";
 import Button from "./button";
-import { DoctorProps } from "./doctor";
 import {
   FaCalendar,
   FaCalendarDays,
@@ -12,23 +9,12 @@ import {
   FaUserDoctor,
 } from "react-icons/fa6";
 import { MeetingResponseDto } from "./dto/meeting.dto";
-import { GoDotFill } from "react-icons/go";
 import moment from "moment";
 import Link from "next/link";
 
 const Meeting: React.FC<MeetingResponseDto> = (props) => {
   const onConsultClick = () => {};
   const theme = useTheme();
-
-  moment.locale("es");
-  const [startDate, setStartDate] = useState("");
-  const [startTime, setStartTime] = useState("");
-
-  useEffect(() => {
-    moment.locale("es");
-    setStartDate(moment(props.startDatetime).format("L"));
-    setStartTime(moment(props.startDatetime).format("LT"));
-  }, []);
 
   return (
     <div
@@ -63,15 +49,16 @@ const Meeting: React.FC<MeetingResponseDto> = (props) => {
         <div className="w-3/4 h-2 border-t-2 border-emerald-200 mb-3"></div>
         <div className="border-b border-b-emerald-800 text-white bg-emerald-600 flex items-center p-1 rounded-lg">
           <FaCalendarDays />
-          <p className="ml-2">
-            {startDate} - {startTime}
+          <p className="ml-1">
+            {moment(props.startDatetime).format('DD/MM/YYYY HH:mm:ss')}
           </p>
         </div>
+        <div>
+          <p className="text-zinc-800">{props.status}</p>
+        </div>
         <Link
-          href={`${props.user.id}/${
-            props.startDatetime.toString().split("T")[0]
-          }T${props.startDatetime.toString().split("T")[1].split(".")[0]}`}
-          className="mt-10 mb-6">
+          href={`${props.user.id}/${moment(props.startDatetime).format('YYYY-MM-DDTHH:mm:ss')}`}
+          className="my-6">
           <Button
             onClick={onConsultClick}
             size="medium"
@@ -81,7 +68,7 @@ const Meeting: React.FC<MeetingResponseDto> = (props) => {
           </Button>
         </Link>
       </div>
-      <div className="w-6 h-6 bg-red-700 rounded-full absolute -bottom-2 -right-2"></div>
+      <div className="w-6 h-6 bg-primary rounded-full absolute -bottom-2 -right-2"></div>
     </div>
   );
 };

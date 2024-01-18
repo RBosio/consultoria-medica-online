@@ -3,7 +3,7 @@ import { Auth } from "../../../../../shared/types"
 import axios from "axios"
 import Layout from "@/components/layout"
 import { Autocomplete, useTheme } from "@mui/material"
-import Meeting from "@/components/meeting"
+import CardMeeting from "@/components/cardMeeting"
 import { useRouter } from "next/router"
 import { useState } from "react"
 import { FaChevronLeft, FaChevronRight, FaUserDoctor } from "react-icons/fa6"
@@ -18,7 +18,6 @@ import { robotoBold } from "@/lib/fonts"
 interface Test {
   auth: Auth
   meetings: MeetingResponseDto[]
-  meetingsFiltered: MeetingResponseDto[]
   specialities: SpecialityResponseDto[]
 }
 
@@ -192,10 +191,10 @@ export default function Home(props: Test) {
               style={{ transitionDuration: ".5s" }}
               id="carouselInner"
               >
-              {props.meetingsFiltered.length === 0 ? <h2 className="text-xl">No se encontraron resultados</h2> : ''}
-              {props.meetingsFiltered.map((meeting: MeetingResponseDto) => {
+              {props.meetings.length === 0 ? <h2 className="text-xl">No se encontraron resultados</h2> : ''}
+              {props.meetings.map((meeting: MeetingResponseDto) => {
                 return (
-                  <Meeting
+                  <CardMeeting
                     key={meeting.id}
                     id={meeting.id}
                     startDatetime={meeting.startDatetime}
@@ -291,7 +290,6 @@ export const getServerSideProps = withAuth(
       return {
         props: {
           meetings,
-          meetingsFiltered: meetings,
           specialities,
           auth,
         },
@@ -299,7 +297,7 @@ export const getServerSideProps = withAuth(
     } catch {
       return {
         props: {
-          doctors: { items: [] },
+          meetings: { items: [] },
           auth,
         },
       }

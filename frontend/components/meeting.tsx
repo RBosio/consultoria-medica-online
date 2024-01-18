@@ -1,26 +1,21 @@
 import { Chip, useTheme } from "@mui/material";
 import React from "react";
 import { robotoBold } from "@/lib/fonts";
-import Button from "./button";
 import {
-  FaCalendar,
-  FaCalendarDays,
-  FaCircleInfo,
+  FaEnvelope,
+  FaLocationDot,
+  FaPhone,
+  FaSuitcaseMedical,
   FaUserDoctor,
 } from "react-icons/fa6";
 import { MeetingResponseDto } from "./dto/meeting.dto";
-import moment from "moment";
-import Link from "next/link";
+import Rate from "./rate";
 
 const Meeting: React.FC<MeetingResponseDto> = (props) => {
-  const onConsultClick = () => {};
   const theme = useTheme();
 
   return (
-    <div
-      className="bg-white rounded-md shadow-md h-auto flex flex-col m-4 relative overflow-hidden"
-      style={{ minWidth: "calc(25% - 32px)" }}
-    >
+    <div className="bg-white rounded-md shadow-md h-auto flex flex-col relative w-full">
       {props.doctor.user.photo ? (
         <img
           src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/user/${props.doctor.user.photo}`}
@@ -34,7 +29,7 @@ const Meeting: React.FC<MeetingResponseDto> = (props) => {
       )}
       <div className="w-full flex flex-col justify-center items-center">
         <h2
-          className={`${robotoBold.className} text-2xl text-primary text-center`}
+          className={`${robotoBold.className} text-2xl text-primary text-center mt-2`}
         >
           {props.doctor.user.name} {props.doctor.user.surname}
         </h2>
@@ -46,29 +41,38 @@ const Meeting: React.FC<MeetingResponseDto> = (props) => {
           color="primary"
           label={props.speciality.name}
         />
-        <div className="w-3/4 h-2 border-t-2 border-emerald-200 mb-3"></div>
-        <div className="border-b border-b-emerald-800 text-white bg-emerald-600 flex items-center p-1 rounded-lg">
-          <FaCalendarDays />
-          <p className="ml-1">
-            {moment(props.startDatetime).format('DD/MM/YYYY HH:mm:ss')}
+        <div className="w-3/4 h-2 border-t-2 border-emerald-200"></div>
+        <Rate rate={props.doctor.avgRate} num={"n"} />
+        {props.doctor.description ? (
+          <p className="mx-6 mt-2 mb-6 text-justify line-clamp-5">
+            {props.doctor.description}
           </p>
+        ) : (
+          ""
+        )}
+        <div className="flex flex-col items-center mb-2 mt-2">
+          <div className="flex items-center">
+            <FaEnvelope className="text-primary" />
+            <p className="px-2">{props.doctor.user.email}</p>
+          </div>
+          <div className="flex items-center">
+            <FaPhone className="text-primary" />
+            <p className="px-2">{props.doctor.user.phone}</p>
+          </div>
+          <div className="flex items-center">
+            <FaSuitcaseMedical className="text-primary" />
+            <p className="px-2">{props.doctor.user.healthInsurance.name}</p>
+          </div>
+          {props.doctor.address ? (
+            <div className="flex items-center">
+              <FaLocationDot className="text-primary" />
+              <p className="px-2">{props.doctor.address}</p>
+            </div>
+          ) : (
+            ""
+          )}
         </div>
-        <div>
-          <p className="text-zinc-800">{props.status}</p>
-        </div>
-        <Link
-          href={`${props.user.id}/${moment(props.startDatetime).format('YYYY-MM-DDTHH:mm:ss')}`}
-          className="my-6">
-          <Button
-            onClick={onConsultClick}
-            size="medium"
-            startIcon={<FaCircleInfo />}
-          >
-            DETALLES
-          </Button>
-        </Link>
       </div>
-      <div className="w-6 h-6 bg-primary rounded-full absolute -bottom-2 -right-2"></div>
     </div>
   );
 };

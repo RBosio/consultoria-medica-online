@@ -99,7 +99,17 @@ export class MeetingService {
                 userId,
                 startDatetime
             },
-            relations: ['user', 'doctor']
+            relations: {
+                user: {
+                    healthInsurance: true
+                },
+                doctor: {
+                    user: {
+                        healthInsurance: true
+                    }
+                },
+                speciality: true
+            },
         })
         
         if (!meetingFound) {

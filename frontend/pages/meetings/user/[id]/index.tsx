@@ -13,15 +13,14 @@ import { MeetingResponseDto } from "@/components/dto/meeting.dto"
 import { SpecialityResponseDto } from "@/components/dto/speciality.dto"
 import Button from "@/components/button"
 import { IoMdSearch } from "react-icons/io"
-import { robotoBold } from "@/lib/fonts"
 
-interface Test {
+interface Meeting {
   auth: Auth
   meetings: MeetingResponseDto[]
   specialities: SpecialityResponseDto[]
 }
 
-export default function Home(props: Test) {
+export default function Home(props: Meeting) {
   const theme = useTheme()
   const router = useRouter()
 

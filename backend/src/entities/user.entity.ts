@@ -4,6 +4,7 @@ import { hash, compare } from 'bcryptjs'
 import { Doctor } from './doctor.entity'
 import { Meeting } from './meeting.entity'
 import { HealthInsurance } from './health-insurance.entity'
+import { Comment } from './comment.entity'
 
 @Entity()
 export class User {
@@ -66,6 +67,9 @@ export class User {
 
     @OneToMany(() => Meeting, meetings => meetings.user)
     meetings: Meeting[]
+
+    @OneToMany(() => Comment, comments => comments.user)
+    comments: Comment[]
 
     @BeforeInsert()
     @BeforeUpdate()

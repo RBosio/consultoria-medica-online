@@ -15,18 +15,21 @@ const Meeting: React.FC<MeetingResponseDto> = (props) => {
   const theme = useTheme();
 
   return (
-    <div className="bg-white rounded-md shadow-md h-auto flex flex-col relative w-full">
-      {props.doctor.user.photo ? (
-        <img
-          src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/user/${props.doctor.user.photo}`}
-          alt="Profile photo"
-          className="h-64 sm:h-56 object-cover w-full"
-        />
-      ) : (
-        <div className="w-full bg-primary flex items-center justify-center p-6">
-          <FaUserDoctor color="#ffffff" size={80} />
-        </div>
-      )}
+    <div className="bg-white rounded-md h-full flex flex-col relative w-full">
+      <div className="relative">
+        {props.doctor.user.photo ? (
+          <img
+            src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/user/${props.doctor.user.photo}`}
+            alt="Profile photo"
+            className="h-64 sm:h-56 object-cover w-full"
+          />
+        ) : (
+          <div className="w-full bg-primary flex items-center justify-center p-6 rounded-md">
+            <FaUserDoctor color="#ffffff" size={80} />
+          </div>
+        )}
+        <div className="bg-primary w-full h-2 absolute bottom-0"></div>
+      </div>
       <div className="w-full flex flex-col justify-center items-center">
         <h2
           className={`${robotoBold.className} text-2xl text-primary text-center mt-2`}

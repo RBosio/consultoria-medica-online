@@ -37,13 +37,11 @@ export class CommentService {
                 meetingUserId,
                 meetingStartDatetime
             },
-            relations: ['meeting']
+            relations: ['meeting', 'user']
         })
     }
 
     async create(comment: createCommentDto): Promise<Comment | HttpException> {
-        let newComment = this.commentRepository.create(comment)
-
         return this.commentRepository.save(comment)
     }
 

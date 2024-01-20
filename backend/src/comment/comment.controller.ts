@@ -71,7 +71,7 @@ export class CommentController {
     @Post(':userId/:datetime/file')
     uploadFile(@Param('userId', ParseIntPipe) userId: number, @Param('datetime') datetime: Date, @Req() request: Request) {
         const { body } = request
-        console.log(datetime)
+        
         return this.commentService.uploadFile(userId, datetime, body)
     }
 }

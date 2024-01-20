@@ -10,9 +10,10 @@ import Comment from "@/components/comment";
 import { CommentResponseDto } from "@/components/dto/comment.dto";
 import Meeting from "@/components/meeting";
 import Input from "@/components/input";
-import { FaPaperPlane, FaPaperclip } from "react-icons/fa6";
+import { FaPaperPlane, FaPaperclip, FaXmark } from "react-icons/fa6";
 import { useEffect, useState } from "react";
 import moment from "moment";
+import { robotoBold } from "@/lib/fonts";
 
 interface MeetingI {
   meeting: MeetingResponseDto;
@@ -28,6 +29,7 @@ export default function Home(props: MeetingI) {
 
   const [text, setText] = useState("");
   const [file, setFile] = useState<any>();
+  const [type, setType] = useState<any>("");
 
   async function handleClickComment() {
     const token = props.token;
@@ -48,36 +50,54 @@ export default function Home(props: MeetingI) {
 
       setText("");
     } else {
-      const comment = {
-        datetime: new Date(),
-        meetingUserId: id,
-        meetingStartDatetime: startDatetime,
-        comment: "",
-        userCommentId: props.auth.id,
-      };
-      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/comment`, comment, {
-        withCredentials: true,
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      if (
+        type.includes("office") ||
+        type.includes("pdf") ||
+        type.includes("jpg") ||
+        type.includes("jpeg") ||
+        type.includes("png")
+      ) {
+        const comment = {
+          datetime: new Date(),
+          meetingUserId: id,
+          meetingStartDatetime: startDatetime,
+          comment: "",
+          userCommentId: props.auth.id,
+        };
+        await axios.post(
+          `${process.env.NEXT_PUBLIC_API_URL}/comment`,
+          comment,
+          {
+            withCredentials: true,
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
 
-      const c = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/comment/${id}`, {
-        withCredentials: true,
-        headers: { Authorization: `Bearer ${token}` },
-      });
+        const c = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}/comment/${id}`,
+          {
+            withCredentials: true,
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
 
-      const formData = new FormData();
-      formData.append("file", file);
-      await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/comment/${id}/${moment(c.data.datetime).format('YYYY-MM-DDTHH:mm:ss')}/file`,
-        formData,
-        {
-          withCredentials: true,
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("type", type);
+        await axios.post(
+          `${process.env.NEXT_PUBLIC_API_URL}/comment/${id}/${moment(
+            c.data.datetime
+          ).format("YYYY-MM-DDTHH:mm:ss")}/file`,
+          formData,
+          {
+            withCredentials: true,
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+      }
     }
 
     router.push(`/meetings/user/${id}/${startDatetime}`);
@@ -98,7 +118,12 @@ export default function Home(props: MeetingI) {
   function handleChange(e: any) {
     if (e.target.files && e.target.files[0]) {
       setFile(e.target.files[0]);
+      setType(e.target.files[0].type);
     }
+  }
+
+  function xHandleClick() {
+    setFile("");
   }
 
   function handleSubmit(e: any) {
@@ -152,15 +177,25 @@ export default function Home(props: MeetingI) {
           </div>
           <form
             className="flex justify-center items-center m-2 text-primary"
-            action=""
             onSubmit={handleSubmit}
           >
-            <Input
-              placeholder="Escriba un texto"
-              value={text}
-              onChange={(e) => setText(e.target.value)}
-              id="scroll"
-            />
+            {file ? (
+              <div className={`w-full py-1 px-2 bg-primary rounded-md text-white flex justify-between items-center overflow-x-hidden h-8 ${file.name.length > 20 ? 'overflow-y-scroll' : ''}`}>
+                <div className={`${robotoBold.className}`}>{file.name}</div>
+                <FaXmark
+                  className="hover:cursor-pointer hover:opacity-70"
+                  onClick={xHandleClick}
+                />
+              </div>
+            ) : (
+              <Input
+                className="w-full"
+                placeholder="Escriba un texto"
+                value={text}
+                onChange={(e) => setText(e.target.value)}
+                id="scroll"
+              />
+            )}
             <input
               type="file"
               id="file"
@@ -168,11 +203,11 @@ export default function Home(props: MeetingI) {
               onChange={handleChange}
             />
             <FaPaperclip
-              className="mx-2 hover:cursor-pointer"
+              className="mx-2 hover:cursor-pointer hover:opacity-70"
               onClick={handleClickFile}
             />
             <FaPaperPlane
-              className="hover:cursor-pointer"
+              className="hover:cursor-pointer hover:opacity-70"
               onClick={handleClickComment}
             />
           </form>

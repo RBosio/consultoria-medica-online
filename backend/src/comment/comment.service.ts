@@ -75,10 +75,11 @@ export class CommentService {
     }
 
     async uploadFile(commentMeetingUserId: number, commentDatetime: Date, body: any ) {
-        const { url, name } = body
+        const { url, name, type } = body
         const file = {
             url,
             name,
+            type,
             commentMeetingUserId,
             commentDatetime
         }

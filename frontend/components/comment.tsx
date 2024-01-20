@@ -12,18 +12,20 @@ const Comment: React.FC<CommentResponseDto> = (props) => {
   const theme = useTheme();
   const router = useRouter();
 
-  async function handlerClick() {
+  async function handlerClick(name: string, type: string) {
     await axios({
       url: `http://localhost:3000/uploads/user/files/${props.files[0].url}`,
       method: "GET",
       responseType: "blob",
     }).then((response) => {
-      // const url = window.URL.createObjectURL(new Blob([response.data]));
-      // const link = document.createElement("a");
-      // link.href = url;
-      // link.setAttribute("download", "file.jpeg");
-      // document.body.appendChild(link);
-      // link.click();
+      if (type.includes("office")) {
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", `${name}`);
+        document.body.appendChild(link);
+        link.click();
+      }
     });
   }
 
@@ -46,21 +48,31 @@ const Comment: React.FC<CommentResponseDto> = (props) => {
             </h4>
           </div>
           {props.comment ? (
-            <p className="text-justify line-clamp-3 mt-[2px]">{props.comment}</p>
+            <p className="text-justify line-clamp-3 mt-[2px]">
+              {props.comment}
+            </p>
           ) : (
-            props.files.map((f) => (
-              <Link
-                target="_blank"
-                href={`http://localhost:3000/uploads/user/files/${props.files[0].url}`}
-              >
+            props.files.map((f) =>
+              f.type.includes("office") ? (
                 <p
+                  key={f.url}
                   className="text-primary mt-[2px] p-[2px] rounded-sm hover:cursor-pointer hover:opacity-70 underline"
-                  onClick={handlerClick}
+                  onClick={() => handlerClick(f.name, f.type)}
                 >
                   {f.name}
                 </p>
-              </Link>
-            ))
+              ) : (
+                <Link
+                  key={f.url}
+                  target="_blank"
+                  href={`http://localhost:3000/uploads/user/files/${props.files[0].url}`}
+                >
+                  <p className="text-primary mt-[2px] p-[2px] rounded-sm hover:cursor-pointer hover:opacity-70 underline">
+                    {f.name}
+                  </p>
+                </Link>
+              )
+            )
           )}
         </div>
         <div className="text-gray-500 text-xs mt-2 flex justify-end">

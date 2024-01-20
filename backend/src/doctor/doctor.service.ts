@@ -74,6 +74,7 @@ export class DoctorService {
 
         return {
             previousPage: page - 1 ? page - 1 : null,
+            currentPage: page,
             nextPage: (totalPages > page) ? page + 1 : null,
             total: items.length,
             totalPages: totalPages,

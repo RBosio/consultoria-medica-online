@@ -23,7 +23,7 @@ const Doctor: React.FC<DoctorProps> = (props) => {
     };
 
     return (
-        <div className="bg-white rounded-md shadow-md h-64 sm:h-56 flex">
+        <div className="bg-white w-full rounded-md shadow-md h-64 sm:h-56 flex">
             {
                 props.photo ?
                     <img src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/user/${props.photo}`} alt="Profile photo" className='h-64 sm:h-56 object-cover w-48' />

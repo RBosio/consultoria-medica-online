@@ -1,16 +1,14 @@
-import React, { useEffect } from "react";
+import React from "react";
 import Image from "next/image";
-import { Backdrop, IconButton, List, ListItemButton, ListItemIcon, ListItemText } from "@mui/material";
+import { IconButton, List, ListItemButton, ListItemIcon, ListItemText } from "@mui/material";
 import { MdSpaceDashboard } from "react-icons/md";
 import { MdOutlineAdminPanelSettings } from "react-icons/md";
 import { PiGearSix } from "react-icons/pi";
 import { FaUserDoctor, FaVideo } from "react-icons/fa6"
-import { FaCalendarDays } from "react-icons/fa6"
 import { GrLogout } from "react-icons/gr";
 import { useTheme } from "@mui/material";
 import { useRouter } from "next/router";
 import Link from "next/link";
-import { useRef } from "react";
 import { Auth } from "../../../shared/types";
 import { IoIosCloseCircleOutline } from "react-icons/io";
 import Avatar from "../avatar";
@@ -25,7 +23,6 @@ const Sidebar: React.FC<SidebarProps> = (props) => {
 
     const theme = useTheme();
     const router = useRouter();
-    const root = useRef<HTMLDivElement>(null);
 
     const routes = {
         top: [
@@ -40,14 +37,14 @@ const Sidebar: React.FC<SidebarProps> = (props) => {
                 icon: <FaUserDoctor />
             },
             {
-                name: "Configuración",
-                path: "/config",
-                icon: <PiGearSix />,
-            },
-            {
                 name: "Mis reuniones",
                 path: `/meetings/user/${props.auth.id}`,
                 icon: <FaVideo />,
+            },
+            {
+                name: "Configuración",
+                path: "/config",
+                icon: <PiGearSix />,
             },
         ],
         bottom: [
@@ -66,7 +63,7 @@ const Sidebar: React.FC<SidebarProps> = (props) => {
 
 
     return (
-        <section ref={root} className={`
+        <section className={`
         absolute transition-[left] 
         duration-300 ease-in
         top-0 ${props.sidebarOpened ? "left-0" : "left-[-48rem]"} 

@@ -61,6 +61,7 @@ export default function Home(props: Test) {
       page++
       return (
         <div
+          key={page.toString()}
           onClick={handleClick}
           id={page.toString()}
           className={`w-4 h-4 rounded-full ${
@@ -193,11 +194,11 @@ export default function Home(props: Test) {
               id="carouselInner"
               >
               {props.meetingsFiltered.length === 0 ? <h2 className="text-xl">No se encontraron resultados</h2> : ''}
-              {props.meetingsFiltered.map((meeting: MeetingResponseDto) => {
+              {props.meetingsFiltered.map((meeting: MeetingResponseDto, meetingId: number) => {
                 return (
                   <Meeting
-                    key={meeting.id}
-                    id={meeting.id}
+                    key={meetingId}
+                    id={meetingId}
                     startDatetime={meeting.startDatetime}
                     status={meeting.status}
                     user={meeting.user}

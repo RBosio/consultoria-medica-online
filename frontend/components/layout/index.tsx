@@ -10,9 +10,10 @@ interface LayoutProps {
     renderSidebar?: boolean,
     className?: string,
     auth: Auth,
+    contentRef?: React.RefObject<any> ,
 }
 
-const Layout: React.FC<LayoutProps> = ({ children, renderNavbar = true, renderSidebar = true, className, auth }) => {
+const Layout: React.FC<LayoutProps> = ({ children, renderNavbar = true, renderSidebar = true, className, auth, contentRef }) => {
 
     const [sidebarOpened, setSidebarOpened] = useState(false);
 
@@ -21,7 +22,7 @@ const Layout: React.FC<LayoutProps> = ({ children, renderNavbar = true, renderSi
             {renderSidebar && <Sidebar auth={auth} sidebarOpened={sidebarOpened} setSidebarOpened={setSidebarOpened} />}
             <section className="grow w-full overflow-hidden flex flex-col">
                 {renderNavbar && <Navbar auth={auth} sidebarOpened={sidebarOpened} setSidebarOpened={setSidebarOpened}/>}
-                <div className={`${className} overflow-y-auto grow`}>
+                <div ref={contentRef} className={`${className ?? ""} overflow-y-auto grow`}>
                     {children}
                 </div>
             </section>

@@ -1,9 +1,8 @@
-import { Chip, useTheme } from "@mui/material";
+import { Chip } from "@mui/material";
 import React from "react";
 import { robotoBold } from "@/lib/fonts";
 import Button from "./button";
 import {
-  FaCalendar,
   FaCalendarDays,
   FaCircleInfo,
   FaUserDoctor,
@@ -14,7 +13,6 @@ import Link from "next/link";
 
 const Meeting: React.FC<MeetingResponseDto> = (props) => {
   const onConsultClick = () => {};
-  const theme = useTheme();
 
   return (
     <div

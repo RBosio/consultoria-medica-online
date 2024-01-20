@@ -12,6 +12,7 @@ import Meeting from "@/components/meeting";
 import Input from "@/components/input";
 import { FaPaperPlane, FaPaperclip } from "react-icons/fa6";
 import { useEffect, useState } from "react";
+import moment from "moment";
 
 interface MeetingI {
   meeting: MeetingResponseDto;
@@ -26,42 +27,87 @@ export default function Home(props: MeetingI) {
   const router = useRouter();
 
   const [text, setText] = useState("");
-  const [submit, setSubmit] = useState("");
+  const [file, setFile] = useState<any>();
 
-  async function handleClick() {
+  async function handleClickComment() {
     const token = props.token;
     const { id, startDatetime } = router.query;
 
-    const comment = {
-      datetime: new Date(),
-      meetingUserId: id,
-      meetingStartDatetime: startDatetime,
-      comment: text,
-      userCommentId: props.auth.id,
-    };
-    await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/comment`, comment, {
-      withCredentials: true,
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    if (text.length > 0) {
+      const comment = {
+        datetime: new Date(),
+        meetingUserId: id,
+        meetingStartDatetime: startDatetime,
+        comment: text,
+        userCommentId: props.auth.id,
+      };
+      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/comment`, comment, {
+        withCredentials: true,
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
-    setText("");
+      setText("");
+    } else {
+      const comment = {
+        datetime: new Date(),
+        meetingUserId: id,
+        meetingStartDatetime: startDatetime,
+        comment: "",
+        userCommentId: props.auth.id,
+      };
+      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/comment`, comment, {
+        withCredentials: true,
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      const c = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/comment/${id}`, {
+        withCredentials: true,
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      const formData = new FormData();
+      formData.append("file", file);
+      await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/comment/${id}/${moment(c.data.datetime).format('YYYY-MM-DDTHH:mm:ss')}/file`,
+        formData,
+        {
+          withCredentials: true,
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+    }
+
     router.push(`/meetings/user/${id}/${startDatetime}`);
 
     setTimeout(() => {
-      const scrollBar = document.getElementById("test");
+      const scrollBar = document.getElementById("scroll");
       if (scrollBar) {
         scrollBar.scrollTop = 20000;
       }
     }, 240);
   }
 
+  function handleClickFile() {
+    const file = document.getElementById("file");
+    file?.click();
+  }
+
+  function handleChange(e: any) {
+    if (e.target.files && e.target.files[0]) {
+      setFile(e.target.files[0]);
+    }
+  }
+
   function handleSubmit(e: any) {
-    e.preventDefault()
-    handleClick();
-  };
+    e.preventDefault();
+    handleClickComment();
+  }
 
   useEffect(() => {
-    const scrollBar = document.getElementById("test");
+    const scrollBar = document.getElementById("scroll");
     if (scrollBar) {
       scrollBar.scrollTop = 20000;
     }
@@ -85,7 +131,11 @@ export default function Home(props: MeetingI) {
         </section>
         <section className="w-1/2"></section>
         <section className="w-1/4 max-h-full bg-white rounded-lg">
-          <div className="overflow-scroll" id="test" style={{ height: "90%" }}>
+          <div
+            className="overflow-scroll"
+            id="scroll"
+            style={{ height: "90%" }}
+          >
             {props.comments.map((comment) => {
               return (
                 <>
@@ -94,6 +144,7 @@ export default function Home(props: MeetingI) {
                     datetime={comment.datetime}
                     user={comment.user}
                     auth={props.auth}
+                    files={comment.files}
                   />
                 </>
               );
@@ -101,21 +152,28 @@ export default function Home(props: MeetingI) {
           </div>
           <form
             className="flex justify-center items-center m-2 text-primary"
-            action="" onSubmit={handleSubmit}
+            action=""
+            onSubmit={handleSubmit}
           >
             <Input
               placeholder="Escriba un texto"
               value={text}
               onChange={(e) => setText(e.target.value)}
-              id="test"
+              id="scroll"
+            />
+            <input
+              type="file"
+              id="file"
+              className="hidden"
+              onChange={handleChange}
             />
             <FaPaperclip
               className="mx-2 hover:cursor-pointer"
-              onClick={handleClick}
+              onClick={handleClickFile}
             />
             <FaPaperPlane
               className="hover:cursor-pointer"
-              onClick={handleClick}
+              onClick={handleClickComment}
             />
           </form>
         </section>

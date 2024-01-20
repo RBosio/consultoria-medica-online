@@ -1,21 +1,40 @@
 import { useTheme } from "@mui/material";
 import React from "react";
 import { robotoBold } from "@/lib/fonts";
-import {
-  FaUserDoctor,
-} from "react-icons/fa6";
+import { FaUserDoctor } from "react-icons/fa6";
 import { CommentResponseDto } from "./dto/comment.dto";
 import moment from "moment";
+import axios from "axios";
+import { useRouter } from "next/router";
+import Link from "next/link";
 
 const Comment: React.FC<CommentResponseDto> = (props) => {
   const theme = useTheme();
+  const router = useRouter();
+
+  async function handlerClick() {
+    await axios({
+      url: `http://localhost:3000/uploads/user/files/${props.files[0].url}`,
+      method: "GET",
+      responseType: "blob",
+    }).then((response) => {
+      // const url = window.URL.createObjectURL(new Blob([response.data]));
+      // const link = document.createElement("a");
+      // link.href = url;
+      // link.setAttribute("download", "file.jpeg");
+      // document.body.appendChild(link);
+      // link.click();
+    });
+  }
 
   return (
     <>
       <div className="px-4 py-2">
         <div
           className={`flex flex-col ${
-            props.user.id === props.auth.id ? "items-end" : "items-start"
+            props.user.id === props.auth.id
+              ? "items-end text-right"
+              : "items-start text-left"
           }`}
         >
           <div className="flex justify-center items-center">
@@ -27,14 +46,21 @@ const Comment: React.FC<CommentResponseDto> = (props) => {
             </h4>
           </div>
           {props.comment ? (
-            <p className="text-justify line-clamp-3 mt-2">{props.comment}</p>
+            <p className="text-justify line-clamp-3 mt-[2px]">{props.comment}</p>
           ) : (
-            <p className="text-justify line-clamp-3">
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Modi,
-              minima consequuntur. Harum praesentium dolorum molestias ipsam et
-              asperiores porro quam, dicta tempora. Assumenda incidunt sit
-              dolore accusantium, facilis sint quas!
-            </p>
+            props.files.map((f) => (
+              <Link
+                target="_blank"
+                href={`http://localhost:3000/uploads/user/files/${props.files[0].url}`}
+              >
+                <p
+                  className="text-primary mt-[2px] p-[2px] rounded-sm hover:cursor-pointer hover:opacity-70 underline"
+                  onClick={handlerClick}
+                >
+                  {f.name}
+                </p>
+              </Link>
+            ))
           )}
         </div>
         <div className="text-gray-500 text-xs mt-2 flex justify-end">

@@ -135,7 +135,7 @@ export class UserService {
         return result
     }
 
-    async uploadFile(dni: string, url: string) {
+    async uploadImage(dni: string, url: string) {
         const userFound = await this.userRepository.findOne({
             where: {
                 dni

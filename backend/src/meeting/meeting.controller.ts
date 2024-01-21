@@ -52,9 +52,9 @@ export class MeetingController {
         return this.meetingService.update(id, startDatetime, meeting)
     }
 
-    @Delete(':id/:startDatetime')
+    @Patch('cancel/:id/:startDatetime')
     @Roles(RoleEnum.User)
-    deleteMeeting(@Param('id') id: number, @Param('startDatetime') startDatetime: Date) {
-        return this.meetingService.delete(id, startDatetime)
+    cancelMeeting(@Param('id') id: number, @Param('startDatetime') startDatetime: Date, @Body() meeting: updateMeetingDto) {
+        return this.meetingService.cancel(id, startDatetime, meeting)
     }
 }

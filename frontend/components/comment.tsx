@@ -48,7 +48,7 @@ const Comment: React.FC<CommentResponseDto> = (props) => {
             </h4>
           </div>
           {props.comment ? (
-            <p className="text-justify line-clamp-3 mt-[2px]">
+            <p className="line-clamp-3 mt-[2px] w-3/4">
               {props.comment}
             </p>
           ) : (
@@ -56,7 +56,7 @@ const Comment: React.FC<CommentResponseDto> = (props) => {
               f.type.includes("office") ? (
                 <p
                   key={f.url}
-                  className="text-primary mt-[2px] p-[2px] rounded-sm hover:cursor-pointer hover:opacity-70 underline"
+                  className="text-primary mt-[2px] p-[2px] rounded-sm hover:cursor-pointer hover:opacity-70 underline w-3/4"
                   onClick={() => handlerClick(f.name, f.type)}
                 >
                   {f.name}
@@ -74,11 +74,11 @@ const Comment: React.FC<CommentResponseDto> = (props) => {
               )
             )
           )}
+          <div className="text-gray-500 text-xs mt-2 flex justify-end">
+            {moment(props.datetime).format("LLL")}
+          </div>
         </div>
-        <div className="text-gray-500 text-xs mt-2 flex justify-end">
-          {moment(props.datetime).format("LLL")}
-        </div>
-        <div className="bg-primary w-full mt-1" style={{ height: "1px" }}></div>
+        <div className="bg-emerald-200 w-full mt-1" style={{ height: "1px" }}></div>
       </div>
     </>
   );

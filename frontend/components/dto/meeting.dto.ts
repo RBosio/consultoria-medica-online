@@ -6,6 +6,7 @@ export interface MeetingResponseDto {
     id : number
     startDatetime: Date
     status: string
+    motive: string
     user: UserResponseDto
     doctor: DoctorResponseDto
     speciality: SpecialityResponseDto

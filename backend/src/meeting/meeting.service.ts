@@ -188,13 +188,23 @@ export class MeetingService {
         return updateMeeting
     }
     
-    async delete(userId: number, startDatetime: Date) {
-        const result = await this.meetingRepository.delete({userId, startDatetime})
+    async cancel(userId: number, startDatetime: Date, meeting: updateMeetingDto) {
+        const meetingFound = await this.meetingRepository.findOne({
+            where: {
+                userId,
+                startDatetime
+            }
+        })
         
-        if (result.affected == 0) {
+        if (!meetingFound) {
             throw new HttpException('Reunion no encontrada', HttpStatus.NOT_FOUND)
         }
+
+        meetingFound.status = 'Cancelada'
+        meetingFound.motive = meeting.motive
+
+        await this.meetingRepository.save(meetingFound)
         
-        return result
+        return meetingFound
     }
 }

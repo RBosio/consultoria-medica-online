@@ -28,6 +28,9 @@ export class Meeting {
     @Column({nullable: true})
     tpc: string
 
+    @Column({nullable: true})
+    motive: string
+
     @ManyToOne(() => User, user => user.meetings, {nullable: false})
     user: User
     

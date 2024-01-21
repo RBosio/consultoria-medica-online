@@ -67,6 +67,39 @@ export class MeetingService {
 
         return meetingsFound
     }
+
+    async findAllByDoctor(id: number, query: getMeetingsDto): Promise<Meeting[]> {
+        const { name, status } = query
+        
+        let doctorFound = await this.doctorService.findOneByUserId(id)
+
+        let meetingsFound = await this.meetingRepository.find({
+            relations: {
+                user: true,
+                doctor: {
+                    user: true
+                },
+                speciality: true
+            },
+            where: {
+                doctorId: doctorFound.id
+            }
+        })
+
+        if (name) {
+            meetingsFound = meetingsFound.filter(meeting => {
+                const fullName = `${meeting.user.name} ${meeting.user.surname}`.toLowerCase();
+                const nameToSearch = name.toLowerCase();
+                return fullName.includes(nameToSearch);
+            })
+        }
+
+        if (status) {
+            meetingsFound = meetingsFound.filter(meeting => meeting.status === status)
+        }
+
+        return meetingsFound
+    }
     
     async findByUser(userId: number): Promise<Meeting[]> {
         return this.meetingRepository.find({
@@ -99,7 +132,17 @@ export class MeetingService {
                 userId,
                 startDatetime
             },
-            relations: ['user', 'doctor']
+            relations: {
+                user: {
+                    healthInsurance: true
+                },
+                doctor: {
+                    user: {
+                        healthInsurance: true
+                    }
+                },
+                speciality: true
+            },
         })
         
         if (!meetingFound) {
@@ -178,13 +221,24 @@ export class MeetingService {
         return updateMeeting
     }
     
-    async delete(userId: number, startDatetime: Date) {
-        const result = await this.meetingRepository.delete({userId, startDatetime})
+    async cancel(userId: number, startDatetime: Date, meeting: updateMeetingDto) {
+        const meetingFound = await this.meetingRepository.findOne({
+            where: {
+                userId,
+                startDatetime
+            }
+        })
         
-        if (result.affected == 0) {
+        if (!meetingFound) {
             throw new HttpException('Reunion no encontrada', HttpStatus.NOT_FOUND)
         }
+
+        meetingFound.status = 'Cancelada'
+        meetingFound.motive = meeting.motive
+        meetingFound.cancelDate = new Date()
+
+        await this.meetingRepository.save(meetingFound)
         
-        return result
+        return meetingFound
     }
 }

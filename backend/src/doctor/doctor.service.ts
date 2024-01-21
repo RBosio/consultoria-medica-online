@@ -135,6 +135,23 @@ export class DoctorService {
         return doctorFound
     }
 
+    async findOneByUserId(id: number) {
+        const doctorFound = await this.doctorRepository.findOne({
+            where: {
+                user: {
+                    id
+                }
+            },
+            relations: ['user']
+        })
+
+        if (!doctorFound) {
+            throw new HttpException('Medico no encontrado', HttpStatus.NOT_FOUND)
+        }
+
+        return doctorFound
+    }
+
     async verify(id: number) {
         const doctorFound = await this.doctorRepository.findOne({
             where: {

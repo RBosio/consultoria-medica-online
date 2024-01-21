@@ -3,8 +3,9 @@ import { useTheme } from '@mui/material';
 import Rating from '@mui/material/Rating';
 
 interface RateProps {
-    rate: number,
-    className?: string,
+    rate: number
+    num?: string
+    className?: string
 }
 
 const Rate: React.FC<RateProps> = (props) => {
@@ -21,7 +22,7 @@ const Rate: React.FC<RateProps> = (props) => {
                     color: theme.palette.primary.main,
                 },
             }} color='primary' value={props.rate} precision={0.5} readOnly />
-            <span className="text-md font-bold md:ml-2">{props.rate}</span>
+            {props.num ? '' : <span className="text-md font-bold md:ml-2">{props.rate}</span>}
         </div>
     );
 };

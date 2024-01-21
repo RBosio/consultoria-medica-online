@@ -85,7 +85,7 @@ export class AppModule {
         
       const queries = readSqlFile('public/defaultData.sql')
       queries.forEach((query, i) => {
-        if(i < 12) {
+        if(i < 6) {
           queryRunner.query(query)
         }
       })
@@ -98,7 +98,7 @@ export class AppModule {
               queryRunner.query(query)
           })
           queries.forEach((query, i) => {
-            if(i >= 12) {
+            if(i >= 6) {
               queryRunner.query(query)
             }
           })

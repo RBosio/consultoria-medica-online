@@ -13,7 +13,7 @@ import { Doctor } from 'src/entities/doctor.entity';
     JwtModule.register({
       global: true,
       secret: jwtConstants.secret,
-      signOptions: { expiresIn: '1h' },
+      signOptions: { expiresIn: '24h' },
     }),
     TypeOrmModule.forFeature([Doctor])
   ],

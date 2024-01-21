@@ -4,25 +4,29 @@ import { Repository } from 'typeorm';
 import { createCommentDto } from './dto/create-comment.dto';
 import { updateCommentDto } from './dto/update-comment.dto';
 import { Comment } from 'src/entities/comment.entity';
+import { File } from 'src/entities/file.entity';
 
 @Injectable()
 export class CommentService {
 
     constructor(
-        @InjectRepository(Comment) private commentRepository: Repository<Comment>
+        @InjectRepository(Comment) private commentRepository: Repository<Comment>,
+        @InjectRepository(File) private fileRepository: Repository<File>
         ) {}
 
     findAll(): Promise<Comment[]> {
         return this.commentRepository.find()
     }
     
-    async findOne(meetingUserId: number, datetime: Date): Promise<Comment> {
+    async findOne(userCommentId: number): Promise<Comment> {
         const commentFound = await this.commentRepository.findOne({
             where: {
-                meetingUserId,
-                datetime
+                userCommentId,
             },
-            relations: ['meeting']
+            relations: ['meeting'],
+            order: {
+                datetime: 'DESC'
+            }
         })
         if (!commentFound) {
             throw new HttpException('Comentario no encontrado', HttpStatus.NOT_FOUND)
@@ -37,13 +41,11 @@ export class CommentService {
                 meetingUserId,
                 meetingStartDatetime
             },
-            relations: ['meeting']
+            relations: ['meeting', 'user', 'files']
         })
     }
 
     async create(comment: createCommentDto): Promise<Comment | HttpException> {
-        let newComment = this.commentRepository.create(comment)
-
         return this.commentRepository.save(comment)
     }
 
@@ -70,5 +72,18 @@ export class CommentService {
         }
 
         return result
+    }
+
+    async uploadFile(commentMeetingUserId: number, commentDatetime: Date, body: any ) {
+        const { url, name, type } = body
+        const file = {
+            url,
+            name,
+            type,
+            commentMeetingUserId,
+            commentDatetime
+        }
+
+        return this.fileRepository.save(file)
     }
 }

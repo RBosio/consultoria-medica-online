@@ -1,5 +1,7 @@
-import { Column, Entity, ManyToOne, PrimaryColumn } from 'typeorm'
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryColumn } from 'typeorm'
 import { Meeting } from './meeting.entity'
+import { User } from './user.entity'
+import { File } from './file.entity'
 
 @Entity()
 export class Comment {
@@ -18,6 +20,13 @@ export class Comment {
     @Column()
     userCommentId: number
 
+    @OneToMany(() => File, file => file.comment)
+    files: File[]
+    
     @ManyToOne(() => Meeting, meeting => meeting.comments, {nullable: false})
     meeting: Meeting
+
+    @ManyToOne(() => User, user => user.comments)
+    @JoinColumn({ name: 'userCommentId' })
+    user: User
 }

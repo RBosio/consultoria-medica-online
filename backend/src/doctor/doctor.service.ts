@@ -125,7 +125,7 @@ export class DoctorService {
             where: {
                 id
             },
-            relations: ['user', 'schedules']
+            relations: ['user', 'schedules', 'specialities']
         })
 
         if (!doctorFound) {

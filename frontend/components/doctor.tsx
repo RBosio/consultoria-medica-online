@@ -5,6 +5,7 @@ import Rate from './rate';
 import { robotoBold } from '@/lib/fonts';
 import Button from './button';
 import { FaUserDoctor } from "react-icons/fa6";
+import { useRouter } from 'next/router';
 
 export interface DoctorProps {
     fullName: string,
@@ -18,9 +19,7 @@ export interface DoctorProps {
 
 const Doctor: React.FC<DoctorProps> = (props) => {
 
-    const onConsultClick = () => {
-
-    };
+    const router = useRouter();
 
     return (
         <div className="bg-white w-full rounded-md shadow-md h-64 sm:h-56 flex">
@@ -42,7 +41,7 @@ const Doctor: React.FC<DoctorProps> = (props) => {
                 </div>
                 <div className="shrink-0 flex flex-row sm:flex-col items-start justify-between sm:h-full sm:items-center sm:justify-center gap-4">
                     <Rate rate={props.rate}/>
-                    <Button onClick={onConsultClick} size='medium' startIcon={<IoIosArrowForward />}>CONSULTAR</Button>
+                    <Button onClick={() => router.push(`${router.pathname}/${props.id}`)} size='medium' startIcon={<IoIosArrowForward />}>CONSULTAR</Button>
                 </div>
             </div>
         </div>

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { ReactElement } from "react";
 import { Avatar as MUIAvatar } from "@mui/material";
 
 interface AvatarProps {
@@ -11,6 +11,7 @@ interface AvatarProps {
     },
     size?: number,
     className? : string,
+    icon?: ReactElement,
 }
 
 //IMPLEMENTACIÓN DE: https://mui.com/material-ui/react-avatar/#system-BackgroundLetterAvatars.tsx
@@ -53,7 +54,7 @@ const Avatar: React.FC<AvatarProps> = (props) => {
                 src={props.photo}
                 sx={{ bgcolor: stringToColor(fullName), width: props.size ?? 40, height: props.size ?? 40 }}
             >
-                {firstTwoChars}
+                {props.icon ?? firstTwoChars}
             </MUIAvatar>
             <span className={`text-secondary ${props.labelProps?.className}`}>{props.name} {props.surname}</span>
         </div>

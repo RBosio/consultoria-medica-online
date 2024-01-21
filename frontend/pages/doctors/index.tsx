@@ -30,7 +30,7 @@ export default function Doctors(props: any) {
   const onPageChange = async (ev: React.ChangeEvent<unknown>, page: number) => {
     const queryWPage = new URLSearchParams({ ...router.query, page: page.toString() }).toString();
     await router.push(`${router.pathname}?${queryWPage}`);
-    ref.current.scrollIntoView({behavior: "smooth"});
+    ref.current.scrollIntoView({ behavior: "smooth" });
   };
 
   return (
@@ -41,7 +41,7 @@ export default function Doctors(props: any) {
           <p className="absolute invisible top-[-4rem]" ref={ref}>q</p>
           {
             props.doctors.items.length === 0 ?
-              <h2 className="text-xl absolute top-1/2 left-1/2 translate-x-[-50%] translate-y-[-50%]">No se encontraron resultados</h2>
+              <h2 className="text-xl absolute top-1/2 left-1/2 translate-x-[-50%] translate-y-[-50%] text-center">No se encontraron resultados</h2>
               :
               props.doctors.items.map((doctor: any) => (
                 <Doctor
@@ -75,7 +75,7 @@ export default function Doctors(props: any) {
               }} count={props.doctors.totalPages} onChange={onPageChange} variant='outlined' shape="rounded" />
             </div>}
         </div>
-        <Fab onClick={() => setOpenedFilters(true)} variant='extended' className="z-0 bg-secondary hover:bg-[#4F4F4F] absolute bottom-4 right-8 text-white hidden">
+        <Fab onClick={() => setOpenedFilters(true)} variant='extended' className="z-0 bg-secondary hover:bg-[#4F4F4F] absolute bottom-4 right-8 text-white xl:hidden">
           <FaFilter className="mr-2" />
           FILTROS
         </Fab>
@@ -123,7 +123,9 @@ const Filters: React.FC<FiltersProps> = (props) => {
   };
 
   return (
-    <div className={`bg-white transition-[right] duration-300 ease-in-out ${props.openedFilters ? "right-0" : "right-[-63rem]"} z-10 shadow-xl absolute h-full w-full md:w-[calc(100%-15rem)] overflow-y-auto xl:z-0 xl:static xl:min-w-64 xl:w-4/12`}>
+    <div className={`h-full bg-white transition-[right] duration-300 ease-in-out ${props.openedFilters ? "right-0" : "right-[-63rem]"} 
+    z-10 shadow-xl absolute w-full md:w-[calc(100%-15rem)] overflow-y-auto 
+    xl:z-0 xl:static xl:min-w-64 xl:w-4/12 xl:rounded-md xl:m-6 xl:h-auto`}>
       <span className="flex items-center justify-center">
         <h2 className={`${robotoBold.className} text-primary text-xl my-4`}>Filtrar</h2>
         <IconButton onClick={() => props.setOpenedFilters(false)} className="absolute right-0 xl:hidden" color="error">
@@ -188,7 +190,7 @@ const Filters: React.FC<FiltersProps> = (props) => {
               </ToggleButton>
             </ToggleButtonGroup>
           </div>
-          <Button className='mt-[4rem]' type='submit' size='large' startIcon={<IoMdSearch />}>Buscar</Button>
+          <Button className="mt-[4rem] xl:mt-0" type='submit' size='large' startIcon={<IoMdSearch />}>Buscar</Button>
         </form>
       </div>
     </div>

@@ -11,7 +11,7 @@ import {
 import { MeetingResponseDto } from "./dto/meeting.dto";
 import Rate from "./rate";
 
-const Meeting: React.FC<MeetingResponseDto> = (props) => {
+const DoctorCard: React.FC<MeetingResponseDto> = (props) => {
   const theme = useTheme();
 
   return (
@@ -80,4 +80,4 @@ const Meeting: React.FC<MeetingResponseDto> = (props) => {
   );
 };
 
-export default Meeting;
+export default DoctorCard;

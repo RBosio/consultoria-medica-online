@@ -23,9 +23,15 @@ export class MeetingController {
     }
     
     @Get('user/:userId')
-    @Roles(RoleEnum.User, RoleEnum.Doctor)
+    @Roles(RoleEnum.User)
     getMeetingsByUser(@Param('userId', ParseIntPipe) userId: number, @Query() query: getMeetingsDto): Promise<Meeting[]> {
         return this.meetingService.findAllByUser(userId, query)
+    }
+
+    @Get('doctor/:userId')
+    @Roles(RoleEnum.Doctor)
+    getMeetingsByDoctor(@Param('userId', ParseIntPipe) userId: number, @Query() query: getMeetingsDto): Promise<Meeting[]> {
+        return this.meetingService.findAllByDoctor(userId, query)
     }
     
     @Get(':id/:startDatetime')
@@ -53,7 +59,7 @@ export class MeetingController {
     }
 
     @Patch('cancel/:id/:startDatetime')
-    @Roles(RoleEnum.User)
+    @Roles(RoleEnum.User, RoleEnum.Doctor)
     cancelMeeting(@Param('id') id: number, @Param('startDatetime') startDatetime: Date, @Body() meeting: updateMeetingDto) {
         return this.meetingService.cancel(id, startDatetime, meeting)
     }

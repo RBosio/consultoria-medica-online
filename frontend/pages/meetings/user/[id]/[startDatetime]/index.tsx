@@ -2,13 +2,13 @@ import withAuth from "@/lib/withAuth";
 import { Auth } from "@/../shared/types";
 import axios from "axios";
 import Layout from "@/components/layout";
-import { TextField, useTheme } from "@mui/material";
+import { useTheme } from "@mui/material";
 import { useRouter } from "next/router";
 import { MeetingResponseDto } from "@/components/dto/meeting.dto";
 import { SpecialityResponseDto } from "@/components/dto/speciality.dto";
 import Comment from "@/components/comment";
 import { CommentResponseDto } from "@/components/dto/comment.dto";
-import Meeting from "@/components/meeting";
+import CardDoctor from "@/components/doctorCard";
 import Input from "@/components/input";
 import {
   FaCalendarDays,
@@ -23,6 +23,7 @@ import { useEffect, useState } from "react";
 import moment from "moment";
 import { robotoBold } from "@/lib/fonts";
 import Button from "@/components/button";
+import UserCard from "@/components/userCard";
 
 interface MeetingI {
   meeting: MeetingResponseDto;
@@ -194,9 +195,18 @@ export default function Home(props: MeetingI) {
                 >
                   Motivo de cancelacion
                 </h4>
-                <p className="w-[90%] h-[60%] border border-primary mx-auto my-2 p-2 rounded-lg">
-                  {motive ? motive : props.meeting.motive}
-                </p>
+                <div className="w-[90%] h-[40%] m-auto">
+                  <p className="w-full h-full border border-primary my-2 p-2 rounded-lg overflow-y-scroll">
+                    {motive ? motive : props.meeting.motive}
+                  </p>
+                  <div className="text-gray-500 text-xs mt-2 flex justify-end">
+                    {props.meeting.cancelDate ? moment(props.meeting.cancelDate).format(
+                      "DD/MM/YYYY HH:mm"
+                    ): moment(new Date()).format(
+                      "DD/MM/YYYY HH:mm"
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
           </>
@@ -208,15 +218,27 @@ export default function Home(props: MeetingI) {
           style={{ height: "85%" }}
         >
           <section className="w-1/4 h-full">
-            <Meeting
-              id={props.meeting.id}
-              startDatetime={props.meeting.startDatetime}
-              doctor={props.meeting.doctor}
-              user={props.meeting.user}
-              speciality={props.meeting.speciality}
-              status={props.meeting.status}
-              motive={props.meeting.motive}
-            />
+            {props.auth.role === "user" ? (
+              <CardDoctor
+                id={props.meeting.id}
+                startDatetime={props.meeting.startDatetime}
+                doctor={props.meeting.doctor}
+                user={props.meeting.user}
+                speciality={props.meeting.speciality}
+                status={props.meeting.status}
+                motive={props.meeting.motive}
+              />
+            ) : (
+              <UserCard
+                id={props.meeting.id}
+                startDatetime={props.meeting.startDatetime}
+                doctor={props.meeting.doctor}
+                user={props.meeting.user}
+                speciality={props.meeting.speciality}
+                status={props.meeting.status}
+                motive={props.meeting.motive}
+              />
+            )}
           </section>
           <section className="w-[37.5%] flex flex-col items-center gap-4">
             <section className="w-full h-2/3 bg-white rounded-lg flex flex-col items-center">
@@ -227,11 +249,11 @@ export default function Home(props: MeetingI) {
                   src="/assets/wallpaper.webp"
                 />
               </div>
-              <div className="border-b border-b-emerald-800 text-white bg-emerald-600 flex justify-center items-center mt-2 p-1 rounded-lg w-1/2">
+              <div className="border-b border-b-emerald-800 text-white bg-emerald-600 flex justify-center items-center mt-2 p-1 rounded-lg w-[90%]">
                 <FaCalendarDays />
                 <p className="ml-1">
                   {moment(props.meeting.startDatetime).format(
-                    "DD/MM/YYYY HH:mm:ss"
+                    "LLLL"
                   )}
                 </p>
               </div>

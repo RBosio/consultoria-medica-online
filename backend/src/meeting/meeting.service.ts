@@ -67,6 +67,39 @@ export class MeetingService {
 
         return meetingsFound
     }
+
+    async findAllByDoctor(id: number, query: getMeetingsDto): Promise<Meeting[]> {
+        const { name, status } = query
+        
+        let doctorFound = await this.doctorService.findOneByUserId(id)
+
+        let meetingsFound = await this.meetingRepository.find({
+            relations: {
+                user: true,
+                doctor: {
+                    user: true
+                },
+                speciality: true
+            },
+            where: {
+                doctorId: doctorFound.id
+            }
+        })
+
+        if (name) {
+            meetingsFound = meetingsFound.filter(meeting => {
+                const fullName = `${meeting.user.name} ${meeting.user.surname}`.toLowerCase();
+                const nameToSearch = name.toLowerCase();
+                return fullName.includes(nameToSearch);
+            })
+        }
+
+        if (status) {
+            meetingsFound = meetingsFound.filter(meeting => meeting.status === status)
+        }
+
+        return meetingsFound
+    }
     
     async findByUser(userId: number): Promise<Meeting[]> {
         return this.meetingRepository.find({
@@ -202,6 +235,7 @@ export class MeetingService {
 
         meetingFound.status = 'Cancelada'
         meetingFound.motive = meeting.motive
+        meetingFound.cancelDate = new Date()
 
         await this.meetingRepository.save(meetingFound)
         

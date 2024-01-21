@@ -2,7 +2,7 @@ import { roboto } from '@/lib/fonts';
 import Sidebar from './sidebar';
 import Navbar from './navbar';
 import { Auth } from '../../../shared/types';
-import { useState } from 'react';
+import { RefObject, useState } from 'react';
 
 interface LayoutProps {
     children: React.ReactElement,
@@ -10,7 +10,7 @@ interface LayoutProps {
     renderSidebar?: boolean,
     className?: string,
     auth: Auth,
-    contentRef?: React.RefObject<any> ,
+    contentRef?: RefObject<any>,
 }
 
 const Layout: React.FC<LayoutProps> = ({ children, renderNavbar = true, renderSidebar = true, className, auth, contentRef }) => {

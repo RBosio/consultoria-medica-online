@@ -120,7 +120,7 @@ export default function Home(props: Meeting) {
           className="flex justify-between items-center bg-white p-6 shadow-md gap-12"
           onSubmit={filtersForm.handleSubmit}
         >
-          <div className="w-1/2">
+          <div className={`${props.auth.role === 'user' ? 'w-1/3' : 'w-1/2'}`}>
             <Input
               name="name"
               onChange={filtersForm.handleChange}
@@ -131,7 +131,31 @@ export default function Home(props: Meeting) {
               label="Nombre"
             />
           </div>
-          <div className="w-1/2">
+          <div className={`${props.auth.role === 'user' ? 'w-1/3' : 'hidden'}`}>
+            <Autocomplete
+              onChange={(event, newValue: any) => {
+                filtersForm.setFieldValue(
+                  "specialityId",
+                  newValue ? newValue.id : ""
+                );
+              }}
+              disablePortal
+              noOptionsText="Especialidad no encontrada"
+              options={props.specialities.map((spec: any) => ({
+                id: spec.id,
+                label: spec.name,
+              }))}
+              renderInput={(params: any) => (
+                <Input
+                  onChange={filtersForm.handleChange}
+                  name="specialityId"
+                  {...params}
+                  label="Especialidad"
+                />
+              )}
+            />
+          </div>
+          <div className={`${props.auth.role === 'user' ? 'w-1/3' : 'w-1/2'}`}>
             <Autocomplete
               onChange={(event, newValue: any) => {
                 filtersForm.setFieldValue(

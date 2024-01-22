@@ -23,15 +23,24 @@ export class MedicalRecordService {
         return this.medicalRecordRepository.find()
     }
     
-    async findByUser(userId: number): Promise<Meeting[]> {
-        let meetings = await this.meetingService.findByUser(userId)
-
-        for (let i = 0; i < meetings.length; i++) {
-            const test = await this.userService.findOne(meetings[i].doctor.userId)
-            meetings[i].doctor.user = test
-        }
-
-        return meetings
+    async findByUser(userId: number): Promise<MedicalRecord[]> {
+        return this.medicalRecordRepository.find({
+            where: {
+                meeting: {
+                    user: {
+                        id: userId
+                    }
+                }
+            },
+            relations: {
+                meeting: {
+                    user: true,
+                    doctor: true,
+                    speciality: true
+                },
+                files: true
+            }
+        })
     }
     
     async findOne(datetime: Date): Promise<MedicalRecord> {

@@ -5,7 +5,7 @@ import { UserResponseDto } from "./user.dto"
 export interface CommentResponseDto {
     datetime: Date
     comment: string
-    files: FileResponseDto[]
+    files: FileResponseDto
     user: UserResponseDto
     auth: Auth
 }

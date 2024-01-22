@@ -18,10 +18,10 @@ export class CommentService {
         return this.commentRepository.find()
     }
     
-    async findOne(userCommentId: number): Promise<Comment> {
+    async findOne(id: number): Promise<Comment> {
         const commentFound = await this.commentRepository.findOne({
             where: {
-                userCommentId,
+                id
             },
             relations: ['meeting'],
             order: {
@@ -36,13 +36,15 @@ export class CommentService {
     }
     
     async findOneMeeting(meetingUserId: number, meetingStartDatetime: Date): Promise<Comment[]> {
-        return this.commentRepository.find({
+        const comments = await this.commentRepository.find({
             where: {
                 meetingUserId,
                 meetingStartDatetime
             },
             relations: ['meeting', 'user', 'files']
         })
+
+        return comments
     }
 
     async create(comment: createCommentDto): Promise<Comment | HttpException> {
@@ -75,14 +77,17 @@ export class CommentService {
     }
 
     async uploadFile(commentMeetingUserId: number, commentDatetime: Date, body: any ) {
-        const { url, name, type } = body
-        const file = {
+        const { url, name, type, commentId } = body
+
+        const f = {
             url,
             name,
             type,
             commentMeetingUserId,
             commentDatetime
         }
+        const file = this.fileRepository.create(f)
+        file.comment = await this.findOne(commentId)
 
         return this.fileRepository.save(file)
     }

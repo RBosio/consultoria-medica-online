@@ -77,7 +77,7 @@ export default function Home(props: MeetingI) {
           comment: "",
           userCommentId: props.auth.id,
         };
-        await axios.post(
+        const res = await axios.post(
           `${process.env.NEXT_PUBLIC_API_URL}/comment`,
           comment,
           {
@@ -97,6 +97,7 @@ export default function Home(props: MeetingI) {
         const formData = new FormData();
         formData.append("file", file);
         formData.append("type", type);
+        formData.append("commentId", res.data.id);
         await axios.post(
           `${process.env.NEXT_PUBLIC_API_URL}/comment/${id}/${moment(
             c.data.datetime
@@ -121,6 +122,8 @@ export default function Home(props: MeetingI) {
         scrollBar.scrollTop = 20000;
       }
     }, 240);
+
+    setFile("");
   }
 
   function handleClickFile() {
@@ -200,11 +203,11 @@ export default function Home(props: MeetingI) {
                     {motive ? motive : props.meeting.motive}
                   </p>
                   <div className="text-gray-500 text-xs mt-2 flex justify-end">
-                    {props.meeting.cancelDate ? moment(props.meeting.cancelDate).format(
-                      "DD/MM/YYYY HH:mm"
-                    ): moment(new Date()).format(
-                      "DD/MM/YYYY HH:mm"
-                    )}
+                    {props.meeting.cancelDate
+                      ? moment(props.meeting.cancelDate).format(
+                          "DD/MM/YYYY HH:mm"
+                        )
+                      : moment(new Date()).format("DD/MM/YYYY HH:mm")}
                   </div>
                 </div>
               </div>
@@ -252,9 +255,7 @@ export default function Home(props: MeetingI) {
               <div className="border-b border-b-emerald-800 text-white bg-emerald-600 flex justify-center items-center mt-2 p-1 rounded-lg w-[90%]">
                 <FaCalendarDays />
                 <p className="ml-1">
-                  {moment(props.meeting.startDatetime).format(
-                    "LLLL"
-                  )}
+                  {moment(props.meeting.startDatetime).format("LLLL")}
                 </p>
               </div>
               <div className="flex items-center m-2">

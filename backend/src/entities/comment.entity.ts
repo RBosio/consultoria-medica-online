@@ -1,14 +1,17 @@
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryColumn } from 'typeorm'
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryColumn, PrimaryGeneratedColumn } from 'typeorm'
 import { Meeting } from './meeting.entity'
 import { User } from './user.entity'
 import { File } from './file.entity'
 
 @Entity()
 export class Comment {
-    @PrimaryColumn()
+    @PrimaryGeneratedColumn()
+    id: number
+    
+    @Column()
     meetingUserId: number
 
-    @PrimaryColumn({type: Date, default: () => 'CURRENT_TIMESTAMP'})
+    @Column({type: Date, default: () => 'CURRENT_TIMESTAMP'})
     datetime: Date
 
     @Column()
@@ -20,7 +23,7 @@ export class Comment {
     @Column()
     userCommentId: number
 
-    @OneToMany(() => File, file => file.comment)
+    @OneToOne(() => File, file => file.comment)
     files: File[]
     
     @ManyToOne(() => Meeting, meeting => meeting.comments, {nullable: false})

@@ -14,7 +14,7 @@ const Comment: React.FC<CommentResponseDto> = (props) => {
 
   async function handlerClick(name: string, type: string) {
     await axios({
-      url: `http://localhost:3000/uploads/user/files/${props.files[0].url}`,
+      url: `http://localhost:3000/uploads/user/files/${props.files.url}`,
       method: "GET",
       responseType: "blob",
     }).then((response) => {
@@ -48,37 +48,38 @@ const Comment: React.FC<CommentResponseDto> = (props) => {
             </h4>
           </div>
           {props.comment ? (
-            <p className="line-clamp-3 mt-[2px] w-3/4">
-              {props.comment}
-            </p>
-          ) : (
-            props.files.map((f) =>
-              f.type.includes("office") ? (
-                <p
-                  key={f.url}
-                  className="text-primary mt-[2px] p-[2px] rounded-sm hover:cursor-pointer hover:opacity-70 underline w-3/4"
-                  onClick={() => handlerClick(f.name, f.type)}
-                >
-                  {f.name}
+            <p className="line-clamp-3 mt-[2px] w-3/4">{props.comment}</p>
+          ) : props.files ? (
+            props.files.type.includes("office") ? (
+              <p
+                key={props.files.url}
+                className="text-primary mt-[2px] p-[2px] rounded-sm hover:cursor-pointer hover:opacity-70 underline w-3/4"
+                onClick={() => handlerClick(props.files.name, props.files.type)}
+              >
+                {props.files.name}
+              </p>
+            ) : (
+              <Link
+                key={props.files.url}
+                target="_blank"
+                href={`http://localhost:3000/uploads/user/files/${props.files.url}`}
+              >
+                <p className="text-primary mt-[2px] p-[2px] rounded-sm hover:cursor-pointer hover:opacity-70 underline">
+                  {props.files.name}
                 </p>
-              ) : (
-                <Link
-                  key={f.url}
-                  target="_blank"
-                  href={`http://localhost:3000/uploads/user/files/${props.files[0].url}`}
-                >
-                  <p className="text-primary mt-[2px] p-[2px] rounded-sm hover:cursor-pointer hover:opacity-70 underline">
-                    {f.name}
-                  </p>
-                </Link>
-              )
+              </Link>
             )
+          ) : (
+            ""
           )}
           <div className="text-gray-500 text-xs mt-2 flex justify-end">
             {moment(props.datetime).format("LLL")}
           </div>
         </div>
-        <div className="bg-emerald-200 w-full mt-1" style={{ height: "1px" }}></div>
+        <div
+          className="bg-emerald-200 w-full mt-1"
+          style={{ height: "1px" }}
+        ></div>
       </div>
     </>
   );

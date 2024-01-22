@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm'
+import { Column, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn } from 'typeorm'
 import { MedicalRecord } from './medical-record.entity'
 import { Comment } from './comment.entity'
 
@@ -19,16 +19,20 @@ export class File {
     @Column({ nullable: true })
     medicalRecordDatetime: Date
     
-    @Column({ nullable: true })
-    commentMeetingUserId: number
+    // @Column({ nullable: true })
+    // commentMeetingUserId: number
 
-    @Column({ nullable: true })
-    commentDatetime: Date
+    // @Column({ nullable: true })
+    // commentDatetime: Date
+
+    @Column()
+    commentId: number
 
     @ManyToOne(() => MedicalRecord, medicalRecord => medicalRecord.files)
     medicalRecord: MedicalRecord
 
-    @ManyToOne(() => Comment, comment => comment.files)
+    @OneToOne(() => Comment, comment => comment.files)
+    @JoinColumn({ name: 'commentId' })
     comment: Comment
     
     @Column({type: Date, default: () => 'CURRENT_TIMESTAMP'})

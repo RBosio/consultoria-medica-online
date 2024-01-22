@@ -120,7 +120,7 @@ export default function Home(props: Meeting) {
           className="flex justify-between items-center bg-white p-6 shadow-md gap-12"
           onSubmit={filtersForm.handleSubmit}
         >
-          <div className={`${props.auth.role === 'user' ? 'w-1/3' : 'w-1/2'}`}>
+          <div className={`${props.auth.role === "user" ? "w-1/3" : "w-1/2"}`}>
             <Input
               name="name"
               onChange={filtersForm.handleChange}
@@ -131,7 +131,7 @@ export default function Home(props: Meeting) {
               label="Nombre"
             />
           </div>
-          <div className={`${props.auth.role === 'user' ? 'w-1/3' : 'hidden'}`}>
+          <div className={`${props.auth.role === "user" ? "w-1/3" : "hidden"}`}>
             <Autocomplete
               onChange={(event, newValue: any) => {
                 filtersForm.setFieldValue(
@@ -155,7 +155,7 @@ export default function Home(props: Meeting) {
               )}
             />
           </div>
-          <div className={`${props.auth.role === 'user' ? 'w-1/3' : 'w-1/2'}`}>
+          <div className={`${props.auth.role === "user" ? "w-1/3" : "w-1/2"}`}>
             <Autocomplete
               onChange={(event, newValue: any) => {
                 filtersForm.setFieldValue(

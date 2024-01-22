@@ -336,7 +336,7 @@ export default function Home(props: MeetingI) {
           </section>
           <section className="w-[37.5%] max-h-full bg-white rounded-lg">
             <div
-              className="overflow-scroll"
+              className="overflow-y-scroll"
               id="scroll"
               style={{ height: "90%" }}
             >

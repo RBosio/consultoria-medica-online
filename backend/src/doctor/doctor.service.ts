@@ -148,10 +148,6 @@ export class DoctorService {
             relations: ['user']
         })
 
-        if (!doctorFound) {
-            throw new HttpException('Medico no encontrado', HttpStatus.NOT_FOUND)
-        }
-
         return doctorFound
     }
 

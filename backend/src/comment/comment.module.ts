@@ -8,8 +8,6 @@ import { File } from 'src/entities/file.entity';
 @Module({
   imports: [TypeOrmModule.forFeature([Comment, File])],
   controllers: [CommentController],
-  providers: [
-    CommentService,
-  ]
+  providers: [CommentService]
 })
 export class CommentModule {}

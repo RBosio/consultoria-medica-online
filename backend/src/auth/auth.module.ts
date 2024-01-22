@@ -6,6 +6,7 @@ import { AuthService } from './auth.service';
 import { jwtConstants } from './constants';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Doctor } from 'src/entities/doctor.entity';
+import { DoctorModule } from 'src/doctor/doctor.module';
 
 @Module({
   imports: [
@@ -15,7 +16,7 @@ import { Doctor } from 'src/entities/doctor.entity';
       secret: jwtConstants.secret,
       signOptions: { expiresIn: '24h' },
     }),
-    TypeOrmModule.forFeature([Doctor])
+    DoctorModule
   ],
   controllers: [AuthController],
   providers: [AuthService]

@@ -22,6 +22,9 @@ export class DoctorService {
         const moment = extendMoment(Moment)
 
         let doctorsFound = await this.doctorRepository.find({
+            where: {
+                verified: true
+            },
             relations: ['user', 'specialities', 'plan']
         })
 

@@ -7,6 +7,7 @@ import { User } from 'src/entities/user.entity';
 import { CityService } from 'src/city/city.service';
 import { Doctor } from 'src/entities/doctor.entity';
 import { createDoctorDto } from 'src/doctor/dto/create-doctor.dto';
+import { Speciality } from 'src/entities/speciality.entity';
 
 @Injectable()
 export class UserService {
@@ -165,6 +166,12 @@ export class UserService {
             healthInsuranceId: 1
         }, null)
         
+        const spec1 = new Speciality()
+        spec1.id = 1
+
+        const spec2 = new Speciality()
+        spec2.id = 2
+
         await this.create({
             dni: '38233911',
             email: 'doctor@gmail.com',
@@ -186,13 +193,7 @@ export class UserService {
             description: "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Saepe possimus ad ea nisi iusto temporibus cum, voluptatibus fugiat magnam maiores consequatur, architecto harum dignissimos deleniti eius, quisquam natus minus quas. Lorem ipsum dolor sit amet consectetur adipisicing elit. Vel aspernatur repellendus, eos, cupiditate consectetur eum modi laboriosam vero officia quibusdam earum tenetur omnis similique autem ab facilis aut. Laborum, voluptatum. Lorem ipsum dolor sit amet consectetur adipisicing elit. Repudiandae, deleniti deserunt iste corporis possimus, eos facere quis quidem, consequuntur sapiente quae! Quidem repellendus ab nemo praesentium. Sequi modi quis et!",
             address: 'St. Exupery 240',
             planId: 1,
-            specialities: [{
-                id: 1,
-                name: "",
-                doctors: [],
-                created_at: new Date(),
-                meetings: []
-            }]
+            specialities: [spec1, spec2]
         })
         
         await this.create({

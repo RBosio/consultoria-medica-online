@@ -79,7 +79,7 @@ const MeetingCard: React.FC<MeetingResponseDto> = (props) => {
           <p className="text-zinc-800">{props.status}</p>
         </div>
         <Link
-          href={`${props.user.id}/${moment(props.startDatetime).format(
+          href={`meetings/${props.user.id}/${moment(props.startDatetime).format(
             "YYYY-MM-DDTHH:mm:ss"
           )}`}
           className="my-6"

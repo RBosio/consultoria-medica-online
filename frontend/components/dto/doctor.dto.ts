@@ -4,5 +4,6 @@ export interface DoctorResponseDto {
     description: string
     avgRate: number
     address: string
+    planId?: number
     user: UserResponseDto
 }

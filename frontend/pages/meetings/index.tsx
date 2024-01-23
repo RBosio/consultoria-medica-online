@@ -1,5 +1,5 @@
 import withAuth from "@/lib/withAuth";
-import { Auth } from "../../../../../shared/types";
+import { Auth } from "../../../shared/types";
 import axios from "axios";
 import Layout from "@/components/layout";
 import { Autocomplete, useTheme } from "@mui/material";
@@ -100,9 +100,8 @@ export default function Home(props: Meeting) {
 
       setIndex(0);
       setPosition(0);
-      const id = router.query.id;
       router.push(
-        `/meetings/user/${id}?${new URLSearchParams(values).toString()}`
+        `/meetings/?${new URLSearchParams(values).toString()}`
       );
       setTimeout(() => {
         if (carouselInner) {
@@ -266,7 +265,6 @@ export default function Home(props: Meeting) {
 export const getServerSideProps = withAuth(
   async (auth: Auth | null, context: any) => {
     let { query } = context;
-    const { id, ...q } = query;
 
     try {
       let meetings;
@@ -274,7 +272,7 @@ export const getServerSideProps = withAuth(
         meetings = await axios.get(
           `${
             process.env.NEXT_PUBLIC_API_URL
-          }/meeting/user/${id}?${new URLSearchParams(q).toString()}`,
+          }/meeting/user/${auth?.id}?${new URLSearchParams(query).toString()}`,
           {
             withCredentials: true,
             headers: { Authorization: `Bearer ${context.req.cookies.token}` },
@@ -284,7 +282,7 @@ export const getServerSideProps = withAuth(
         meetings = await axios.get(
           `${
             process.env.NEXT_PUBLIC_API_URL
-          }/meeting/doctor/${id}?${new URLSearchParams(q).toString()}`,
+          }/meeting/doctor/${auth?.id}?${new URLSearchParams(query).toString()}`,
           {
             withCredentials: true,
             headers: { Authorization: `Bearer ${context.req.cookies.token}` },

@@ -12,6 +12,7 @@ export interface DoctorProps {
     description: string,
     id: number,
     rate: number,
+    planId?: number
     specialities: any[],
 
 }

@@ -18,15 +18,31 @@ export class DoctorService {
     ) { }
 
     async findAll(query: getDoctorsDto) {
-        const { name, avgRate, seniority, specialityId, planId, orderBy, page, perPage } = query
+        const { name, avgRate, seniority, specialityId, orderBy, page, perPage } = query
         const moment = extendMoment(Moment)
 
-        let doctorsFound = await this.doctorRepository.find({
-            where: {
-                verified: true
-            },
-            relations: ['user', 'specialities', 'plan']
-        })
+        let doctorsFound = []
+        
+        if(!name && !avgRate && !seniority && !specialityId){
+            doctorsFound = await this.doctorRepository.find({
+                where: {
+                    verified: true
+                },
+                order: {
+                    plan: {
+                        price: "DESC"
+                    }
+                },
+                relations: ['user', 'specialities', 'plan']
+            })
+        } else {
+            doctorsFound = await this.doctorRepository.find({
+                where: {
+                    verified: true
+                },
+                relations: ['user', 'specialities', 'plan']
+            })
+        }
 
         // FILTER
         if (name) {
@@ -44,10 +60,6 @@ export class DoctorService {
         if (specialityId) {
             const speciality = await this.specialityService.findOne(specialityId)
             doctorsFound = doctorsFound.filter(doctor => doctor.specialities.some(val => val.id === speciality.id))
-        }
-
-        if (planId) {
-            doctorsFound = doctorsFound.filter(doctor => doctor.plan ? doctor.plan.id == planId : false)
         }
 
         const dateNow = moment(new Date())

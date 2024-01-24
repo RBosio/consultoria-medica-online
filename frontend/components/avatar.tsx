@@ -12,6 +12,7 @@ interface AvatarProps {
     size?: number,
     className? : string,
     icon?: ReactElement,
+    rootClassName?: string,
 }
 
 //IMPLEMENTACIÓN DE: https://mui.com/material-ui/react-avatar/#system-BackgroundLetterAvatars.tsx
@@ -48,10 +49,11 @@ const Avatar: React.FC<AvatarProps> = (props) => {
     };
 
     return (
-        <div className={`flex items-center ${positionProps[props.labelProps?.position ?? "right"]} ${props.className}`}>
+        <div className={`flex items-center ${positionProps[props.labelProps?.position ?? "right"]} ${props.rootClassName}`}>
             <MUIAvatar
                 alt={fullName}
                 src={props.photo}
+                className={props.className}
                 sx={{ bgcolor: stringToColor(fullName), width: props.size ?? 40, height: props.size ?? 40 }}
             >
                 {props.icon ?? firstTwoChars}

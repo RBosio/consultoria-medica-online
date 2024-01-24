@@ -35,8 +35,7 @@ export class MedicalRecordService {
             relations: {
                 meeting: {
                     user: true,
-                    doctor: true,
-                    speciality: true
+                    doctor: true
                 },
                 files: true
             }

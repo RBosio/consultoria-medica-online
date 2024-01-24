@@ -56,19 +56,18 @@ INSERT INTO
         userId,
         startDatetime,
         doctorId,
-        status,
-        specialityId
+        status
     )
 VALUES
-    (1, "2024-01-17T10:30:00", 1, "Pendiente", 1),
-    (1, "2024-01-23T09:30:00", 1, "Pendiente", 2),
-    (1, "2024-02-17T18:00:00", 1, "Pendiente", 2),
-    (1, "2024-02-09T09:00:00", 1, "Finalizada", 2),
-    (1, "2024-02-18T14:30:00", 1, "Cancelada", 1),
-    (1, "2024-04-24T14:00:00", 1, "Finalizada", 1),
-    (1, "2024-04-19T14:45:00", 1, "Finalizada", 1),
-    (1, "2024-04-29T09:00:00", 1, "Finalizada", 2),
-    (1, "2024-05-10T16:30:00", 1, "Cancelada", 1);
+    (1, "2024-01-17T10:30:00", 1, "Pendiente"),
+    (1, "2024-01-23T09:30:00", 1, "Pendiente"),
+    (1, "2024-02-17T18:00:00", 1, "Pendiente"),
+    (1, "2024-02-09T09:00:00", 1, "Finalizada"),
+    (1, "2024-02-18T14:30:00", 1, "Cancelada"),
+    (1, "2024-04-24T14:00:00", 1, "Finalizada"),
+    (1, "2024-04-19T14:45:00", 1, "Finalizada"),
+    (1, "2024-04-29T09:00:00", 1, "Finalizada"),
+    (1, "2024-05-10T16:30:00", 1, "Cancelada");
 
 INSERT INTO
     comment (

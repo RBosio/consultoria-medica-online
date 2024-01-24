@@ -3,20 +3,14 @@ import { MeetingController } from './meeting.controller';
 import { MeetingService } from './meeting.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Meeting } from 'src/entities/meeting.entity';
-import { DoctorService } from 'src/doctor/doctor.service';
-import { Doctor } from 'src/entities/doctor.entity';
-import { UserService } from 'src/user/user.service';
-import { User } from 'src/entities/user.entity';
-import { CityService } from 'src/city/city.service';
-import { City } from 'src/entities/city.entity';
-import { SpecialityService } from 'src/speciality/speciality.service';
-import { Speciality } from 'src/entities/speciality.entity';
+import { DoctorModule } from 'src/doctor/doctor.module';
+import { SpecialityModule } from 'src/speciality/speciality.module';
+import { UserModule } from 'src/user/user.module';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([Meeting, Doctor, User, City, Speciality])
-  ],
+  imports: [TypeOrmModule.forFeature([Meeting]), UserModule, DoctorModule, SpecialityModule],
   controllers: [MeetingController],
-  providers: [MeetingService, DoctorService, UserService, CityService, SpecialityService]
+  providers: [MeetingService],
+  exports: [MeetingService]
 })
 export class MeetingModule {}

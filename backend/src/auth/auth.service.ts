@@ -7,12 +7,13 @@ import { Doctor } from 'src/entities/doctor.entity';
 import { Repository } from 'typeorm';
 import { jwtConstants } from './constants';
 import { Response } from 'express';
+import { DoctorService } from 'src/doctor/doctor.service';
 
 @Injectable()
 export class AuthService {
     constructor(
-        @InjectRepository(Doctor) private doctorRepository: Repository<Doctor>,
         private userService: UserService,
+        private doctorService: DoctorService,
         private jwtService: JwtService) { }
 
     async login(userLogin: AuthLoginDto, res: Response): Promise<void> {
@@ -22,11 +23,7 @@ export class AuthService {
             let role = userFound.admin ? 'admin' : 'user'
 
             if (role === 'user') {
-                const doctor = await this.doctorRepository.findOne({
-                    where: {
-                        userId: userFound.id
-                    }
-                })
+                const doctor = await this.doctorService.findOneByUserId(userFound.id)
 
                 if (doctor) {
                     role = 'doctor'

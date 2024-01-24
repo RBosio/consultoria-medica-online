@@ -27,7 +27,7 @@ export class MedicalRecordController {
     
     @Get('user/:userId')
     @Roles(RoleEnum.User, RoleEnum.Doctor)
-    getMedicalRecordsByUser(@Param('userId', ParseIntPipe) userId: number): Promise<Meeting[]> {
+    getMedicalRecordsByUser(@Param('userId', ParseIntPipe) userId: number): Promise<MedicalRecord[]> {
         return this.medicalRecordService.findByUser(userId)
     }
     

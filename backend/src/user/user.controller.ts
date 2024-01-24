@@ -46,7 +46,7 @@ export class UserController {
             'file',
             {
                 storage: diskStorage({
-                    destination: './public/uploads/user',
+                    destination: './public/uploads/user/images',
                     filename: (req, file, cb) => {
                         req.body.url = uuidv4() + '.' + file.originalname.split('.').slice(-1)
                         cb(null, req.body.url)
@@ -56,9 +56,9 @@ export class UserController {
         )
     )
     @Post(':dni/image')
-    uploadFile(@Param('dni') dni: string, @Req() request: Request) {
+    uploadImage(@Param('dni') dni: string, @Req() request: Request) {
         const { body } = request
 
-        return this.userService.uploadFile(dni, body.url)
+        return this.userService.uploadImage(dni, body.url)
     }
 }

@@ -1,64 +1,62 @@
-import withAuth from "@/lib/withAuth"
-import { Auth } from "../../../../../shared/types"
-import axios from "axios"
-import Layout from "@/components/layout"
-import { Autocomplete, useTheme } from "@mui/material"
-import Meeting from "@/components/meeting"
-import { useRouter } from "next/router"
-import { useState } from "react"
-import { FaChevronLeft, FaChevronRight, FaUserDoctor } from "react-icons/fa6"
-import Input from "@/components/input"
-import { useFormik } from "formik"
-import { MeetingResponseDto } from "@/components/dto/meeting.dto"
-import { SpecialityResponseDto } from "@/components/dto/speciality.dto"
-import Button from "@/components/button"
-import { IoMdSearch } from "react-icons/io"
-import { robotoBold } from "@/lib/fonts"
+import withAuth from "@/lib/withAuth";
+import { Auth } from "../../../shared/types";
+import axios from "axios";
+import Layout from "@/components/layout";
+import { Autocomplete, useTheme } from "@mui/material";
+import CardMeeting from "@/components/meetingCard";
+import { useRouter } from "next/router";
+import { useState } from "react";
+import { FaChevronLeft, FaChevronRight, FaUserDoctor } from "react-icons/fa6";
+import Input from "@/components/input";
+import { useFormik } from "formik";
+import { MeetingResponseDto } from "@/components/dto/meeting.dto";
+import { SpecialityResponseDto } from "@/components/dto/speciality.dto";
+import Button from "@/components/button";
+import { IoMdSearch } from "react-icons/io";
 
-interface Test {
-  auth: Auth
-  meetings: MeetingResponseDto[]
-  meetingsFiltered: MeetingResponseDto[]
-  specialities: SpecialityResponseDto[]
+interface Meeting {
+  auth: Auth;
+  meetings: MeetingResponseDto[];
+  specialities: SpecialityResponseDto[];
 }
 
-export default function Home(props: Test) {
-  const theme = useTheme()
-  const router = useRouter()
+export default function Meetings(props: Meeting) {
+  const theme = useTheme();
+  const router = useRouter();
 
-  const [index, setIndex] = useState(0)
-  const [position, setPosition] = useState(0)
-  let i: number = 5
-  let page: number = 0
+  const [index, setIndex] = useState(0);
+  const [position, setPosition] = useState(0);
+  let i: number = 5;
+  let page: number = 0;
 
   const back = () => {
-    const carouselInner = document.getElementById("carouselInner")
+    const carouselInner = document.getElementById("carouselInner");
     if (index > 0) {
-      setIndex(index - 1)
+      setIndex(index - 1);
       if (carouselInner) {
-        carouselInner.style.transform = `translateX(${position + 100}%)`
+        carouselInner.style.transform = `translateX(${position + 100}%)`;
       }
-      setPosition(position + 100)
-      page = index
+      setPosition(position + 100);
+      page = index;
     }
-  }
+  };
 
   const next = () => {
-    const carouselInner = document.getElementById("carouselInner")
+    const carouselInner = document.getElementById("carouselInner");
     if (index < Math.ceil(props.meetings.length / 4) - 1) {
-      setIndex(index + 1)
+      setIndex(index + 1);
       if (carouselInner) {
-        carouselInner.style.transform = `translateX(${position - 100}%)`
+        carouselInner.style.transform = `translateX(${position - 100}%)`;
       }
-      setPosition(position - 100)
-      page = index
+      setPosition(position - 100);
+      page = index;
     }
-  }
+  };
 
   const points = (ind: number) => {
     if (ind + 1 == i) {
-      i += 4
-      page++
+      i += 4;
+      page++;
       return (
         <div
           key={page.toString()}
@@ -68,21 +66,21 @@ export default function Home(props: Test) {
             page == index ? "bg-secondary" : "bg-primary"
           } m-2 hover:cursor-pointer`}
         ></div>
-      )
+      );
     }
-  }
+  };
 
   function handleClick($e: any) {
-    page = Number($e.target.id)
-    const carouselInner = document.getElementById("carouselInner")
-    setIndex(page)
+    page = Number($e.target.id);
+    const carouselInner = document.getElementById("carouselInner");
+    setIndex(page);
     if (carouselInner) {
       if (page == 0) {
-        setPosition(0)
-        carouselInner.style.transform = `translateX(0%)`
+        setPosition(0);
+        carouselInner.style.transform = `translateX(0%)`;
       } else {
-        setPosition(-100 * page)
-        carouselInner.style.transform = `translateX(${-100 * page}%)`
+        setPosition(-100 * page);
+        carouselInner.style.transform = `translateX(${-100 * page}%)`;
       }
     }
   }
@@ -94,26 +92,25 @@ export default function Home(props: Test) {
       status: "",
     },
     onSubmit: async (values, { setSubmitting }) => {
-      const carouselInner = document.getElementById("carouselInner")
+      const carouselInner = document.getElementById("carouselInner");
       if (carouselInner) {
-        carouselInner.style.transition = "none"
-        carouselInner.style.transform = `translateX(0%)`
+        carouselInner.style.transition = "none";
+        carouselInner.style.transform = `translateX(0%)`;
       }
 
-      setIndex(0)
-      setPosition(0)
-      const id = router.query.id
+      setIndex(0);
+      setPosition(0);
       router.push(
-        `/meetings/user/${id}?${new URLSearchParams(values).toString()}`
-      )
+        `/meetings/?${new URLSearchParams(values).toString()}`
+      );
       setTimeout(() => {
         if (carouselInner) {
-          carouselInner.style.transition = "all ease-in .5s"
+          carouselInner.style.transition = "all ease-in .5s";
         }
-      }, 1000)
-      setSubmitting(false)
+      }, 1000);
+      setSubmitting(false);
     },
-  })
+  });
 
   return (
     <Layout auth={props.auth}>
@@ -122,7 +119,7 @@ export default function Home(props: Test) {
           className="flex justify-between items-center bg-white p-6 shadow-md gap-12"
           onSubmit={filtersForm.handleSubmit}
         >
-          <div className="w-1/3">
+          <div className={`${props.auth.role === "user" ? "w-1/3" : "w-1/2"}`}>
             <Input
               name="name"
               onChange={filtersForm.handleChange}
@@ -133,13 +130,13 @@ export default function Home(props: Test) {
               label="Nombre"
             />
           </div>
-          <div className="w-1/3">
+          <div className={`${props.auth.role === "user" ? "w-1/3" : "hidden"}`}>
             <Autocomplete
               onChange={(event, newValue: any) => {
                 filtersForm.setFieldValue(
                   "specialityId",
                   newValue ? newValue.id : ""
-                )
+                );
               }}
               disablePortal
               noOptionsText="Especialidad no encontrada"
@@ -157,13 +154,13 @@ export default function Home(props: Test) {
               )}
             />
           </div>
-          <div className="w-1/3">
+          <div className={`${props.auth.role === "user" ? "w-1/3" : "w-1/2"}`}>
             <Autocomplete
               onChange={(event, newValue: any) => {
                 filtersForm.setFieldValue(
                   "status",
                   newValue ? newValue.id : ""
-                )
+                );
               }}
               disablePortal
               noOptionsText="Estado no encontrado"
@@ -192,22 +189,26 @@ export default function Home(props: Test) {
               className="flex flex-nowrap items-center transition-all ease-in"
               style={{ transitionDuration: ".5s" }}
               id="carouselInner"
-              >
-              {props.meetingsFiltered.length === 0 ? <h2 className="text-xl">No se encontraron resultados</h2> : ''}
-              {props.meetingsFiltered.map((meeting: MeetingResponseDto, meetingId: number) => {
+            >
+              {props.meetings.length === 0 ? (
+                <h2 className="text-xl">No se encontraron resultados</h2>
+              ) : (
+                ""
+              )}
+              {props.meetings.map((meeting: MeetingResponseDto) => {
                 return (
-                  <Meeting
-                    key={meetingId}
-                    id={meetingId}
+                  <CardMeeting
+                    key={meeting.id}
+                    id={meeting.id}
                     startDatetime={meeting.startDatetime}
                     status={meeting.status}
                     user={meeting.user}
                     doctor={meeting.doctor}
-                    speciality={meeting.speciality}
+                    specialities={meeting.doctor.specialities}
+                    auth={props.auth}
                   />
-                )
+                );
               })}
-              
             </div>
             <div className="flex justify-center">
               {props.meetings.length / 4 > 1 ? (
@@ -224,7 +225,7 @@ export default function Home(props: Test) {
 
               {props.meetings.length / 4 > 1
                 ? props.meetings.map((m, i) => {
-                    return points(i)
+                    return points(i);
                   })
                 : ""}
             </div>
@@ -232,7 +233,7 @@ export default function Home(props: Test) {
               <>
                 <button
                   onClick={() => {
-                    back()
+                    back();
                   }}
                 >
                   <FaChevronLeft
@@ -242,7 +243,7 @@ export default function Home(props: Test) {
                 </button>
                 <button
                   onClick={() => {
-                    next()
+                    next();
                   }}
                 >
                   <FaChevronRight
@@ -258,26 +259,38 @@ export default function Home(props: Test) {
         </section>
       </main>
     </Layout>
-  )
+  );
 }
 
 export const getServerSideProps = withAuth(
   async (auth: Auth | null, context: any) => {
-    let { query } = context
-    const { id, ...q } = query
+    let { query } = context;
 
     try {
-      let meetings = await axios.get(
-        `${
-          process.env.NEXT_PUBLIC_API_URL
-        }/meeting/user/${id}?${new URLSearchParams(q).toString()}`,
-        {
-          withCredentials: true,
-          headers: { Authorization: `Bearer ${context.req.cookies.token}` },
-        }
-      )
+      let meetings;
+      if (auth?.role === "user") {
+        meetings = await axios.get(
+          `${
+            process.env.NEXT_PUBLIC_API_URL
+          }/meeting/user/${auth?.id}?${new URLSearchParams(query).toString()}`,
+          {
+            withCredentials: true,
+            headers: { Authorization: `Bearer ${context.req.cookies.token}` },
+          }
+        );
+      } else {
+        meetings = await axios.get(
+          `${
+            process.env.NEXT_PUBLIC_API_URL
+          }/meeting/doctor/${auth?.id}?${new URLSearchParams(query).toString()}`,
+          {
+            withCredentials: true,
+            headers: { Authorization: `Bearer ${context.req.cookies.token}` },
+          }
+        );
+      }
 
-      meetings = meetings.data
+      meetings = meetings.data;
 
       let specialities = await axios.get(
         `${process.env.NEXT_PUBLIC_API_URL}/speciality`,
@@ -285,26 +298,25 @@ export const getServerSideProps = withAuth(
           withCredentials: true,
           headers: { Authorization: `Bearer ${context.req.cookies.token}` },
         }
-      )
+      );
 
-      specialities = specialities.data
+      specialities = specialities.data;
 
       return {
         props: {
           meetings,
-          meetingsFiltered: meetings,
           specialities,
           auth,
         },
-      }
+      };
     } catch {
       return {
         props: {
-          doctors: { items: [] },
+          meetings: { items: [] },
           auth,
         },
-      }
+      };
     }
   },
   true
-)
+);

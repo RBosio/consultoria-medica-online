@@ -4,25 +4,29 @@ import { Repository } from 'typeorm';
 import { createCommentDto } from './dto/create-comment.dto';
 import { updateCommentDto } from './dto/update-comment.dto';
 import { Comment } from 'src/entities/comment.entity';
+import { File } from 'src/entities/file.entity';
 
 @Injectable()
 export class CommentService {
 
     constructor(
-        @InjectRepository(Comment) private commentRepository: Repository<Comment>
+        @InjectRepository(Comment) private commentRepository: Repository<Comment>,
+        @InjectRepository(File) private fileRepository: Repository<File>
         ) {}
 
     findAll(): Promise<Comment[]> {
         return this.commentRepository.find()
     }
     
-    async findOne(meetingUserId: number, datetime: Date): Promise<Comment> {
+    async findOne(id: number): Promise<Comment> {
         const commentFound = await this.commentRepository.findOne({
             where: {
-                meetingUserId,
-                datetime
+                id
             },
-            relations: ['meeting']
+            relations: ['meeting'],
+            order: {
+                datetime: 'DESC'
+            }
         })
         if (!commentFound) {
             throw new HttpException('Comentario no encontrado', HttpStatus.NOT_FOUND)
@@ -32,18 +36,18 @@ export class CommentService {
     }
     
     async findOneMeeting(meetingUserId: number, meetingStartDatetime: Date): Promise<Comment[]> {
-        return this.commentRepository.find({
+        const comments = await this.commentRepository.find({
             where: {
                 meetingUserId,
                 meetingStartDatetime
             },
-            relations: ['meeting']
+            relations: ['meeting', 'user', 'files']
         })
+
+        return comments
     }
 
     async create(comment: createCommentDto): Promise<Comment | HttpException> {
-        let newComment = this.commentRepository.create(comment)
-
         return this.commentRepository.save(comment)
     }
 
@@ -70,5 +74,21 @@ export class CommentService {
         }
 
         return result
+    }
+
+    async uploadFile(commentMeetingUserId: number, commentDatetime: Date, body: any ) {
+        const { url, name, type, commentId } = body
+
+        const f = {
+            url,
+            name,
+            type,
+            commentMeetingUserId,
+            commentDatetime
+        }
+        const file = this.fileRepository.create(f)
+        file.comment = await this.findOne(commentId)
+
+        return this.fileRepository.save(file)
     }
 }

@@ -28,15 +28,18 @@ export class Meeting {
     @Column({nullable: true})
     tpc: string
 
+    @Column({nullable: true})
+    motive: string
+
+    @Column({nullable: true})
+    cancelDate: Date
+
     @ManyToOne(() => User, user => user.meetings, {nullable: false})
     user: User
     
     @ManyToOne(() => Doctor, doctor => doctor.meetings, {nullable: false})
     doctor: Doctor
 
-    @ManyToOne(() => Speciality, speciality => speciality.meetings, {nullable: false})
-    speciality: Speciality
-    
     @OneToOne(() => MedicalRecord, medicalRecord => medicalRecord.meeting)
     @JoinColumn()
     medicalRecord: MedicalRecord

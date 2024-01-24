@@ -38,7 +38,7 @@ const Sidebar: React.FC<SidebarProps> = (props) => {
             },
             {
                 name: "Mis reuniones",
-                path: `/meetings/user/${props.auth.id}`,
+                path: `/meetings`,
                 icon: <FaVideo />,
             },
             {

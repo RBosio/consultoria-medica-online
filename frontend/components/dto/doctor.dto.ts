@@ -1,3 +1,4 @@
+import { SpecialityResponseDto } from "./speciality.dto";
 import { UserResponseDto } from "./user.dto";
 
 export interface DoctorResponseDto {
@@ -6,4 +7,5 @@ export interface DoctorResponseDto {
     address: string
     planId?: number
     user: UserResponseDto
+    specialities: SpecialityResponseDto[]
 }

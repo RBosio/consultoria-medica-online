@@ -9,7 +9,7 @@ export interface MeetingResponseDto {
     status: string
     user: UserResponseDto
     doctor: DoctorResponseDto
-    speciality: SpecialityResponseDto
+    specialities: SpecialityResponseDto[]
     motive?: string
     cancelDate?: Date
     auth?: Auth

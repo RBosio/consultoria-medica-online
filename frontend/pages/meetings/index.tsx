@@ -20,7 +20,7 @@ interface Meeting {
   specialities: SpecialityResponseDto[];
 }
 
-export default function Home(props: Meeting) {
+export default function Meetings(props: Meeting) {
   const theme = useTheme();
   const router = useRouter();
 
@@ -204,7 +204,7 @@ export default function Home(props: Meeting) {
                     status={meeting.status}
                     user={meeting.user}
                     doctor={meeting.doctor}
-                    speciality={meeting.speciality}
+                    specialities={meeting.doctor.specialities}
                     auth={props.auth}
                   />
                 );

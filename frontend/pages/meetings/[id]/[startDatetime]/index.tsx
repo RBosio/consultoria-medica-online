@@ -28,12 +28,12 @@ import UserCard from "@/components/userCard";
 interface MeetingI {
   meeting: MeetingResponseDto;
   comments: CommentResponseDto[];
-  speciality: SpecialityResponseDto;
+  specialities: SpecialityResponseDto[];
   auth: Auth;
   token: string;
 }
 
-export default function Home(props: MeetingI) {
+export default function DetailMeeting(props: MeetingI) {
   const theme = useTheme();
   const router = useRouter();
 
@@ -114,7 +114,7 @@ export default function Home(props: MeetingI) {
       }
     }
 
-    router.push(`/meetings/user/${id}/${startDatetime}`);
+    router.push(`/meetings/${id}/${startDatetime}`);
 
     setTimeout(() => {
       const scrollBar = document.getElementById("scroll");
@@ -172,6 +172,24 @@ export default function Home(props: MeetingI) {
     handleClickComment();
   }
 
+  // async function joinMeeting() {
+  //   const { id, startDatetime } = router.query;
+
+  //   const res = await axios.post(
+  //     `${process.env.NEXT_PUBLIC_API_URL}/meeting/join/${id}/${startDatetime}`,
+  //     {},
+  //     {
+  //       withCredentials: true,
+  //       headers: { Authorization: `Bearer ${props.token}` },
+  //     }
+  //   );
+
+  //   const tokenMeeting = res.data.tokenMeeting;
+
+  //   localStorage.setItem("tokenMeeting", tokenMeeting);
+  //   router.push("/meeting");
+  // }
+
   useEffect(() => {
     const scrollBar = document.getElementById("scroll");
     if (scrollBar) {
@@ -227,7 +245,7 @@ export default function Home(props: MeetingI) {
                 startDatetime={props.meeting.startDatetime}
                 doctor={props.meeting.doctor}
                 user={props.meeting.user}
-                speciality={props.meeting.speciality}
+                specialities={props.specialities}
                 status={props.meeting.status}
                 motive={props.meeting.motive}
               />
@@ -237,7 +255,7 @@ export default function Home(props: MeetingI) {
                 startDatetime={props.meeting.startDatetime}
                 doctor={props.meeting.doctor}
                 user={props.meeting.user}
-                speciality={props.meeting.speciality}
+                specialities={props.specialities}
                 status={props.meeting.status}
                 motive={props.meeting.motive}
               />
@@ -279,6 +297,7 @@ export default function Home(props: MeetingI) {
                     size="small"
                     endIcon={<FaPlay />}
                     disabled={props.meeting.status !== "Pendiente"}
+                    // onClick={joinMeeting}
                   >
                     Unirse
                   </Button>
@@ -288,6 +307,7 @@ export default function Home(props: MeetingI) {
                     size="small"
                     endIcon={<FaPlay />}
                     disabled={props.meeting.status !== "Pendiente"}
+                    // onClick={joinMeeting}
                   >
                     Iniciar reunion
                   </Button>

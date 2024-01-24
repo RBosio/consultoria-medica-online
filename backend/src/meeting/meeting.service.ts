@@ -46,6 +46,7 @@ export class MeetingService {
         user: true,
         doctor: {
           user: true,
+          specialities: true
         }
       },
       where: {
@@ -81,6 +82,7 @@ export class MeetingService {
         user: true,
         doctor: {
           user: true,
+          specialities: true
         }
       },
       where: {
@@ -145,6 +147,7 @@ export class MeetingService {
           user: {
             healthInsurance: true,
           },
+          specialities: true
         }
       },
     });

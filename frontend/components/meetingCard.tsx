@@ -51,14 +51,20 @@ const MeetingCard: React.FC<MeetingResponseDto> = (props) => {
             >
               {props.doctor.user.name} {props.doctor.user.surname}
             </h2>
-            <Chip
-              className="mb-2"
-              key={props.speciality.id}
-              size="small"
-              variant="outlined"
-              color="primary"
-              label={props.speciality.name}
-            />
+            <div className="flex mb-2">
+              {props.specialities.map((s) => {
+                return (
+                  <Chip
+                    className="mx-1"
+                    key={s.id}
+                    size="small"
+                    variant="outlined"
+                    color="primary"
+                    label={s.name}
+                  />
+                );
+              })}
+            </div>
           </>
         ) : (
           <h2

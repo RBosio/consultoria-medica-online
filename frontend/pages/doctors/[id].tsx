@@ -6,7 +6,7 @@ import axios from "axios";
 import Avatar from "@/components/avatar";
 import { FaUserDoctor } from "react-icons/fa6";
 import { roboto, robotoBold } from "@/lib/fonts";
-import { Chip, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, ToggleButton, ToggleButtonGroup } from "@mui/material";
+import { Alert, Chip, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, Snackbar, ToggleButton, ToggleButtonGroup } from "@mui/material";
 import Rate from "@/components/rate";
 import { useTheme } from "@mui/material";
 import { GoDotFill } from "react-icons/go";
@@ -14,12 +14,17 @@ import { FaPhone, FaSuitcaseMedical, FaLocationDot } from "react-icons/fa6";
 import { IoMdMail } from "react-icons/io";
 import { IoTimeSharp } from "react-icons/io5";
 import Button from "@/components/button";
+import { useRouter } from "next/router";
+import moment from "moment";
+import { start } from "repl";
 
 export default function Doctor(props: any) {
 
     const theme = useTheme();
+    const router = useRouter();
     const [selectedDate, setSelectedDate] = useState("");
     const [confirmTurn, setConfirmTurn] = useState(false);
+    const [meetingError, setMeetingError] = useState(false);
 
     const handleDateChange = (
         event: React.MouseEvent<HTMLElement>,
@@ -29,14 +34,31 @@ export default function Doctor(props: any) {
     };
 
     const getFormattedSelectedDate = () => {
-        if(!selectedDate) return {day: "", time: ""};
-        let [day, time] = selectedDate.split("-");
+        if (!selectedDate) return { day: "", time: "" };
+        const selectedDateObj = props.doctorAvailability.filter((da: any) => da.date === selectedDate.split("T")[0])[0];
+        let day = selectedDateObj.formattedDate;
         day = day.charAt(0).toUpperCase() + day.slice(1);
-        return { day, time };
+        return { day, time: selectedDate.split("T")[1].slice(0,-3)};
     };
 
-    const onConfirmClick = () => {
-        
+    const onConfirmClick = async () => {
+        try {
+
+            await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/meeting`,
+                {
+                    doctorId: router.query.id,
+                    startDatetime: selectedDate,
+                },
+                {
+                    withCredentials: true,
+                    headers: { Authorization: `Bearer ${props.token}` }
+                });
+
+                router.push(`/meetings/${router.query.id}/${selectedDate}`);
+        }
+        catch (error) {
+            setMeetingError(true);
+        };
     };
 
     return (
@@ -109,7 +131,7 @@ export default function Doctor(props: any) {
                         <div className="flex flex-col h-full justify-between">
                             <div className="flex flex-col gap-4">
                                 {props.doctorAvailability.map((da: any) => {
-                                    let [day, date] = da.date.split(", ");
+                                    let [day, date] = da.formattedDate.split(", ");
                                     day = day.charAt(0).toUpperCase() + day.slice(1);
                                     return (
                                         <div key={da.date} className="">
@@ -133,7 +155,7 @@ export default function Doctor(props: any) {
                                                                 color: "#ffffff",
                                                                 fontWeight: "bold",
                                                             }
-                                                        }} value={`${da.date}-${sch.time}`} key={`${da.date}-${sch.time}`}>
+                                                        }} value={`${da.date}T${sch.time}:00`} key={`${da.date}T${sch.time}:00`}>
                                                             {sch.time}
                                                         </ToggleButton>
                                                     ))}
@@ -171,6 +193,9 @@ export default function Doctor(props: any) {
                         </Button>
                     </DialogActions>
                 </Dialog>
+                <Snackbar open={meetingError} anchorOrigin={{ vertical: "top", horizontal: "center" }} autoHideDuration={4000} onClose={() => setMeetingError(false)}>
+                    <Alert elevation={6} variant="filled" severity="error">Se ha producido un error al crear la reunión, inténtelo nuevamente más tarde</Alert>
+                </Snackbar>
             </section>
         </Layout >
     );
@@ -201,9 +226,10 @@ export const getServerSideProps = withAuth(async (auth: Auth | null, context: an
 
         return {
             props: {
+                auth,
+                token: context.req.cookies.token,
                 doctor,
                 doctorAvailability,
-                auth,
             }
         }
     }

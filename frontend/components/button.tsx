@@ -14,16 +14,16 @@ const Button: React.FC<ButtonProps> = (props) => {
         variant={props.variant ?? "contained"}
         type={props.type}
         sx={{
-            ...props.sx,
             "&.MuiButton-contained": {
-               background: theme.palette.primary.main,
-               color: "#ffffff",
-               fontWeight:"bold", 
+                background: theme.palette.primary.main,
+                color: "#ffffff",
+                fontWeight:"bold", 
             },
             "&.MuiButton-contained.Mui-disabled": {
                 background: "#CAC5C5",
                 opacity: .5,
-            }
+            },
+            ...props.sx,
         }}
         onClick={props.onClick}
         disabled={props.disabled}

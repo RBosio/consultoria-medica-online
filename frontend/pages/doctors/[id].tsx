@@ -15,8 +15,6 @@ import { IoMdMail } from "react-icons/io";
 import { IoTimeSharp } from "react-icons/io5";
 import Button from "@/components/button";
 import { useRouter } from "next/router";
-import moment from "moment";
-import { start } from "repl";
 
 export default function Doctor(props: any) {
 
@@ -46,15 +44,16 @@ export default function Doctor(props: any) {
 
             await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/meeting`,
                 {
-                    doctorId: router.query.id,
+                    userId: props.auth.id,
                     startDatetime: selectedDate,
+                    doctorId: router.query.id
                 },
                 {
                     withCredentials: true,
                     headers: { Authorization: `Bearer ${props.token}` }
                 });
 
-                router.push(`/meetings/${router.query.id}/${selectedDate}`);
+                router.push(`/meetings/${props.auth.id}/${selectedDate}`);
         }
         catch (error) {
             setMeetingError(true);

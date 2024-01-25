@@ -42,7 +42,7 @@ export class ScheduleService {
         const doctorFound = await this.doctorService.findOne(doctorId)
         
         const meetingsFound = await this.meetingService.findByDoctor(doctorId)
-        
+
         let dayAnt = -1        
         schedulesFound.map(schedule => {
             const day_start = moment().startOf('day').hours(schedule.start_hour)
@@ -82,6 +82,36 @@ export class ScheduleService {
         
         return response
     }
+
+        isAvailable(meetings: Meeting[], time: string, day: number): boolean {
+            const moment = extendMoment(Moment)
+            let available = true
+            
+            if(day === new Date().getDay()) {
+                if(Number(time.split(':')[0]) < Number(moment(new Date()).format('HH:mm').split(':')[0])) {
+                    available = false
+                    
+                    return available
+                } else if(Number(time.split(':')[0]) === Number(moment(new Date()).format('HH:mm').split(':')[0]) && Number(time.split(':')[1]) < Number(moment(new Date()).format('HH:mm').split(':')[1])) {
+                    available = false
+                    
+                    return available
+                }
+            }
+    
+            meetings.map(meeting => {
+                const { startDatetime } = meeting
+                if(startDatetime.getDay() === day) {
+                    const moment = extendMoment(Moment);
+    
+                    if(moment(startDatetime).format('HH:mm') === time) {
+                        available = false
+                    }
+                }
+            })
+    
+            return available
+        }
     
     async findOne(id: number): Promise<Schedule | HttpException> {
         const scheduleFound = await this.scheduleRepository.findOne({
@@ -154,20 +184,4 @@ export class ScheduleService {
         return result
     }
     
-    isAvailable(meetings: Meeting[], time: string, day: number): boolean {
-        let available = true
-
-        meetings.map(meeting => {
-            const { startDatetime } = meeting
-            if(startDatetime.getDay() === day) {
-                const moment = extendMoment(Moment);
-
-                if(moment(startDatetime).format('HH:mm') === time) {
-                    available = false
-                }
-            }
-        })
-
-        return available
-    }
 }

@@ -1,6 +1,6 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { MoreThan, Repository } from 'typeorm';
+import { Between, Repository } from 'typeorm';
 import { updateMeetingDto } from './dto/update-meeting.dto';
 import { Meeting } from 'src/entities/meeting.entity';
 import { createMeetingDto } from './dto/create-meeting.dto';
@@ -12,6 +12,8 @@ import { DoctorService } from 'src/doctor/doctor.service';
 import { getMeetingsDto } from './dto/get-meetings.dto';
 import { SpecialityService } from 'src/speciality/speciality.service';
 import { UserService } from 'src/user/user.service';
+import * as Moment from 'moment';
+import { extendMoment } from 'moment-range';
 
 export interface RequestT extends Request {
   user: {
@@ -25,8 +27,7 @@ export class MeetingService {
     @InjectRepository(Meeting) private meetingRepository: Repository<Meeting>,
     private jwtService: JwtService,
     private userService: UserService,
-    private doctorService: DoctorService,
-    private specialityService: SpecialityService,
+    private doctorService: DoctorService
   ) {}
 
   async findAll(): Promise<Meeting[]> {
@@ -39,7 +40,7 @@ export class MeetingService {
     userId: number,
     query: getMeetingsDto,
   ): Promise<Meeting[]> {
-    const { name, specialityId, status } = query;
+    const { name, status } = query;
 
     let meetingsFound = await this.meetingRepository.find({
       relations: {
@@ -118,6 +119,8 @@ export class MeetingService {
   }
 
   async findByDoctor(doctorId: number): Promise<Meeting[]> {
+    const moment = extendMoment(Moment);
+
     return this.meetingRepository.find({
       select: {
         startDatetime: true,
@@ -127,7 +130,10 @@ export class MeetingService {
       },
       where: {
         doctorId,
-        startDatetime: MoreThan(new Date()),
+        startDatetime: Between(
+          new Date(),
+          moment(new Date()).add(7, 'days').toDate(),
+        ),
       },
       relations: ['doctor'],
     });
@@ -147,8 +153,8 @@ export class MeetingService {
           user: {
             healthInsurance: true,
           },
-          specialities: true
-        }
+          specialities: true,
+        },
       },
     });
 
@@ -160,6 +166,44 @@ export class MeetingService {
   }
 
   async create(meeting: createMeetingDto): Promise<Meeting | HttpException> {
+    const moment = extendMoment(Moment);
+    let sch: string[] = [];
+    let band = false
+
+    if(moment(new Date(meeting.startDatetime)).diff(moment(new Date()), 'days') >= 7) {
+      throw new HttpException('Fecha inválida', HttpStatus.BAD_REQUEST)
+    } else if(moment(new Date()).diff(moment(new Date(meeting.startDatetime)), 'days') > 0) {
+      throw new HttpException('Fecha inválida', HttpStatus.BAD_REQUEST)
+    }
+
+    const doctorFound = await this.doctorService.findOne(meeting.doctorId);
+    const { schedules } = doctorFound;
+
+    const d = new Date(meeting.startDatetime).getDay();
+    schedules.map((schedule) => {
+      if (d === schedule.day) {
+        const day_start = moment().startOf('day').hours(schedule.start_hour);
+        const day_end = moment().startOf('day').hours(schedule.end_hour);
+        const day = moment.range(day_start, day_end);
+        const time_slots = Array.from(
+          day.by('minutes', { step: doctorFound.durationMeeting }),
+        );
+
+        const t = time_slots.map((time) => time.format('HH:mm'));
+        sch = sch.concat(t);
+      }
+    });
+    
+    sch.map(s => {
+      if(s === moment(new Date(meeting.startDatetime)).format('HH:mm')) {
+        band = true
+      }
+    })
+    
+    if(!band) {
+      throw new HttpException('Horario del doctor no definido', HttpStatus.NOT_FOUND)
+    }
+    
     const meetingFound = await this.meetingRepository.findOne({
       where: {
         userId: meeting.userId,
@@ -173,8 +217,8 @@ export class MeetingService {
 
     const newMeeting = this.meetingRepository.create(meeting);
 
-    newMeeting.doctor = await this.doctorService.findOne(meeting.doctorId)
-    newMeeting.user = await this.userService.findOne(meeting.userId)
+    newMeeting.doctor = await this.doctorService.findOne(meeting.doctorId);
+    newMeeting.user = await this.userService.findOne(meeting.userId);
     newMeeting.tpc = uuidv4();
 
     return this.meetingRepository.save(newMeeting);

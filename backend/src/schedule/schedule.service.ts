@@ -76,8 +76,7 @@ export class ScheduleService {
         let day = 0
         response = response.map(res => {
             const d = moment(new Date()).add(day, 'd').format('LLLL').split(' ')[0]
-            
-            return { date: d + ' ' + moment(new Date()).add(day++, 'd').format('LL'), schedule: res.schedule }
+            return { formattedDate: d + ' ' + moment(new Date()).add(day, 'd').format('LL'), schedule: res.schedule, date: moment(new Date()).add(day++, 'd').local().format('YYYY-MM-DD') }
         })
         
         return response

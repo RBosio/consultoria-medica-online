@@ -77,7 +77,7 @@ const Sidebar: React.FC<SidebarProps> = (props) => {
                 </IconButton>
             </div>
             <div className="flex flex-col h-[calc(100%-5rem)] items-center md:justify-between">
-                <Avatar className="md:hidden my-6" 
+                <Avatar rootClassName="md:hidden my-6" 
                 size={56} 
                 labelProps={{position: "bottom"}} 
                 name={props.auth.name} 

@@ -195,11 +195,11 @@ export default function Meetings(props: Meeting) {
               ) : (
                 ""
               )}
-              {props.meetings.map((meeting: MeetingResponseDto) => {
+              {props.meetings.map((meeting: MeetingResponseDto, idx: number) => {
                 return (
                   <CardMeeting
-                    key={meeting.id}
-                    id={meeting.id}
+                    key={idx}
+                    id={idx}
                     startDatetime={meeting.startDatetime}
                     status={meeting.status}
                     user={meeting.user}

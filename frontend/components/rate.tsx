@@ -21,7 +21,7 @@ const Rate: React.FC<RateProps> = (props) => {
                 '& .MuiRating-iconHover': {
                     color: theme.palette.primary.main,
                 },
-            }} color='primary' value={props.rate} precision={0.5} readOnly />
+            }} color='primary' value={Number(props.rate)} precision={0.5} readOnly />
             {props.num ? '' : <span className="text-md font-bold md:ml-2">{props.rate}</span>}
         </div>
     );

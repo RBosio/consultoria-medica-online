@@ -361,17 +361,16 @@ export default function DetailMeeting(props: MeetingI) {
               id="scroll"
               style={{ height: "90%" }}
             >
-              {props.comments.map((comment) => {
+              {props.comments.map((comment: CommentResponseDto, idx: number) => {
                 return (
-                  <>
-                    <Comment
-                      comment={comment.comment}
-                      datetime={comment.datetime}
-                      user={comment.user}
-                      auth={props.auth}
-                      files={comment.files}
-                    />
-                  </>
+                  <Comment
+                    key={idx}
+                    comment={comment.comment}
+                    datetime={comment.datetime}
+                    user={comment.user}
+                    auth={props.auth}
+                    files={comment.files}
+                  />
                 );
               })}
             </div>

@@ -19,6 +19,7 @@
     "i": "^0.3.7",
     "moment": "^2.30.1",
     "next": "14.0.4",
+    "nextjs-progressbar": "^0.0.16",
     "npm": "^10.2.5",
     "react": "^18",
     "react-burger-menu": "^3.0.9",

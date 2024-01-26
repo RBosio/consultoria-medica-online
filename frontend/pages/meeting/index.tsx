@@ -6,7 +6,9 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import {
   FaMicrophone,
+  FaMicrophoneSlash,
   FaVideo,
+  FaVideoSlash,
   FaXmark,
 } from "react-icons/fa6";
 import { DoctorResponseDto } from "@/components/dto/doctor.dto";
@@ -26,6 +28,8 @@ export default function Meeting(props: MeetingI) {
 
   const [doctor, setDoctor] = useState<DoctorResponseDto>();
   const [user, setUser] = useState<UserResponseDto>();
+  const [audio, setAudio] = useState<boolean>(true);
+  const [video, setVideo] = useState<boolean>(true);
 
   const setNames = () => {
     let doctor = localStorage.getItem("doctor");
@@ -117,6 +121,51 @@ export default function Meeting(props: MeetingI) {
       });
   }, []);
 
+  const toggleAudio = async () => {
+    const client = await getClient();
+    const stream = client.getMediaStream();
+
+    if (audio) {
+      await stream.muteAudio();
+      setAudio(false);
+    } else {
+      await stream.unmuteAudio();
+      setAudio(true);
+    }
+  };
+
+  const toggleVideo = async () => {
+    const client = await getClient();
+    const stream = client.getMediaStream();
+
+    if (video) {
+      await stream.stopVideo();
+      setVideo(false);
+    } else {
+      const myVideo = document.getElementById("my-video") as HTMLVideoElement;
+      await stream.startVideo({
+        videoElement: myVideo
+      })
+      await stream.renderVideo(
+        myVideo,
+        client.getCurrentUserInfo().userId,
+        320,
+        180,
+        0,
+        0,
+        2
+      );
+      setVideo(true);
+    }
+  };
+
+  const leaveSession = async () => {
+    const client = await getClient();
+
+    client.leave();
+    router.push("/");
+  };
+
   const getClient = async () => {
     const ZoomVideo = await (await import("@zoom/videosdk")).default;
     client = ZoomVideo.createClient();
@@ -156,16 +205,27 @@ export default function Meeting(props: MeetingI) {
           <div className="w-full h-auto flex justify-center p-2 gap-6">
             <div
               className="w-10 h-10 bg-primary text-white rounded-full flex justify-center items-center hover:opacity-70 hover:cursor-pointer"
+              onClick={toggleAudio}
             >
+              {audio ? (
                 <FaMicrophone className="text-xl" />
+              ) : (
+                <FaMicrophoneSlash className="text-xl" />
+              )}
             </div>
             <div
               className="w-10 h-10 bg-primary text-white rounded-full flex justify-center items-center hover:opacity-70 hover:cursor-pointer"
+              onClick={toggleVideo}
             >
+              {video ? (
                 <FaVideo className="text-xl" />
+              ) : (
+                <FaVideoSlash className="text-xl" />
+              )}
             </div>
             <div
               className="w-10 h-10 bg-red-600 text-white rounded-full flex justify-center items-center hover:opacity-70 hover:cursor-pointer"
+              onClick={leaveSession}
             >
               <FaXmark className="text-xl" />
             </div>

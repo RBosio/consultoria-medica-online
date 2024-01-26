@@ -10,13 +10,13 @@ import { Request } from 'express';
 import { joinMeetingResponseDto } from './dto/join-meeting-response.dto';
 import { DoctorService } from 'src/doctor/doctor.service';
 import { getMeetingsDto } from './dto/get-meetings.dto';
-import { SpecialityService } from 'src/speciality/speciality.service';
 import { UserService } from 'src/user/user.service';
 import * as Moment from 'moment';
 import { extendMoment } from 'moment-range';
 
 export interface RequestT extends Request {
   user: {
+    id
     role;
   };
 }
@@ -165,7 +165,7 @@ export class MeetingService {
     return meetingFound;
   }
 
-  async create(meeting: createMeetingDto): Promise<Meeting | HttpException> {
+  async create(meeting: createMeetingDto, req: RequestT): Promise<Meeting | HttpException> {
     const moment = extendMoment(Moment);
     let sch: string[] = [];
     let band = false
@@ -216,6 +216,7 @@ export class MeetingService {
     }
 
     const newMeeting = this.meetingRepository.create(meeting);
+    newMeeting.userId = req.user.id
 
     newMeeting.doctor = await this.doctorService.findOne(meeting.doctorId);
     newMeeting.user = await this.userService.findOne(meeting.userId);

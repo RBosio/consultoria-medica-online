@@ -165,7 +165,7 @@ export class MeetingService {
     return meetingFound;
   }
 
-  async create(meeting: createMeetingDto): Promise<Meeting | HttpException> {
+  async create(req: RequestT, meeting: createMeetingDto): Promise<Meeting | HttpException> {
     const moment = extendMoment(Moment);
     let sch: string[] = [];
     let band = false
@@ -204,9 +204,11 @@ export class MeetingService {
       throw new HttpException('Horario del doctor no definido', HttpStatus.NOT_FOUND)
     }
     
+    const userPayload = this.jwtService.verify(req.headers.authorization.replace('Bearer ', ''));
+
     const meetingFound = await this.meetingRepository.findOne({
       where: {
-        userId: meeting.userId,
+        userId: userPayload.id,
         startDatetime: meeting.startDatetime,
       },
     });
@@ -218,7 +220,7 @@ export class MeetingService {
     const newMeeting = this.meetingRepository.create(meeting);
 
     newMeeting.doctor = await this.doctorService.findOne(meeting.doctorId);
-    newMeeting.user = await this.userService.findOne(meeting.userId);
+    newMeeting.user = await this.userService.findOne(userPayload.id);
     newMeeting.tpc = uuidv4();
 
     return this.meetingRepository.save(newMeeting);

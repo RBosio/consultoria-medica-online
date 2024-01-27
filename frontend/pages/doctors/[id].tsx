@@ -44,7 +44,6 @@ export default function Doctor(props: any) {
 
             await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/meeting`,
                 {
-                    userId: props.auth.id,
                     startDatetime: selectedDate,
                     doctorId: router.query.id
                 },

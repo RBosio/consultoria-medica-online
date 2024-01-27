@@ -42,8 +42,8 @@ export class MeetingController {
     
     @Post()
     @Roles(RoleEnum.User)
-    createMeeting(@Req() req: RequestT, @Body() meeting: createMeetingDto): Promise<Meeting | HttpException> {
-        return this.meetingService.create(req, meeting)
+    createMeeting(@Body() meeting: createMeetingDto): Promise<Meeting | HttpException> {
+        return this.meetingService.create(meeting)
     }
 
     @Post('join/:id/:startDatetime')

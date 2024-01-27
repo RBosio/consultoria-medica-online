@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import {
   FaMicrophone,
   FaMicrophoneSlash,
+  FaPaperPlane,
   FaVideo,
   FaVideoSlash,
   FaXmark,
@@ -14,6 +15,8 @@ import {
 import { DoctorResponseDto } from "@/components/dto/doctor.dto";
 import { UserResponseDto } from "@/components/dto/user.dto";
 import { VideoClient } from "@zoom/videosdk";
+import Input from "@/components/input";
+import { robotoBold } from "@/lib/fonts";
 
 interface MeetingI {
   auth: Auth;
@@ -30,6 +33,9 @@ export default function Meeting(props: MeetingI) {
   const [user, setUser] = useState<UserResponseDto>();
   const [audio, setAudio] = useState<boolean>(true);
   const [video, setVideo] = useState<boolean>(true);
+  const [text, setText] = useState<string>("");
+  const [history, setHistory] = useState<any[]>([]);
+  const t: any[] = [];
 
   const setNames = () => {
     let doctor = localStorage.getItem("doctor");
@@ -72,9 +78,39 @@ export default function Meeting(props: MeetingI) {
         2
       );
 
+      client.getAllUser().forEach((user) => {
+        if (user.bVideoOn) {
+          stream.renderVideo(otherCanvas, user.userId, 768, 432, 0, 0, 1);
+        }
+      });
+
       await stream.startAudio();
       await stream.unmuteAudio();
     }
+  };
+
+  const BindEvents = async () => {
+    const client = await getClient();
+    const stream = client.getMediaStream();
+    const chat = client.getChatClient();
+
+    const otherCanvas = document.getElementById(
+      "other-canvas"
+    ) as HTMLCanvasElement;
+
+    client.on("user-added", async (payload) => {
+      if (payload[0].bVideoOn && self) {
+        await stream.renderVideo(
+          otherCanvas,
+          payload[0].userId,
+          768,
+          432,
+          0,
+          0,
+          2
+        );
+      }
+    });
   };
 
   const meeting = async () => {
@@ -91,21 +127,12 @@ export default function Meeting(props: MeetingI) {
 
     const client = await getClient();
 
-    client.on("user-added", (payload) => {
-      console.log(payload[0].userId + " joined the session");
-    });
-
-    client.on("user-removed", (payload) => {
-      if (payload[0]) {
-        console.log(payload[0].userId + " left the session");
-      }
-    });
-
     if (
       ZoomVideo.checkSystemRequirements().video &&
       ZoomVideo.checkSystemRequirements().audio
     ) {
       await client.init("en-US", "Global", { patchJsMedia: true });
+      await BindEvents();
 
       if (tpc && token) {
         await joinMeeting(tpc, token, myVideo, otherCanvas);
@@ -144,8 +171,8 @@ export default function Meeting(props: MeetingI) {
     } else {
       const myVideo = document.getElementById("my-video") as HTMLVideoElement;
       await stream.startVideo({
-        videoElement: myVideo
-      })
+        videoElement: myVideo,
+      });
       await stream.renderVideo(
         myVideo,
         client.getCurrentUserInfo().userId,
@@ -170,6 +197,25 @@ export default function Meeting(props: MeetingI) {
     const ZoomVideo = await (await import("@zoom/videosdk")).default;
     client = ZoomVideo.createClient();
     return client;
+  };
+
+  const handleSubmit = async ($e: any) => {
+    $e.preventDefault();
+
+    const client = await getClient();
+    const chat = await client.getChatClient();
+
+    await chat.sendToAll(text);
+    const h = chat.getHistory().map((h) => {
+      return {
+        id: h.id,
+        message: h.message,
+        name: h.sender.name,
+      };
+    });
+
+    setHistory(h);
+    setText("");
   };
 
   return (
@@ -231,9 +277,58 @@ export default function Meeting(props: MeetingI) {
             </div>
           </div>
         </div>
-        <div className="w-1/4 h-[calc(100%-30px)] my-4 mr-4 bg-white rounded-lg">
-          <div></div>
-        </div>
+        <section className="w-1/4 h-[calc(100%-30px)] my-4 mr-4 bg-white rounded-lg">
+          <div
+            className="overflow-y-scroll"
+            id="scroll"
+            style={{ height: "90%" }}
+          >
+            {history.map((h) => {
+              return (
+                <div  key={h.id}>
+                  <div className="px-4 py-2">
+                    <div
+                      className={`flex flex-col ${
+                        h.name === `${props.auth.name} ${props.auth.surname}`
+                          ? "items-end text-right"
+                          : "items-start text-left"
+                      }`}
+                    >
+                      <div className="flex justify-center items-center">
+                        <h4
+                          className={`text-lg text-primary ${robotoBold.className} ml-2`}
+                        >
+                          {h.name}
+                        </h4>
+                      </div>
+                      <p className="line-clamp-3 mt-[2px] w-3/4">{h.message}</p>
+                    </div>
+                    <div
+                      className="bg-emerald-200 w-full mt-1"
+                      style={{ height: "1px" }}
+                    ></div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          <form
+            className="flex justify-center items-center m-2 text-primary"
+            onSubmit={handleSubmit}
+          >
+            <Input
+              className="w-full"
+              placeholder="Escriba un texto"
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              id="scroll"
+            />
+            <FaPaperPlane
+              className="hover:cursor-pointer hover:opacity-70"
+              onClick={handleSubmit}
+            />
+          </form>
+        </section>
       </div>
     </Layout>
   );

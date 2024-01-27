@@ -45,6 +45,9 @@ export class UserService {
         const userFound = await this.userRepository.findOne({
             where: {
                 dni
+            },
+            relations: {
+                healthInsurance: true
             }
         })
         if (!userFound) {

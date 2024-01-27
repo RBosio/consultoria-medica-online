@@ -59,7 +59,7 @@ const Navbar: React.FC<NavbarProps> = (props) => {
                     transformOrigin={{ horizontal: 'right', vertical: 'top' }}
                     anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
                 >
-                    <Link href="/config">
+                    <Link href="/profile">
                         <MenuItem sx={{ color: "#ffffff" }} onClick={handleClose}>
                             <ListItemIcon>
                                 <IoPersonSharp color="#ffffff" />

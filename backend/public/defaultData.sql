@@ -26,7 +26,8 @@ VALUES
 INSERT INTO
     health_insurance (name, discount)
 VALUES
-    ('OSDE', 0.30);
+    ('OSDE', 0.30),
+    ('IOSFA', 0.20);
 
 INSERT INTO
     plan (name, price)

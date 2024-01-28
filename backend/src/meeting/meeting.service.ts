@@ -147,11 +147,11 @@ export class MeetingService {
       },
       relations: {
         user: {
-          healthInsurance: true,
+          healthInsurances: true,
         },
         doctor: {
           user: {
-            healthInsurance: true,
+            healthInsurances: true,
           },
           specialities: true,
         },

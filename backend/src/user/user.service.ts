@@ -8,18 +8,21 @@ import { CityService } from 'src/city/city.service';
 import { Doctor } from 'src/entities/doctor.entity';
 import { createDoctorDto } from 'src/doctor/dto/create-doctor.dto';
 import { Speciality } from 'src/entities/speciality.entity';
+import { HealthInsurance } from 'src/entities/health-insurance.entity';
+import { HealthInsuranceService } from 'src/health-insurance/health-insurance.service';
 
 @Injectable()
 export class UserService {
     constructor(
         @InjectRepository(User) private userRepository: Repository<User>,
         @InjectRepository(Doctor) private doctorRepository: Repository<Doctor>,
-        private cityService: CityService
+        private cityService: CityService,
+        private healthInsuranceService: HealthInsuranceService
         ) {}
 
     async findAll(): Promise<User[]> {
         const usersFound = await this.userRepository.find({
-            relations: ['healthInsurance']  
+            relations: ['healthInsurances']  
         })
         usersFound.map(user => user.password = "")
 
@@ -31,7 +34,7 @@ export class UserService {
             where: {
                 id
             },
-            relations: ['healthInsurance']
+            relations: ['healthInsurances']
         })
         if (!userFound) {
             throw new HttpException('Usuario no encontrado', HttpStatus.NOT_FOUND)
@@ -94,6 +97,7 @@ export class UserService {
             throw new HttpException('Ciudad no encontrada', HttpStatus.BAD_REQUEST)
         }
         newUser.city = city
+        newUser.healthInsurances = user.healthInsurances
 
         newUser = await this.userRepository.save(newUser)
 
@@ -108,7 +112,7 @@ export class UserService {
             await this.doctorRepository.save(newDoctor)
         }
         newUser.password = ""
-        
+
         return newUser
     }
 
@@ -150,7 +154,12 @@ export class UserService {
         return this.userRepository.save(userFound)
     }
 
+    
+    
     async loadUsers() {
+        const hi1 = await this.healthInsuranceService.findOne(1)
+        const hi2 = await this.healthInsuranceService.findOne(2)
+
         await this.create({
             dni: '33429120',
             email: 'user@gmail.com',
@@ -163,7 +172,7 @@ export class UserService {
             admin: false,
             gender: false,
             zipCode: "2000",
-            healthInsuranceId: 1
+            healthInsurances: [hi1]
         }, null)
         
         const spec1 = new Speciality()
@@ -184,7 +193,7 @@ export class UserService {
             admin: false,
             gender: true,
             zipCode: "2000",
-            healthInsuranceId: 1
+            healthInsurances: [hi1, hi2]
         }, {
             cuil: "20-38233911-1",
             durationMeeting: 30,
@@ -208,7 +217,7 @@ export class UserService {
             admin: true,
             gender: true,
             zipCode: "2000",
-            healthInsuranceId: 1
+            healthInsurances: [hi2]
         }, null)
     }
 }

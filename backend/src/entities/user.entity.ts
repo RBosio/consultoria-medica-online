@@ -1,4 +1,4 @@
-import { BeforeInsert, BeforeUpdate, Column, Entity, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm'
+import { BeforeInsert, BeforeUpdate, Column, Entity, ManyToMany, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm'
 import { City } from './city.entity'
 import { hash, compare } from 'bcryptjs'
 import { Doctor } from './doctor.entity'
@@ -46,9 +46,6 @@ export class User {
  
     @Column({nullable: true})
     image: string
-
-    @Column()
-    healthInsuranceId: number
     
     @Column({default: false})
     validateHealthInsurance: boolean
@@ -59,8 +56,8 @@ export class User {
     @ManyToOne(() => City, city => city.users)
     city: City
     
-    @ManyToOne(() => HealthInsurance, healthInsurance => healthInsurance.users)
-    healthInsurance: HealthInsurance
+    @ManyToMany(() => HealthInsurance, healthInsurances => healthInsurances.users)
+    healthInsurances: HealthInsurance[]
 
     @OneToOne(() => Doctor, {nullable: false})
     doctor: Doctor

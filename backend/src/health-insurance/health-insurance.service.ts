@@ -14,7 +14,7 @@ export class HealthInsuranceService {
         return this.healthInsuranceRepository.find()
     }
     
-    async findOne(id: number): Promise<HealthInsurance | HttpException> {
+    async findOne(id: number): Promise<HealthInsurance> {
         const healthInsuranceFound = await this.healthInsuranceRepository.findOne({
             where: {
                 id

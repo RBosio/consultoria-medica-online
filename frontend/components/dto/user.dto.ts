@@ -10,5 +10,5 @@ export interface UserResponseDto {
     phone: string
     photo: string
     birthday: Date
-    healthInsurance: HealthInsuranceResponseDto
+    healthInsurances: HealthInsuranceResponseDto[]
 }

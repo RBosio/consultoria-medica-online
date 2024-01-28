@@ -1,4 +1,5 @@
 import { createDoctorDto } from "src/doctor/dto/create-doctor.dto"
+import { HealthInsurance } from "src/entities/health-insurance.entity"
 
 export class createUserDto {
     name: string
@@ -12,6 +13,6 @@ export class createUserDto {
     admin?: boolean
     gender: boolean
     zipCode: string
-    healthInsuranceId: number
+    healthInsurances: HealthInsurance[]
     doctor?: createDoctorDto
 }

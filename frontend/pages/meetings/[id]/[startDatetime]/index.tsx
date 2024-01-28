@@ -172,29 +172,30 @@ export default function DetailMeeting(props: MeetingI) {
     handleClickComment();
   }
 
-  // async function joinMeeting() {
-  //   const { id, startDatetime } = router.query;
+  async function joinMeeting() {
+    const { id, startDatetime } = router.query;
 
-  //   const res = await axios.post(
-  //     `${process.env.NEXT_PUBLIC_API_URL}/meeting/join/${id}/${startDatetime}`,
-  //     {},
-  //     {
-  //       withCredentials: true,
-  //       headers: { Authorization: `Bearer ${props.token}` },
-  //     }
-  //   );
-
-  //   const tokenMeeting = res.data.tokenMeeting;
-
-  //   localStorage.setItem("tokenMeeting", tokenMeeting);
-  //   router.push("/meeting");
-  // }
+    const res = await axios.post(
+      `${process.env.NEXT_PUBLIC_API_URL}/meeting/join/${id}/${startDatetime}`,
+      {},
+      {
+        withCredentials: true,
+        headers: { Authorization: `Bearer ${props.token}` },
+      }
+    );
+    localStorage.setItem('tokenMeeting', res.data.tokenMeeting)
+    localStorage.setItem('tpc', props.meeting.tpc)
+    router.push("/meeting");
+  }
 
   useEffect(() => {
     const scrollBar = document.getElementById("scroll");
     if (scrollBar) {
       scrollBar.scrollTop = 20000;
     }
+
+    localStorage.setItem('user', JSON.stringify(props.meeting.user))
+    localStorage.setItem('doctor', JSON.stringify(props.meeting.doctor))
   }, []);
 
   return (
@@ -223,8 +224,8 @@ export default function DetailMeeting(props: MeetingI) {
                   <div className="text-gray-500 text-xs mt-2 flex justify-end">
                     {props.meeting.cancelDate
                       ? moment(props.meeting.cancelDate).format(
-                        "DD/MM/YYYY HH:mm"
-                      )
+                          "DD/MM/YYYY HH:mm"
+                        )
                       : moment(new Date()).format("DD/MM/YYYY HH:mm")}
                   </div>
                 </div>
@@ -248,6 +249,7 @@ export default function DetailMeeting(props: MeetingI) {
                 specialities={props.specialities}
                 status={props.meeting.status}
                 motive={props.meeting.motive}
+                tpc={props.meeting.tpc}
               />
             ) : (
               <UserCard
@@ -258,6 +260,7 @@ export default function DetailMeeting(props: MeetingI) {
                 specialities={props.specialities}
                 status={props.meeting.status}
                 motive={props.meeting.motive}
+                tpc={props.meeting.tpc}
               />
             )}
           </section>
@@ -297,7 +300,7 @@ export default function DetailMeeting(props: MeetingI) {
                     size="small"
                     endIcon={<FaPlay />}
                     disabled={props.meeting.status !== "Pendiente"}
-                  // onClick={joinMeeting}
+                    onClick={joinMeeting}
                   >
                     Unirse
                   </Button>
@@ -307,7 +310,7 @@ export default function DetailMeeting(props: MeetingI) {
                     size="small"
                     endIcon={<FaPlay />}
                     disabled={props.meeting.status !== "Pendiente"}
-                  // onClick={joinMeeting}
+                    onClick={joinMeeting}
                   >
                     Iniciar reunion
                   </Button>
@@ -321,7 +324,7 @@ export default function DetailMeeting(props: MeetingI) {
                         background: theme.palette.error.main,
                         color: "#ffffff",
                         fontWeight: "bold",
-                      }
+                      },
                     }}
                     endIcon={<FaXmark />}
                     onClick={() => setCancel(true)}
@@ -368,18 +371,20 @@ export default function DetailMeeting(props: MeetingI) {
               id="scroll"
               style={{ height: "90%" }}
             >
-              {props.comments.map((comment: CommentResponseDto, idx: number) => {
-                return (
-                  <Comment
-                    key={idx}
-                    comment={comment.comment}
-                    datetime={comment.datetime}
-                    user={comment.user}
-                    auth={props.auth}
-                    files={comment.files}
-                  />
-                );
-              })}
+              {props.comments.map(
+                (comment: CommentResponseDto, idx: number) => {
+                  return (
+                    <Comment
+                      key={idx}
+                      comment={comment.comment}
+                      datetime={comment.datetime}
+                      user={comment.user}
+                      auth={props.auth}
+                      files={comment.files}
+                    />
+                  );
+                }
+              )}
             </div>
             <form
               className="flex justify-center items-center m-2 text-primary"
@@ -387,8 +392,9 @@ export default function DetailMeeting(props: MeetingI) {
             >
               {file ? (
                 <div
-                  className={`w-full py-1 px-2 bg-primary rounded-md text-white flex justify-between items-center overflow-x-hidden h-8 ${file.name.length > 60 ? "overflow-y-scroll" : ""
-                    }`}
+                  className={`w-full py-1 px-2 bg-primary rounded-md text-white flex justify-between items-center overflow-x-hidden h-8 ${
+                    file.name.length > 60 ? "overflow-y-scroll" : ""
+                  }`}
                 >
                   <div className={`${robotoBold.className}`}>{file.name}</div>
                   <FaXmark

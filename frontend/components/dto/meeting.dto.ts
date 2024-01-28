@@ -4,13 +4,14 @@ import { SpecialityResponseDto } from "./speciality.dto";
 import { UserResponseDto } from "./user.dto";
 
 export interface MeetingResponseDto {
-    id : number
-    startDatetime: Date
-    status: string
-    user: UserResponseDto
-    doctor: DoctorResponseDto
-    specialities: SpecialityResponseDto[]
-    motive?: string
-    cancelDate?: Date
-    auth?: Auth
+  id: number;
+  startDatetime: Date;
+  status: string;
+  tpc: string;
+  user: UserResponseDto;
+  doctor: DoctorResponseDto;
+  specialities: SpecialityResponseDto[];
+  motive?: string;
+  cancelDate?: Date;
+  auth?: Auth;
 }

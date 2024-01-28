@@ -128,8 +128,13 @@ export class UserService {
         if (!userFound) {
             throw new HttpException('Usuario no encontrado', HttpStatus.NOT_FOUND)
         }
-        
+
         const updateUser = Object.assign(userFound, user)
+
+        if(user.password) {
+            await updateUser.hashPassword()
+        }
+        
         return this.userRepository.save(updateUser)
     }
     

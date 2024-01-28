@@ -30,7 +30,7 @@ export class UserController {
     }
 
     @Patch(':dni')
-    @Roles(RoleEnum.User)
+    @Roles(RoleEnum.User, RoleEnum.Doctor)
     updateUser(@Param('dni') dni: string, @Body() user: updateUserDto) {
         return this.userService.update(dni, user)
     }

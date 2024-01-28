@@ -70,7 +70,18 @@ const DoctorCard: React.FC<MeetingResponseDto> = (props) => {
           </div>
           <div className="flex items-center">
             <FaSuitcaseMedical className="text-primary" />
-            <p className="px-2">{props.doctor.user.healthInsurance.name}</p>
+            {props.doctor.user.healthInsurances.map((h, idx) => {
+              return (
+                <div className="flex">
+                  <p key={idx} className="mx-2">{h.name}</p>
+                  <p>
+                    {idx < props.doctor.user.healthInsurances.length - 1
+                      ? "|"
+                      : ""}
+                  </p>
+                </div>
+              );
+            })}
           </div>
           {props.doctor.address ? (
             <div className="flex items-center">

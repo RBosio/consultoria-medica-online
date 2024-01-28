@@ -37,11 +37,11 @@ import {
 } from "@mui/material";
 
 export default function Profile(props: any) {
-  const router = useRouter();
-  const [formError, setFormError] = useState(false);
   const [change, setChange] = useState(false);
   const [confirm, setConfirm] = useState(false);
   const [updated, setUpdated] = useState(false);
+  const [changed, setChanged] = useState(false);
+  const [error, setError] = useState(false);
 
   function showDni() {
     let dni = props.user.dni;
@@ -71,20 +71,26 @@ export default function Profile(props: any) {
     }),
     onSubmit: async (values, { setSubmitting }) => {
       try {
-        await axios.patch(
-          `${process.env.NEXT_PUBLIC_API_URL}/user/${props.auth.dni}`,
-          {
-            password: values.newPassword,
-          },
-          {
-            withCredentials: true,
-            headers: { Authorization: `Bearer ${props.token}` },
-          }
-        );
+        if (values.newPassword === values.repeatPassword) {
+          await axios.patch(
+            `${process.env.NEXT_PUBLIC_API_URL}/user/${props.auth.dni}`,
+            {
+              password: values.newPassword,
+            },
+            {
+              withCredentials: true,
+              headers: { Authorization: `Bearer ${props.token}` },
+            }
+          );
+
+          setChange(false);
+          setUpdated(true);
+          setChanged(true);
+        } else {
+          setError(true);
+        }
       } catch (error: any) {
         console.error(error);
-      } finally {
-        setChange(false);
       }
     },
   });
@@ -92,11 +98,6 @@ export default function Profile(props: any) {
   const onConfirmClick = async () => {
     await changePass.submitForm();
     setConfirm(false);
-    setUpdated(true);
-    changePass.setValues({
-      newPassword: "",
-      repeatPassword: "",
-    });
   };
 
   return (
@@ -184,7 +185,7 @@ export default function Profile(props: any) {
                 </div>
                 <FaEdit
                   className="text-primary ml-2 text-xl hover:cursor-pointer hover:opacity-70"
-                  onClick={() => setChange(true)}
+                  onClick={() => (changed ? "" : setChange(true))}
                 />
               </div>
               {change ? (
@@ -245,10 +246,10 @@ export default function Profile(props: any) {
           aria-labelledby="alert-dialog-title"
           aria-describedby="alert-dialog-description"
         >
-          <DialogTitle id="alert-dialog-title">Confirmar turno</DialogTitle>
+          <DialogTitle id="alert-dialog-title">Confirmar cambio</DialogTitle>
           <DialogContent>
             <DialogContentText id="alert-dialog-description">
-              ¿Estás seguro que deseas sacar el turno para el{" "}
+              ¿Estás seguro que deseas cambiar la contraseña?
             </DialogContentText>
           </DialogContent>
           <DialogActions>
@@ -272,6 +273,16 @@ export default function Profile(props: any) {
         >
           <Alert elevation={6} variant="filled" severity="success">
             Contraseña actualizada con exito!
+          </Alert>
+        </Snackbar>
+        <Snackbar
+          open={error}
+          anchorOrigin={{ vertical: "top", horizontal: "center" }}
+          autoHideDuration={4000}
+          onClose={() => setError(false)}
+        >
+          <Alert elevation={6} variant="filled" severity="error">
+            Las contraseñas deben ser iguales!
           </Alert>
         </Snackbar>
       </section>

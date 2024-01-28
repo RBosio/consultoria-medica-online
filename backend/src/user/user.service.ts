@@ -50,7 +50,7 @@ export class UserService {
                 dni
             },
             relations: {
-                healthInsurance: true
+                healthInsurances: true
             }
         })
         if (!userFound) {

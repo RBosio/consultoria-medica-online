@@ -9,6 +9,8 @@ export interface UserResponseDto {
     gender: string
     phone: string
     photo: string
+    image: string
+    validateHealthInsurance: boolean
     birthday: Date
     healthInsurances: HealthInsuranceResponseDto[]
 }

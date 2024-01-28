@@ -34,8 +34,18 @@ import {
   DialogTitle,
   Snackbar,
 } from "@mui/material";
+import { UserResponseDto } from "@/components/dto/user.dto";
+import { useRouter } from "next/router";
 
-export default function Profile(props: any) {
+interface ProfileProps {
+  user: UserResponseDto;
+  auth: Auth;
+  token: string;
+}
+
+export default function Profile(props: ProfileProps) {
+  const router = useRouter()
+  
   const [change, setChange] = useState(false);
   const [confirm, setConfirm] = useState(false);
   const [updated, setUpdated] = useState(false);
@@ -99,6 +109,31 @@ export default function Profile(props: any) {
     setConfirm(false);
   };
 
+  function handleClickFile() {
+    const file = document.getElementById("file");
+    file?.click();
+  }
+
+  async function handleChange($e: any) {
+    if ($e.target.files && $e.target.files[0]) {
+      const fd = new FormData();
+      fd.append("file", $e.target.files[0]);
+
+      await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/user/${props.user.dni}/image`,
+        fd,
+        {
+          withCredentials: true,
+          headers: { Authorization: `Bearer ${props.token}` },
+        }
+      );
+
+      router.push('/profile')
+    }
+
+    
+  }
+
   return (
     <Layout auth={props.auth}>
       <section className="bg-white w-3/4 mt-20 mx-auto shadow-md">
@@ -108,30 +143,38 @@ export default function Profile(props: any) {
               labelProps={{ className: "hidden" }}
               name={props.user.name}
               surname={props.user.surname}
-              className="absolute bg-primary left-[calc(50%-65px)]"
+              className="absolute z-10 left-[calc(50%-65px)] bg-primary hover:cursor-pointer hover:opacity-70"
               size={130}
               icon={<FaUser size={60} />}
               photo={
                 props.user.image
-                  ? `${process.env.NEXT_PUBLIC_API_URL}/uploads/user/${props.user.image}`
+                  ? `${process.env.NEXT_PUBLIC_API_URL}/uploads/user/images/${props.user.image}`
                   : undefined
               }
+              onClick={handleClickFile}
             />
           ) : (
             <Avatar
               labelProps={{ className: "hidden" }}
               name={props.user.name}
               surname={props.user.surname}
-              className="absolute bg-primary left-[calc(50%-65px)]"
+              className="absolute z-10 left-[calc(50%-65px)] bg-primary hover:cursor-pointer hover:opacity-70"
               size={130}
               icon={<FaUserDoctor size={60} />}
               photo={
                 props.user.image
-                  ? `${process.env.NEXT_PUBLIC_API_URL}/uploads/user/${props.user.image}`
+                  ? `${process.env.NEXT_PUBLIC_API_URL}/uploads/user/images/${props.user.image}`
                   : undefined
               }
+              onClick={handleClickFile}
             />
           )}
+          <input
+            type="file"
+            id="file"
+            className="hidden"
+            onChange={handleChange}
+          />
         </div>
         <div className="flex justify-center relative">
           <div className="mt-16">
@@ -179,9 +222,24 @@ export default function Profile(props: any) {
 
                 <p className="mx-2">{props.user.gender ? "Hombre" : "Mujer"}</p>
               </div>
-              <div className="flex items-center">
+              <div className="flex justify-center items-center w-full">
                 <FaSuitcaseMedical className="text-primary" />
-                <p className="mx-2">{props.user.healthInsurance.name}</p>{" "}
+                <div className="flex">
+                  {props.user.healthInsurances.map((h, idx) => {
+                    return (
+                      <div className="flex" key={idx}>
+                        <p key={idx} className="mx-2">
+                          {h.name}
+                        </p>
+                        <p>
+                          {idx < props.user.healthInsurances.length - 1
+                            ? "|"
+                            : ""}
+                        </p>
+                      </div>
+                    );
+                  })}
+                </div>
                 {props.user.validateHealthInsurance ? (
                   <FaCheck className="text-xl text-green-600" />
                 ) : (

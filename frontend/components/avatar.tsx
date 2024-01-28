@@ -13,6 +13,7 @@ interface AvatarProps {
     className? : string,
     icon?: ReactElement,
     rootClassName?: string,
+    onClick?: any
 }
 
 //IMPLEMENTACIÓN DE: https://mui.com/material-ui/react-avatar/#system-BackgroundLetterAvatars.tsx
@@ -49,7 +50,7 @@ const Avatar: React.FC<AvatarProps> = (props) => {
     };
 
     return (
-        <div className={`flex items-center ${positionProps[props.labelProps?.position ?? "right"]} ${props.rootClassName}`}>
+        <div className={`flex items-center ${positionProps[props.labelProps?.position ?? "right"]} ${props.rootClassName}`} onClick={props.onClick}>
             <MUIAvatar
                 alt={fullName}
                 src={props.photo}

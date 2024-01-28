@@ -10,10 +10,10 @@ import {
   FaCheck,
   FaEnvelope,
   FaKey,
-  FaLocationDot,
   FaMars,
   FaPhone,
   FaSuitcaseMedical,
+  FaUser,
   FaUserDoctor,
   FaVenus,
   FaXmark,
@@ -24,7 +24,6 @@ import { FaEdit } from "react-icons/fa";
 import Input from "@/components/input";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { useRouter } from "next/router";
 import Button from "@/components/button";
 import {
   Alert,
@@ -104,19 +103,35 @@ export default function Profile(props: any) {
     <Layout auth={props.auth}>
       <section className="bg-white w-3/4 mt-20 mx-auto shadow-md">
         <div className="flex justify-center relative">
-          <Avatar
-            labelProps={{ className: "hidden" }}
-            name={props.user.name}
-            surname={props.user.surname}
-            className="absolute bg-primary left-[calc(50%-65px)]"
-            size={130}
-            icon={<FaUserDoctor size={60} />}
-            photo={
-              props.user.image
-                ? `${process.env.NEXT_PUBLIC_API_URL}/uploads/user/${props.user.image}`
-                : undefined
-            }
-          />
+          {props.auth.role === "user" ? (
+            <Avatar
+              labelProps={{ className: "hidden" }}
+              name={props.user.name}
+              surname={props.user.surname}
+              className="absolute bg-primary left-[calc(50%-65px)]"
+              size={130}
+              icon={<FaUser size={60} />}
+              photo={
+                props.user.image
+                  ? `${process.env.NEXT_PUBLIC_API_URL}/uploads/user/${props.user.image}`
+                  : undefined
+              }
+            />
+          ) : (
+            <Avatar
+              labelProps={{ className: "hidden" }}
+              name={props.user.name}
+              surname={props.user.surname}
+              className="absolute bg-primary left-[calc(50%-65px)]"
+              size={130}
+              icon={<FaUserDoctor size={60} />}
+              photo={
+                props.user.image
+                  ? `${process.env.NEXT_PUBLIC_API_URL}/uploads/user/${props.user.image}`
+                  : undefined
+              }
+            />
+          )}
         </div>
         <div className="flex justify-center relative">
           <div className="mt-16">

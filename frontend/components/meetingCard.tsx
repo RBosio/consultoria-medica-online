@@ -21,23 +21,23 @@ const MeetingCard: React.FC<MeetingResponseDto> = (props) => {
       style={{ minWidth: "calc(25% - 32px)" }}
     >
       {props.auth?.role === "user" ? (
-        props.doctor.user.photo ? (
+        props.doctor.user.image ? (
           <img
-            src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/user/${props.doctor.user.photo}`}
+            src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/user/images/${props.doctor.user.image}`}
             alt="Profile photo"
-            className="h-64 sm:h-56 object-cover w-full"
+            className="max-h-48 sm:h-56 object-cover object-center w-full"
           />
         ) : (
           <div className="w-full bg-primary flex items-center justify-center p-6">
             <FaUserDoctor color="#ffffff" size={80} />
           </div>
         )
-      ) : props.user.photo ? (
-        <img
-          src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/user/${props.user.photo}`}
-          alt="Profile photo"
-          className="h-64 sm:h-56 object-cover w-full"
-        />
+      ) : props.user.image ? (
+          <img
+            src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/user/images/${props.user.image}`}
+            alt="Profile photo"
+            className="max-h-48 sm:h-56 object-cover object-center w-full"
+          />
       ) : (
         <div className="w-full bg-primary flex items-center justify-center p-6">
           <FaUser color="#ffffff" size={80} />
@@ -88,7 +88,7 @@ const MeetingCard: React.FC<MeetingResponseDto> = (props) => {
           href={`meetings/${props.user.id}/${moment(props.startDatetime).format(
             "YYYY-MM-DDTHH:mm:ss"
           )}`}
-          className="my-6"
+          className="my-3"
         >
           <Button
             onClick={onConsultClick}

@@ -3,7 +3,7 @@ import { Auth } from "../../../shared/types";
 import axios from "axios";
 import Layout from "@/components/layout";
 import { Autocomplete, useTheme } from "@mui/material";
-import CardMeeting from "@/components/meetingCard";
+import MeetingCard from "@/components/meetingCard";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { FaChevronLeft, FaChevronRight, FaUserDoctor } from "react-icons/fa6";
@@ -114,7 +114,7 @@ export default function Meetings(props: Meeting) {
 
   return (
     <Layout auth={props.auth}>
-      <main>
+      <main >
         <form
           className="flex justify-between items-center bg-white p-6 shadow-md gap-12"
           onSubmit={filtersForm.handleSubmit}
@@ -184,7 +184,7 @@ export default function Meetings(props: Meeting) {
           </Button>
         </form>
         <section>
-          <div className="w-[95%] overflow-hidden m-auto relative px-[14px] mt-8">
+          <div className="w-[95%] overflow-hidden m-auto relative px-[14px]">
             <div
               className="flex flex-nowrap items-center transition-all ease-in"
               style={{ transitionDuration: ".5s" }}
@@ -197,7 +197,7 @@ export default function Meetings(props: Meeting) {
               )}
               {props.meetings.map((meeting: MeetingResponseDto, idx: number) => {
                 return (
-                  <CardMeeting
+                  <MeetingCard
                     key={idx}
                     id={idx}
                     startDatetime={meeting.startDatetime}
@@ -206,6 +206,7 @@ export default function Meetings(props: Meeting) {
                     doctor={meeting.doctor}
                     specialities={meeting.doctor.specialities}
                     auth={props.auth}
+                    tpc=""
                   />
                 );
               })}

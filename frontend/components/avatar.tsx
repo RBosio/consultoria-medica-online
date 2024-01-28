@@ -53,7 +53,7 @@ const Avatar: React.FC<AvatarProps> = (props) => {
         <div className={`flex items-center ${positionProps[props.labelProps?.position ?? "right"]} ${props.rootClassName}`} onClick={props.onClick}>
             <MUIAvatar
                 alt={fullName}
-                src={props.photo}
+                src={props.photo ? `${process.env.NEXT_PUBLIC_API_URL}/uploads/user/images/${props.photo}` : ''}
                 className={props.className}
                 sx={{ bgcolor: stringToColor(fullName), width: props.size ?? 40, height: props.size ?? 40 }}
             >

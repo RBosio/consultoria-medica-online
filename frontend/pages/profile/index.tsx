@@ -148,7 +148,7 @@ export default function Profile(props: ProfileProps) {
               icon={<FaUser size={60} />}
               photo={
                 props.user.image
-                  ? `${process.env.NEXT_PUBLIC_API_URL}/uploads/user/images/${props.user.image}`
+                  ? `${props.user.image}`
                   : undefined
               }
               onClick={handleClickFile}
@@ -163,7 +163,7 @@ export default function Profile(props: ProfileProps) {
               icon={<FaUserDoctor size={60} />}
               photo={
                 props.user.image
-                  ? `${process.env.NEXT_PUBLIC_API_URL}/uploads/user/images/${props.user.image}`
+                  ? `${props.user.image}`
                   : undefined
               }
               onClick={handleClickFile}

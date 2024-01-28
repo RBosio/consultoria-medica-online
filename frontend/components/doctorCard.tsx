@@ -17,18 +17,20 @@ const DoctorCard: React.FC<MeetingResponseDto> = (props) => {
   return (
     <div className="bg-white rounded-md h-full flex flex-col relative w-full">
       <div className="relative">
-        {props.doctor.user.photo ? (
+        {props.doctor.user.image ? (
           <img
-            src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/user/${props.doctor.user.photo}`}
+            src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/user/images/${props.doctor.user.image}`}
             alt="Profile photo"
-            className="h-64 sm:h-56 object-cover w-full"
+            className="max-h-32 sm:h-56 object-cover object-center w-full"
           />
         ) : (
-          <div className="w-full bg-primary flex items-center justify-center p-6 rounded-md">
-            <FaUserDoctor color="#ffffff" size={80} />
-          </div>
+          <>
+            <div className="w-full bg-primary flex items-center justify-center p-6 rounded-md">
+              <FaUserDoctor color="#ffffff" size={80} />
+            </div>
+            <div className="bg-primary w-full h-2 absolute bottom-0"></div>
+          </>
         )}
-        <div className="bg-primary w-full h-2 absolute bottom-0"></div>
       </div>
       <div className="w-full flex flex-col justify-center items-center">
         <h2
@@ -72,8 +74,8 @@ const DoctorCard: React.FC<MeetingResponseDto> = (props) => {
             <FaSuitcaseMedical className="text-primary" />
             {props.doctor.user.healthInsurances.map((h, idx) => {
               return (
-                <div className="flex">
-                  <p key={idx} className="mx-2">{h.name}</p>
+                <div className="flex" key={idx}>
+                  <p className="mx-2">{h.name}</p>
                   <p>
                     {idx < props.doctor.user.healthInsurances.length - 1
                       ? "|"

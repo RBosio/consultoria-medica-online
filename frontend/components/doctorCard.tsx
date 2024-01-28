@@ -32,7 +32,7 @@ const DoctorCard: React.FC<MeetingResponseDto> = (props) => {
       </div>
       <div className="w-full flex flex-col justify-center items-center">
         <h2
-          className={`${robotoBold.className} text-2xl text-primary text-center mt-2`}
+          className={`${robotoBold.className} text-lg sm:text-2xl text-primary text-center mt-2`}
         >
           {props.doctor.user.name} {props.doctor.user.surname}
         </h2>
@@ -40,7 +40,7 @@ const DoctorCard: React.FC<MeetingResponseDto> = (props) => {
           {props.doctor.specialities.map((s) => {
             return (
               <Chip
-                className="mx-1"
+                className="my-1 sm:mt-2"
                 key={s.id}
                 size="small"
                 variant="outlined"
@@ -53,27 +53,27 @@ const DoctorCard: React.FC<MeetingResponseDto> = (props) => {
         <div className="w-3/4 h-2 border-t-2 border-emerald-200"></div>
         <Rate rate={props.doctor.avgRate} num={"n"} />
         {props.doctor.description ? (
-          <p className="mx-6 mt-2 mb-6 text-justify line-clamp-5">
-            {props.doctor.description}
-          </p>
+            <p className="text-sm sm:text-base mx-4 sm:mx-6 mt-1 sm:mt-2 sm:mb-6 text-justify line-clamp-6 sm:line-clamp-5">
+              {props.doctor.description}
+            </p>
         ) : (
           ""
         )}
         <div className="flex flex-col items-center mb-2 mt-2">
           <div className="flex items-center">
             <FaEnvelope className="text-primary" />
-            <p className="px-2">{props.doctor.user.email}</p>
+            <p className="text-sm sm:text-base px-1 sm:px-2">{props.doctor.user.email}</p>
           </div>
           <div className="flex items-center">
             <FaPhone className="text-primary" />
-            <p className="px-2">{props.doctor.user.phone}</p>
+            <p className="text-sm sm:text-base px-1  sm:px-2">{props.doctor.user.phone}</p>
           </div>
           <div className="flex items-center">
             <FaSuitcaseMedical className="text-primary" />
             {props.doctor.user.healthInsurances.map((h, idx) => {
               return (
                 <div className="flex">
-                  <p key={idx} className="mx-2">{h.name}</p>
+                  <p key={idx} className="text-sm sm:text-base px-1 sm:px-2">{h.name}</p>
                   <p>
                     {idx < props.doctor.user.healthInsurances.length - 1
                       ? "|"
@@ -86,7 +86,7 @@ const DoctorCard: React.FC<MeetingResponseDto> = (props) => {
           {props.doctor.address ? (
             <div className="flex items-center">
               <FaLocationDot className="text-primary" />
-              <p className="px-2">{props.doctor.address}</p>
+              <p className="text-sm sm:text-base px-1 sm:px-2">{props.doctor.address}</p>
             </div>
           ) : (
             ""

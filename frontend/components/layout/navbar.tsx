@@ -29,11 +29,11 @@ const Navbar: React.FC<NavbarProps> = (props) => {
     };
 
     return (
-        <section className="p-4 bg-white w-full shrink-0 h-20 shadow-md flex items-center justify-between md:justify-end z-10">
+        <section className="p-1 sm:p-4 bg-white w-full shrink-0 h-20 shadow-md flex items-center justify-between md:justify-end z-10">
             <div className="md:hidden">
                 <Hamburger size={28} color={theme.palette.primary.main} toggled={props.sidebarOpened} toggle={() => props.setSidebarOpened(!props.sidebarOpened)} />
             </div>
-            <Image className="md:hidden" src="/logo.png" width={180} height={180} alt="Logo HealthTech" />
+            <Image className="md:hidden w-1/2" src="/logo.png" width={180} height={180} alt="Logo HealthTech" />
             <div className="flex items-center justify-center">
                 <Tooltip placement="right" title="Perfil">
                     <IconButton className={`rounded-md hover:bg-primary_light ${menuPosition ? "bg-primary" : ""}`} onClick={handleClick}

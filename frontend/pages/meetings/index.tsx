@@ -2,10 +2,10 @@ import withAuth from "@/lib/withAuth";
 import { Auth } from "../../../shared/types";
 import axios from "axios";
 import Layout from "@/components/layout";
-import { Autocomplete, useTheme } from "@mui/material";
+import { Autocomplete, Card, useTheme } from "@mui/material";
 import CardMeeting from "@/components/meetingCard";
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FaChevronLeft, FaChevronRight, FaUserDoctor } from "react-icons/fa6";
 import Input from "@/components/input";
 import { useFormik } from "formik";
@@ -24,9 +24,29 @@ export default function Meetings(props: Meeting) {
   const theme = useTheme();
   const router = useRouter();
 
+  const isClient = typeof window === 'object';
+
+  const [isDesktop, setDesktop] = useState(false); 
+
+  useEffect(() => {
+    if (!isClient) {
+      return; 
+    }
+
+    function handleResize() {
+      setDesktop((window.innerWidth > 912),
+      );
+    }
+    window.addEventListener('resize', handleResize);
+    handleResize(); 
+    return () => window.removeEventListener('resize', handleResize);
+  }, [isClient]);
+
+
   const [index, setIndex] = useState(0);
   const [position, setPosition] = useState(0);
-  let i: number = 5;
+  let i: number
+  isDesktop ? (i = 5) : (i = 3)
   let page: number = 0;
 
   const back = () => {
@@ -43,7 +63,9 @@ export default function Meetings(props: Meeting) {
 
   const next = () => {
     const carouselInner = document.getElementById("carouselInner");
-    if (index < Math.ceil(props.meetings.length / 4) - 1) {
+    let i: number;
+    isDesktop ? (i = 5) : (i = 3)
+    if (index < Math.ceil(props.meetings.length / (i - 1)) - 1) {
       setIndex(index + 1);
       if (carouselInner) {
         carouselInner.style.transform = `translateX(${position - 100}%)`;
@@ -55,7 +77,7 @@ export default function Meetings(props: Meeting) {
 
   const points = (ind: number) => {
     if (ind + 1 == i) {
-      i += 4;
+      isDesktop ? (i += 4) : (i += 2)
       page++;
       return (
         <div
@@ -115,8 +137,8 @@ export default function Meetings(props: Meeting) {
   return (
     <Layout auth={props.auth}>
       <main>
-        <form
-          className="flex justify-between items-center bg-white p-6 shadow-md gap-12"
+      <form
+          className="flex justify-between items-center bg-white p-4 sm:p-6 shadow-md gap-4 sm:gap-8 md:gap-12"
           onSubmit={filtersForm.handleSubmit}
         >
           <div className={`${props.auth.role === "user" ? "w-1/3" : "w-1/2"}`}>
@@ -180,13 +202,13 @@ export default function Meetings(props: Meeting) {
             />
           </div>
           <Button type="submit" size="large" startIcon={<IoMdSearch />}>
-            Buscar
+            <span className="hidden sm:block">Buscar</span>
           </Button>
         </form>
         <section>
           <div className="w-[95%] overflow-hidden m-auto relative px-[14px] mt-8">
-            <div
-              className="flex flex-nowrap items-center transition-all ease-in"
+          <div
+              className="flex flex-nowrap items-center transition-all ease-in "
               style={{ transitionDuration: ".5s" }}
               id="carouselInner"
             >
@@ -206,12 +228,13 @@ export default function Meetings(props: Meeting) {
                     doctor={meeting.doctor}
                     specialities={meeting.doctor.specialities}
                     auth={props.auth}
+                    tpc={""}
                   />
                 );
               })}
             </div>
             <div className="flex justify-center">
-              {props.meetings.length / 4 > 1 ? (
+              {props.meetings.length / (isDesktop ? 4 : 2) > 1 ? (
                 <div
                   onClick={handleClick}
                   id={page.toString()}
@@ -223,13 +246,13 @@ export default function Meetings(props: Meeting) {
                 ""
               )}
 
-              {props.meetings.length / 4 > 1
+              {props.meetings.length / (isDesktop ? 4 : 2) > 1      
                 ? props.meetings.map((m, i) => {
                     return points(i);
                   })
                 : ""}
             </div>
-            {props.meetings.length / 4 > 1 ? (
+            {props.meetings.length / (isDesktop ? 4 : 2) > 1 ? (
               <>
                 <button
                   onClick={() => {

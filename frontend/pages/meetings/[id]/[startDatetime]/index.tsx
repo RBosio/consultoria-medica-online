@@ -2,7 +2,7 @@ import withAuth from "@/lib/withAuth";
 import { Auth } from "@/../shared/types";
 import axios from "axios";
 import Layout from "@/components/layout";
-import { useTheme } from "@mui/material";
+import { Fab, useTheme} from "@mui/material";
 import { useRouter } from "next/router";
 import { MeetingResponseDto } from "@/components/dto/meeting.dto";
 import { SpecialityResponseDto } from "@/components/dto/speciality.dto";
@@ -10,6 +10,7 @@ import Comment from "@/components/comment";
 import { CommentResponseDto } from "@/components/dto/comment.dto";
 import CardDoctor from "@/components/doctorCard";
 import Input from "@/components/input";
+import { BsFillChatLeftTextFill } from "react-icons/bs";
 import {
   FaCalendarDays,
   FaCheck,
@@ -43,6 +44,14 @@ export default function DetailMeeting(props: MeetingI) {
   const [motive, setMotive] = useState<string>("");
   const [showMotive, setShowMotive] = useState<boolean>(false);
   const [cancel, setCancel] = useState<boolean>(false);
+  const [openedChat, setOpenedChat] = useState(false);
+
+  const handleOnClose = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    const target = e.target as HTMLDivElement;  
+    if (target.id === "container") {
+      setOpenedChat(false);
+    }
+  };
 
   async function handleClickComment() {
     const token = props.token;
@@ -236,10 +245,11 @@ export default function DetailMeeting(props: MeetingI) {
           ""
         )}
         <main
-          className="flex justify-between gap-4 overflow-hidden m-4"
-          style={{ height: "85%" }}
+          /*className="flex flex-nowrap justify-between gap-1 sm:gap-4 overflow-visible sm:overflow-hidden m-4"*/
+          className="flex flex-wrap sm:flex-nowrap justify-between gap-1 sm:gap-4 overflow-scroll sm:overflow-hidden m-4"
+          style={{ height: "95%" }}
         >
-          <section className="w-1/4 h-full">
+          <section className="w-1/2 sm:w-1/4 h-5/12 sm:h-full">
             {props.auth.role === "user" ? (
               <CardDoctor
                 id={props.meeting.id}
@@ -264,7 +274,7 @@ export default function DetailMeeting(props: MeetingI) {
               />
             )}
           </section>
-          <section className="w-[37.5%] flex flex-col items-center gap-4">
+          <section className="w-[48%] sm:w-[35%] flex flex-col items-center sm:gap-4">
             <section className="w-full h-2/3 bg-white rounded-lg flex flex-col items-center">
               <div className="w-full relative">
                 <div className="w-full h-full bg-black absolute opacity-30 rounded-t-lg"></div>
@@ -275,7 +285,7 @@ export default function DetailMeeting(props: MeetingI) {
               </div>
               <div className="border-b border-b-emerald-800 text-white bg-emerald-600 flex justify-center items-center mt-2 p-1 rounded-lg w-[90%]">
                 <FaCalendarDays />
-                <p className="ml-1">
+                <p className="ml-1 text-sm sm:text-base">
                   {moment(props.meeting.startDatetime).format("LLLL")}
                 </p>
               </div>
@@ -365,7 +375,75 @@ export default function DetailMeeting(props: MeetingI) {
               ""
             )}
           </section>
-          <section className="w-[37.5%] max-h-full bg-white rounded-lg">
+          <Fab color="primary" onClick={() => openedChat ? setOpenedChat(false) : setOpenedChat(true)} aria-label="chat" className="z-0 bg-secondary hover:bg-[#4F4F4F] absolute bottom-4 right-8 text-white md:hidden">
+            <BsFillChatLeftTextFill />
+          </Fab>
+          {openedChat ?  (
+            <div onClick={handleOnClose} id="container" className="fixed z-50 inset-0 backdrop-blur-sm bg-black bg-opacity-30">
+            <section className="flex flex-col h-5/6  bg-white">
+            <div
+              className="overflow-y-scroll"
+              id="scroll"
+              style={{ height: "90%" }}
+            >
+              {props.comments.map((comment) => {
+                return (
+                  <>
+                    <Comment
+                      comment={comment.comment}
+                      datetime={comment.datetime}
+                      user={comment.user}
+                      auth={props.auth}
+                      files={comment.files}
+                    />
+                  </>
+                );
+              })}
+            </div>
+            <form
+              className="flex justify-center items-center m-2 text-primary"
+              onSubmit={() => handleSubmit}
+            >
+              {file ? (
+                <div
+                  className={`w-full py-1 px-2 bg-primary rounded-md text-white flex justify-between items-center overflow-x-hidden h-8 ${
+                    file.name.length > 60 ? "overflow-y-scroll" : ""
+                  }`}
+                >
+                  <div className={`${robotoBold.className}`}>{file.name}</div>
+                  <FaXmark
+                    className="hover:cursor-pointer hover:opacity-70"
+                    onClick={xHandleClick}
+                  />
+                </div>
+              ) : (
+                <Input
+                  className="w-full"
+                  placeholder="Escriba un texto"
+                  value={text}
+                  onChange={(e) => setText(e.target.value)}
+                  id="scroll"
+                />
+              )}
+              <input
+                type="file"
+                id="file"
+                className="hidden"
+                onChange={handleChange}
+              />
+              <FaPaperclip
+                className="mx-2 hover:cursor-pointer hover:opacity-70"
+                onClick={handleClickFile}
+              />
+              <FaPaperPlane
+                className="hover:cursor-pointer hover:opacity-70"
+                onClick={handleClickComment}
+              />
+            </form>
+          </section>
+          </div>
+          ) : ("")}
+          <section className="w-[100%] sm:w-[37.5%] h-1/2 sm:max-h-full bg-white rounded-lg mt-5 sm:mt-0 hidden sm:inline">
             <div
               className="overflow-y-scroll"
               id="scroll"

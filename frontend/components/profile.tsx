@@ -113,7 +113,9 @@ const Profile: React.FC<ProfileProps> = (props) => {
   }
 
   async function handleChange($e: any) {
-    if ($e.target.files && $e.target.files[0]) {
+    if ($e.target.files && $e.target.files[0] && ($e.target.files[0].type.includes("jpg") ||
+    $e.target.files[0].type.includes("jpeg") ||
+    $e.target.files[0].type.includes("png"))) {
       const fd = new FormData();
       fd.append("file", $e.target.files[0]);
 

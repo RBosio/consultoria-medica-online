@@ -18,6 +18,7 @@ import { FaFilter } from "react-icons/fa";
 import { IoStar } from "react-icons/io5";
 import { IoMdTime, IoMdSearch } from "react-icons/io";
 import { IoIosCloseCircleOutline } from "react-icons/io";
+import { UserResponseDto } from '@/components/dto/user.dto';
 
 export default function Doctors(props: any) {
 
@@ -34,7 +35,7 @@ export default function Doctors(props: any) {
   };
 
   return (
-    <Layout auth={props.auth}>
+    <Layout user={props.user} auth={props.auth}>
       <section className='h-full flex flex-col xl:flex-row overflow-hidden'>
         <Filters setOpenedFilters={setOpenedFilters} openedFilters={openedFilters} healthInsurances={props.healthInsurances} specialities={props.specialities} />
         <div className="w-full p-4 sm:p-10 grow overflow-x-hidden flex flex-col items-center gap-10 relative">
@@ -197,7 +198,7 @@ const Filters: React.FC<FiltersProps> = (props) => {
   )
 };
 
-export const getServerSideProps = withAuth(async (auth: Auth | null, context: any) => {
+export const getServerSideProps = withAuth(async (auth: Auth | null, context: any, user: UserResponseDto) => {
 
   let { query } = context;
 
@@ -232,6 +233,7 @@ export const getServerSideProps = withAuth(async (auth: Auth | null, context: an
         auth,
         specialities,
         healthInsurances,
+        user
       }
     }
   }
@@ -240,7 +242,8 @@ export const getServerSideProps = withAuth(async (auth: Auth | null, context: an
     return {
       props: {
         doctors: { items: [] },
-        auth
+        auth,
+        user
       }
     }
   };

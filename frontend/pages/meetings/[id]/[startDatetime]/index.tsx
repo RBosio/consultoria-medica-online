@@ -24,12 +24,14 @@ import moment from "moment";
 import { robotoBold } from "@/lib/fonts";
 import Button from "@/components/button";
 import UserCard from "@/components/userCard";
+import { UserResponseDto } from "@/components/dto/user.dto";
 
 interface MeetingI {
   meeting: MeetingResponseDto;
   comments: CommentResponseDto[];
   specialities: SpecialityResponseDto[];
   auth: Auth;
+  user: UserResponseDto;
   token: string;
 }
 
@@ -183,8 +185,8 @@ export default function DetailMeeting(props: MeetingI) {
         headers: { Authorization: `Bearer ${props.token}` },
       }
     );
-    localStorage.setItem('tokenMeeting', res.data.tokenMeeting)
-    localStorage.setItem('tpc', props.meeting.tpc)
+    localStorage.setItem("tokenMeeting", res.data.tokenMeeting);
+    localStorage.setItem("tpc", props.meeting.tpc);
     router.push("/meeting");
   }
 
@@ -194,12 +196,16 @@ export default function DetailMeeting(props: MeetingI) {
       scrollBar.scrollTop = 20000;
     }
 
-    localStorage.setItem('user', JSON.stringify(props.meeting.user))
-    localStorage.setItem('doctor', JSON.stringify(props.meeting.doctor))
+    localStorage.setItem("user", JSON.stringify(props.meeting.user));
+    localStorage.setItem("doctor", JSON.stringify(props.meeting.doctor));
   }, []);
 
   return (
-    <Layout auth={props.auth} className="flex flex-col justify-center relative">
+    <Layout
+      user={props.user}
+      auth={props.auth}
+      className="flex flex-col justify-center relative"
+    >
       <>
         {showMotive ? (
           <>
@@ -434,7 +440,7 @@ export default function DetailMeeting(props: MeetingI) {
 }
 
 export const getServerSideProps = withAuth(
-  async (auth: Auth | null, context: any) => {
+  async (auth: Auth | null, context: any, user: UserResponseDto) => {
     let { id, startDatetime } = context.query;
     const token = context.req.cookies.token;
 
@@ -476,6 +482,7 @@ export const getServerSideProps = withAuth(
           specialities,
           auth,
           token,
+          user,
         },
       };
     } catch {
@@ -483,6 +490,7 @@ export const getServerSideProps = withAuth(
         props: {
           meeting: { items: {} },
           auth,
+          user,
         },
       };
     }

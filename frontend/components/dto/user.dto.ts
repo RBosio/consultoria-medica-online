@@ -12,4 +12,5 @@ export interface UserResponseDto {
     validateHealthInsurance: boolean
     birthday: Date
     healthInsurances: HealthInsuranceResponseDto[]
+    token?: string
 }

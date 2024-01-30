@@ -15,6 +15,7 @@ import { IoMdMail } from "react-icons/io";
 import { IoTimeSharp } from "react-icons/io5";
 import Button from "@/components/button";
 import { useRouter } from "next/router";
+import { UserResponseDto } from "@/components/dto/user.dto";
 
 export default function Doctor(props: any) {
 
@@ -60,7 +61,7 @@ export default function Doctor(props: any) {
     };
 
     return (
-        <Layout auth={props.auth}>
+        <Layout user={props.user} auth={props.auth}>
             <section className="h-full flex p-8 overflow-hidden">
                 <div className="w-full flex flex-col xl:flex-row gap-6 mt-[3rem]">
                     <div className="w-full rounded-md md:w-[calc(100%-15rem)] xl:shadow-md xl:bg-white xl:min-w-64 xl:w-5/12 relative">
@@ -200,7 +201,7 @@ export default function Doctor(props: any) {
 };
 
 
-export const getServerSideProps = withAuth(async (auth: Auth | null, context: any) => {
+export const getServerSideProps = withAuth(async (auth: Auth | null, context: any, user: UserResponseDto) => {
 
     let { query } = context;
 
@@ -228,6 +229,7 @@ export const getServerSideProps = withAuth(async (auth: Auth | null, context: an
                 token: context.req.cookies.token,
                 doctor,
                 doctorAvailability,
+                user
             }
         }
     }
@@ -235,7 +237,8 @@ export const getServerSideProps = withAuth(async (auth: Auth | null, context: an
     catch {
         return {
             props: {
-                auth
+                auth,
+                user
             }
         }
     };

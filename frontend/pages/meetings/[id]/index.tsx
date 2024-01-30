@@ -441,12 +441,16 @@ export default function DetailMeeting(props: MeetingI) {
 
 export const getServerSideProps = withAuth(
   async (auth: Auth | null, context: any, user: UserResponseDto) => {
-    let { id, startDatetime } = context.query;
+    let { id } = context.query;
     const token = context.req.cookies.token;
+
+    const [t, startDatetime] = atob(id).split('.')
+console.log(t)
+console.log(startDatetime)
 
     try {
       let meeting = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/meeting/${id}/${startDatetime}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/meeting/${t}/${startDatetime}`,
         {
           withCredentials: true,
           headers: { Authorization: `Bearer ${token}` },

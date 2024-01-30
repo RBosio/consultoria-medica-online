@@ -73,7 +73,6 @@ const MeetingCard: React.FC<MeetingResponseDto> = (props) => {
             {props.user.name} {props.user.surname}
           </h2>
         )}
-
         <div className="w-3/4 h-2 border-t-2 border-emerald-200 mb-3"></div>
         <div className="border-b border-b-emerald-800 text-white bg-emerald-600 flex items-center p-1 rounded-lg">
           <FaCalendarDays />
@@ -85,9 +84,7 @@ const MeetingCard: React.FC<MeetingResponseDto> = (props) => {
           <p className="text-zinc-800">{props.status}</p>
         </div>
         <Link
-          href={`meetings/${props.user.id}/${moment(props.startDatetime).format(
-            "YYYY-MM-DDTHH:mm:ss"
-          )}`}
+          href={`meetings/${btoa(props.user.id+'.'+moment(props.startDatetime).format("YYYY-MM-DDTHH:mm:ss"))}`}
           className="my-3"
         >
           <Button

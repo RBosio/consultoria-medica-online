@@ -246,7 +246,7 @@ export default function DetailMeeting(props: MeetingI) {
         )}
         <main
           /*className="flex flex-nowrap justify-between gap-1 sm:gap-4 overflow-visible sm:overflow-hidden m-4"*/
-          className="flex flex-wrap sm:flex-nowrap justify-between gap-1 sm:gap-4 overflow-scroll sm:overflow-hidden m-4"
+          className="flex flex-wrap sm:flex-nowrap justify-between gap-1 sm:gap-4 m-4"
           style={{ height: "95%" }}
         >
           <section className="w-1/2 sm:w-1/4 h-5/12 sm:h-full">
@@ -375,75 +375,11 @@ export default function DetailMeeting(props: MeetingI) {
               ""
             )}
           </section>
-          <Fab color="primary" onClick={() => openedChat ? setOpenedChat(false) : setOpenedChat(true)} aria-label="chat" className="z-0 bg-secondary hover:bg-[#4F4F4F] absolute bottom-4 right-8 text-white md:hidden">
+          <Fab color="primary" onClick={() => openedChat ? setOpenedChat(false) : setOpenedChat(true)} aria-label="chat" className="z-0 bg-secondary hover:bg-[#4F4F4F] absolute bottom-4 right-8 text-white sm:hidden">
             <BsFillChatLeftTextFill />
           </Fab>
-          {openedChat ?  (
-            <div onClick={handleOnClose} id="container" className="fixed z-50 inset-0 backdrop-blur-sm bg-black bg-opacity-30">
-            <section className="flex flex-col h-5/6  bg-white">
-            <div
-              className="overflow-y-scroll"
-              id="scroll"
-              style={{ height: "90%" }}
-            >
-              {props.comments.map((comment) => {
-                return (
-                  <>
-                    <Comment
-                      comment={comment.comment}
-                      datetime={comment.datetime}
-                      user={comment.user}
-                      auth={props.auth}
-                      files={comment.files}
-                    />
-                  </>
-                );
-              })}
-            </div>
-            <form
-              className="flex justify-center items-center m-2 text-primary"
-              onSubmit={() => handleSubmit}
-            >
-              {file ? (
-                <div
-                  className={`w-full py-1 px-2 bg-primary rounded-md text-white flex justify-between items-center overflow-x-hidden h-8 ${
-                    file.name.length > 60 ? "overflow-y-scroll" : ""
-                  }`}
-                >
-                  <div className={`${robotoBold.className}`}>{file.name}</div>
-                  <FaXmark
-                    className="hover:cursor-pointer hover:opacity-70"
-                    onClick={xHandleClick}
-                  />
-                </div>
-              ) : (
-                <Input
-                  className="w-full"
-                  placeholder="Escriba un texto"
-                  value={text}
-                  onChange={(e) => setText(e.target.value)}
-                  id="scroll"
-                />
-              )}
-              <input
-                type="file"
-                id="file"
-                className="hidden"
-                onChange={handleChange}
-              />
-              <FaPaperclip
-                className="mx-2 hover:cursor-pointer hover:opacity-70"
-                onClick={handleClickFile}
-              />
-              <FaPaperPlane
-                className="hover:cursor-pointer hover:opacity-70"
-                onClick={handleClickComment}
-              />
-            </form>
-          </section>
-          </div>
-          ) : ("")}
-          <section className="w-[100%] sm:w-[37.5%] h-1/2 sm:max-h-full bg-white rounded-lg mt-5 sm:mt-0 hidden sm:inline">
+          <div onClick={handleOnClose}  id="container" className={openedChat ? 'fixed z-50 inset-0 backdrop-blur-sm bg-black bg-opacity-30' : 'w-[100%] sm:w-[37.5%] max-h-full bg-white rounded-lg mt-5 sm:mt-0 hidden  sm:inline '}>
+          <section className={openedChat ? 'flex flex-col h-5/6  bg-white' : 'w-[100%] sm:w-[37.5%] max-h-full bg-white rounded-lg mt-5 sm:mt-0 hidden  sm:inline '}>
             <div
               className="overflow-y-scroll"
               id="scroll"
@@ -505,6 +441,7 @@ export default function DetailMeeting(props: MeetingI) {
               />
             </form>
           </section>
+          </div>
         </main>
       </>
     </Layout>

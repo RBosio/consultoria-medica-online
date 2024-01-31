@@ -17,7 +17,7 @@ const MeetingCard: React.FC<MeetingResponseDto> = (props) => {
 
   return (
     <div
-      className="bg-white rounded-md min-w-[calc(50%-32px)] sm:min-w-[calc(25%-32px)] shadow-md h-100 sm:h-auto flex flex-col m-4 relative overflow-hidden"
+      className="bg-white rounded-md min-w-[calc(50%-32px)] lg:min-w-[calc(25%-32px)] shadow-md h-100 sm:h-auto flex flex-col m-4 relative overflow-hidden"
     >
       {props.auth?.role === "user" ? (
         props.doctor.user.photo ? (
@@ -54,7 +54,7 @@ const MeetingCard: React.FC<MeetingResponseDto> = (props) => {
               {props.specialities.map((s) => {
                 return (
                   <Chip
-                    className="mt-1 mb-2"
+                    className="mt-1 mb-2 text-xs sm:text-sm"
                     key={s.id}
                     size="small"
                     variant="outlined"
@@ -67,7 +67,7 @@ const MeetingCard: React.FC<MeetingResponseDto> = (props) => {
           </>
         ) : (
           <h2
-            className={`${robotoBold.className} text-lg sm:text-2xl text-primary text-center`}
+            className={`${robotoBold.className} text-lg md:text-xl lg:text-2xl text-primary text-center`}
           >
             {props.user.name} {props.user.surname}
           </h2>

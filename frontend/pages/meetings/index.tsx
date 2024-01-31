@@ -24,6 +24,9 @@ export default function Meetings(props: Meeting) {
   const theme = useTheme();
   const router = useRouter();
 
+  const [index, setIndex] = useState(0);
+  const [position, setPosition] = useState(0);
+
   const isClient = typeof window === 'object';
 
   const [isDesktop, setDesktop] = useState(false); 
@@ -34,7 +37,7 @@ export default function Meetings(props: Meeting) {
     }
 
     function handleResize() {
-      setDesktop((window.innerWidth > 912),
+      setDesktop((window.innerWidth > 1024)
       );
     }
     window.addEventListener('resize', handleResize);
@@ -43,8 +46,7 @@ export default function Meetings(props: Meeting) {
   }, [isClient]);
 
 
-  const [index, setIndex] = useState(0);
-  const [position, setPosition] = useState(0);
+
   let i: number
   isDesktop ? (i = 5) : (i = 3)
   let page: number = 0;

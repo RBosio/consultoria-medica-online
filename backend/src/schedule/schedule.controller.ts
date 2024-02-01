@@ -15,22 +15,16 @@ export class ScheduleController {
 
     constructor(private scheduleService: ScheduleService) {}
     
-    @Get()
+    @Get(':doctorId')
     @Roles(RoleEnum.User, RoleEnum.Doctor)
-    getSchedules(): Promise<Schedule[]> {
-        return this.scheduleService.findAll()
+    getSchedules(@Param('doctorId', ParseIntPipe) doctorId: number): Promise<Schedule[]> {
+        return this.scheduleService.findAll(doctorId)
     }
     
     @Get('doctor/:doctorId')
     @Roles(RoleEnum.User, RoleEnum.Doctor)
     getSchedulesByDoctor(@Param('doctorId', ParseIntPipe) doctorId: number): Promise<ScheduleResponseDto[]> {
         return this.scheduleService.findByDoctor(doctorId)
-    }
-    
-    @Get(':id')
-    @Roles(RoleEnum.User, RoleEnum.Doctor)
-    getSchedule(@Param('id', ParseIntPipe) id: number): Promise<Schedule | HttpException> {
-        return this.scheduleService.findOne(id)
     }
 
     @Post()

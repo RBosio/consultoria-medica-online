@@ -20,12 +20,18 @@ import {
 import { robotoBold } from "@/lib/fonts";
 import Button from "@/components/button";
 import {
+  Alert,
   ButtonGroup,
   Chip,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
   Divider,
-  InputLabel,
   MenuItem,
   Select,
+  Snackbar,
   useTheme,
 } from "@mui/material";
 import { UserResponseDto } from "@/components/dto/user.dto";
@@ -53,6 +59,10 @@ export default function Config(props: ConfigProps) {
   const theme = useTheme();
   const router = useRouter();
   const days = [
+    {
+      day: -1,
+      d: "",
+    },
     {
       day: 1,
       d: "Lunes",
@@ -85,6 +95,7 @@ export default function Config(props: ConfigProps) {
 
   const [modify, setModify] = useState(false);
   const [minutesFrom, setMinutesFrom] = useState([
+    "",
     "01:00",
     "02:00",
     "03:00",
@@ -112,7 +123,19 @@ export default function Config(props: ConfigProps) {
   ]);
   const [minutesTo, setMinutesTo] = useState<string[]>([]);
   const [healthInsurance, setHealthInsurance] = useState<number>(0);
-  const [duration, setDuration] = useState<number>(props.doctor.durationMeeting);
+  const [duration, setDuration] = useState<number>(
+    props.doctor.durationMeeting
+  );
+  const [day, setDay] = useState<number>(-1);
+  const [from, setFrom] = useState<string>("");
+  const [to, setTo] = useState<string>("");
+
+  const [error, setError] = useState<boolean>(false);
+  const [success, setSuccess] = useState<boolean>(false);
+  const [message, setMessage] = useState<string>("");
+
+  const [confirmSchedule, setConfirmSchedule] = useState<boolean>(false);
+  const [confirmUpdate, setConfirmUpdate] = useState<boolean>(false);
 
   const updateForm = useFormik({
     initialValues: {
@@ -122,38 +145,72 @@ export default function Config(props: ConfigProps) {
       address: props.doctor.address,
     },
     onSubmit: async (values, { setSubmitting }) => {
-      try {
-        values.durationMeeting = duration
-        await axios.patch(
-          `${process.env.NEXT_PUBLIC_API_URL}/user/${props.doctor.user.dni}`,
-          values,
-          {
-            withCredentials: true,
-            headers: { Authorization: `Bearer ${props.token}` },
-          }
-        );
+      values.durationMeeting = duration;
 
-        await axios.patch(
-          `${process.env.NEXT_PUBLIC_API_URL}/doctor/${props.doctor.id}`,
-          values,
-          {
-            withCredentials: true,
-            headers: { Authorization: `Bearer ${props.token}` },
-          }
-        );
+      await axios.patch(
+        `${process.env.NEXT_PUBLIC_API_URL}/user/${props.doctor.user.dni}`,
+        values,
+        {
+          withCredentials: true,
+          headers: { Authorization: `Bearer ${props.token}` },
+        }
+      );
 
-        setModify(false);
-        router.push(`/config`);
-      } catch (error: any) {
-        // if ([404, 401].includes(error.response.status)) {
-        //     updateForm.errors.email = "Las credenciales ingresadas no coinciden con ningún usuario";
-        //     updateForm.values.password = "";
-        // } else {
-        //     setFormError(true);
-        // };
-      } finally {
-        setSubmitting(false);
+      await axios.patch(
+        `${process.env.NEXT_PUBLIC_API_URL}/doctor/${props.doctor.id}`,
+        values,
+        {
+          withCredentials: true,
+          headers: { Authorization: `Bearer ${props.token}` },
+        }
+      );
+
+      setModify(false);
+
+      setMessage("Datos actualizados correctamente");
+      setSuccess(true);
+      router.push(`/config`);
+    },
+  });
+
+  const addScheduleForm = useFormik({
+    initialValues: {
+      day: 0,
+      start_hour: 0,
+      end_hour: 0,
+      doctorId: props.doctor.id,
+    },
+    onSubmit: async (values, { setSubmitting }) => {
+      if (day && from && to) {
+        values.day = day;
+        values.start_hour = Number(from);
+        values.end_hour = Number(to);
       }
+
+      try {
+        if (values.end_hour != 0) {
+          await axios.post(
+            `${process.env.NEXT_PUBLIC_API_URL}/schedule`,
+            values,
+            {
+              withCredentials: true,
+              headers: { Authorization: `Bearer ${props.token}` },
+            }
+          );
+
+          setMessage("Rango horario agregado con exito");
+          setSuccess(true);
+
+          setDay(-1);
+          setFrom("");
+          setTo("");
+        }
+      } catch (e: any) {
+        setMessage(e.response.data.message);
+        setError(true);
+      }
+
+      router.push(`/config`);
     },
   });
 
@@ -164,6 +221,8 @@ export default function Config(props: ConfigProps) {
         .filter((m) => m > $e.target.value)
         .map((m) => m.concat(":00"))
     );
+
+    setFrom($e.target.value);
   };
 
   const handleClickHealthInsurance = async () => {
@@ -179,6 +238,16 @@ export default function Config(props: ConfigProps) {
     );
 
     router.push("/config");
+  };
+
+  const onConfirmClick = () => {
+    if (confirmSchedule) {
+      addScheduleForm.handleSubmit();
+      setConfirmSchedule(false);
+    } else {
+      updateForm.handleSubmit();
+      setConfirmUpdate(false);
+    }
   };
 
   return (
@@ -394,6 +463,57 @@ export default function Config(props: ConfigProps) {
                   <h3 className="text-primary text-xl text-center">
                     Rangos horarios
                   </h3>
+                  <div className="flex items-center">
+                    <form
+                      className="w-full flex justify-between items-center my-4 gap-4"
+                      onSubmit={($e: any) => {
+                        $e.preventDefault();
+                        setConfirmSchedule(true);
+                      }}
+                    >
+                      <div className="my-4">
+                        <p className="text-primary text-xl">Dia</p>
+                      </div>
+                      <Select
+                        className="w-1/4"
+                        value={day}
+                        onChange={($e: any) => setDay($e.target.value)}
+                      >
+                        {days.map((d) => (
+                          <MenuItem value={d.day}>{d.d}</MenuItem>
+                        ))}
+                      </Select>
+                      <div className="my-4">
+                        <p className="text-primary text-xl">Desde</p>
+                      </div>
+                      <Select
+                        className="w-1/4"
+                        value={from}
+                        onChange={handleChange}
+                      >
+                        {minutesFrom.map((m) => {
+                          return (
+                            <MenuItem value={m.split(":")[0]}>{m}</MenuItem>
+                          );
+                        })}
+                      </Select>
+                      <div className="">
+                        <p className="text-primary text-xl">Hasta</p>
+                      </div>
+                      <Select
+                        className="w-1/4"
+                        value={to}
+                        onChange={($e: any) => setTo($e.target.value)}
+                      >
+                        {minutesTo.map((m) => {
+                          return (
+                            <MenuItem value={m.split(":")[0]}>{m}</MenuItem>
+                          );
+                        })}
+                      </Select>
+                      <Button type="submit">Agregar</Button>
+                    </form>
+                  </div>
                   <div className="flex items-center mt-2">
                     <div className="mt-8">
                       <div className="my-4">
@@ -406,9 +526,13 @@ export default function Config(props: ConfigProps) {
                     {days.map((day, idx) => {
                       return (
                         <div key={idx}>
-                          <p className="text-primary text-xl border-y-2 border-primary px-10 py-2">
-                            {day.d}
-                          </p>
+                          {day.day >= 0 ? (
+                            <p className="text-primary text-xl border-y-2 border-primary px-10 py-2">
+                              {day.d}
+                            </p>
+                          ) : (
+                            ""
+                          )}
                           <div className="flex justify-center items-center">
                             {props.schedules.map((s) => {
                               if (s.day === day.day) {
@@ -418,10 +542,14 @@ export default function Config(props: ConfigProps) {
                                     key={s.id}
                                   >
                                     <p className="text-center p-2 border-b border-slate-600">
-                                      {s.start_hour}
+                                      {s.start_hour < 10
+                                        ? "0".concat(s.start_hour.toString())
+                                        : s.start_hour}
                                     </p>
                                     <p className="text-center p-2">
-                                      {s.end_hour}
+                                      {s.end_hour < 10
+                                        ? "0".concat(s.end_hour.toString())
+                                        : s.end_hour}
                                     </p>
                                   </div>
                                 );
@@ -432,45 +560,15 @@ export default function Config(props: ConfigProps) {
                       );
                     })}
                   </div>
-                  <div className="flex items-center mt-2">
-                    <div className="w-full flex justify-between items-center mt-8 gap-4">
-                      <div className="my-4">
-                        <p className="text-primary text-xl">Dia</p>
-                      </div>
-                      <Select className="w-1/4">
-                        {days.map((d) => {
-                          return <MenuItem value={d.day}>{d.d}</MenuItem>;
-                        })}
-                      </Select>
-                      <div className="my-4">
-                        <p className="text-primary text-xl">Desde</p>
-                      </div>
-                      <Select className="w-1/4" onChange={handleChange}>
-                        {minutesFrom.map((m) => {
-                          return (
-                            <MenuItem value={m.split(":")[0]}>{m}</MenuItem>
-                          );
-                        })}
-                      </Select>
-                      <div className="">
-                        <p className="text-primary text-xl">Hasta</p>
-                      </div>
-                      <Select className="w-1/4">
-                        {minutesTo.map((m) => {
-                          return (
-                            <MenuItem value={Number(m.split(":")[0])}>
-                              {m}
-                            </MenuItem>
-                          );
-                        })}
-                      </Select>
-                      <Button>Agregar</Button>
-                    </div>
-                  </div>
                 </div>
               </div>
               <div className="bg-white min-w-full rounded-md shadow-md p-4 flex flex-col justify-center">
-                <form onSubmit={updateForm.handleSubmit}>
+                <form
+                  onSubmit={($e: any) => {
+                    $e.preventDefault();
+                    setConfirmUpdate(true);
+                  }}
+                >
                   <div className="flex justify-between items-start gap-8">
                     <div className="w-1/3 p-4">
                       <h3 className="text-primary text-xl text-center">
@@ -485,7 +583,7 @@ export default function Config(props: ConfigProps) {
                             className="w-full"
                             value={duration}
                             onChange={($e: any) => setDuration($e.target.value)}
->
+                          >
                             {[10, 15, 30, 45, 60].map((d) => (
                               <MenuItem value={d}>{d} min</MenuItem>
                             ))}
@@ -600,30 +698,58 @@ export default function Config(props: ConfigProps) {
               </div>
             </div>
           </div>
-          {/* <Dialog
-                    open={confirmTurn}
-                    onClose={() => setConfirmTurn(false)}
-                    aria-labelledby="alert-dialog-title"
-                    aria-describedby="alert-dialog-description"
-                >
-                    <DialogTitle id="alert-dialog-title">
-                        Confirmar turno
-                    </DialogTitle>
-                    <DialogContent>
-                        <DialogContentText id="alert-dialog-description">
-                            ¿Estás seguro que deseas sacar el turno para el <b>{getFormattedSelectedDate().day}</b> a las <b>{getFormattedSelectedDate().time}</b>?
-                        </DialogContentText>
-                    </DialogContent>
-                    <DialogActions>
-                        <Button color="error" variant="text" onClick={() => setConfirmTurn(false)}>Cancelar</Button>
-                        <Button onClick={onConfirmClick} autoFocus>
-                            Confirmar
-                        </Button>
-                    </DialogActions>
-                </Dialog> */}
-          {/* <Snackbar open={meetingError} anchorOrigin={{ vertical: "top", horizontal: "center" }} autoHideDuration={4000} onClose={() => setMeetingError(false)}>
-                    <Alert elevation={6} variant="filled" severity="error">Se ha producido un error al crear la reunión, inténtelo nuevamente más tarde</Alert>
-                </Snackbar> */}
+          <Dialog
+            open={confirmSchedule || confirmUpdate}
+            onClose={() => {
+              setConfirmSchedule(false);
+              setConfirmUpdate(false);
+            }}
+            aria-labelledby="alert-dialog-title"
+            aria-describedby="alert-dialog-description"
+          >
+            <DialogTitle id="alert-dialog-title" className="text-center">
+              {confirmSchedule ? "Rango horario" : "Datos personales"}
+            </DialogTitle>
+            <DialogContent>
+              <DialogContentText id="alert-dialog-description">
+                {confirmSchedule
+                  ? "¿Desea agregar el rango horario?"
+                  : "¿Desea actualizar los datos?"}
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button
+                color="error"
+                variant="text"
+                onClick={() => {
+                  setConfirmSchedule(false);
+                  setConfirmUpdate(false);
+                }}
+              >
+                Cancelar
+              </Button>
+              <Button onClick={onConfirmClick} autoFocus>
+                Confirmar
+              </Button>
+            </DialogActions>
+          </Dialog>
+          <Snackbar
+            open={error || success}
+            anchorOrigin={{ vertical: "top", horizontal: "center" }}
+            autoHideDuration={4000}
+            onClose={() => {
+              setError(false);
+              setSuccess(false);
+            }}
+          >
+            <Alert
+              elevation={6}
+              variant="filled"
+              severity={error ? "error" : "success"}
+            >
+              {message}
+            </Alert>
+          </Snackbar>
         </div>
       </section>
     </Layout>

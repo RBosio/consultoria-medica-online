@@ -37,6 +37,7 @@ import { PlanModule } from './plan/plan.module';
 import { Benefit } from './entities/benefit.entity';
 import { BenefitModule } from './benefit/benefit.module';
 import { Notification } from './entities/notification.entity';
+import { NotificationModule } from './notification/notification.module';
 
 @Module({
   imports: [
@@ -72,7 +73,8 @@ import { Notification } from './entities/notification.entity';
     CommentModule,
     HealthInsuranceModule,
     PlanModule,
-    BenefitModule
+    BenefitModule,
+    NotificationModule
     ],
   controllers: [AppController],
   providers: [AppService]

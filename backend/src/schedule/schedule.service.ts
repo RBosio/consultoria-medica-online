@@ -27,6 +27,10 @@ export class ScheduleService {
           id: doctorId,
         },
       },
+      order: {
+        day: 'ASC',
+        start_hour: 'ASC'
+      }
     });
   }
 

@@ -38,7 +38,6 @@ import { FaCheckCircle, FaEdit } from "react-icons/fa";
 import { ScheduleResponseDto } from "@/components/dto/schedule.dto";
 import Input from "@/components/input";
 import { useFormik } from "formik";
-import * as Yup from "yup";
 import { HealthInsuranceResponseDto } from "@/components/dto/healthInsurance.dto";
 
 interface ConfigProps {
@@ -112,39 +111,39 @@ export default function Config(props: ConfigProps) {
     "24:00",
   ]);
   const [minutesTo, setMinutesTo] = useState<string[]>([]);
-  const [durationMeeting, setDurationMeeting] = useState<number>(
-    props.doctor.durationMeeting
-  );
-  const [priceMeeting, setPriceMeeting] = useState<number>(
-    props.doctor.priceMeeting
-  );
-  const [phone, setPhone] = useState<string>(props.doctor.user.phone);
-  const [address, setAddress] = useState<string>(props.doctor.address);
+  const [healthInsurance, setHealthInsurance] = useState<number>(0);
+  const [duration, setDuration] = useState<number>(props.doctor.durationMeeting);
 
   const updateForm = useFormik({
     initialValues: {
-      durationMeeting: "",
-      priceMeeting: "",
+      durationMeeting: duration,
+      priceMeeting: props.doctor.priceMeeting,
       phone: props.doctor.user.phone,
       address: props.doctor.address,
     },
-    validationSchema: Yup.object({
-      durationMeeting: Yup.string().required(
-        "Debes ingresar una duracion para tus reuniones"
-      ),
-      priceMeeting: Yup.string().required(
-        "Debes ingresar un precio para tus reuniones"
-      ),
-    }),
     onSubmit: async (values, { setSubmitting }) => {
       try {
-        let loginReq = await axios.post(
-          `${process.env.NEXT_PUBLIC_API_URL}/auth/login`,
+        values.durationMeeting = duration
+        await axios.patch(
+          `${process.env.NEXT_PUBLIC_API_URL}/user/${props.doctor.user.dni}`,
           values,
-          { withCredentials: true }
+          {
+            withCredentials: true,
+            headers: { Authorization: `Bearer ${props.token}` },
+          }
         );
-        loginReq = loginReq.data;
-        router.push(`/`);
+
+        await axios.patch(
+          `${process.env.NEXT_PUBLIC_API_URL}/doctor/${props.doctor.id}`,
+          values,
+          {
+            withCredentials: true,
+            headers: { Authorization: `Bearer ${props.token}` },
+          }
+        );
+
+        setModify(false);
+        router.push(`/config`);
       } catch (error: any) {
         // if ([404, 401].includes(error.response.status)) {
         //     updateForm.errors.email = "Las credenciales ingresadas no coinciden con ningún usuario";
@@ -159,13 +158,27 @@ export default function Config(props: ConfigProps) {
   });
 
   const handleChange = ($e: any) => {
-    console.log($e.target.value);
     setMinutesTo(
       minutesFrom
         .map((m) => m.split(":")[0])
         .filter((m) => m > $e.target.value)
         .map((m) => m.concat(":00"))
     );
+  };
+
+  const handleClickHealthInsurance = async () => {
+    await axios.patch(
+      `${process.env.NEXT_PUBLIC_API_URL}/user/${props.doctor.user.dni}`,
+      {
+        healthInsurance,
+      },
+      {
+        withCredentials: true,
+        headers: { Authorization: `Bearer ${props.token}` },
+      }
+    );
+
+    router.push("/config");
   };
 
   return (
@@ -267,7 +280,6 @@ export default function Config(props: ConfigProps) {
             </div>
           </div>
           <div className="overflow-hidden min-w-[70%]">
-            {/*  */}
             <div
               className={`flex flex-nowrap items-center transition-all ease-in duration-500 ${
                 modify ? "-translate-x-full" : ""
@@ -284,13 +296,13 @@ export default function Config(props: ConfigProps) {
                         <h4 className="text-primary text-lg flex justify-center items-center gap-2">
                           <FaStopwatch /> Duracion
                         </h4>
-                        <p>30 min</p>
+                        <p>{props.doctor.durationMeeting} min</p>
                       </div>
                       <div>
                         <h4 className="text-primary text-lg flex justify-center items-center gap-2">
                           <FaMoneyBill1Wave /> Precio
                         </h4>
-                        <p>2000 AR$</p>
+                        <p>{props.doctor.priceMeeting} AR$</p>
                       </div>
                     </div>
                   </div>
@@ -458,56 +470,81 @@ export default function Config(props: ConfigProps) {
                 </div>
               </div>
               <div className="bg-white min-w-full rounded-md shadow-md p-4 flex flex-col justify-center">
-                <div className="flex justify-between items-start gap-8">
-                  <div className="w-1/3 p-4">
-                    <h3 className="text-primary text-xl text-center">
-                      Reunion
-                    </h3>
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <h4 className="text-primary text-lg flex justify-center items-center gap-2">
-                          <FaStopwatch /> Duracion
-                        </h4>
-                        <Select
-                          className="w-full"
-                          defaultValue={durationMeeting}
-                        >
-                          {[10, 15, 30, 45, 60].map((d) => (
-                            <MenuItem value={d}>{d} min</MenuItem>
-                          ))}
-                        </Select>
+                <form onSubmit={updateForm.handleSubmit}>
+                  <div className="flex justify-between items-start gap-8">
+                    <div className="w-1/3 p-4">
+                      <h3 className="text-primary text-xl text-center">
+                        Reunion
+                      </h3>
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <h4 className="text-primary text-lg flex justify-center items-center gap-2">
+                            <FaStopwatch /> Duracion
+                          </h4>
+                          <Select
+                            className="w-full"
+                            value={duration}
+                            onChange={($e: any) => setDuration($e.target.value)}
+>
+                            {[10, 15, 30, 45, 60].map((d) => (
+                              <MenuItem value={d}>{d} min</MenuItem>
+                            ))}
+                          </Select>
+                        </div>
+                        <div>
+                          <h4 className="text-primary text-xl flex justify-center items-center gap-2">
+                            <FaMoneyBill1Wave /> Precio
+                          </h4>
+                          <div className="flex items-center">
+                            <Input
+                              className="w-28"
+                              type="text"
+                              name="priceMeeting"
+                              onChange={updateForm.handleChange}
+                              onBlur={updateForm.handleBlur}
+                              value={updateForm.values.priceMeeting}
+                            />
+                          </div>
+                        </div>
                       </div>
-                      <div>
-                        <h4 className="text-primary text-xl flex justify-center items-center gap-2">
-                          <FaMoneyBill1Wave /> Precio
-                        </h4>
-                        <div className="flex items-center">
-                          <Input value={priceMeeting} className="w-28" />
+                    </div>
+                    <div className="h-[144px] w-1 border-l-2 border-primary"></div>
+                    <div className="p-4 w-2/3">
+                      <h3 className="text-primary text-xl text-center">
+                        Datos personales
+                      </h3>
+                      <div className="flex justify-between items-center mt-[12px]">
+                        <div>
+                          <h4 className="text-primary text-xl flex items-center gap-2">
+                            <FaPhone /> Telefono
+                          </h4>
+                          <Input
+                            type="text"
+                            name="phone"
+                            onChange={updateForm.handleChange}
+                            onBlur={updateForm.handleBlur}
+                            value={updateForm.values.phone}
+                          />
+                        </div>
+                        <div>
+                          <h4 className="text-primary text-xl flex items-center gap-2">
+                            <FaLocationDot /> Direccion de consultorio
+                          </h4>
+                          <Input
+                            type="text"
+                            name="address"
+                            onChange={updateForm.handleChange}
+                            onBlur={updateForm.handleBlur}
+                            value={updateForm.values.address}
+                          />
                         </div>
                       </div>
                     </div>
                   </div>
-                  <div className="h-[144px] w-1 border-l-2 border-primary"></div>
-                  <div className="p-4 w-2/3">
-                    <h3 className="text-primary text-xl text-center">
-                      Datos personales
-                    </h3>
-                    <div className="flex justify-between items-center mt-[12px]">
-                      <div>
-                        <h4 className="text-primary text-xl flex items-center gap-2">
-                          <FaPhone /> Telefono
-                        </h4>
-                        <Input value={phone} />
-                      </div>
-                      <div>
-                        <h4 className="text-primary text-xl flex items-center gap-2">
-                          <FaLocationDot /> Direccion de consultorio
-                        </h4>
-                        <Input value={address} />
-                      </div>
-                    </div>
+                  <div className="flex justify-center mt-4">
+                    <Button type="submit">Guardar cambios</Button>
                   </div>
-                </div>
+                </form>
                 <Divider
                   variant="middle"
                   sx={{
@@ -527,7 +564,12 @@ export default function Config(props: ConfigProps) {
                 </h3>
                 <div className="flex justify-between items-center p-4">
                   <div className="w-1/3">
-                    <Select className="w-2/3 mr-2">
+                    <Select
+                      className="w-2/3 mr-2"
+                      onChange={($e: any) =>
+                        setHealthInsurance($e.target.value)
+                      }
+                    >
                       {props.healthInsurances
                         .filter(
                           (hi) =>
@@ -539,7 +581,9 @@ export default function Config(props: ConfigProps) {
                           <MenuItem value={hi.id}>{hi.name}</MenuItem>
                         ))}
                     </Select>
-                    <Button>Agregar</Button>
+                    <Button onClick={handleClickHealthInsurance}>
+                      Agregar
+                    </Button>
                   </div>
                   <div className="w-2/3 flex justify-center flex-wrap gap-2">
                     {props.doctor.user.healthInsurances.map((hi) => {
@@ -553,7 +597,6 @@ export default function Config(props: ConfigProps) {
                     })}
                   </div>
                 </div>
-                    <Button className="w-1/4 mx-auto my-4">Guardar cambios</Button>
               </div>
             </div>
           </div>

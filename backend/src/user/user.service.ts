@@ -123,6 +123,9 @@ export class UserService {
         const userFound = await this.userRepository.findOne({
             where: {
                 dni
+            },
+            relations: {
+                healthInsurances: true
             }
         })
         if (!userFound) {
@@ -133,6 +136,11 @@ export class UserService {
 
         if(user.password) {
             await updateUser.hashPassword()
+        }
+
+        if(user.healthInsurance) {
+            const hi = await this.healthInsuranceService.findOne(user.healthInsurance)
+            updateUser.healthInsurances.push(hi)
         }
         
         return this.userRepository.save(updateUser)

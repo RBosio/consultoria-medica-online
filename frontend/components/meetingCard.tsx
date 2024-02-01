@@ -20,23 +20,23 @@ const MeetingCard: React.FC<MeetingResponseDto> = (props) => {
       className="bg-white rounded-md min-w-[calc(50%-32px)] lg:min-w-[calc(25%-32px)] shadow-md h-100 sm:h-auto flex flex-col m-4 relative overflow-hidden"
     >
       {props.auth?.role === "user" ? (
-        props.doctor.user.photo ? (
+        props.doctor.user.image ? (
           <img
-            src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/user/${props.doctor.user.photo}`}
+            src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/user/images/${props.doctor.user.image}`}
             alt="Profile photo"
-            className="h-64 sm:h-56 object-cover w-full"
+            className="max-h-48 sm:h-56 object-cover object-center w-full"
           />
         ) : (
           <div className="w-full bg-primary flex items-center justify-center p-6">
             <FaUserDoctor color="#ffffff" size={80} />
           </div>
         )
-      ) : props.user.photo ? (
-        <img
-          src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/user/${props.user.photo}`}
-          alt="Profile photo"
-          className="h-64 sm:h-56 object-cover w-full"
-        />
+      ) : props.user.image ? (
+          <img
+            src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/user/images/${props.user.image}`}
+            alt="Profile photo"
+            className="max-h-48 sm:h-56 object-cover object-center w-full"
+          />
       ) : (
         <div className="w-full bg-primary flex items-center justify-center p-6">
           <FaUser color="#ffffff" size={80} />
@@ -72,7 +72,6 @@ const MeetingCard: React.FC<MeetingResponseDto> = (props) => {
             {props.user.name} {props.user.surname}
           </h2>
         )}
-
         <div className="w-3/4 h-2 border-t-2 border-emerald-200 mb-3"></div>
         <div className="border-b border-b-emerald-800 font-normal sm:font-normal text-xs sm:text-base text-white bg-emerald-600 flex items-center py-2 sm:p-1 rounded-lg">
           <FaCalendarDays />
@@ -84,10 +83,8 @@ const MeetingCard: React.FC<MeetingResponseDto> = (props) => {
           <p className="text-zinc-800 text-base">{props.status}</p>
         </div>
         <Link
-          href={`meetings/${props.user.id}/${moment(props.startDatetime).format(
-            "YYYY-MM-DDTHH:mm:ss"
-          )}`}
-          className="my-6"
+          href={`meetings/${btoa(props.user.id+'.'+moment(props.startDatetime).format("YYYY-MM-DDTHH:mm:ss"))}`}
+          className="my-3"
         >
           <Button
             onClick={onConsultClick}

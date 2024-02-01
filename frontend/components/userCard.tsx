@@ -38,18 +38,20 @@ const UserCard: React.FC<MeetingResponseDto> = (props) => {
   return (
     <div className="bg-white rounded-md h-full flex flex-col relative w-full">
       <div className="relative">
-        {props.user.photo ? (
+        {props.user.image ? (
           <img
-            src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/user/${props.user.photo}`}
+            src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/user/images/${props.user.image}`}
             alt="Profile photo"
             className="h-64 sm:h-56 object-cover w-full"
           />
         ) : (
-          <div className="w-full bg-primary flex items-center justify-center p-6 rounded-md">
-            <FaUser color="#ffffff" size={80} />
-          </div>
+          <>
+            <div className="w-full bg-primary flex items-center justify-center p-6 rounded-md">
+              <FaUser color="#ffffff" size={80} />
+            </div>
+            <div className="bg-primary w-full h-2 absolute bottom-0"></div>
+          </>
         )}
-        <div className="bg-primary w-full h-2 absolute bottom-0"></div>
       </div>
       <div className="w-full flex flex-col justify-center items-center">
         <h2
@@ -88,13 +90,19 @@ const UserCard: React.FC<MeetingResponseDto> = (props) => {
           </div>
           <div className="flex items-center">
             <FaSuitcaseMedical className="text-primary" />
-            <p className="px-2">{props.user.healthInsurance.name}</p>
+            {props.user.healthInsurances.map((h) => {
+              return (
+                <p className="px-2" key={h.id}>
+                  {h.name}
+                </p>
+              );
+            })}
           </div>
         </div>
         <div className="w-3/4 h-2 border-b-2 border-emerald-200"></div>
       </div>
       <div className="h-full flex justify-center items-end">
-        <Button className="w-3/4 my-10">Historia clinica</Button>
+        <Button className="w-3/4 my-4">Historia clinica</Button>
       </div>
     </div>
   );

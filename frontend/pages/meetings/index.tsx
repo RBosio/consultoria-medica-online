@@ -2,8 +2,8 @@ import withAuth from "@/lib/withAuth";
 import { Auth } from "../../../shared/types";
 import axios from "axios";
 import Layout from "@/components/layout";
-import { Autocomplete, Card, useTheme } from "@mui/material";
-import CardMeeting from "@/components/meetingCard";
+import { Autocomplete, useTheme } from "@mui/material";
+import MeetingCard from "@/components/meetingCard";
 import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
 import { FaChevronLeft, FaChevronRight, FaUserDoctor } from "react-icons/fa6";
@@ -13,9 +13,11 @@ import { MeetingResponseDto } from "@/components/dto/meeting.dto";
 import { SpecialityResponseDto } from "@/components/dto/speciality.dto";
 import Button from "@/components/button";
 import { IoMdSearch } from "react-icons/io";
+import { UserResponseDto } from "@/components/dto/user.dto";
 
 interface Meeting {
   auth: Auth;
+  user: UserResponseDto;
   meetings: MeetingResponseDto[];
   specialities: SpecialityResponseDto[];
 }
@@ -124,9 +126,7 @@ export default function Meetings(props: Meeting) {
 
       setIndex(0);
       setPosition(0);
-      router.push(
-        `/meetings/?${new URLSearchParams(values).toString()}`
-      );
+      router.push(`/meetings/?${new URLSearchParams(values).toString()}`);
       setTimeout(() => {
         if (carouselInner) {
           carouselInner.style.transition = "all ease-in .5s";
@@ -137,7 +137,7 @@ export default function Meetings(props: Meeting) {
   });
 
   return (
-    <Layout auth={props.auth}>
+    <Layout user={props.user} auth={props.auth}>
       <main>
       <form
           className="flex justify-between items-center bg-white p-4 sm:p-6 shadow-md gap-4 sm:gap-8 md:gap-12"
@@ -219,21 +219,23 @@ export default function Meetings(props: Meeting) {
               ) : (
                 ""
               )}
-              {props.meetings.map((meeting: MeetingResponseDto, idx: number) => {
-                return (
-                  <CardMeeting
-                    key={idx}
-                    id={idx}
-                    startDatetime={meeting.startDatetime}
-                    status={meeting.status}
-                    user={meeting.user}
-                    doctor={meeting.doctor}
-                    specialities={meeting.doctor.specialities}
-                    auth={props.auth}
-                    tpc={""}
-                  />
-                );
-              })}
+              {props.meetings.map(
+                (meeting: MeetingResponseDto, idx: number) => {
+                  return (
+                    <MeetingCard
+                      key={idx}
+                      id={idx}
+                      startDatetime={meeting.startDatetime}
+                      status={meeting.status}
+                      user={meeting.user}
+                      doctor={meeting.doctor}
+                      specialities={meeting.doctor.specialities}
+                      auth={props.auth}
+                      tpc=""
+                    />
+                  );
+                }
+              )}
             </div>
             <div className="flex justify-center">
               {props.meetings.length / (isDesktop ? 4 : 2) > 1 ? (
@@ -288,16 +290,16 @@ export default function Meetings(props: Meeting) {
 }
 
 export const getServerSideProps = withAuth(
-  async (auth: Auth | null, context: any) => {
+  async (auth: Auth | null, context: any, user: UserResponseDto) => {
     let { query } = context;
 
     try {
       let meetings;
       if (auth?.role === "user") {
         meetings = await axios.get(
-          `${
-            process.env.NEXT_PUBLIC_API_URL
-          }/meeting/user/${auth?.id}?${new URLSearchParams(query).toString()}`,
+          `${process.env.NEXT_PUBLIC_API_URL}/meeting/user/${
+            auth?.id
+          }?${new URLSearchParams(query).toString()}`,
           {
             withCredentials: true,
             headers: { Authorization: `Bearer ${context.req.cookies.token}` },
@@ -305,9 +307,9 @@ export const getServerSideProps = withAuth(
         );
       } else {
         meetings = await axios.get(
-          `${
-            process.env.NEXT_PUBLIC_API_URL
-          }/meeting/doctor/${auth?.id}?${new URLSearchParams(query).toString()}`,
+          `${process.env.NEXT_PUBLIC_API_URL}/meeting/doctor/${
+            auth?.id
+          }?${new URLSearchParams(query).toString()}`,
           {
             withCredentials: true,
             headers: { Authorization: `Bearer ${context.req.cookies.token}` },
@@ -332,6 +334,7 @@ export const getServerSideProps = withAuth(
           meetings,
           specialities,
           auth,
+          user
         },
       };
     } catch {
@@ -339,6 +342,7 @@ export const getServerSideProps = withAuth(
         props: {
           meetings: { items: [] },
           auth,
+          user
         },
       };
     }

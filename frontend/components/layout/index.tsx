@@ -3,6 +3,7 @@ import Sidebar from './sidebar';
 import Navbar from './navbar';
 import { Auth } from '../../../shared/types';
 import { RefObject, useState } from 'react';
+import { UserResponseDto } from '../dto/user.dto';
 
 interface LayoutProps {
     children: React.ReactElement,
@@ -10,10 +11,11 @@ interface LayoutProps {
     renderSidebar?: boolean,
     className?: string,
     auth: Auth,
+    user?: UserResponseDto,
     contentRef?: RefObject<any>,
 }
 
-const Layout: React.FC<LayoutProps> = ({ children, renderNavbar = true, renderSidebar = true, className, auth, contentRef }) => {
+const Layout: React.FC<LayoutProps> = ({ children, renderNavbar = true, renderSidebar = true, className, auth, contentRef, user }) => {
 
     const [sidebarOpened, setSidebarOpened] = useState(false);
 
@@ -21,7 +23,7 @@ const Layout: React.FC<LayoutProps> = ({ children, renderNavbar = true, renderSi
         <main className={`h-full ${roboto.className} bg-slate-200 flex`}>
             {renderSidebar && <Sidebar auth={auth} sidebarOpened={sidebarOpened} setSidebarOpened={setSidebarOpened} />}
             <section className="grow w-full overflow-hidden flex flex-col">
-                {renderNavbar && <Navbar auth={auth} sidebarOpened={sidebarOpened} setSidebarOpened={setSidebarOpened}/>}
+                {renderNavbar && user && <Navbar user={user} auth={auth} sidebarOpened={sidebarOpened} setSidebarOpened={setSidebarOpened}/>}
                 <div ref={contentRef} className={`${className ?? ""} overflow-y-auto grow`}>
                     {children}
                 </div>

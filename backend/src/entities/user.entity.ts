@@ -69,7 +69,6 @@ export class User {
     comments: Comment[]
 
     @BeforeInsert()
-    @BeforeUpdate()
     async hashPassword() {
         if (!this.password) {
             return

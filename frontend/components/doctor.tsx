@@ -26,7 +26,7 @@ const Doctor: React.FC<DoctorProps> = (props) => {
         <div className="bg-white w-full rounded-md shadow-md h-64 sm:h-56 flex">
             {
                 props.photo ?
-                    <img src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/user/${props.photo}`} alt="Profile photo" className='h-64 sm:h-56 object-cover w-48' />
+                    <img src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/user/images/${props.photo}`} alt="Profile photo" className='h-64 sm:h-56 object-cover w-48' />
                     :
                     <div className="w-[14.5rem] bg-primary flex items-center justify-center">
                         <FaUserDoctor color="#ffffff" size={80} />

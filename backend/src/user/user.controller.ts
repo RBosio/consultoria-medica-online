@@ -24,13 +24,13 @@ export class UserController {
     }
     
     @Get(':dni')
-    @Roles(RoleEnum.User, RoleEnum.Admin)
+    @Roles(RoleEnum.User, RoleEnum.Doctor, RoleEnum.Admin)
     getUser(@Param('dni') dni: string): Promise<User | HttpException> {
         return this.userService.findOneByDni(dni)
     }
 
     @Patch(':dni')
-    @Roles(RoleEnum.User)
+    @Roles(RoleEnum.User, RoleEnum.Doctor)
     updateUser(@Param('dni') dni: string, @Body() user: updateUserDto) {
         return this.userService.update(dni, user)
     }

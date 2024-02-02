@@ -34,7 +34,9 @@ export class AuthService {
                 photo: userFound.image,
                 email: userFound.email,
                 dni: userFound.dni,
-                role
+                role,
+                healthInsurance: userFound.healthInsurances[0] ?? null,
+                validateHealthInsurace: userFound.validateHealthInsurance,
             };
 
             const token = await this.jwtService.signAsync(payload, { secret: jwtConstants.secret });

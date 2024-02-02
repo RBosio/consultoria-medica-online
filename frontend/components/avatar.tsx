@@ -59,7 +59,7 @@ const Avatar: React.FC<AvatarProps> = (props) => {
             >
                 {props.icon ?? firstTwoChars}
             </MUIAvatar>
-            <span className={`hidden sm:block text-secondary ${props.labelProps?.className}`}>{props.name} {props.surname}</span>
+            <span className={`${props.labelProps?.className}`}>{props.name} {props.surname}</span>
         </div>
     );
 };

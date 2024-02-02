@@ -22,7 +22,7 @@ const Rate: React.FC<RateProps> = (props) => {
                     color: theme.palette.primary.main,
                 },
             }} color='primary' value={Number(props.rate)} precision={0.5} readOnly />
-            {props.num ? '' : <span className="text-md font-bold md:ml-2">{props.rate}</span>}
+            {props.num ? '' : <span className="text-md md:ml-2 select-none">({props.rate})</span>}
         </div>
     );
 };

@@ -24,7 +24,7 @@ export class UserService {
         const usersFound = await this.userRepository.find({
             relations: ['healthInsurances']  
         })
-        usersFound.map(user => user.password = "")
+        usersFound.map(user => user.password = "");
 
         return usersFound
     }
@@ -65,7 +65,8 @@ export class UserService {
         const userFound = await this.userRepository.findOne({
             where: {
                 email
-            }
+            },
+            relations: ['healthInsurances']
         })
         if (!userFound) {
             throw new HttpException('Usuario no encontrado', HttpStatus.NOT_FOUND)

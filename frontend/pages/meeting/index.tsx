@@ -337,9 +337,11 @@ export default function Meeting(props: MeetingI) {
 
 export const getServerSideProps = withAuth(
   async (auth: Auth | null, context: any) => {
+    const token = context.req.cookies.token;
     return {
       props: {
         auth,
+        token,
       },
     };
   },

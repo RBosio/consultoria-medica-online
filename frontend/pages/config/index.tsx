@@ -5,6 +5,7 @@ import { Auth } from "../../../shared/types";
 import axios from "axios";
 import Avatar from "@/components/avatar";
 import {
+  FaCertificate,
   FaCheck,
   FaCircleInfo,
   FaCircleUp,
@@ -12,6 +13,7 @@ import {
   FaLocationDot,
   FaMoneyBill1Wave,
   FaPhone,
+  FaPlus,
   FaStopwatch,
   FaSuitcaseMedical,
   FaUserDoctor,
@@ -287,7 +289,7 @@ export default function Config(props: ConfigProps) {
   };
 
   return (
-    <Layout user={props.user} auth={props.auth}>
+    <Layout auth={props.auth}>
       <section className="h-full flex p-8 overflow-scroll lg:overflow-hidden">
         <div className="w-full flex flex-col items-center lg:flex-row gap-6 mt-[3rem]">
           <div className="rounded-md md:w-[calc(100%-15rem)] xl:shadow-md bg-white relative">
@@ -437,7 +439,7 @@ export default function Config(props: ConfigProps) {
                         </div>
                       )}
                       <Button
-                        className="min-w-56"
+                        className="min-w-60 ml-2"
                         sx={{
                           "&.MuiButton-contained": {
                             background: "#06AC06",
@@ -450,6 +452,7 @@ export default function Config(props: ConfigProps) {
                             ? true
                             : false
                         }
+                        startIcon={<FaCertificate />}
                       >
                         Solicitar verificacion
                       </Button>
@@ -573,7 +576,7 @@ export default function Config(props: ConfigProps) {
                           );
                         })}
                       </Select>
-                      <Button type="submit">Agregar</Button>
+                      <Button type="submit" startIcon={<FaPlus />}>Agregar</Button>
                     </form>
                   </div>
                   <div className="flex items-center mt-2">
@@ -834,7 +837,7 @@ export default function Config(props: ConfigProps) {
 }
 
 export const getServerSideProps = withAuth(
-  async (auth: Auth | null, context: any, user: UserResponseDto) => {
+  async (auth: Auth | null, context: any) => {
     let d = await axios.get<DoctorResponseDto>(
       `${process.env.NEXT_PUBLIC_API_URL}/doctor/user/${auth?.id}`,
       {
@@ -877,7 +880,6 @@ export const getServerSideProps = withAuth(
 
     return {
       props: {
-        user,
         doctor,
         schedules: schedules.slice(1).concat(schedules.splice(0, 1)),
         healthInsurances,

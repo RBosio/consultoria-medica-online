@@ -45,12 +45,15 @@ import { ScheduleResponseDto } from "@/components/dto/schedule.dto";
 import Input from "@/components/input";
 import { useFormik } from "formik";
 import { HealthInsuranceResponseDto } from "@/components/dto/healthInsurance.dto";
+import Link from "next/link";
+import { NotificationResponseDto } from "@/components/dto/notification.dto";
 
 interface ConfigProps {
   user: UserResponseDto;
   doctor: DoctorResponseDto;
   schedules: ScheduleResponseDto[];
   healthInsurances: HealthInsuranceResponseDto[];
+  notification: NotificationResponseDto;
   auth: Auth;
   token: string;
 }
@@ -250,6 +253,31 @@ export default function Config(props: ConfigProps) {
     }
   };
 
+  const handleClickVerification = async () => {
+    const user = await axios.get(
+      `${process.env.NEXT_PUBLIC_API_URL}/user/admin`,
+      {
+        withCredentials: true,
+        headers: { Authorization: `Bearer ${props.token}` },
+      }
+    );
+
+    await axios.post(
+      `${process.env.NEXT_PUBLIC_API_URL}/notification`,
+      {
+        userIdSend: props.auth.id,
+        userIdReceive: user.data.id,
+        type: "verification",
+      },
+      {
+        withCredentials: true,
+        headers: { Authorization: `Bearer ${props.token}` },
+      }
+    );
+
+    router.push("/config");
+  };
+
   return (
     <Layout user={props.user} auth={props.auth}>
       <section className="h-full flex p-8 overflow-scroll lg:overflow-hidden">
@@ -393,12 +421,22 @@ export default function Config(props: ConfigProps) {
                           <h3 className="text-primary text-lg flex items-center gap-2">
                             <FaXmark /> No verificado
                           </h3>
-                          <p>Solicite verificacion para comenzar a operar</p>
+                          <p>
+                            {props.notification
+                              ? "Solicitud en curso, aguarde a que un administrador revise su peticion"
+                              : "Solicite verificacion para comenzar a operar"}
+                          </p>
                         </div>
                       )}
                       <Button
-                        className="bg-green-600 text-white border-green-600 hover:bg-green-800 hover:border-green-800"
-                        variant="outlined"
+                        // className="bg-green-600 text-white border-green-600 hover:bg-green-800 hover:border-green-800"
+                        // variant="outlined"
+                        onClick={handleClickVerification}
+                        disabled={
+                          props.doctor.verified || props.notification
+                            ? true
+                            : false
+                        }
                       >
                         Solicitar verificacion
                       </Button>
@@ -430,15 +468,16 @@ export default function Config(props: ConfigProps) {
                       <p>Plan 1</p>
                       <p>Miembro desde 2020-01-14</p>
                     </div>
-                    <ButtonGroup className="flex justify-end w-1/2">
-                      <Button startIcon={<FaCircleInfo />}>Ver mas</Button>
-                      <Button startIcon={<FaCircleUp />} color="info">
-                        Actualizar
-                      </Button>
+                    <ButtonGroup>
+                      <Link href={"/plan"}>
+                        <Button startIcon={<FaCircleUp />} color="info">
+                          Actualizar
+                        </Button>
+                      </Link>
                       <Button
                         startIcon={<FaCircleXmark />}
-                        className="bg-red-600 text-white border-red-600 hover:bg-red-800 hover:border-red-800"
-                        variant="outlined"
+                        // className="bg-red-600 text-white border-red-600 hover:bg-red-800 hover:border-red-800"
+                        // variant="outlined"
                       >
                         Cancelar
                       </Button>
@@ -480,7 +519,9 @@ export default function Config(props: ConfigProps) {
                         onChange={($e: any) => setDay($e.target.value)}
                       >
                         {days.map((d) => (
-                          <MenuItem value={d.day}>{d.d}</MenuItem>
+                          <MenuItem key={d.day} value={d.day}>
+                            {d.d}
+                          </MenuItem>
                         ))}
                       </Select>
                       <div className="my-4">
@@ -491,9 +532,11 @@ export default function Config(props: ConfigProps) {
                         value={from}
                         onChange={handleChange}
                       >
-                        {minutesFrom.map((m) => {
+                        {minutesFrom.map((m, idx) => {
                           return (
-                            <MenuItem value={m.split(":")[0]}>{m}</MenuItem>
+                            <MenuItem key={idx} value={m.split(":")[0]}>
+                              {m}
+                            </MenuItem>
                           );
                         })}
                       </Select>
@@ -505,9 +548,11 @@ export default function Config(props: ConfigProps) {
                         value={to}
                         onChange={($e: any) => setTo($e.target.value)}
                       >
-                        {minutesTo.map((m) => {
+                        {minutesTo.map((m, idx) => {
                           return (
-                            <MenuItem value={m.split(":")[0]}>{m}</MenuItem>
+                            <MenuItem key={idx} value={m.split(":")[0]}>
+                              {m}
+                            </MenuItem>
                           );
                         })}
                       </Select>
@@ -584,8 +629,10 @@ export default function Config(props: ConfigProps) {
                             value={duration}
                             onChange={($e: any) => setDuration($e.target.value)}
                           >
-                            {[10, 15, 30, 45, 60].map((d) => (
-                              <MenuItem value={d}>{d} min</MenuItem>
+                            {[10, 15, 30, 45, 60].map((d, idx) => (
+                              <MenuItem key={idx} value={d}>
+                                {d} min
+                              </MenuItem>
                             ))}
                           </Select>
                         </div>
@@ -676,7 +723,9 @@ export default function Config(props: ConfigProps) {
                               .includes(hi.id)
                         )
                         .map((hi: HealthInsuranceResponseDto) => (
-                          <MenuItem value={hi.id}>{hi.name}</MenuItem>
+                          <MenuItem key={hi.id} value={hi.id}>
+                            {hi.name}
+                          </MenuItem>
                         ))}
                     </Select>
                     <Button onClick={handleClickHealthInsurance}>
@@ -686,7 +735,10 @@ export default function Config(props: ConfigProps) {
                   <div className="w-2/3 flex justify-center flex-wrap gap-2">
                     {props.doctor.user.healthInsurances.map((hi) => {
                       return (
-                        <div className="flex items-center gap-2 p-2 bg-primary text-white rounded-md">
+                        <div
+                          key={hi.id}
+                          className="flex items-center gap-2 p-2 bg-primary text-white rounded-md"
+                        >
                           <FaCheckCircle />
                           <p>{hi.name}</p>
                           <FaXmark className="hover:cursor-pointer hover:text-slate-300" />
@@ -788,12 +840,23 @@ export const getServerSideProps = withAuth(
 
     healthInsurances = healthInsurances.data;
 
+    let notification = await axios.get(
+      `${process.env.NEXT_PUBLIC_API_URL}/notification/verification/${auth?.id}`,
+      {
+        withCredentials: true,
+        headers: { Authorization: `Bearer ${context.req.cookies.token}` },
+      }
+    );
+
+    notification = notification.data;
+
     return {
       props: {
         user,
         doctor,
         schedules: schedules.slice(1).concat(schedules.splice(0, 1)),
         healthInsurances,
+        notification,
         auth,
         token: context.req.cookies.token,
       },

@@ -2,7 +2,7 @@ import withAuth from "@/lib/withAuth";
 import { Auth } from "@/../shared/types";
 import axios from "axios";
 import Layout from "@/components/layout";
-import { Fab, useTheme} from "@mui/material";
+import { Fab, useTheme } from "@mui/material";
 import { useRouter } from "next/router";
 import { MeetingResponseDto } from "@/components/dto/meeting.dto";
 import { SpecialityResponseDto } from "@/components/dto/speciality.dto";
@@ -45,7 +45,7 @@ export default function DetailMeeting(props: MeetingI) {
   const [openedChat, setOpenedChat] = useState(false);
 
   const handleOnClose = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-    const target = e.target as HTMLDivElement;  
+    const target = e.target as HTMLDivElement;
     if (target.id === "container") {
       setOpenedChat(false);
     }
@@ -155,7 +155,7 @@ export default function DetailMeeting(props: MeetingI) {
 
   async function motiveHandleClick() {
     const { id, startDatetime } = router.query;
-  
+
     await axios.patch(
       `${process.env.NEXT_PUBLIC_API_URL}/meeting/cancel/${id}/${startDatetime}`,
       { motive },
@@ -179,19 +179,23 @@ export default function DetailMeeting(props: MeetingI) {
   }
 
   async function joinMeeting() {
-    const { id, startDatetime } = router.query;
+    const { id } = router.query;
 
-    const res = await axios.post(
-      `${process.env.NEXT_PUBLIC_API_URL}/meeting/join/${id}/${startDatetime}`,
-      {},
-      {
-        withCredentials: true,
-        headers: { Authorization: `Bearer ${props.auth.token}` },
-      }
-    );
-    localStorage.setItem("tokenMeeting", res.data.tokenMeeting);
-    localStorage.setItem("tpc", props.meeting.tpc);
-    router.push("/meeting");
+    if (id && typeof id === "string") {
+      const [t, startDatetime] = atob(id).split(".");
+
+      const res = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/meeting/join/${t}/${startDatetime}`,
+        {},
+        {
+          withCredentials: true,
+          headers: { Authorization: `Bearer ${props.auth.token}` },
+        }
+      );
+      localStorage.setItem("tokenMeeting", res.data.tokenMeeting);
+      localStorage.setItem("tpc", props.meeting.tpc);
+      router.push("/meeting");
+    }
   }
 
   useEffect(() => {
@@ -205,10 +209,7 @@ export default function DetailMeeting(props: MeetingI) {
   }, []);
 
   return (
-    <Layout
-      auth={props.auth}
-      className="flex flex-col justify-center relative"
-    >
+    <Layout auth={props.auth} className="flex flex-col justify-center relative">
       <>
         {showMotive ? (
           <>
@@ -245,7 +246,6 @@ export default function DetailMeeting(props: MeetingI) {
           ""
         )}
         <main
-          /*className="flex flex-nowrap justify-between gap-1 sm:gap-4 overflow-visible sm:overflow-hidden m-4"*/
           className="flex flex-wrap sm:flex-nowrap justify-between gap-1 sm:gap-4 m-4"
           style={{ height: "95%" }}
         >
@@ -375,72 +375,93 @@ export default function DetailMeeting(props: MeetingI) {
               ""
             )}
           </section>
-          <Fab color="primary" onClick={() => openedChat ? setOpenedChat(false) : setOpenedChat(true)} aria-label="chat" className="z-0 bg-secondary hover:bg-[#4F4F4F] absolute bottom-4 right-8 text-white sm:hidden">
+          <Fab
+            color="primary"
+            onClick={() =>
+              openedChat ? setOpenedChat(false) : setOpenedChat(true)
+            }
+            aria-label="chat"
+            className="z-0 bg-secondary hover:bg-[#4F4F4F] absolute bottom-4 right-8 text-white sm:hidden"
+          >
             <BsFillChatLeftTextFill />
           </Fab>
-          <div onClick={handleOnClose}  id="container" className={openedChat ? 'fixed z-50 inset-0 backdrop-blur-sm bg-black bg-opacity-30' : 'w-[100%] sm:w-[37.5%] max-h-full bg-white rounded-lg mt-5 sm:mt-0 hidden  sm:inline '}>
-          <section className={openedChat ? 'flex flex-col h-5/6  bg-white' : 'w-[100%] sm:w-[37.5%] max-h-full bg-white rounded-lg mt-5 sm:mt-0 hidden  sm:inline '}>
-            <div
-              className="overflow-y-scroll"
-              id="scroll"
-              style={{ height: "90%" }}
+          <div
+            onClick={handleOnClose}
+            id="container"
+            className={
+              openedChat
+                ? "fixed z-50 inset-0 backdrop-blur-sm bg-black bg-opacity-30"
+                : "w-[100%] sm:w-[37.5%] max-h-full bg-white rounded-lg mt-5 sm:mt-0 hidden  sm:inline "
+            }
+          >
+            <section
+              className={
+                openedChat
+                  ? "flex flex-col h-5/6  bg-white"
+                  : "w-[100%] sm:w-[37.5%] max-h-full bg-white rounded-lg mt-5 sm:mt-0 hidden  sm:inline "
+              }
             >
-              {props.comments.map(
-                (comment: CommentResponseDto, idx: number) => {
-                  return (
-                    <Comment
-                      key={idx}
-                      comment={comment.comment}
-                      datetime={comment.datetime}
-                      user={comment.user}
-                      auth={props.auth}
-                      files={comment.files}
+              <div
+                className="overflow-y-scroll"
+                id="scroll"
+                style={{ height: "90%" }}
+              >
+                {props.comments.map(
+                  (comment: CommentResponseDto, idx: number) => {
+                    return (
+                      <Comment
+                        key={idx}
+                        comment={comment.comment}
+                        datetime={comment.datetime}
+                        user={comment.user}
+                        auth={props.auth}
+                        files={comment.files}
+                      />
+                    );
+                  }
+                )}
+              </div>
+              <form
+                className="flex justify-center items-center mx-2 my-8 text-primary"
+                onSubmit={() => handleSubmit}
+              >
+                {file ? (
+                  <div
+                    className={`w-full py-1 px-2 bg-primary rounded-md text-white flex justify-between items-center overflow-x-hidden h-8 ${
+                      file.name.length > 60 ? "overflow-y-scroll" : ""
+                    }`}
+                  >
+                    <div className={`${robotoBold.className}`}>{file.name}</div>
+                    <FaXmark
+                      className="hover:cursor-pointer hover:opacity-70"
+                      onClick={xHandleClick}
                     />
-                  );
-                }
-              )}
-            </div>
-            <form
-              className="flex justify-center items-center m-2 text-primary"
-              onSubmit={() => handleSubmit}
-            >
-              {file ? (
-                <div
-                  className={`w-full py-1 px-2 bg-primary rounded-md text-white flex justify-between items-center overflow-x-hidden h-8 ${
-                    file.name.length > 60 ? "overflow-y-scroll" : ""
-                  }`}
-                >
-                  <div className={`${robotoBold.className}`}>{file.name}</div>
-                  <FaXmark
-                    className="hover:cursor-pointer hover:opacity-70"
-                    onClick={xHandleClick}
+                  </div>
+                ) : (
+                  <Input
+                    className="w-full"
+                    placeholder="Escriba un texto"
+                    value={text}
+                    onChange={(e) => setText(e.target.value)}
+                    id="scroll"
                   />
-                </div>
-              ) : (
-                <Input
-                  className="w-full"
-                  placeholder="Escriba un texto"
-                  value={text}
-                  onChange={(e) => setText(e.target.value)}
-                  id="scroll"
+                )}
+                <input
+                  type="file"
+                  id="file"
+                  className="hidden"
+                  onChange={handleChange}
                 />
-              )}
-              <input
-                type="file"
-                id="file"
-                className="hidden"
-                onChange={handleChange}
-              />
-              <FaPaperclip
-                className="mx-2 hover:cursor-pointer hover:opacity-70"
-                onClick={handleClickFile}
-              />
-              <FaPaperPlane
-                className="hover:cursor-pointer hover:opacity-70"
-                onClick={handleClickComment}
-              />
-            </form>
-          </section>
+                <FaPaperclip
+                  className="mx-2 hover:cursor-pointer hover:opacity-70"
+                  onClick={handleClickFile}
+                />
+                <FaPaperPlane
+                  className="hover:cursor-pointer hover:opacity-70"
+                  onClick={handleClickComment}
+                />
+              </form>
+            </section>
           </div>
         </main>
       </>
@@ -452,7 +473,7 @@ export const getServerSideProps = withAuth(
   async (auth: Auth | null, context: any) => {
     let { id } = context.query;
 
-    const [t, startDatetime] = atob(id).split('.')
+    const [t, startDatetime] = atob(id).split(".");
 
     try {
       let meeting = await axios.get(

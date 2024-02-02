@@ -30,6 +30,12 @@ export class DoctorController {
         return this.doctorService.findOne(id)
     }
 
+    @Get('user/:userId')
+    @Roles(RoleEnum.User, RoleEnum.Doctor, RoleEnum.Admin)
+    getDoctorByUserId(@Param('userId') userId: number): Promise<Doctor | HttpException> {
+        return this.doctorService.findOneByUserId(userId)
+    }
+
     @Patch('verify/:id')
     @Roles(RoleEnum.Admin)
     verifyDoctor(@Param('id') id: number) {

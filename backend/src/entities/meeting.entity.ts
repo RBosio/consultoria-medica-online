@@ -3,7 +3,6 @@ import { User } from './user.entity'
 import { Doctor } from './doctor.entity'
 import { MedicalRecord } from './medical-record.entity'
 import { Comment } from './comment.entity'
-import { Speciality } from './speciality.entity'
 
 @Entity()
 export class Meeting {

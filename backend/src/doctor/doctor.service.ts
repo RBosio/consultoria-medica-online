@@ -163,7 +163,12 @@ export class DoctorService {
                     id
                 }
             },
-            relations: ['user']
+            relations: {
+                user: {
+                    healthInsurances: true
+                },
+                specialities: true
+            }
         })
 
         return doctorFound

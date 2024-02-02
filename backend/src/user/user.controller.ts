@@ -23,11 +23,18 @@ export class UserController {
         return this.userService.findAll()
     }
     
+    @Get('admin')
+    @Roles(RoleEnum.User, RoleEnum.Doctor)
+    getAdmin(): Promise<User | HttpException> {
+        return this.userService.findAdmin()
+    }
+    
     @Get(':dni')
     @Roles(RoleEnum.User, RoleEnum.Doctor, RoleEnum.Admin)
     getUser(@Param('dni') dni: string): Promise<User | HttpException> {
         return this.userService.findOneByDni(dni)
     }
+    
 
     @Patch(':dni')
     @Roles(RoleEnum.User, RoleEnum.Doctor)

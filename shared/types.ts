@@ -7,4 +7,5 @@ export interface Auth {
     email: string
     dni: string
     role: string
+    token: string,
 }

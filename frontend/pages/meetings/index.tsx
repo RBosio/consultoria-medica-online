@@ -13,11 +13,8 @@ import { MeetingResponseDto } from "@/components/dto/meeting.dto";
 import { SpecialityResponseDto } from "@/components/dto/speciality.dto";
 import Button from "@/components/button";
 import { IoMdSearch } from "react-icons/io";
-import { UserResponseDto } from "@/components/dto/user.dto";
-
 interface Meeting {
   auth: Auth;
-  user: UserResponseDto;
   meetings: MeetingResponseDto[];
   specialities: SpecialityResponseDto[];
 }
@@ -137,7 +134,7 @@ export default function Meetings(props: Meeting) {
   });
 
   return (
-    <Layout user={props.user} auth={props.auth}>
+    <Layout auth={props.auth}>
       <main>
       <form
           className="flex justify-between items-center bg-white p-4 sm:p-6 shadow-md gap-4 sm:gap-8 md:gap-12"
@@ -290,7 +287,7 @@ export default function Meetings(props: Meeting) {
 }
 
 export const getServerSideProps = withAuth(
-  async (auth: Auth | null, context: any, user: UserResponseDto) => {
+  async (auth: Auth | null, context: any) => {
     let { query } = context;
 
     try {
@@ -334,7 +331,6 @@ export const getServerSideProps = withAuth(
           meetings,
           specialities,
           auth,
-          user
         },
       };
     } catch {
@@ -342,7 +338,6 @@ export const getServerSideProps = withAuth(
         props: {
           meetings: { items: [] },
           auth,
-          user
         },
       };
     }

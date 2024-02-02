@@ -25,15 +25,11 @@ import moment from "moment";
 import { robotoBold } from "@/lib/fonts";
 import Button from "@/components/button";
 import UserCard from "@/components/userCard";
-import { UserResponseDto } from "@/components/dto/user.dto";
-
 interface MeetingI {
   meeting: MeetingResponseDto;
   comments: CommentResponseDto[];
   specialities: SpecialityResponseDto[];
   auth: Auth;
-  user: UserResponseDto;
-  token: string;
 }
 
 export default function DetailMeeting(props: MeetingI) {
@@ -56,7 +52,7 @@ export default function DetailMeeting(props: MeetingI) {
   };
 
   async function handleClickComment() {
-    const token = props.token;
+    const token = props.auth.token;
     const { id, startDatetime } = router.query;
 
     if (text.length > 0) {
@@ -159,14 +155,13 @@ export default function DetailMeeting(props: MeetingI) {
 
   async function motiveHandleClick() {
     const { id, startDatetime } = router.query;
-    const token = props.token;
-
+  
     await axios.patch(
       `${process.env.NEXT_PUBLIC_API_URL}/meeting/cancel/${id}/${startDatetime}`,
       { motive },
       {
         withCredentials: true,
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${props.auth.token}` },
       }
     );
 
@@ -191,7 +186,7 @@ export default function DetailMeeting(props: MeetingI) {
       {},
       {
         withCredentials: true,
-        headers: { Authorization: `Bearer ${props.token}` },
+        headers: { Authorization: `Bearer ${props.auth.token}` },
       }
     );
     localStorage.setItem("tokenMeeting", res.data.tokenMeeting);
@@ -211,7 +206,6 @@ export default function DetailMeeting(props: MeetingI) {
 
   return (
     <Layout
-      user={props.user}
       auth={props.auth}
       className="flex flex-col justify-center relative"
     >
@@ -455,20 +449,17 @@ export default function DetailMeeting(props: MeetingI) {
 }
 
 export const getServerSideProps = withAuth(
-  async (auth: Auth | null, context: any, user: UserResponseDto) => {
+  async (auth: Auth | null, context: any) => {
     let { id } = context.query;
-    const token = context.req.cookies.token;
 
     const [t, startDatetime] = atob(id).split('.')
-console.log(t)
-console.log(startDatetime)
 
     try {
       let meeting = await axios.get(
         `${process.env.NEXT_PUBLIC_API_URL}/meeting/${t}/${startDatetime}`,
         {
           withCredentials: true,
-          headers: { Authorization: `Bearer ${token}` },
+          headers: { Authorization: `Bearer ${context.req.cookies.token}` },
         }
       );
 
@@ -478,7 +469,7 @@ console.log(startDatetime)
         `${process.env.NEXT_PUBLIC_API_URL}/comment/meeting/${id}/${startDatetime}`,
         {
           withCredentials: true,
-          headers: { Authorization: `Bearer ${token}` },
+          headers: { Authorization: `Bearer ${context.req.cookies.token}` },
         }
       );
 
@@ -488,7 +479,7 @@ console.log(startDatetime)
         `${process.env.NEXT_PUBLIC_API_URL}/speciality`,
         {
           withCredentials: true,
-          headers: { Authorization: `Bearer ${token}` },
+          headers: { Authorization: `Bearer ${context.req.cookies.token}` },
         }
       );
 
@@ -500,8 +491,6 @@ console.log(startDatetime)
           comments,
           specialities,
           auth,
-          token,
-          user,
         },
       };
     } catch {
@@ -509,7 +498,6 @@ console.log(startDatetime)
         props: {
           meeting: { items: {} },
           auth,
-          user,
         },
       };
     }

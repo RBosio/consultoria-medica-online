@@ -15,7 +15,6 @@ import { IoMdMail } from "react-icons/io";
 import { IoTimeSharp } from "react-icons/io5";
 import Button from "@/components/button";
 import { useRouter } from "next/router";
-import { UserResponseDto } from "@/components/dto/user.dto";
 
 export default function Doctor(props: any) {
 
@@ -50,7 +49,7 @@ export default function Doctor(props: any) {
                 },
                 {
                     withCredentials: true,
-                    headers: { Authorization: `Bearer ${props.token}` }
+                    headers: { Authorization: `Bearer ${props.auth.token}` }
                 });
 
                 router.push(`/meetings/${props.auth.id}/${selectedDate}`);
@@ -61,7 +60,7 @@ export default function Doctor(props: any) {
     };
 
     return (
-        <Layout user={props.user} auth={props.auth}>
+        <Layout auth={props.auth}>
             <section className="h-full flex p-8 overflow-hidden">
                 <div className="w-full flex flex-col xl:flex-row gap-6 mt-[3rem]">
                     <div className="w-full rounded-md md:w-[calc(100%-15rem)] xl:shadow-md xl:bg-white xl:min-w-64 xl:w-5/12 relative">
@@ -201,7 +200,7 @@ export default function Doctor(props: any) {
 };
 
 
-export const getServerSideProps = withAuth(async (auth: Auth | null, context: any, user: UserResponseDto) => {
+export const getServerSideProps = withAuth(async (auth: Auth | null, context: any) => {
 
     let { query } = context;
 
@@ -226,10 +225,8 @@ export const getServerSideProps = withAuth(async (auth: Auth | null, context: an
         return {
             props: {
                 auth,
-                token: context.req.cookies.token,
                 doctor,
                 doctorAvailability,
-                user
             }
         }
     }
@@ -238,7 +235,6 @@ export const getServerSideProps = withAuth(async (auth: Auth | null, context: an
         return {
             props: {
                 auth,
-                user
             }
         }
     };

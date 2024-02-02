@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Avatar from "@/components/avatar";
 import {
@@ -11,7 +11,6 @@ import {
   FaPhone,
   FaSuitcaseMedical,
   FaUser,
-  FaUserDoctor,
   FaVenus,
   FaXmark,
 } from "react-icons/fa6";
@@ -31,17 +30,15 @@ import {
   DialogTitle,
   Snackbar,
 } from "@mui/material";
-import { UserResponseDto } from "@/components/dto/user.dto";
 import { useRouter } from "next/router";
 import { Auth } from "../../shared/types";
 
 interface ProfileProps {
-  user: UserResponseDto;
   auth: Auth;
-  token?: string;
 }
 
 const Profile: React.FC<ProfileProps> = (props) => {
+
   const router = useRouter();
 
   const [change, setChange] = useState(false);
@@ -49,9 +46,10 @@ const Profile: React.FC<ProfileProps> = (props) => {
   const [updated, setUpdated] = useState(false);
   const [changed, setChanged] = useState(false);
   const [error, setError] = useState(false);
+  const [user, setUser] = useState<any>(null);
 
   function showDni() {
-    let dni = props.user.dni;
+    let dni = user.dni;
 
     dni = dni
       .split("")
@@ -86,7 +84,7 @@ const Profile: React.FC<ProfileProps> = (props) => {
             },
             {
               withCredentials: true,
-              headers: { Authorization: `Bearer ${props.user.token}` },
+              headers: { Authorization: `Bearer ${props.auth.token}` },
             }
           );
 
@@ -114,17 +112,17 @@ const Profile: React.FC<ProfileProps> = (props) => {
 
   async function handleChange($e: any) {
     if ($e.target.files && $e.target.files[0] && ($e.target.files[0].type.includes("jpg") ||
-    $e.target.files[0].type.includes("jpeg") ||
-    $e.target.files[0].type.includes("png"))) {
+      $e.target.files[0].type.includes("jpeg") ||
+      $e.target.files[0].type.includes("png"))) {
       const fd = new FormData();
       fd.append("file", $e.target.files[0]);
 
       await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/user/${props.user.dni}/image`,
+        `${process.env.NEXT_PUBLIC_API_URL}/user/${user.dni}/image`,
         fd,
         {
           withCredentials: true,
-          headers: { Authorization: `Bearer ${props.user.token}` },
+          headers: { Authorization: `Bearer ${props.auth.token}` },
         }
       );
 
@@ -132,32 +130,37 @@ const Profile: React.FC<ProfileProps> = (props) => {
     }
   }
 
+  useEffect(() => {
+
+    const fetchUser = async () => {
+      const user = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/user/${props.auth.dni}`,
+        {
+          withCredentials: true,
+          headers: { Authorization: `Bearer ${props.auth.token}` },
+        }
+      );
+
+      setUser({ ...user.data });
+    }
+
+    fetchUser();
+
+  }, []);
+
   return (
-    <section className="bg-white mt-20 mx-auto">
+    user && <section className="bg-white mt-20 mx-auto">
       <div className="flex justify-center relative">
-        {props.auth.role === "user" ? (
-          <Avatar
-            labelProps={{ className: "hidden" }}
-            name={props.user.name}
-            surname={props.user.surname}
-            className="absolute z-10 left-[calc(50%-65px)] bg-primary hover:cursor-pointer hover:opacity-70"
-            size={130}
-            icon={<FaUser size={60} />}
-            photo={props.user.image ? `${props.user.image}` : undefined}
-            onClick={handleClickFile}
-          />
-        ) : (
-          <Avatar
-            labelProps={{ className: "hidden" }}
-            name={props.user.name}
-            surname={props.user.surname}
-            className="absolute z-10 left-[calc(50%-65px)] bg-primary hover:cursor-pointer hover:opacity-70"
-            size={130}
-            icon={<FaUserDoctor size={60} />}
-            photo={props.user.image ? `${props.user.image}` : undefined}
-            onClick={handleClickFile}
-          />
-        )}
+        <Avatar
+          labelProps={{ className: "hidden" }}
+          name={user.name}
+          surname={user.surname}
+          className="absolute z-10 left-[calc(50%-65px)] bg-primary hover:cursor-pointer hover:opacity-70"
+          size={130}
+          icon={<FaUser size={60} />}
+          photo={user.image ? `${user.image}` : undefined}
+          onClick={handleClickFile}
+        />
         <input
           type="file"
           id="file"
@@ -170,7 +173,7 @@ const Profile: React.FC<ProfileProps> = (props) => {
           <h2
             className={`text-primary text-center ${robotoBold.className} text-3xl`}
           >
-            {props.user.name} {props.user.surname}
+            {user.name} {user.surname}
           </h2>
         </div>
       </div>
@@ -186,11 +189,11 @@ const Profile: React.FC<ProfileProps> = (props) => {
           <div className="flex flex-col items-center p-2">
             <div className="flex items-center">
               <FaEnvelope className="text-primary" />
-              <p className="mx-2">{props.user.email}</p>
+              <p className="mx-2">{user.email}</p>
             </div>
             <div className="flex items-center">
               <FaPhone className="text-primary" />
-              <p className="mx-2">{props.user.phone}</p>
+              <p className="mx-2">{user.phone}</p>
             </div>
             <div className="flex items-center">
               <FaAddressCard className="text-primary" />
@@ -199,29 +202,29 @@ const Profile: React.FC<ProfileProps> = (props) => {
             <div className="flex items-center">
               <FaCalendarDays className="text-primary" />
               <p className="mx-2">
-                {moment().diff(props.user.birthday, "years")} años
+                {moment().diff(user.birthday, "years")} años
               </p>
             </div>
             <div className="flex items-center">
-              {props.user.gender ? (
+              {user.gender ? (
                 <FaMars className="text-primary" />
               ) : (
                 <FaVenus className="text-primary" />
               )}
 
-              <p className="mx-2">{props.user.gender ? "Hombre" : "Mujer"}</p>
+              <p className="mx-2">{user.gender ? "Hombre" : "Mujer"}</p>
             </div>
             <div className="flex justify-center items-center w-full">
               <FaSuitcaseMedical className="text-primary" />
               <div className="flex">
-                {props.user.healthInsurances.map((h, idx) => {
+                {user.healthInsurances.map((h: any, idx: number) => {
                   return (
                     <div className="flex" key={idx}>
                       <p key={idx} className="mx-2">
                         {h.name}
                       </p>
                       <p>
-                        {idx < props.user.healthInsurances.length - 1
+                        {idx < user.healthInsurances.length - 1
                           ? "|"
                           : ""}
                       </p>
@@ -229,7 +232,7 @@ const Profile: React.FC<ProfileProps> = (props) => {
                   );
                 })}
               </div>
-              {props.user.validateHealthInsurance ? (
+              {user.validateHealthInsurance ? (
                 <FaCheck className="text-xl text-green-600" />
               ) : (
                 <FaXmark className="text-xl text-red-600" />
@@ -267,7 +270,7 @@ const Profile: React.FC<ProfileProps> = (props) => {
                     label="Nueva contraseña"
                     error={Boolean(
                       changePass.touched.newPassword &&
-                        changePass.errors.newPassword
+                      changePass.errors.newPassword
                     )}
                     helperText={
                       changePass.errors.newPassword &&
@@ -285,7 +288,7 @@ const Profile: React.FC<ProfileProps> = (props) => {
                     label="Repita la contraseña"
                     error={Boolean(
                       changePass.touched.repeatPassword &&
-                        changePass.errors.repeatPassword
+                      changePass.errors.repeatPassword
                     )}
                     helperText={
                       changePass.errors.repeatPassword &&

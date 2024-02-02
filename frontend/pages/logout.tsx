@@ -14,7 +14,7 @@ const Logout: React.FC<any> = ({ auth, token }) => {
 
             await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/logout`, {}, {
                 withCredentials: true,
-                headers: { Authorization: `Bearer ${token}` }
+                headers: { Authorization: `Bearer ${auth.token}` }
             });
 
             router.reload();
@@ -36,7 +36,6 @@ export const getServerSideProps = withAuth(async (auth: Auth | null, context: an
     return {
         props: {
             auth,
-            token: context.req.cookies.token,
         },
     };
 

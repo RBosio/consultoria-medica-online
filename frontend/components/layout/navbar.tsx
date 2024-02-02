@@ -19,27 +19,13 @@ import Link from "next/link";
 import { Sling as Hamburger } from "hamburger-react";
 import Image from "next/image";
 import Profile from "../profile";
-import { UserResponseDto } from "../dto/user.dto";
+import Fade from "@mui/material/Fade";
 
 interface NavbarProps {
   auth: Auth;
   setSidebarOpened: any;
   sidebarOpened: boolean;
-  user: UserResponseDto;
-  token?: string;
 }
-
-const style = {
-  position: "absolute" as "absolute",
-  top: "50%",
-  left: "50%",
-  transform: "translate(-50%, -50%)",
-  width: 400,
-  bgcolor: "background.paper",
-  border: "2px solid #000",
-  boxShadow: 24,
-  p: 4,
-};
 
 const Navbar: React.FC<NavbarProps> = (props) => {
   const theme = useTheme();
@@ -75,9 +61,8 @@ const Navbar: React.FC<NavbarProps> = (props) => {
       <div className="flex items-center justify-center">
         <Tooltip placement="right" title="Perfil">
           <IconButton
-            className={`rounded-md hover:bg-primary_light ${
-              menuPosition ? "bg-primary" : ""
-            }`}
+            className={`rounded-md hover:bg-primary_light ${menuPosition ? "bg-primary" : ""
+              }`}
             onClick={handleClick}
             size="small"
           >
@@ -130,26 +115,38 @@ const Navbar: React.FC<NavbarProps> = (props) => {
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
       >
-        <Box sx={style}>
-          <Typography
-            id="modal-modal-title"
-            variant="h6"
-            component="h2"
-            className="text-center"
-          >
-            Perfil
-          </Typography>
-          <Typography
-            id="modal-modal-description"
-            component={"span"}
-            variant={"body2"}
-            sx={{ mt: 2 }}
-          >
-            <Profile user={props.user} auth={props.auth} token={props.token} />
-          </Typography>
-        </Box>
+        <Fade in={o}>
+          <Box sx={{
+            position: "absolute" as "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: 400,
+            bgcolor: "background.paper",
+
+            boxShadow: 24,
+            p: 4,
+          }}>
+            <Typography
+              id="modal-modal-title"
+              variant="h6"
+              component="h2"
+              className="text-center text-primary text-2xl"
+            >
+              Perfil de usuario
+            </Typography>
+            <Typography
+              id="modal-modal-description"
+              component={"span"}
+              variant={"body2"}
+              sx={{ mt: 2 }}
+            >
+              <Profile auth={props.auth} />
+            </Typography>
+          </Box>
+        </Fade>
       </Modal>
-    </section>
+    </section >
   );
 };
 

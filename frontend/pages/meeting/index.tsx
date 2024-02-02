@@ -220,7 +220,7 @@ export default function Meeting(props: MeetingI) {
   };
 
   return (
-    <Layout user={props.user} auth={props.auth}>
+    <Layout auth={props.auth}>
       <div className="flex h-full">
         <div className="w-3/4 m-4">
           <div className="w-1/3 mx-auto mb-2">
@@ -336,13 +336,10 @@ export default function Meeting(props: MeetingI) {
 }
 
 export const getServerSideProps = withAuth(
-  async (auth: Auth | null, context: any, user: UserResponseDto) => {
-    const token = context.req.cookies.token;
+  async (auth: Auth | null, context: any) => {
     return {
       props: {
         auth,
-        user,
-        token,
       },
     };
   },

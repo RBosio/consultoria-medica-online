@@ -74,6 +74,19 @@ export class UserService {
         return userFound
     }
 
+    async findAdmin() {
+        const userFound = await this.userRepository.findOne({
+            where: {
+                admin: true
+            }
+        })
+        if (!userFound) {
+            throw new HttpException('Usuario no encontrado', HttpStatus.NOT_FOUND)
+        }
+        
+        return userFound
+    }
+
     async create(user: createUserDto, doctor: createDoctorDto) {
         const userFoundDni = await this.userRepository.findOne({
             where: {

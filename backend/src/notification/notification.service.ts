@@ -19,6 +19,17 @@ export class NotificationService {
         })
     }
 
+    findOneByUser(id: number): Promise<Notification> {
+        return this.notificationRepository.findOne({
+            where: {
+                userSend: {
+                    id
+                },
+                type: 'verification'
+            }
+        })
+    }
+
     async create(notification: createNotificationDto): Promise<Notification | HttpException> {
         const newNotification = this.notificationRepository.create(notification)
 

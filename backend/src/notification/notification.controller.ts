@@ -19,6 +19,12 @@ export class NotificationController {
         return this.notificationService.findAllByUser(id)
     }
 
+    @Get('verification/:userId')
+    @Roles(RoleEnum.User, RoleEnum.Doctor)
+    getNotificationByUser(@Param('userId', ParseIntPipe) id: number): Promise<Notification> {
+        return this.notificationService.findOneByUser(id)
+    }
+    
     @Post()
     @Roles(RoleEnum.User, RoleEnum.Doctor)
     createNotification(@Body() notification: createNotificationDto): Promise<Notification | HttpException> {

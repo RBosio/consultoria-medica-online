@@ -53,38 +53,21 @@ export default function DetailMeeting(props: MeetingI) {
 
   async function handleClickComment() {
     const token = props.auth.token;
-    const { id, startDatetime } = router.query;
+    const { id } = router.query;
 
-    if (text.length > 0) {
-      const comment = {
-        datetime: new Date(),
-        meetingUserId: id,
-        meetingStartDatetime: startDatetime,
-        comment: text,
-        userCommentId: props.auth.id,
-      };
-      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/comment`, comment, {
-        withCredentials: true,
-        headers: { Authorization: `Bearer ${token}` },
-      });
+    if (id && typeof id === "string") {
+      const [t, startDatetime] = atob(id).split(".");
+      let band: boolean = false;
 
-      setText("");
-    } else {
-      if (
-        type.includes("office") ||
-        type.includes("pdf") ||
-        type.includes("jpg") ||
-        type.includes("jpeg") ||
-        type.includes("png")
-      ) {
+      if (text.length > 0) {
         const comment = {
           datetime: new Date(),
-          meetingUserId: id,
+          meetingUserId: t,
           meetingStartDatetime: startDatetime,
-          comment: "",
+          comment: text,
           userCommentId: props.auth.id,
         };
-        const res = await axios.post(
+        await axios.post(
           `${process.env.NEXT_PUBLIC_API_URL}/comment`,
           comment,
           {
@@ -93,44 +76,89 @@ export default function DetailMeeting(props: MeetingI) {
           }
         );
 
-        const c = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}/comment/${id}`,
-          {
-            withCredentials: true,
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
+        setText("");
+        band = true;
+      } else {
+        if (
+          type.includes("office") ||
+          type.includes("pdf") ||
+          type.includes("jpg") ||
+          type.includes("jpeg") ||
+          type.includes("png")
+        ) {
+          const comment = {
+            datetime: new Date(),
+            meetingUserId: t,
+            meetingStartDatetime: startDatetime,
+            comment: "",
+            userCommentId: props.auth.id,
+          };
+          const res = await axios.post(
+            `${process.env.NEXT_PUBLIC_API_URL}/comment`,
+            comment,
+            {
+              withCredentials: true,
+              headers: { Authorization: `Bearer ${token}` },
+            }
+          );
 
-        const formData = new FormData();
-        formData.append("file", file);
-        formData.append("type", type);
-        formData.append("commentId", res.data.id);
-        await axios.post(
-          `${process.env.NEXT_PUBLIC_API_URL}/comment/${id}/${moment(
-            c.data.datetime
-          ).format("YYYY-MM-DDTHH:mm:ss")}/file`,
-          formData,
-          {
-            withCredentials: true,
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "multipart/form-data",
-            },
-          }
-        );
+          const c = await axios.get(
+            `${process.env.NEXT_PUBLIC_API_URL}/comment/${t}`,
+            {
+              withCredentials: true,
+              headers: { Authorization: `Bearer ${token}` },
+            }
+          );
+
+          const formData = new FormData();
+          formData.append("file", file);
+          formData.append("type", type);
+          formData.append("commentId", res.data.id);
+          await axios.post(
+            `${process.env.NEXT_PUBLIC_API_URL}/comment/${t}/${moment(
+              c.data.datetime
+            ).format("YYYY-MM-DDTHH:mm:ss")}/file`,
+            formData,
+            {
+              withCredentials: true,
+              headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "multipart/form-data",
+              },
+            }
+          );
+
+          band = true;
+        }
       }
+
+      router.push(`/meetings/${id}`);
+
+      setTimeout(() => {
+        const scrollBar = document.getElementById("scroll");
+        if (scrollBar) {
+          scrollBar.scrollTop = 20000;
+        }
+      }, 240);
+
+      setFile("");
+
+      await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/notification`,
+        {
+          userIdSend: props.auth.id,
+          userIdReceive:
+            props.auth.role === "user"
+              ? props.meeting.doctor.user.id
+              : props.meeting.user.id,
+          type: "comment",
+        },
+        {
+          withCredentials: true,
+          headers: { Authorization: `Bearer ${props.auth.token}` },
+        }
+      );
     }
-
-    router.push(`/meetings/${id}/${startDatetime}`);
-
-    setTimeout(() => {
-      const scrollBar = document.getElementById("scroll");
-      if (scrollBar) {
-        scrollBar.scrollTop = 20000;
-      }
-    }, 240);
-
-    setFile("");
   }
 
   function handleClickFile() {
@@ -487,7 +515,7 @@ export const getServerSideProps = withAuth(
       meeting = meeting.data;
 
       let comments = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/comment/meeting/${id}/${startDatetime}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/comment/meeting/${t}/${startDatetime}`,
         {
           withCredentials: true,
           headers: { Authorization: `Bearer ${context.req.cookies.token}` },

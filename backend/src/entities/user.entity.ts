@@ -5,6 +5,7 @@ import { Doctor } from './doctor.entity'
 import { Meeting } from './meeting.entity'
 import { HealthInsurance } from './health-insurance.entity'
 import { Comment } from './comment.entity'
+import { Notification } from './notification.entity'
 
 @Entity()
 export class User {
@@ -67,6 +68,12 @@ export class User {
 
     @OneToMany(() => Comment, comments => comments.user)
     comments: Comment[]
+
+    @OneToMany(() => Notification, notifications => notifications.userSend)
+    notificationsSend: Notification[]
+
+    @OneToMany(() => Notification, notifications => notifications.userReceive)
+    notificationsReceive: Notification[]
 
     @BeforeInsert()
     async hashPassword() {

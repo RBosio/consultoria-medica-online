@@ -21,7 +21,12 @@ import { Sling as Hamburger } from "hamburger-react";
 import Image from "next/image";
 import Profile from "../profile";
 import Fade from "@mui/material/Fade";
-import { FaAngleRight, FaBell, FaEnvelope } from "react-icons/fa6";
+import {
+  FaAngleRight,
+  FaBell,
+  FaEnvelope,
+  FaEnvelopeOpen,
+} from "react-icons/fa6";
 import axios from "axios";
 import { NotificationResponseDto } from "../dto/notification.dto";
 import moment from "moment";
@@ -127,7 +132,7 @@ const Navbar: React.FC<NavbarProps> = (props) => {
       />
       <div className="flex items-center justify-center relative">
         <Badge
-          badgeContent={4}
+          badgeContent={notifications.filter((n) => !n.readed).length}
           color="primary"
           className="text-secondary text-2xl mx-4 hover:cursor-pointer hover:opacity-70"
           onClick={() => setOpenN(!openN)}
@@ -140,23 +145,42 @@ const Navbar: React.FC<NavbarProps> = (props) => {
           } transition-all duration-500 ease-in
            bg-white border-primary border-4 rounded-md z-50 overflow-y-scroll px-2`}
         >
-          <h4 className="text-primary p-2 text-end hover:underline hover:cursor-pointer" onClick={markAsReadAll}>Leer todos</h4>
+          <div className="flex justify-end">
+            <p
+              className="text-primary p-2 hover:underline hover:cursor-pointer"
+              onClick={markAsReadAll}
+            >
+              Leer todos
+            </p>
+          </div>
           {notifications.map((n) => {
             return (
               <div className="p-2">
                 <div className="flex justify-between items-center">
                   <div
-                    className={`w-2 h-2 rounded-full ${
+                    className={`w-2 h-2 rounded-full m-2 ${
                       !n.readed ? "bg-primary" : ""
                     }`}
                   ></div>
 
                   <div>
                     <div className="flex items-center gap-2">
-                      <p>
-                        {n.type === "verification"
-                          ? `El doctor ${n.userSend.surname}, ${n.userSend.name} solicitó verificación de su cuenta`
-                          : ``}
+                      <p className="p-2">
+                        {n.type === "verification" ? (
+                          `El doctor ${n.userSend.surname}, ${n.userSend.name} solicitó verificación de su cuenta`
+                        ) : n.type === "comment" ? (
+                          <>
+                            El{" "}
+                            {props.auth.role === "user" ? "doctor" : "usuario"}{" "}
+                            {n.userSend.surname}, {n.userSend.name} realizó un
+                            comentario en la reunión del día{" "}
+                            <span>
+                              {moment(n.meeting.startDatetime).format("LLL")}
+                            </span>
+                          </>
+                        ) : (
+                          ""
+                        )}
                       </p>
                     </div>
                     <p className="text-primary text-right">
@@ -170,9 +194,25 @@ const Navbar: React.FC<NavbarProps> = (props) => {
                         onClick={() => markAsRead(n.id)}
                       />
                     ) : (
-                      ""
+                      <FaEnvelopeOpen />
                     )}
-                    <Link href={"/"}>
+                    <Link
+                      href={
+                        n.type === "comment"
+                          ? `/meetings/${btoa(
+                              n.meeting.userId +
+                                "." +
+                                moment(n.meeting.startDatetime).format(
+                                  "YYYY-MM-DDTHH:mm:ss"
+                                )
+                            )}`
+                          : ""
+                      }
+                      onClick={() => {
+                        markAsRead(n.id);
+                        setOpenN(!openN);
+                      }}
+                    >
                       <FaAngleRight className="hover:opacity-70" />
                     </Link>
                   </div>

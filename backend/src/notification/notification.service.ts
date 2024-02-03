@@ -4,13 +4,15 @@ import { Repository } from 'typeorm';
 import { createNotificationDto } from './dto/create-notification.dto';
 import { Notification } from 'src/entities/notification.entity';
 import { UserService } from 'src/user/user.service';
+import { MeetingService } from 'src/meeting/meeting.service';
 
 @Injectable()
 export class NotificationService {
 
     constructor(
         @InjectRepository(Notification) private notificationRepository: Repository<Notification>,
-        private userService: UserService
+        private userService: UserService,
+        private meetingService: MeetingService
         ) {}
 
     findAllByUser(id: number): Promise<Notification[]> {
@@ -21,7 +23,8 @@ export class NotificationService {
                 }
             },
             relations: {
-                userSend: true
+                userSend: true,
+                meeting: true
             },
             order: {
                 created_at: 'desc'
@@ -48,6 +51,12 @@ export class NotificationService {
 
         newNotification.userSend = userSend
         newNotification.userReceive = userReceive
+
+        if(notification.meetingUserId && notification.meetingStartDatetime) {
+            const meetingFound = await this.meetingService.findOne(notification.meetingUserId, notification.meetingStartDatetime)
+
+            newNotification.meeting = meetingFound
+        }
 
         return this.notificationRepository.save(newNotification)
     }

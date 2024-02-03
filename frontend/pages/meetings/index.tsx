@@ -221,7 +221,6 @@ export default function Meetings(props: Meeting) {
                   return (
                     <MeetingCard
                       key={idx}
-                      id={idx}
                       startDatetime={meeting.startDatetime}
                       status={meeting.status}
                       user={meeting.user}

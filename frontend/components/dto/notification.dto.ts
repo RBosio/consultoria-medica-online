@@ -1,3 +1,4 @@
+import { MeetingResponseDto } from "./meeting.dto"
 import { UserResponseDto } from "./user.dto"
 
 export interface NotificationResponseDto {
@@ -8,4 +9,5 @@ export interface NotificationResponseDto {
     readed: boolean
     created_at: Date
     userSend: UserResponseDto
+    meeting: MeetingResponseDto
 }

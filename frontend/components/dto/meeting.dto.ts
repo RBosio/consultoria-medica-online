@@ -4,7 +4,7 @@ import { SpecialityResponseDto } from "./speciality.dto";
 import { UserResponseDto } from "./user.dto";
 
 export interface MeetingResponseDto {
-  id: number;
+  userId?: number;
   startDatetime: Date;
   status: string;
   tpc: string;

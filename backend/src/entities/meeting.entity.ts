@@ -3,6 +3,7 @@ import { User } from './user.entity'
 import { Doctor } from './doctor.entity'
 import { MedicalRecord } from './medical-record.entity'
 import { Comment } from './comment.entity'
+import { Notification } from './notification.entity'
 
 @Entity()
 export class Meeting {
@@ -43,8 +44,11 @@ export class Meeting {
     @JoinColumn()
     medicalRecord: MedicalRecord
     
-    @OneToMany(() => Comment, comment => comment.meeting, {nullable: false})
+    @OneToMany(() => Comment, comment => comment.meeting)
     comments: Comment
+
+    @OneToMany(() => Notification, notifications => notifications.meeting)
+    notifications: Notification[]
     
     @Column({type: Date, default: () => 'CURRENT_TIMESTAMP'})
     created_at: Date

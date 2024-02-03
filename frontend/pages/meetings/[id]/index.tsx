@@ -8,7 +8,6 @@ import { MeetingResponseDto } from "@/components/dto/meeting.dto";
 import { SpecialityResponseDto } from "@/components/dto/speciality.dto";
 import Comment from "@/components/comment";
 import { CommentResponseDto } from "@/components/dto/comment.dto";
-import CardDoctor from "@/components/doctorCard";
 import Input from "@/components/input";
 import { BsFillChatLeftTextFill } from "react-icons/bs";
 import {
@@ -25,6 +24,7 @@ import moment from "moment";
 import { robotoBold } from "@/lib/fonts";
 import Button from "@/components/button";
 import UserCard from "@/components/userCard";
+import DoctorCard from "@/components/doctorCard";
 interface MeetingI {
   meeting: MeetingResponseDto;
   comments: CommentResponseDto[];
@@ -152,6 +152,8 @@ export default function DetailMeeting(props: MeetingI) {
               ? props.meeting.doctor.user.id
               : props.meeting.user.id,
           type: "comment",
+          meetingUserId: t,
+          meetingStartDatetime: startDatetime
         },
         {
           withCredentials: true,
@@ -279,8 +281,7 @@ export default function DetailMeeting(props: MeetingI) {
         >
           <section className="w-1/2 sm:w-1/4 h-5/12 sm:h-full">
             {props.auth.role === "user" ? (
-              <CardDoctor
-                id={props.meeting.id}
+              <DoctorCard
                 startDatetime={props.meeting.startDatetime}
                 doctor={props.meeting.doctor}
                 user={props.meeting.user}
@@ -291,7 +292,6 @@ export default function DetailMeeting(props: MeetingI) {
               />
             ) : (
               <UserCard
-                id={props.meeting.id}
                 startDatetime={props.meeting.startDatetime}
                 doctor={props.meeting.doctor}
                 user={props.meeting.user}

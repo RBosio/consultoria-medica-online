@@ -1,5 +1,6 @@
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm'
 import { User } from './user.entity'
+import { Meeting } from './meeting.entity'
 
 @Entity()
 export class Notification {
@@ -18,13 +19,16 @@ export class Notification {
     @Column({ default: false })
     readed: boolean
 
-    @ManyToOne(() => User, user => user.meetings, {nullable: false})
+    @ManyToOne(() => User, user => user.notificationsSend, {nullable: false})
     @JoinColumn({name: 'userIdSend'})
     userSend: User
 
-    @ManyToOne(() => User, user => user.meetings, {nullable: false})
+    @ManyToOne(() => User, user => user.notificationsReceive, {nullable: false})
     @JoinColumn({name: 'userIdReceive'})
     userReceive: User
+
+    @ManyToOne(() => Meeting, meeting => meeting.notifications)
+    meeting: Meeting
     
     @Column({type: Date, default: () => 'CURRENT_TIMESTAMP'})
     created_at: Date

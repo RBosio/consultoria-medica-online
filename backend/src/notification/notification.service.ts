@@ -3,11 +3,15 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { createNotificationDto } from './dto/create-notification.dto';
 import { Notification } from 'src/entities/notification.entity';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class NotificationService {
 
-    constructor(@InjectRepository(Notification) private notificationRepository: Repository<Notification>) {}
+    constructor(
+        @InjectRepository(Notification) private notificationRepository: Repository<Notification>,
+        private userService: UserService
+        ) {}
 
     findAllByUser(id: number): Promise<Notification[]> {
         return this.notificationRepository.find({
@@ -15,6 +19,9 @@ export class NotificationService {
                 userReceive: {
                     id
                 }
+            },
+            relations: {
+                userSend: true
             }
         })
     }
@@ -32,6 +39,12 @@ export class NotificationService {
 
     async create(notification: createNotificationDto): Promise<Notification | HttpException> {
         const newNotification = this.notificationRepository.create(notification)
+
+        const userSend = await this.userService.findOne(notification.userIdSend)
+        const userReceive = await this.userService.findOne(notification.userIdReceive)
+
+        newNotification.userSend = userSend
+        newNotification.userReceive = userReceive
 
         return this.notificationRepository.save(newNotification)
     }

@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Avatar from "../avatar";
 import { Auth } from "../../../shared/types";
 import {
+  Badge,
   Box,
   Divider,
   IconButton,
@@ -20,6 +21,11 @@ import { Sling as Hamburger } from "hamburger-react";
 import Image from "next/image";
 import Profile from "../profile";
 import Fade from "@mui/material/Fade";
+import { FaArrowRight, FaBell } from "react-icons/fa6";
+import axios from "axios";
+import { NotificationResponseDto } from "../dto/notification.dto";
+import Button from "../button";
+import moment from "moment";
 
 interface NavbarProps {
   auth: Auth;
@@ -31,6 +37,10 @@ const Navbar: React.FC<NavbarProps> = (props) => {
   const theme = useTheme();
   const [menuPosition, setMenuPosition] = useState<null | HTMLElement>(null);
   const [o, setO] = useState(false);
+  const [openN, setOpenN] = useState(false);
+  const [notifications, setNotifications] = useState<NotificationResponseDto[]>(
+    []
+  );
   const open = Boolean(menuPosition);
 
   const handleClose = () => {
@@ -40,6 +50,21 @@ const Navbar: React.FC<NavbarProps> = (props) => {
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setMenuPosition(event.currentTarget);
   };
+
+  useEffect(() => {
+    const func = async () => {
+      const notifications = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/notification/${props.auth.id}`,
+        {
+          withCredentials: true,
+          headers: { Authorization: `Bearer ${props.auth.token}` },
+        }
+      );
+      setNotifications(notifications.data);
+    };
+
+    func();
+  }, []);
 
   return (
     <section className="p-4 bg-white w-full shrink-0 h-20 shadow-md flex items-center justify-between md:justify-end z-10">
@@ -58,11 +83,57 @@ const Navbar: React.FC<NavbarProps> = (props) => {
         height={180}
         alt="Logo HealthTech"
       />
-      <div className="flex items-center justify-center">
+      <div className="flex items-center justify-center relative">
+        <Badge
+          badgeContent={4}
+          color="primary"
+          className="text-secondary text-2xl mx-4 hover:cursor-pointer hover:opacity-70"
+          onClick={() => setOpenN(!openN)}
+        >
+          <FaBell />
+        </Badge>
+        <div
+          className={`absolute w-[36rem] h-72 -bottom-[19rem] ${
+            openN ? "-right-4" : "-right-[38rem]"
+          } transition-all duration-500 ease-in
+           bg-white border-primary border-4 rounded-md z-50 overflow-y-scroll`}
+        >
+          {notifications.map((n) => {
+            return (
+              <div className="p-2">
+                <div className="flex justify-between items-center">
+                  <div
+                    className={`w-2 h-2 rounded-full ${
+                      !n.readed ? "bg-primary" : ""
+                    }`}
+                  ></div>
+
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <p>
+                        {n.type === "verification"
+                          ? `El doctor ${n.userSend.surname}, ${n.userSend.name} solicitó verificación de su cuenta`
+                          : ``}
+                      </p>
+                    </div>
+                    <p className="text-primary text-right">
+                      {moment(n.created_at).format("LLL")}
+                    </p>
+                  </div>
+                  <div>
+                    <Button startIcon={<FaArrowRight />}>Ir</Button>
+                  </div>
+                </div>
+                <div className="w-5/6 border-b-2 border-primary h-2 m-auto"></div>
+              </div>
+            );
+          })}
+        </div>
         <Tooltip placement="right" title="Perfil">
           <IconButton
-            className={`rounded-md hover:bg-primary_light ${menuPosition ? "bg-primary" : ""
-              }`}
+            className={`rounded-md hover:bg-primary_light ${
+              menuPosition ? "bg-primary" : ""
+            }`}
             onClick={handleClick}
             size="small"
           >
@@ -116,17 +187,19 @@ const Navbar: React.FC<NavbarProps> = (props) => {
         aria-describedby="modal-modal-description"
       >
         <Fade in={o}>
-          <Box sx={{
-            position: "absolute" as "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            width: 400,
-            bgcolor: "background.paper",
+          <Box
+            sx={{
+              position: "absolute" as "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              width: 400,
+              bgcolor: "background.paper",
 
-            boxShadow: 24,
-            p: 4,
-          }}>
+              boxShadow: 24,
+              p: 4,
+            }}
+          >
             <Typography
               id="modal-modal-title"
               variant="h6"
@@ -146,7 +219,7 @@ const Navbar: React.FC<NavbarProps> = (props) => {
           </Box>
         </Fade>
       </Modal>
-    </section >
+    </section>
   );
 };
 

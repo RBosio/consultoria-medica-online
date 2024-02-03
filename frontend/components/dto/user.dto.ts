@@ -1,3 +1,4 @@
+import { DoctorResponseDto } from "./doctor.dto"
 import { HealthInsuranceResponseDto } from "./healthInsurance.dto"
 
 export interface UserResponseDto {
@@ -13,4 +14,5 @@ export interface UserResponseDto {
     birthday: Date
     healthInsurances: HealthInsuranceResponseDto[]
     token?: string
+    doctor?: DoctorResponseDto
 }

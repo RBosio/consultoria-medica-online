@@ -14,7 +14,7 @@ export class NotificationController {
     constructor(private notificationService: NotificationService) {}
     
     @Get(':userId')
-    @Roles(RoleEnum.User, RoleEnum.Doctor)
+    @Roles(RoleEnum.User, RoleEnum.Doctor, RoleEnum.Admin)
     getNotificationsByUser(@Param('userId', ParseIntPipe) id: number): Promise<Notification[]> {
         return this.notificationService.findAllByUser(id)
     }

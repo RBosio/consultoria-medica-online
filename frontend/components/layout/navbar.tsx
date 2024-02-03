@@ -21,11 +21,11 @@ import { Sling as Hamburger } from "hamburger-react";
 import Image from "next/image";
 import Profile from "../profile";
 import Fade from "@mui/material/Fade";
-import { FaArrowRight, FaBell } from "react-icons/fa6";
+import { FaAngleRight, FaBell, FaEnvelope } from "react-icons/fa6";
 import axios from "axios";
 import { NotificationResponseDto } from "../dto/notification.dto";
-import Button from "../button";
 import moment from "moment";
+import { useRouter } from "next/router";
 
 interface NavbarProps {
   auth: Auth;
@@ -35,6 +35,8 @@ interface NavbarProps {
 
 const Navbar: React.FC<NavbarProps> = (props) => {
   const theme = useTheme();
+  const router = useRouter();
+
   const [menuPosition, setMenuPosition] = useState<null | HTMLElement>(null);
   const [o, setO] = useState(false);
   const [openN, setOpenN] = useState(false);
@@ -66,6 +68,46 @@ const Navbar: React.FC<NavbarProps> = (props) => {
     func();
   }, []);
 
+  const markAsRead = async (id: number) => {
+    await axios.patch(
+      `${process.env.NEXT_PUBLIC_API_URL}/notification/${id}`,
+      {},
+      {
+        withCredentials: true,
+        headers: { Authorization: `Bearer ${props.auth.token}` },
+      }
+    );
+
+    const notifications = await axios.get(
+      `${process.env.NEXT_PUBLIC_API_URL}/notification/${props.auth.id}`,
+      {
+        withCredentials: true,
+        headers: { Authorization: `Bearer ${props.auth.token}` },
+      }
+    );
+    setNotifications(notifications.data);
+  };
+
+  const markAsReadAll = async () => {
+    await axios.patch(
+      `${process.env.NEXT_PUBLIC_API_URL}/notification/readAll/${props.auth.id}`,
+      {},
+      {
+        withCredentials: true,
+        headers: { Authorization: `Bearer ${props.auth.token}` },
+      }
+    );
+
+    const notifications = await axios.get(
+      `${process.env.NEXT_PUBLIC_API_URL}/notification/${props.auth.id}`,
+      {
+        withCredentials: true,
+        headers: { Authorization: `Bearer ${props.auth.token}` },
+      }
+    );
+    setNotifications(notifications.data);
+  };
+
   return (
     <section className="p-4 bg-white w-full shrink-0 h-20 shadow-md flex items-center justify-between md:justify-end z-10">
       <div className="md:hidden">
@@ -96,8 +138,9 @@ const Navbar: React.FC<NavbarProps> = (props) => {
           className={`absolute w-[36rem] h-72 -bottom-[19rem] ${
             openN ? "-right-4" : "-right-[38rem]"
           } transition-all duration-500 ease-in
-           bg-white border-primary border-4 rounded-md z-50 overflow-y-scroll`}
+           bg-white border-primary border-4 rounded-md z-50 overflow-y-scroll px-2`}
         >
+          <h4 className="text-primary p-2 text-end hover:underline hover:cursor-pointer" onClick={markAsReadAll}>Leer todos</h4>
           {notifications.map((n) => {
             return (
               <div className="p-2">
@@ -120,11 +163,21 @@ const Navbar: React.FC<NavbarProps> = (props) => {
                       {moment(n.created_at).format("LLL")}
                     </p>
                   </div>
-                  <div>
-                    <Button startIcon={<FaArrowRight />}>Ir</Button>
+                  <div className="min-w-12 flex justify-end gap-2 text-primary text-xl">
+                    {!n.readed ? (
+                      <FaEnvelope
+                        className="hover:cursor-pointer hover:opacity-70"
+                        onClick={() => markAsRead(n.id)}
+                      />
+                    ) : (
+                      ""
+                    )}
+                    <Link href={"/"}>
+                      <FaAngleRight className="hover:opacity-70" />
+                    </Link>
                   </div>
                 </div>
-                <div className="w-5/6 border-b-2 border-primary h-2 m-auto"></div>
+                <div className="w-[90%] border-b-2 border-primary h-2 m-auto"></div>
               </div>
             );
           })}

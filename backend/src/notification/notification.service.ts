@@ -22,6 +22,9 @@ export class NotificationService {
             },
             relations: {
                 userSend: true
+            },
+            order: {
+                created_at: 'desc'
             }
         })
     }
@@ -59,5 +62,20 @@ export class NotificationService {
         notificationFound.readed = true
         
         return this.notificationRepository.save(notificationFound)
+    }
+    async readNotifications(id: number): Promise<Notification[] | HttpException> {
+        const notificationsFound = await this.notificationRepository.find({
+            where: {
+                userReceive: {
+                    id
+                }
+            }
+        })
+
+        notificationsFound.map(n => {
+            n.readed = true
+        })
+        
+        return this.notificationRepository.save(notificationsFound)
     }
 }

@@ -31,8 +31,14 @@ export class NotificationController {
         return this.notificationService.create(notification)
     }
 
+    @Patch('readAll/:userReceiveId')
+    @Roles(RoleEnum.User, RoleEnum.Doctor, RoleEnum.Admin)
+    readNotifications(@Param('userReceiveId', ParseIntPipe) userReceiveId: number): Promise<Notification[] | HttpException> {
+        return this.notificationService.readNotifications(userReceiveId)
+    }
+
     @Patch(':id')
-    @Roles(RoleEnum.User, RoleEnum.Doctor)
+    @Roles(RoleEnum.User, RoleEnum.Doctor, RoleEnum.Admin)
     readNotification(@Param('id', ParseIntPipe) id: number): Promise<Notification | HttpException> {
         return this.notificationService.readNotification(id)
     }

@@ -137,7 +137,7 @@ const Navbar: React.FC<NavbarProps> = (props) => {
           className="text-secondary text-2xl mx-4 hover:cursor-pointer hover:opacity-70"
           onClick={() => setOpenN(!openN)}
         >
-          <FaBell />
+          <FaBell className={openN ? 'text-primary' : ''} />
         </Badge>
         <div
           className={`absolute w-[36rem] h-72 -bottom-[19rem] ${

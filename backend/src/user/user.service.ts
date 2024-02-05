@@ -24,7 +24,11 @@ export class UserService {
 
     async findAll(): Promise<User[]> {
         const usersFound = await this.userRepository.find({
-            relations: ['healthInsurances']  
+            relations: {
+                healthInsurances: {
+                    healthInsurance: true
+                }
+            }
         })
         usersFound.map(user => user.password = "");
 
@@ -36,7 +40,11 @@ export class UserService {
             where: {
                 id
             },
-            relations: ['healthInsurances']
+            relations: {
+                healthInsurances: {
+                    healthInsurance: true
+                }
+            }
         })
         if (!userFound) {
             throw new HttpException('Usuario no encontrado', HttpStatus.NOT_FOUND)
@@ -52,7 +60,9 @@ export class UserService {
                 dni
             },
             relations: {
-                healthInsurances: true
+                healthInsurances: {
+                    healthInsurance: true
+                }
             }
         })
         if (!userFound) {
@@ -68,7 +78,11 @@ export class UserService {
             where: {
                 email
             },
-            relations: ['healthInsurances']
+            relations: {
+                healthInsurances: {
+                    healthInsurance: true
+                }
+            }
         })
         if (!userFound) {
             throw new HttpException('Usuario no encontrado', HttpStatus.NOT_FOUND)
@@ -152,7 +166,9 @@ export class UserService {
                 id
             },
             relations: {
-                healthInsurances: true
+                healthInsurances: {
+                    healthInsurance: true
+                }
             }
         })
         if (!userFound) {

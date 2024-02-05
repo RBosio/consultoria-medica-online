@@ -50,7 +50,7 @@ const Sidebar: React.FC<SidebarProps> = (props) => {
         bottom: [
             {
                 name: "Panel administración",
-                path: "/admin",
+                path: "/admin/doctors",
                 icon: <MdOutlineAdminPanelSettings />
             },
             {

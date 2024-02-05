@@ -7,7 +7,6 @@ import Avatar from "@/components/avatar";
 import {
   FaCertificate,
   FaCheck,
-  FaCircleInfo,
   FaCircleUp,
   FaCircleXmark,
   FaLocationDot,

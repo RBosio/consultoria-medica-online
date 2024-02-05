@@ -18,13 +18,7 @@ import { VideoClient } from "@zoom/videosdk";
 import Input from "@/components/input";
 import { robotoBold } from "@/lib/fonts";
 
-interface MeetingI {
-  auth: Auth;
-  user: UserResponseDto;
-  token: string;
-}
-
-export default function Meeting(props: MeetingI) {
+export default function Meeting(props: any) {
   const theme = useTheme();
   const router = useRouter();
 
@@ -143,7 +137,7 @@ export default function Meeting(props: MeetingI) {
 
   useEffect(() => {
     meeting()
-      .then((res) => {})
+      .then((res) => { })
       .catch((err) => {
         console.error(err);
       });
@@ -222,59 +216,58 @@ export default function Meeting(props: MeetingI) {
   return (
     <Layout auth={props.auth}>
       <div className="flex h-full">
-        <div className="w-3/4 m-4">
-          <div className="w-1/3 mx-auto mb-2">
-            <div className="relative">
-              <video
-                id="my-video"
-                className="w-[320px] h-[180px] bg-gray-800"
-                style={{ width: "100%", height: "auto" }}
-              ></video>
-              <p className="absolute bottom-0 right-0 text-white mr-2">
-                {`${props.auth.name} ${props.auth.surname} (You)`}
-              </p>
+        <div className="w-3/4 flex flex-col justify-center xl:p-5">
+          <div className="relative h-full">
+            <div className="w-3/6 md:w-2/6 lg:w-1/6 right-3 top-3 absolute">
+              <div className="relative">
+                <video
+                  id="my-video"
+                  className="bg-gray-800"
+                  style={{ width: "100%", height: "auto" }}
+                ></video>
+                <p className="absolute bottom-0 right-0 text-white mr-2">
+                  {`${props.auth.name} ${props.auth.surname} (You)`}
+                </p>
+              </div>
             </div>
-          </div>
-          <div className="relative">
-            <canvas
+            <video
               id="other-canvas"
-              className="w-[768px] h-[432px] bg-gray-600"
-              style={{ width: "100%", height: "auto" }}
-            ></canvas>
+              className="bg-gray-600"
+              style={{ width: "100%", height: "100%" }}
+            ></video>
             <p className="absolute bottom-0 right-0 text-white mr-2">
               {props.auth.role !== "user"
                 ? `${user ? user.name : ""} ${user ? user.surname : ""}`
-                : `${doctor ? doctor.user.name : ""} ${
-                    doctor ? doctor.user.surname : ""
-                  }`}
+                : `${doctor ? doctor.user.name : ""} ${doctor ? doctor.user.surname : ""
+                }`}
             </p>
-          </div>
-          <div className="w-full h-auto flex justify-center p-2 gap-6">
-            <div
-              className="w-10 h-10 bg-primary text-white rounded-full flex justify-center items-center hover:opacity-70 hover:cursor-pointer"
-              onClick={toggleAudio}
-            >
-              {audio ? (
-                <FaMicrophone className="text-xl" />
-              ) : (
-                <FaMicrophoneSlash className="text-xl" />
-              )}
-            </div>
-            <div
-              className="w-10 h-10 bg-primary text-white rounded-full flex justify-center items-center hover:opacity-70 hover:cursor-pointer"
-              onClick={toggleVideo}
-            >
-              {video ? (
-                <FaVideo className="text-xl" />
-              ) : (
-                <FaVideoSlash className="text-xl" />
-              )}
-            </div>
-            <div
-              className="w-10 h-10 bg-red-600 text-white rounded-full flex justify-center items-center hover:opacity-70 hover:cursor-pointer"
-              onClick={leaveSession}
-            >
-              <FaXmark className="text-xl" />
+            <div className="w-full h-auto flex flex-col p-2 gap-6 absolute left-4 top-1/2 translate-y-[-50%]">
+              <div
+                className="w-10 h-10 bg-primary text-white rounded-full flex justify-center items-center hover:opacity-70 hover:cursor-pointer"
+                onClick={toggleAudio}
+              >
+                {audio ? (
+                  <FaMicrophone className="text-xl" />
+                ) : (
+                  <FaMicrophoneSlash className="text-xl" />
+                )}
+              </div>
+              <div
+                className="w-10 h-10 bg-primary text-white rounded-full flex justify-center items-center hover:opacity-70 hover:cursor-pointer"
+                onClick={toggleVideo}
+              >
+                {video ? (
+                  <FaVideo className="text-xl" />
+                ) : (
+                  <FaVideoSlash className="text-xl" />
+                )}
+              </div>
+              <div
+                className="w-10 h-10 bg-red-600 text-white rounded-full flex justify-center items-center hover:opacity-70 hover:cursor-pointer"
+                onClick={leaveSession}
+              >
+                <FaXmark className="text-xl" />
+              </div>
             </div>
           </div>
         </div>
@@ -289,11 +282,10 @@ export default function Meeting(props: MeetingI) {
                 <div key={h.id}>
                   <div className="px-4 py-2">
                     <div
-                      className={`flex flex-col ${
-                        h.name === `${props.auth.name} ${props.auth.surname}`
-                          ? "items-end text-right"
-                          : "items-start text-left"
-                      }`}
+                      className={`flex flex-col ${h.name === `${props.auth.name} ${props.auth.surname}`
+                        ? "items-end text-right"
+                        : "items-start text-left"
+                        }`}
                     >
                       <div className="flex justify-center items-center">
                         <h4
@@ -337,11 +329,9 @@ export default function Meeting(props: MeetingI) {
 
 export const getServerSideProps = withAuth(
   async (auth: Auth | null, context: any) => {
-    const token = context.req.cookies.token;
     return {
       props: {
         auth,
-        token,
       },
     };
   },

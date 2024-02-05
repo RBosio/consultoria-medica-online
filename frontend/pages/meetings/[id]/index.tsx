@@ -224,7 +224,7 @@ export default function DetailMeeting(props: MeetingI) {
       );
       localStorage.setItem("tokenMeeting", res.data.tokenMeeting);
       localStorage.setItem("tpc", props.meeting.tpc);
-      router.push("/meeting");
+      router.push("/meetings/videocall");
     }
   }
 

@@ -1,4 +1,4 @@
-import { Controller, Get, Body, Param, Delete, Patch, HttpException, UseGuards, UseInterceptors, Post, Req } from '@nestjs/common';
+import { Controller, Get, Body, Param, Delete, Patch, HttpException, UseGuards, UseInterceptors, Post, Req, ParseIntPipe } from '@nestjs/common';
 import { updateUserDto } from './dto/update-user.dto';
 import { UserService } from './user.service';
 import { User } from 'src/entities/user.entity';
@@ -35,10 +35,10 @@ export class UserController {
         return this.userService.findOneByDni(dni)
     }
 
-    @Patch(':dni')
+    @Patch(':id')
     @Roles(RoleEnum.User, RoleEnum.Doctor)
-    updateUser(@Param('dni') dni: string, @Body() user: updateUserDto) {
-        return this.userService.update(dni, user)
+    updateUser(@Param('id', ParseIntPipe) id: number, @Body() user: updateUserDto) {
+        return this.userService.update(id, user)
     }
 
     @Delete(':dni')
@@ -66,5 +66,26 @@ export class UserController {
         const { body } = request
 
         return this.userService.uploadImage(dni, body.url)
+    }
+
+    @UseInterceptors(
+        FileInterceptor(
+            'file',
+            {
+                storage: diskStorage({
+                    destination: './public/uploads/user/healthInsurances',
+                    filename: (req, file, cb) => {
+                        req.body.url = uuidv4() + '.' + file.originalname.split('.').slice(-1)
+                        cb(null, req.body.url)
+                    }
+                })
+            }
+        )
+    )
+    @Post('healthInsurance')
+    uploadHealthInsurance(@Req() request: Request) {
+        const { body } = request
+
+        return this.userService.uploadHealthInsurance(body.id, body.healthInsuranceId, body.url)
     }
 }

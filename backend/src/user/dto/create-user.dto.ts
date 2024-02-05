@@ -13,6 +13,7 @@ export class createUserDto {
     admin?: boolean
     gender: boolean
     zipCode: string
-    healthInsurances: HealthInsurance[]
+    healthInsurances?: HealthInsurance[]
+    his: number[]
     doctor?: createDoctorDto
 }

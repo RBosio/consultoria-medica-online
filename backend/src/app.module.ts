@@ -38,6 +38,7 @@ import { Benefit } from './entities/benefit.entity';
 import { BenefitModule } from './benefit/benefit.module';
 import { Notification } from './entities/notification.entity';
 import { NotificationModule } from './notification/notification.module';
+import { UserHealthInsurance } from './entities/userHealthInsurances.entity';
 
 @Module({
   imports: [
@@ -54,7 +55,7 @@ import { NotificationModule } from './notification/notification.module';
         username: configService.get('DB_USERNAME'),
         password: configService.get('DB_PASSWORD'),
         database: configService.get('DB_DATABASE'),
-        entities: [Country, Province, City, User, Doctor, Schedule, Speciality, Meeting, MedicalRecord, Comment, File, HealthInsurance, Plan, Benefit, Notification],
+        entities: [Country, Province, City, User, Doctor, Schedule, Speciality, Meeting, MedicalRecord, Comment, File, HealthInsurance, Plan, Benefit, Notification, UserHealthInsurance],
         synchronize: configService.get('DB_SYNC'),
         dropSchema: configService.get('DB_DROP')
       }),

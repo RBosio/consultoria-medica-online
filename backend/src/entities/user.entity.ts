@@ -6,6 +6,7 @@ import { Meeting } from './meeting.entity'
 import { HealthInsurance } from './health-insurance.entity'
 import { Comment } from './comment.entity'
 import { Notification } from './notification.entity'
+import { UserHealthInsurance } from './userHealthInsurances.entity'
 
 @Entity()
 export class User {
@@ -48,19 +49,16 @@ export class User {
     @Column({nullable: true})
     image: string
     
-    @Column({default: false})
-    validateHealthInsurance: boolean
-    
     @Column({type: Date, default: () => 'CURRENT_TIMESTAMP'})
     created_at: Date
 
     @ManyToOne(() => City, city => city.users)
     city: City
     
-    @ManyToMany(() => HealthInsurance, healthInsurances => healthInsurances.users)
-    healthInsurances: HealthInsurance[]
+    @OneToMany(() => UserHealthInsurance, userHealthInsurance => userHealthInsurance.user)
+    healthInsurances: UserHealthInsurance[]
 
-    @OneToOne(() => Doctor, {nullable: false})
+    @OneToOne(() => Doctor)
     doctor: Doctor
 
     @OneToMany(() => Meeting, meetings => meetings.user)

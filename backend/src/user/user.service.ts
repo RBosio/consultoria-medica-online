@@ -10,12 +10,14 @@ import { createDoctorDto } from 'src/doctor/dto/create-doctor.dto';
 import { Speciality } from 'src/entities/speciality.entity';
 import { HealthInsurance } from 'src/entities/health-insurance.entity';
 import { HealthInsuranceService } from 'src/health-insurance/health-insurance.service';
+import { UserHealthInsurance } from 'src/entities/userHealthInsurances.entity';
 
 @Injectable()
 export class UserService {
     constructor(
         @InjectRepository(User) private userRepository: Repository<User>,
         @InjectRepository(Doctor) private doctorRepository: Repository<Doctor>,
+        @InjectRepository(UserHealthInsurance) private userHealthInsuranceRepository: Repository<UserHealthInsurance>,
         private cityService: CityService,
         private healthInsuranceService: HealthInsuranceService
         ) {}
@@ -107,6 +109,7 @@ export class UserService {
             throw new HttpException('El email ya existe', HttpStatus.BAD_REQUEST)
         }
 
+        
         let newUser = this.userRepository.create(user)
         
         const city = await this.cityService.findOne(user.zipCode)
@@ -114,8 +117,8 @@ export class UserService {
             throw new HttpException('Ciudad no encontrada', HttpStatus.BAD_REQUEST)
         }
         newUser.city = city
-        newUser.healthInsurances = user.healthInsurances
-
+        newUser.healthInsurances = []
+        
         newUser = await this.userRepository.save(newUser)
 
         if(doctor) {
@@ -130,13 +133,23 @@ export class UserService {
         }
         newUser.password = ""
 
+        user.his.map(async hi => {
+            const healthInsurance = await this.healthInsuranceService.findOne(hi)
+            
+            const userHI = this.userHealthInsuranceRepository.create({
+                user: newUser,
+                healthInsurance
+            })
+            await this.userHealthInsuranceRepository.save(userHI)
+        })
+
         return newUser
     }
 
-    async update(dni: string, user: updateUserDto) {
+    async update(id: number, user: updateUserDto) {
         const userFound = await this.userRepository.findOne({
             where: {
-                dni
+                id
             },
             relations: {
                 healthInsurances: true
@@ -153,8 +166,19 @@ export class UserService {
         }
 
         if(user.healthInsurance) {
-            const hi = await this.healthInsuranceService.findOne(user.healthInsurance)
-            updateUser.healthInsurances.push(hi)
+            const hi = await this.userHealthInsuranceRepository.findOne({
+                where: {
+                    userId: id,
+                    healthInsuranceId: user.healthInsurance
+                }
+            })
+            if (!hi) {
+                throw new HttpException('Obra social no encontrada', HttpStatus.NOT_FOUND)
+            }
+
+            hi.verified = true
+
+            this.userHealthInsuranceRepository.save(hi)
         }
         
         return this.userRepository.save(updateUser)
@@ -184,12 +208,25 @@ export class UserService {
         return this.userRepository.save(userFound)
     }
 
+    async uploadHealthInsurance(id: number, healthInsuranceId: number, url: string) {
+        const hi = await this.userHealthInsuranceRepository.findOne({
+            where: {
+                userId: id,
+                healthInsuranceId
+            }
+        })
+        if (!hi) {
+            throw new HttpException('Obra social no encontrada', HttpStatus.NOT_FOUND)
+        }
+
+        hi.url = url
+
+        this.userHealthInsuranceRepository.save(hi)
+    }
+
     
     
     async loadUsers() {
-        const hi1 = await this.healthInsuranceService.findOne(1)
-        const hi2 = await this.healthInsuranceService.findOne(2)
-
         await this.create({
             dni: '33429120',
             email: 'user@gmail.com',
@@ -202,7 +239,7 @@ export class UserService {
             admin: false,
             gender: false,
             zipCode: "2000",
-            healthInsurances: [hi1]
+            his: [1]
         }, null)
         
         const spec1 = new Speciality()
@@ -223,7 +260,7 @@ export class UserService {
             admin: false,
             gender: true,
             zipCode: "2000",
-            healthInsurances: [hi1, hi2]
+            his: [1]
         }, {
             cuil: "20-38233911-1",
             durationMeeting: 30,
@@ -247,7 +284,7 @@ export class UserService {
             admin: true,
             gender: true,
             zipCode: "2000",
-            healthInsurances: [hi2]
+            his: [1, 2]
         }, null)
     }
 }

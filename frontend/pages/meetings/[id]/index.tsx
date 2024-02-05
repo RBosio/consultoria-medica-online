@@ -451,7 +451,7 @@ export default function DetailMeeting(props: MeetingI) {
               </div>
               <form
                 className="flex justify-center items-center mx-2 my-8 text-primary"
-                onSubmit={() => handleSubmit}
+                onSubmit={handleSubmit}
               >
                 {file ? (
                   <div

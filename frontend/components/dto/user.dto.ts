@@ -10,7 +10,6 @@ export interface UserResponseDto {
     gender: string
     phone: string
     image: string
-    validateHealthInsurance: boolean
     birthday: Date
     healthInsurances: HealthInsuranceResponseDto[]
     token?: string

@@ -34,7 +34,6 @@ export class UserController {
     getUser(@Param('dni') dni: string): Promise<User | HttpException> {
         return this.userService.findOneByDni(dni)
     }
-    
 
     @Patch(':dni')
     @Roles(RoleEnum.User, RoleEnum.Doctor)

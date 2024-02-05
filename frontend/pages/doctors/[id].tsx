@@ -18,7 +18,7 @@ import Button from "@/components/button";
 import { useRouter } from "next/router";
 
 export default function Doctor(props: any) {
-
+    
     const theme = useTheme();
     const router = useRouter();
     const [selectedDate, setSelectedDate] = useState("");
@@ -62,10 +62,10 @@ export default function Doctor(props: any) {
 
     const getDiscount = () => {
 
-        if(!props.auth.validateHealthInsurace) return null;
+        if(!props.user.validateHealthInsurance) return null;
 
         const doctorsWorkingFor = props.doctor.user.healthInsurances;
-        const userHealthInsurance = props.auth.healthInsurance;
+        const userHealthInsurance = props.user.healthInsurances[0];
 
         if (!userHealthInsurance) return null;
 
@@ -260,7 +260,6 @@ export default function Doctor(props: any) {
     );
 };
 
-
 export const getServerSideProps = withAuth(async (auth: Auth | null, context: any) => {
 
     let { query } = context;
@@ -282,12 +281,20 @@ export const getServerSideProps = withAuth(async (auth: Auth | null, context: an
 
         doctorAvailability = doctorAvailability.data;
 
+        let user = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/user/${auth?.dni}`,
+            {
+                withCredentials: true,
+                headers: { Authorization: `Bearer ${context.req.cookies.token}` }
+            });
+
+        user = user.data;
 
         return {
             props: {
                 auth,
                 doctor,
                 doctorAvailability,
+                user,
             }
         }
     }

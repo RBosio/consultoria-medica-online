@@ -17,7 +17,6 @@ export class AuthController {
     async login(@Body() userLogin: AuthLoginDto, @Res() res: Response): Promise<void> {
         await this.authService.login(userLogin, res);
     }
-    
 
     @Post('logout')
     @UseGuards(AuthGuard)

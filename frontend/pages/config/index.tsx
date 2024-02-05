@@ -7,6 +7,7 @@ import Avatar from "@/components/avatar";
 import {
   FaCertificate,
   FaCheck,
+  FaCircleInfo,
   FaCircleUp,
   FaCircleXmark,
   FaLocationDot,
@@ -158,7 +159,7 @@ export default function Config(props: ConfigProps) {
         values,
         {
           withCredentials: true,
-          headers: { Authorization: `Bearer ${props.token}` },
+          headers: { Authorization: `Bearer ${props.auth.token}` },
         }
       );
 
@@ -167,7 +168,7 @@ export default function Config(props: ConfigProps) {
         values,
         {
           withCredentials: true,
-          headers: { Authorization: `Bearer ${props.token}` },
+          headers: { Authorization: `Bearer ${props.auth.token}` },
         }
       );
 
@@ -200,7 +201,7 @@ export default function Config(props: ConfigProps) {
             values,
             {
               withCredentials: true,
-              headers: { Authorization: `Bearer ${props.token}` },
+              headers: { Authorization: `Bearer ${props.auth.token}` },
             }
           );
 
@@ -239,7 +240,7 @@ export default function Config(props: ConfigProps) {
       },
       {
         withCredentials: true,
-        headers: { Authorization: `Bearer ${props.token}` },
+        headers: { Authorization: `Bearer ${props.auth.token}` },
       }
     );
 
@@ -264,7 +265,7 @@ export default function Config(props: ConfigProps) {
       `${process.env.NEXT_PUBLIC_API_URL}/user/admin`,
       {
         withCredentials: true,
-        headers: { Authorization: `Bearer ${props.token}` },
+        headers: { Authorization: `Bearer ${props.auth.token}` },
       }
     );
 
@@ -277,7 +278,7 @@ export default function Config(props: ConfigProps) {
       },
       {
         withCredentials: true,
-        headers: { Authorization: `Bearer ${props.token}` },
+        headers: { Authorization: `Bearer ${props.auth.token}` },
       }
     );
 
@@ -884,7 +885,6 @@ export const getServerSideProps = withAuth(
         healthInsurances,
         notification,
         auth,
-        token: context.req.cookies.token,
       },
     };
   },

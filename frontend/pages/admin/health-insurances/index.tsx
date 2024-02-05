@@ -4,7 +4,7 @@ import withAuth from "@/lib/withAuth";
 import SidebarAdmin from "@/components/sidebarAdmin";
 import { Auth } from "../../../../shared/types";
 import axios from "axios";
-import { SpecialityResponseDto } from "@/components/dto/speciality.dto";
+import { HealthInsuranceResponseDto } from "@/components/dto/healthInsurance.dto";
 import {
   Alert,
   Dialog,
@@ -31,12 +31,12 @@ import Input from "@/components/input";
 import { useFormik } from "formik";
 import { useRouter } from "next/router";
 
-interface Speciality {
+interface HealthInsurance {
   auth: Auth;
-  specialities: SpecialityResponseDto[];
+  healthInsurances: HealthInsuranceResponseDto[];
 }
 
-export default function Home(props: Speciality) {
+export default function Home(props: HealthInsurance) {
   const theme = useTheme();
   const router = useRouter();
 
@@ -72,13 +72,16 @@ export default function Home(props: Speciality) {
     },
   }));
 
-  const addSpeciality = useFormik({
+  const addHealthInsurance = useFormik({
     initialValues: {
       name: "",
+      discount: 0,
     },
     onSubmit: async (values, { setSubmitting }) => {
+      values.discount = values.discount / 100;
+
       await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/speciality`,
+        `${process.env.NEXT_PUBLIC_API_URL}/healthInsurance`,
         values,
         {
           withCredentials: true,
@@ -86,26 +89,27 @@ export default function Home(props: Speciality) {
         }
       );
 
-      addSpeciality.values.name = ""
+      addHealthInsurance.values.name = ""
 
       setConfirm(false);
       setAdd(false);
 
-      setMessage("Especialidad agregada correctamente!");
+      setMessage("Obra social agregada correctamente!");
       setSuccess(true);
-      router.push(`/admin/specialities`);
+      router.push(`/admin/health-insurances`);
     },
   });
 
-  const editSpeciality = useFormik({
+  const editHealthInsurance = useFormik({
     initialValues: {
       id: 0,
       name: "",
+      discount: 0,
     },
     onSubmit: async (values, { setSubmitting }) => {
       await axios.patch(
-        `${process.env.NEXT_PUBLIC_API_URL}/speciality/${values.id}`,
-        { name: values.name },
+        `${process.env.NEXT_PUBLIC_API_URL}/healthInsurance/${values.id}`,
+        { name: values.name, discount: values.discount / 100 },
         {
           withCredentials: true,
           headers: { Authorization: `Bearer ${props.auth.token}` },
@@ -115,34 +119,35 @@ export default function Home(props: Speciality) {
       setUpdate(false);
       setEdit(false);
 
-      setMessage("Especialidad editada correctamente!");
+      setMessage("Obra social editada correctamente!");
       setSuccess(true);
-      router.push(`/admin/specialities`);
+      router.push(`/admin/health-insurances`);
     },
   });
 
   const onConfirmClick = () => {
-    if (addSpeciality.values.name.length > 0) {
-      addSpeciality.handleSubmit();
+    if (addHealthInsurance.values.name.length > 0) {
+      addHealthInsurance.handleSubmit();
     } else {
-      editSpeciality.handleSubmit();
+      editHealthInsurance.handleSubmit();
     }
   };
 
   const showEdit = async (id: number) => {
     setAdd(false);
     setEdit(false);
-    const sp = await axios.get(
-      `${process.env.NEXT_PUBLIC_API_URL}/speciality/${id}`,
+    const hi = await axios.get(
+      `${process.env.NEXT_PUBLIC_API_URL}/healthInsurance/${id}`,
       {
         withCredentials: true,
         headers: { Authorization: `Bearer ${props.auth.token}` },
       }
     );
 
-    editSpeciality.setValues({
-      id: sp.data.id,
-      name: sp.data.name
+    editHealthInsurance.setValues({
+      id: hi.data.id,
+      name: hi.data.name,
+      discount: hi.data.discount * 100,
     });
 
     setEdit(true);
@@ -177,18 +182,24 @@ export default function Home(props: Speciality) {
                       <StyledTableCell align="center">#</StyledTableCell>
                       <StyledTableCell align="center">Nombre</StyledTableCell>
                       <StyledTableCell align="center">
+                        Descuento
+                      </StyledTableCell>
+                      <StyledTableCell align="center">
                         Operaciones
                       </StyledTableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {props.specialities.map((row) => (
+                    {props.healthInsurances.map((row) => (
                       <StyledTableRow key={row.id}>
                         <StyledTableCell align="center">
                           {row.id}
                         </StyledTableCell>
                         <StyledTableCell align="center">
                           {row.name}
+                        </StyledTableCell>
+                        <StyledTableCell align="center">
+                          {row.discount * 100} %
                         </StyledTableCell>
                         <StyledTableCell align="center">
                           <div className="flex justify-center items-center gap-4">
@@ -208,18 +219,25 @@ export default function Home(props: Speciality) {
             {add ? (
               <div className="absolute bg-white bottom-10 p-8 border border-primary rounded-md shadow-md">
                 <h4 className="text-primary text-xl mb-4 text-center">
-                  Agregar especialidad
+                  Agregar obra social
                 </h4>
                 <form
                   className="flex gap-4"
-                  onSubmit={addSpeciality.handleSubmit}
+                  onSubmit={addHealthInsurance.handleSubmit}
                 >
                   <Input
                     placeholder="Nombre"
                     type="text"
                     name="name"
-                    onChange={addSpeciality.handleChange}
-                    onBlur={addSpeciality.handleBlur}
+                    onChange={addHealthInsurance.handleChange}
+                    onBlur={addHealthInsurance.handleBlur}
+                  />
+                  <Input
+                    placeholder="Descuento"
+                    type="number"
+                    name="discount"
+                    onChange={addHealthInsurance.handleChange}
+                    onBlur={addHealthInsurance.handleBlur}
                   />
                   <Button onClick={() => setConfirm(true)}>Agregar</Button>
                 </form>
@@ -230,19 +248,27 @@ export default function Home(props: Speciality) {
             {edit ? (
               <div className="absolute bg-white bottom-10 p-8 border border-primary rounded-md shadow-md">
                 <h4 className="text-primary text-xl mb-4 text-center">
-                  Editar especialidad
+                  Editar obra social
                 </h4>
                 <form
                   className="flex gap-4"
-                  onSubmit={editSpeciality.handleSubmit}
+                  onSubmit={editHealthInsurance.handleSubmit}
                 >
                   <Input
                     placeholder="Nombre"
                     type="text"
                     name="name"
-                    onChange={editSpeciality.handleChange}
-                    onBlur={editSpeciality.handleBlur}
-                    value={editSpeciality.values.name}
+                    onChange={editHealthInsurance.handleChange}
+                    onBlur={editHealthInsurance.handleBlur}
+                    value={editHealthInsurance.values.name}
+                  />
+                  <Input
+                    placeholder="Descuento"
+                    type="number"
+                    name="discount"
+                    onChange={editHealthInsurance.handleChange}
+                    onBlur={editHealthInsurance.handleBlur}
+                    value={editHealthInsurance.values.discount}
                   />
                   <Button onClick={() => setUpdate(true)}>Editar</Button>
                 </form>
@@ -262,12 +288,12 @@ export default function Home(props: Speciality) {
           aria-describedby="alert-dialog-description"
         >
           <DialogTitle id="alert-dialog-title" className="text-center">
-            {confirm ? "Especialidad" : ""}
+            {confirm ? "Obra social" : ""}
           </DialogTitle>
           <DialogContent>
             <DialogContentText id="alert-dialog-description">
               {confirm
-                ? "¿Desea agregar la especialidad?"
+                ? "¿Desea agregar la obra social?"
                 : update
                 ? "¿Desea actualizar los datos?"
                 : ""}
@@ -313,20 +339,20 @@ export default function Home(props: Speciality) {
 
 export const getServerSideProps = withAuth(
   async (auth: Auth | null, context: any) => {
-    let specialities = await axios.get(
-      `${process.env.NEXT_PUBLIC_API_URL}/speciality`,
+    let healthInsurances = await axios.get(
+      `${process.env.NEXT_PUBLIC_API_URL}/healthInsurance`,
       {
         withCredentials: true,
         headers: { Authorization: `Bearer ${context.req.cookies.token}` },
       }
     );
 
-    specialities = specialities.data;
+    healthInsurances = healthInsurances.data;
 
     return {
       props: {
         auth,
-        specialities,
+        healthInsurances,
       },
     };
   },

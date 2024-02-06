@@ -3,7 +3,5 @@ export class createNotificationDto {
     userIdReceive: number
     type: string
     meetingUserId: number
-    healthInsuranceUserId: number
-    healthInsuranceId: number
     meetingStartDatetime: Date
 }

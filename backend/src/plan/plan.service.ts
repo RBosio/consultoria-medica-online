@@ -12,7 +12,9 @@ export class PlanService {
 
     findAll(): Promise<Plan[]> {
         return this.planRepository.find({
-            relations: ['benefits']
+            relations: {
+                benefits: true
+            }
         })
     }
     
@@ -20,6 +22,9 @@ export class PlanService {
         const planFound = await this.planRepository.findOne({
             where: {
                 id
+            },
+            relations: {
+                benefits: true
             }
         })
         if (!planFound) {

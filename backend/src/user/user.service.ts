@@ -195,6 +195,14 @@ export class UserService {
             hi.verified = true
 
             this.userHealthInsuranceRepository.save(hi)
+        } else {
+            const hi = await this.userHealthInsuranceRepository.find({
+                where: {
+                    userId: id
+                }
+            })
+
+            updateUser.healthInsurances = hi
         }
         
         return this.userRepository.save(updateUser)
@@ -235,7 +243,7 @@ export class UserService {
             throw new HttpException('Obra social no encontrada', HttpStatus.NOT_FOUND)
         }
 
-        hi.url = url
+        hi.file_url = url
 
         this.userHealthInsuranceRepository.save(hi)
     }

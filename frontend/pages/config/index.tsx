@@ -576,7 +576,9 @@ export default function Config(props: ConfigProps) {
                           );
                         })}
                       </Select>
-                      <Button type="submit" startIcon={<FaPlus />}>Agregar</Button>
+                      <Button type="submit" startIcon={<FaPlus />}>
+                        Agregar
+                      </Button>
                     </form>
                   </div>
                   <div className="flex items-center mt-2">

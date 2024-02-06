@@ -14,8 +14,8 @@ export class UserHealthInsurance {
     verified: boolean
 
     @Column({nullable: true})
-    url: string
-    
+    file_url: string
+
     @ManyToOne(() => User, user => user.meetings, {nullable: false})
     @JoinColumn({name: 'userId'})
     user: User

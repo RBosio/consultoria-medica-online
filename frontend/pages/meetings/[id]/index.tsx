@@ -551,5 +551,5 @@ export const getServerSideProps = withAuth(
       };
     }
   },
-  true
+  {protected: true}
 );

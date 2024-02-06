@@ -308,4 +308,4 @@ export const getServerSideProps = withAuth(async (auth: Auth | null, context: an
     };
 
 
-}, true)
+}, {protected: true})

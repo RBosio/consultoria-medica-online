@@ -21,6 +21,5 @@ export const getServerSideProps = withAuth(
         auth,
       },
     };
-  },
-  true
+  }, { protected: true }
 );

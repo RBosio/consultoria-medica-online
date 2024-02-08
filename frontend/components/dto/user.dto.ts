@@ -1,5 +1,5 @@
 import { DoctorResponseDto } from "./doctor.dto"
-import { HealthInsuranceResponseDto } from "./healthInsurance.dto"
+import { UserHealthInsuranceResponseDto } from "./userHealthInsurance.dto"
 
 export interface UserResponseDto {
     id: number
@@ -11,7 +11,7 @@ export interface UserResponseDto {
     phone: string
     image: string
     birthday: Date
-    healthInsurances: HealthInsuranceResponseDto[]
+    healthInsurances: UserHealthInsuranceResponseDto[]
     token?: string
     doctor?: DoctorResponseDto
 }

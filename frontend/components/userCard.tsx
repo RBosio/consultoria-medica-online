@@ -4,6 +4,8 @@ import { robotoBold } from "@/lib/fonts";
 import {
   FaAddressCard,
   FaCalendarDays,
+  FaCircleCheck,
+  FaCircleXmark,
   FaEnvelope,
   FaMars,
   FaPhone,
@@ -92,8 +94,8 @@ const UserCard: React.FC<MeetingResponseDto> = (props) => {
             <FaSuitcaseMedical className="text-primary" />
             {props.user.healthInsurances.map((h) => {
               return (
-                <p className="px-2" key={h.id}>
-                  {h.name}
+                <p className="px-2" key={h.healthInsurance.id}>
+                  {h.healthInsurance.name} {h.verified ? <FaCircleCheck className="text-green-600 text-xl"/> : <FaCircleXmark className="text-red-600 text-xl" />}
                 </p>
               );
             })}

@@ -155,7 +155,7 @@ const Navbar: React.FC<NavbarProps> = (props) => {
           </div>
           {notifications.map((n) => {
             return (
-              <div className="p-2">
+              <div key={n.id} className="p-2">
                 <div className="flex justify-between items-center">
                   <div
                     className={`w-2 h-2 rounded-full m-2 ${

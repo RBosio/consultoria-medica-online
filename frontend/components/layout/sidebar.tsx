@@ -30,33 +30,39 @@ const Sidebar: React.FC<SidebarProps> = (props) => {
                 name: "Dashboard",
                 path: "/",
                 icon: <MdSpaceDashboard />,
+                hide : false,
             },
             {
                 name: "Profesionales",
                 path: "/doctors",
-                icon: <FaUserDoctor />
+                icon: <FaUserDoctor />,
+                hide : false,
             },
             {
                 name: "Mis reuniones",
                 path: `/meetings`,
                 icon: <FaVideo />,
+                hide : false,
             },
             {
                 name: "Configuración",
                 path: "/config",
                 icon: <PiGearSix />,
+                hide : props.auth.role !== 'doctor',
             },
         ],
         bottom: [
             {
                 name: "Panel administración",
                 path: "/admin",
-                icon: <MdOutlineAdminPanelSettings />
+                icon: <MdOutlineAdminPanelSettings />,
+                hide : props.auth.role !== 'admin',
             },
             {
                 name: "Cerrar sesión",
                 path: "/logout",
                 icon: <GrLogout />,
+                hide : false,
             }
         ],
     };
@@ -91,7 +97,7 @@ const Sidebar: React.FC<SidebarProps> = (props) => {
                             component="nav"
                         >
                             {
-                                routes[section].map(route => {
+                                routes[section].filter(r => !r.hide).map(route => {
 
                                     const isBasePath = router.pathname === route.path && route.path === "/";
                                     const isSubPath = router.pathname.startsWith(route.path) && router.pathname !== "/" && route.path !== "/";

@@ -188,32 +188,35 @@ export default function Config(props: ConfigProps) {
       doctorId: props.doctor.id,
     },
     onSubmit: async (values, { setSubmitting }) => {
-      if (day && from && to) {
+      if (day > -1 && from && to) {
         values.day = day;
         values.start_hour = Number(from);
         values.end_hour = Number(to);
-      }
 
-      try {
-        if (values.end_hour != 0) {
-          await axios.post(
-            `${process.env.NEXT_PUBLIC_API_URL}/schedule`,
-            values,
-            {
-              withCredentials: true,
-              headers: { Authorization: `Bearer ${props.auth.token}` },
-            }
-          );
+        try {
+          if (values.end_hour != 0) {
+            await axios.post(
+              `${process.env.NEXT_PUBLIC_API_URL}/schedule`,
+              values,
+              {
+                withCredentials: true,
+                headers: { Authorization: `Bearer ${props.auth.token}` },
+              }
+            );
 
-          setMessage("Rango horario agregado con éxito!");
-          setSuccess(true);
+            setMessage("Rango horario agregado con éxito!");
+            setSuccess(true);
 
-          setDay(-1);
-          setFrom("");
-          setTo("");
+            setDay(-1);
+            setFrom("");
+            setTo("");
+          }
+        } catch (e: any) {
+          setMessage(e.response.data.message);
+          setError(true);
         }
-      } catch (e: any) {
-        setMessage(e.response.data.message);
+      } else {
+        setMessage("Debe cargar todos los datos");
         setError(true);
       }
 
@@ -362,13 +365,25 @@ export default function Config(props: ConfigProps) {
                           {props.doctor.user.phone}
                         </p>
                       </div>
-                      <div className="flex gap-2 text-primary items-center font-bold">
-                      <FaSuitcaseMedical className="text-primary" />
-            <div className="px-2">{props.doctor.user.healthInsurances.map((hi: any) => {
-              return (
-                <p key={hi.healthInsurance.id} className="flex items-center gap-2">{hi.healthInsurance.name} {hi.verified ? <FaCircleCheck className="text-green-600 text-xl"/> : <FaCircleXmark className="text-red-600 text-xl" />}</p>
-              )
-              })}</div>
+                      <div className="flex gap-2 items-center font-bold">
+                        <FaSuitcaseMedical className="text-primary" />
+                        <div className="px-2">
+                          {props.doctor.user.healthInsurances.map((hi: any) => {
+                            return (
+                              <p
+                                key={hi.healthInsurance.id}
+                                className="flex items-center gap-2"
+                              >
+                                {hi.healthInsurance.name}{" "}
+                                {hi.verified ? (
+                                  <FaCircleCheck className="text-green-600 text-xl" />
+                                ) : (
+                                  <FaCircleXmark className="text-red-600 text-xl" />
+                                )}
+                              </p>
+                            );
+                          })}
+                        </div>
                       </div>
                       <div className="flex gap-2 text-primary items-center font-bold">
                         <FaLocationDot size={15} />
@@ -390,9 +405,9 @@ export default function Config(props: ConfigProps) {
             <div
               className={`flex flex-nowrap items-center transition-all ease-in duration-500 ${
                 modify ? "-translate-x-full" : ""
-              }`}
+              } gap-4`}
             >
-              <div className="bg-white min-w-full rounded-md shadow-md p-4 flex flex-col justify-center">
+              <div className="bg-white min-w-[99%] h-full rounded-md shadow-md p-4 flex flex-col justify-center">
                 <div className="flex justify-between items-start gap-8">
                   <div className="w-1/3 p-4">
                     <h3 className="text-primary text-xl text-center">
@@ -534,7 +549,7 @@ export default function Config(props: ConfigProps) {
                         <p className="text-primary text-xl">Dia</p>
                       </div>
                       <Select
-                        className="w-1/4"
+                        className="w-1/4 outline outline-2 outline-primary"
                         value={day}
                         onChange={($e: any) => setDay($e.target.value)}
                       >
@@ -548,7 +563,7 @@ export default function Config(props: ConfigProps) {
                         <p className="text-primary text-xl">Desde</p>
                       </div>
                       <Select
-                        className="w-1/4"
+                        className="w-1/4 outline outline-2 outline-primary"
                         value={from}
                         onChange={handleChange}
                       >
@@ -564,7 +579,7 @@ export default function Config(props: ConfigProps) {
                         <p className="text-primary text-xl">Hasta</p>
                       </div>
                       <Select
-                        className="w-1/4"
+                        className="w-1/4 outline outline-2 outline-primary"
                         value={to}
                         onChange={($e: any) => setTo($e.target.value)}
                       >
@@ -581,7 +596,7 @@ export default function Config(props: ConfigProps) {
                       </Button>
                     </form>
                   </div>
-                  <div className="flex items-center mt-2">
+                  <div className="flex items-center mt-2 overflow-x-scroll p-4">
                     <div className="mt-8">
                       <div className="my-4">
                         <p className="text-primary text-xl">Desde</p>
@@ -594,33 +609,37 @@ export default function Config(props: ConfigProps) {
                       return (
                         <div key={idx}>
                           {day.day >= 0 ? (
-                            <p className="text-primary text-xl border-y-2 border-primary px-10 py-2">
+                            <p className="text-primary text-xl text-center border-y-2 border-primary px-10 py-2">
                               {day.d}
                             </p>
                           ) : (
                             ""
                           )}
-                          <div className="flex justify-center items-center">
+                          <div className="flex justify-center items-center mx-4">
                             {props.schedules.map((s) => {
-                              if (s.day === day.day) {
-                                return (
-                                  <div
-                                    className="bg-primary text-xl text-white m-1 my-2 rounded-md border border-slate-600"
-                                    key={s.id}
-                                  >
-                                    <p className="text-center p-2 border-b border-slate-600">
-                                      {s.start_hour < 10
-                                        ? "0".concat(s.start_hour.toString())
-                                        : s.start_hour}
-                                    </p>
-                                    <p className="text-center p-2">
-                                      {s.end_hour < 10
-                                        ? "0".concat(s.end_hour.toString())
-                                        : s.end_hour}
-                                    </p>
-                                  </div>
-                                );
-                              }
+                              return (
+                                <div>
+                                  {s.day === day.day ? (
+                                    <div
+                                      className="bg-primary text-xl text-white m-1 my-2 rounded-md border border-slate-600"
+                                      key={s.id}
+                                    >
+                                      <p className="text-center p-2 border-b border-slate-600">
+                                        {s.start_hour < 10
+                                          ? "0".concat(s.start_hour.toString())
+                                          : s.start_hour}
+                                      </p>
+                                      <p className="text-center p-2">
+                                        {s.end_hour < 10
+                                          ? "0".concat(s.end_hour.toString())
+                                          : s.end_hour}
+                                      </p>
+                                    </div>
+                                  ) : (
+                                    ""
+                                  )}
+                                </div>
+                              );
                             })}
                           </div>
                         </div>
@@ -850,7 +869,7 @@ export const getServerSideProps = withAuth(
 
     const doctor = d.data;
 
-    console.log(doctor)
+    console.log(doctor);
 
     let s = await axios.get<ScheduleResponseDto[]>(
       `${process.env.NEXT_PUBLIC_API_URL}/schedule/${doctor.id}`,
@@ -892,5 +911,5 @@ export const getServerSideProps = withAuth(
       },
     };
   },
-  {protected: true, role: "doctor"}
+  { protected: true, role: "doctor" }
 );

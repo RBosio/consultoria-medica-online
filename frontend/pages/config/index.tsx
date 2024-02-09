@@ -7,7 +7,7 @@ import Avatar from "@/components/avatar";
 import {
   FaCertificate,
   FaCheck,
-  FaCircleInfo,
+  FaCircleCheck,
   FaCircleUp,
   FaCircleXmark,
   FaLocationDot,
@@ -363,12 +363,12 @@ export default function Config(props: ConfigProps) {
                         </p>
                       </div>
                       <div className="flex gap-2 text-primary items-center font-bold">
-                        <FaSuitcaseMedical size={15} />
-                        <p className="text-secondary">
-                          {props.doctor.user.healthInsurances
-                            .map((hi) => hi.name)
-                            .join(" | ")}
-                        </p>
+                      <FaSuitcaseMedical className="text-primary" />
+            <div className="px-2">{props.doctor.user.healthInsurances.map((hi: any) => {
+              return (
+                <p key={hi.healthInsurance.id} className="flex items-center gap-2">{hi.healthInsurance.name} {hi.verified ? <FaCircleCheck className="text-green-600 text-xl"/> : <FaCircleXmark className="text-red-600 text-xl" />}</p>
+              )
+              })}</div>
                       </div>
                       <div className="flex gap-2 text-primary items-center font-bold">
                         <FaLocationDot size={15} />
@@ -741,7 +741,7 @@ export default function Config(props: ConfigProps) {
                         .filter(
                           (hi) =>
                             !props.doctor.user.healthInsurances
-                              .map((hi) => hi.id)
+                              .map((hi) => hi.healthInsurance.id)
                               .includes(hi.id)
                         )
                         .map((hi: HealthInsuranceResponseDto) => (
@@ -758,11 +758,11 @@ export default function Config(props: ConfigProps) {
                     {props.doctor.user.healthInsurances.map((hi) => {
                       return (
                         <div
-                          key={hi.id}
+                          key={hi.healthInsurance.id}
                           className="flex items-center gap-2 p-2 bg-primary text-white rounded-md"
                         >
                           <FaCheckCircle />
-                          <p>{hi.name}</p>
+                          <p>{hi.healthInsurance.name}</p>
                           <FaXmark className="hover:cursor-pointer hover:text-slate-300" />
                         </div>
                       );
@@ -849,6 +849,8 @@ export const getServerSideProps = withAuth(
     );
 
     const doctor = d.data;
+
+    console.log(doctor)
 
     let s = await axios.get<ScheduleResponseDto[]>(
       `${process.env.NEXT_PUBLIC_API_URL}/schedule/${doctor.id}`,

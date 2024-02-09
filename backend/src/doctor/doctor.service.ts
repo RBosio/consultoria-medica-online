@@ -165,7 +165,9 @@ export class DoctorService {
             },
             relations: {
                 user: {
-                    healthInsurances: true
+                    healthInsurances: {
+                        healthInsurance: true
+                    }
                 },
                 specialities: true
             }

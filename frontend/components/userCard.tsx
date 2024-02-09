@@ -94,7 +94,7 @@ const UserCard: React.FC<MeetingResponseDto> = (props) => {
             <FaSuitcaseMedical className="text-primary" />
             {props.user.healthInsurances.map((h) => {
               return (
-                <p className="px-2" key={h.healthInsurance.id}>
+                <p className="px-2 flex items-center gap-2" key={h.healthInsurance.id}>
                   {h.healthInsurance.name} {h.verified ? <FaCircleCheck className="text-green-600 text-xl"/> : <FaCircleXmark className="text-red-600 text-xl" />}
                 </p>
               );

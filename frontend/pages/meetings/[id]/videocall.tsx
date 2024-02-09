@@ -17,6 +17,7 @@ import { UserResponseDto } from "@/components/dto/user.dto";
 import { VideoClient } from "@zoom/videosdk";
 import Input from "@/components/input";
 import { robotoBold } from "@/lib/fonts";
+import axios from "axios";
 
 export default function Meeting(props: any) {
   const theme = useTheme();
@@ -24,6 +25,7 @@ export default function Meeting(props: any) {
 
   let client: typeof VideoClient;
 
+  const [meet, setMeet] = useState<any>();
   const [doctor, setDoctor] = useState<DoctorResponseDto>();
   const [user, setUser] = useState<UserResponseDto>();
   const [audio, setAudio] = useState<boolean>(true);
@@ -32,24 +34,39 @@ export default function Meeting(props: any) {
   const [history, setHistory] = useState<any[]>([]);
   const t: any[] = [];
 
-  const setNames = () => {
-    let doctor = localStorage.getItem("doctor");
-    let user = localStorage.getItem("user");
-    if (doctor && user) {
-      const d = JSON.parse(doctor);
-      const u = JSON.parse(user);
-      setDoctor(d);
-      setUser(u);
-    }
-  };
 
+  async function join(){
+    const { id } = router.query;
+
+    if (id && typeof id === "string") {
+      const [t, startDatetime] = atob(id).split(".");
+      
+      const res = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/meeting/join/${t}/${startDatetime}`,
+        {},
+        {
+          withCredentials: true,
+          headers: { Authorization: `Bearer ${props.auth.token}` },
+        }
+      );
+      
+      const resp = {
+        user: res.data.meeting.user,
+        doctor: res.data.meeting.doctor,
+        tpc: res.data.meeting.tpc,
+        token: res.data.tokenMeeting
+      }
+      return resp
+    }
+  }
+  
   const joinMeeting = async (
     topic: string,
     token: string,
     myVideo: HTMLVideoElement,
     otherCanvas: HTMLCanvasElement
-  ) => {
-    await client.join(
+    ) => {
+      await client.join(
       topic,
       token,
       `${props.auth.name} ${props.auth.surname}`,
@@ -110,29 +127,28 @@ export default function Meeting(props: any) {
 
   const meeting = async () => {
     const ZoomVideo = await (await import("@zoom/videosdk")).default;
+    const resp = await join()
+  
+    setUser(resp?.user)
+    setDoctor(resp?.doctor)
+      
+    console.log(resp)
+      const myVideo = document.getElementById("my-video") as HTMLVideoElement;
+      const otherCanvas = document.getElementById(
+        "other-canvas"
+      ) as HTMLCanvasElement;
+  
+      const client = await getClient();
 
-    setNames();
-    const tpc = localStorage.getItem("tpc");
-    const token = localStorage.getItem("tokenMeeting");
-
-    const myVideo = document.getElementById("my-video") as HTMLVideoElement;
-    const otherCanvas = document.getElementById(
-      "other-canvas"
-    ) as HTMLCanvasElement;
-
-    const client = await getClient();
-
-    if (
-      ZoomVideo.checkSystemRequirements().video &&
-      ZoomVideo.checkSystemRequirements().audio
-    ) {
-      await client.init("en-US", "Global", { patchJsMedia: true });
-      await BindEvents();
-
-      if (tpc && token) {
-        await joinMeeting(tpc, token, myVideo, otherCanvas);
+      if (
+        ZoomVideo.checkSystemRequirements().video &&
+        ZoomVideo.checkSystemRequirements().audio
+      ) {
+        await client.init("en-US", "Global", { patchJsMedia: true });
+        await BindEvents();
+  
+        await joinMeeting(resp?.tpc, resp?.token, myVideo, otherCanvas);
       }
-    }
   };
 
   useEffect(() => {

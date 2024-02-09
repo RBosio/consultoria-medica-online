@@ -254,6 +254,7 @@ export class MeetingService {
       tokenMeeting: await this.jwtService.signAsync(payloadMeeting, {
         secret: process.env.ZOOM_VIDEO_SDK_SECRET,
       }),
+      meeting
     };
   }
 

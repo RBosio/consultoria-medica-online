@@ -152,29 +152,35 @@ export default function Config(props: ConfigProps) {
       address: props.doctor.address,
     },
     onSubmit: async (values, { setSubmitting }) => {
-      values.durationMeeting = duration;
-      await axios.patch(
-        `${process.env.NEXT_PUBLIC_API_URL}/user/${props.doctor.user.id}`,
-        values,
-        {
-          withCredentials: true,
-          headers: { Authorization: `Bearer ${props.auth.token}` },
-        }
-      );
+      if(values.priceMeeting.toString().length > 0) {
+        values.durationMeeting = duration;
+        await axios.patch(
+          `${process.env.NEXT_PUBLIC_API_URL}/user/${props.doctor.user.id}`,
+          values,
+          {
+            withCredentials: true,
+            headers: { Authorization: `Bearer ${props.auth.token}` },
+          }
+        );
+  
+        await axios.patch(
+          `${process.env.NEXT_PUBLIC_API_URL}/doctor/${props.doctor.id}`,
+          values,
+          {
+            withCredentials: true,
+            headers: { Authorization: `Bearer ${props.auth.token}` },
+          }
+        );
+  
+        setModify(false);
+  
+        setMessage("Datos actualizados correctamente!");
+        setSuccess(true);
+      } else {
+        setMessage("Ingrese un valor al precio de la reunion");
+        setError(true);
+      }
 
-      await axios.patch(
-        `${process.env.NEXT_PUBLIC_API_URL}/doctor/${props.doctor.id}`,
-        values,
-        {
-          withCredentials: true,
-          headers: { Authorization: `Bearer ${props.auth.token}` },
-        }
-      );
-
-      setModify(false);
-
-      setMessage("Datos actualizados correctamente!");
-      setSuccess(true);
       router.push(`/config`);
     },
   });
@@ -361,7 +367,7 @@ export default function Config(props: ConfigProps) {
                       <div className="flex gap-2 text-primary items-center font-bold">
                         <FaPhone size={15} />
                         <p className="text-secondary">
-                          {props.doctor.user.phone}
+                          {props.doctor.user.phone ? props.doctor.user.phone : "-"}
                         </p>
                       </div>
                       <div className="flex gap-2 items-center font-bold">
@@ -386,7 +392,7 @@ export default function Config(props: ConfigProps) {
                       </div>
                       <div className="flex gap-2 text-primary items-center font-bold">
                         <FaLocationDot size={15} />
-                        <p className="text-secondary">{props.doctor.address}</p>
+                        <p className="text-secondary">{props.doctor.address ? props.doctor.address : "-"}</p>
                       </div>
                       <Button
                         startIcon={<FaEdit />}

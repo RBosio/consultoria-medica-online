@@ -181,7 +181,7 @@ export class UserService {
             await updateUser.hashPassword()
         }
 
-        if(user.healthInsurance) {
+        if(user.verify) {
             const hi = await this.userHealthInsuranceRepository.findOne({
                 where: {
                     userId: id,
@@ -196,14 +196,25 @@ export class UserService {
 
             this.userHealthInsuranceRepository.save(hi)
         } else {
-            const hi = await this.userHealthInsuranceRepository.find({
-                where: {
-                    userId: id
-                }
-            })
+            if(user.healthInsurance) {
+                const hi = await this.healthInsuranceService.findOne(user.healthInsurance)
+                
+                const newHi = this.userHealthInsuranceRepository.create({
+                    userId: updateUser.id,
+                    healthInsurance: hi,
+                    user: updateUser,
+                })
 
-            updateUser.healthInsurances = hi
+                await this.userHealthInsuranceRepository.save(newHi)
+            }
         }
+        const hiUser = await this.userHealthInsuranceRepository.find({
+            where: {
+                userId: id
+            }
+        })
+
+        updateUser.healthInsurances = hiUser
         
         return this.userRepository.save(updateUser)
     }

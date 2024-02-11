@@ -153,9 +153,8 @@ export default function Config(props: ConfigProps) {
     },
     onSubmit: async (values, { setSubmitting }) => {
       values.durationMeeting = duration;
-
       await axios.patch(
-        `${process.env.NEXT_PUBLIC_API_URL}/user/${props.doctor.user.dni}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/user/${props.doctor.user.id}`,
         values,
         {
           withCredentials: true,
@@ -237,7 +236,7 @@ export default function Config(props: ConfigProps) {
 
   const handleClickHealthInsurance = async () => {
     await axios.patch(
-      `${process.env.NEXT_PUBLIC_API_URL}/user/${props.doctor.user.dni}`,
+      `${process.env.NEXT_PUBLIC_API_URL}/user/${props.doctor.user.id}`,
       {
         healthInsurance,
       },
@@ -549,7 +548,7 @@ export default function Config(props: ConfigProps) {
                         <p className="text-primary text-xl">Dia</p>
                       </div>
                       <Select
-                        className="w-1/4 outline outline-2 outline-primary"
+                        className="w-1/4 outline outline-2 outline-primary hover:outline-green-600"
                         value={day}
                         onChange={($e: any) => setDay($e.target.value)}
                       >
@@ -579,7 +578,7 @@ export default function Config(props: ConfigProps) {
                         <p className="text-primary text-xl">Hasta</p>
                       </div>
                       <Select
-                        className="w-1/4 outline outline-2 outline-primary"
+                        className="w-1/4 outline outline-2 outline-primary hover:outline-green-600"
                         value={to}
                         onChange={($e: any) => setTo($e.target.value)}
                       >
@@ -618,12 +617,9 @@ export default function Config(props: ConfigProps) {
                           <div className="flex justify-center items-center mx-4">
                             {props.schedules.map((s) => {
                               return (
-                                <div>
+                                <div key={s.id}>
                                   {s.day === day.day ? (
-                                    <div
-                                      className="bg-primary text-xl text-white m-1 my-2 rounded-md border border-slate-600"
-                                      key={s.id}
-                                    >
+                                    <div className="bg-primary text-xl text-white m-1 my-2 rounded-md border border-slate-600">
                                       <p className="text-center p-2 border-b border-slate-600">
                                         {s.start_hour < 10
                                           ? "0".concat(s.start_hour.toString())
@@ -868,8 +864,6 @@ export const getServerSideProps = withAuth(
     );
 
     const doctor = d.data;
-
-    console.log(doctor);
 
     let s = await axios.get<ScheduleResponseDto[]>(
       `${process.env.NEXT_PUBLIC_API_URL}/schedule/${doctor.id}`,

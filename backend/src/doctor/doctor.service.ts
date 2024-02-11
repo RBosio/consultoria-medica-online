@@ -169,7 +169,8 @@ export class DoctorService {
                         healthInsurance: true
                     }
                 },
-                specialities: true
+                specialities: true,
+                plan: true
             }
         })
 
@@ -207,6 +208,17 @@ export class DoctorService {
 
         const updateDoctor = Object.assign(doctorFound, doctor)
         return this.doctorRepository.save(updateDoctor)
+    }
+
+    async cancelPlan(id: number) {
+        const doctor = await this.findOne(id)
+        if (!doctor) {
+            throw new HttpException('Medico no encontrado', HttpStatus.NOT_FOUND)
+        }
+
+        doctor.plan = null
+
+        this.doctorRepository.save(doctor)
     }
 
     async delete(id: number) {

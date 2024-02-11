@@ -258,8 +258,6 @@ export class UserService {
 
         this.userHealthInsuranceRepository.save(hi)
     }
-
-    
     
     async loadUsers() {
         await this.create({

@@ -143,6 +143,9 @@ export default function Config(props: ConfigProps) {
   const [confirmUpdate, setConfirmUpdate] = useState<boolean>(false);
   const [confirmVerification, setConfirmVerification] =
     useState<boolean>(false);
+  const [confirmCancelPlan, setConfirmCancelPlan] = useState<boolean>(false);
+  const [confirmHealthInsurance, setConfirmHealthInsurance] =
+    useState<boolean>(false);
 
   const updateForm = useFormik({
     initialValues: {
@@ -152,7 +155,7 @@ export default function Config(props: ConfigProps) {
       address: props.doctor.address,
     },
     onSubmit: async (values, { setSubmitting }) => {
-      if(values.priceMeeting.toString().length > 0) {
+      if (values.priceMeeting.toString().length > 0) {
         values.durationMeeting = duration;
         await axios.patch(
           `${process.env.NEXT_PUBLIC_API_URL}/user/${props.doctor.user.id}`,
@@ -162,7 +165,7 @@ export default function Config(props: ConfigProps) {
             headers: { Authorization: `Bearer ${props.auth.token}` },
           }
         );
-  
+
         await axios.patch(
           `${process.env.NEXT_PUBLIC_API_URL}/doctor/${props.doctor.id}`,
           values,
@@ -171,9 +174,9 @@ export default function Config(props: ConfigProps) {
             headers: { Authorization: `Bearer ${props.auth.token}` },
           }
         );
-  
+
         setModify(false);
-  
+
         setMessage("Datos actualizados correctamente!");
         setSuccess(true);
       } else {
@@ -252,6 +255,9 @@ export default function Config(props: ConfigProps) {
       }
     );
 
+    setMessage("Obra social agregada con éxito!");
+    setSuccess(true);
+
     router.push("/config");
   };
 
@@ -262,9 +268,15 @@ export default function Config(props: ConfigProps) {
     } else if (confirmUpdate) {
       updateForm.handleSubmit();
       setConfirmUpdate(false);
-    } else {
+    } else if (confirmVerification) {
       handleClickVerification();
       setConfirmVerification(false);
+    } else if (confirmCancelPlan) {
+      handleClickCancelPlan();
+      setConfirmCancelPlan(false);
+    } else {
+      handleClickHealthInsurance();
+      setConfirmHealthInsurance(false);
     }
   };
 
@@ -291,6 +303,22 @@ export default function Config(props: ConfigProps) {
     );
 
     setMessage("Solicitud realizada con éxito!");
+    setSuccess(true);
+
+    router.push("/config");
+  };
+
+  const handleClickCancelPlan = async () => {
+    await axios.patch(
+      `${process.env.NEXT_PUBLIC_API_URL}/doctor/plan/${props.doctor.id}`,
+      {},
+      {
+        withCredentials: true,
+        headers: { Authorization: `Bearer ${props.auth.token}` },
+      }
+    );
+
+    setMessage("Plan cancelado con éxito!");
     setSuccess(true);
 
     router.push("/config");
@@ -367,7 +395,9 @@ export default function Config(props: ConfigProps) {
                       <div className="flex gap-2 text-primary items-center font-bold">
                         <FaPhone size={15} />
                         <p className="text-secondary">
-                          {props.doctor.user.phone ? props.doctor.user.phone : "-"}
+                          {props.doctor.user.phone
+                            ? props.doctor.user.phone
+                            : "-"}
                         </p>
                       </div>
                       <div className="flex gap-2 items-center font-bold">
@@ -392,7 +422,9 @@ export default function Config(props: ConfigProps) {
                       </div>
                       <div className="flex gap-2 text-primary items-center font-bold">
                         <FaLocationDot size={15} />
-                        <p className="text-secondary">{props.doctor.address ? props.doctor.address : "-"}</p>
+                        <p className="text-secondary">
+                          {props.doctor.address ? props.doctor.address : "-"}
+                        </p>
                       </div>
                       <Button
                         startIcon={<FaEdit />}
@@ -500,28 +532,45 @@ export default function Config(props: ConfigProps) {
                   <div
                     className={`bg-secondary flex justify-between items-center text-white px-8 py-2 mt-2 rounded-md ${robotoBold.className}`}
                   >
-                    <div className="flex justify-between w-1/2">
-                      <p>Plan 1</p>
-                      <p>Miembro desde 2020-01-14</p>
+                    <div className="flex justify-between w-2/3">
+                      <p>
+                        {props.doctor.plan
+                          ? props.doctor.plan.name
+                          : "Sin plan"}
+                      </p>
+                      <p>
+                        {props.doctor.plan
+                          ? "Miembro desde 2020-01-14"
+                          : "Actualmente se encuentra sin plan, solicite uno para comenzar a trabajar"}
+                      </p>
                     </div>
-                    <ButtonGroup>
+                    {props.doctor.plan ? (
+                      <ButtonGroup>
+                        <Link href={"/plan"}>
+                          <Button startIcon={<FaCircleUp />} color="info">
+                            Actualizar
+                          </Button>
+                        </Link>
+                        <Button
+                          sx={{
+                            "&.MuiButton-contained": {
+                              background: "#AC0606",
+                              color: "#fff",
+                            },
+                          }}
+                          startIcon={<FaCircleXmark />}
+                          onClick={() => setConfirmCancelPlan(true)}
+                        >
+                          Cancelar
+                        </Button>
+                      </ButtonGroup>
+                    ) : (
                       <Link href={"/plan"}>
                         <Button startIcon={<FaCircleUp />} color="info">
-                          Actualizar
+                          Solicitar
                         </Button>
                       </Link>
-                      <Button
-                        sx={{
-                          "&.MuiButton-contained": {
-                            background: "#AC0606",
-                            color: "#fff",
-                          },
-                        }}
-                        startIcon={<FaCircleXmark />}
-                      >
-                        Cancelar
-                      </Button>
-                    </ButtonGroup>
+                    )}
                   </div>
                 </div>
                 <Divider
@@ -771,7 +820,7 @@ export default function Config(props: ConfigProps) {
                           </MenuItem>
                         ))}
                     </Select>
-                    <Button onClick={handleClickHealthInsurance}>
+                    <Button onClick={() => setConfirmHealthInsurance(true)}>
                       Agregar
                     </Button>
                   </div>
@@ -794,11 +843,19 @@ export default function Config(props: ConfigProps) {
             </div>
           </div>
           <Dialog
-            open={confirmSchedule || confirmUpdate || confirmVerification}
+            open={
+              confirmSchedule ||
+              confirmUpdate ||
+              confirmVerification ||
+              confirmCancelPlan ||
+              confirmHealthInsurance
+            }
             onClose={() => {
               setConfirmSchedule(false);
               setConfirmUpdate(false);
               setConfirmVerification(false);
+              setConfirmCancelPlan(false);
+              setConfirmHealthInsurance(false);
             }}
             aria-labelledby="alert-dialog-title"
             aria-describedby="alert-dialog-description"
@@ -808,7 +865,13 @@ export default function Config(props: ConfigProps) {
                 ? "Rango horario"
                 : confirmUpdate
                 ? "Datos personales"
-                : "Verificacion"}
+                : confirmVerification
+                ? "Verificacion"
+                : confirmCancelPlan
+                ? "Cancelar plan"
+                : confirmHealthInsurance
+                ? "Confirmar obra social"
+                : ""}
             </DialogTitle>
             <DialogContent>
               <DialogContentText id="alert-dialog-description">
@@ -816,7 +879,13 @@ export default function Config(props: ConfigProps) {
                   ? "¿Desea agregar el rango horario?"
                   : confirmUpdate
                   ? "¿Desea actualizar los datos?"
-                  : "¿Desea solicitar la verificacion de la cuenta?"}
+                  : confirmVerification
+                  ? "¿Desea solicitar la verificacion de la cuenta?"
+                  : confirmCancelPlan
+                  ? "¿Desea cancelar su plan actual?"
+                  : confirmHealthInsurance
+                  ? "¿Desea agregar la obra social?"
+                  : ""}
               </DialogContentText>
             </DialogContent>
             <DialogActions>
@@ -827,6 +896,8 @@ export default function Config(props: ConfigProps) {
                   setConfirmSchedule(false);
                   setConfirmUpdate(false);
                   setConfirmVerification(false);
+                  setConfirmCancelPlan(false);
+                  setConfirmHealthInsurance(false);
                 }}
               >
                 Cancelar

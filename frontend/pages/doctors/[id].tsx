@@ -93,7 +93,7 @@ export default function Doctor(props: any) {
                             className="bg-primary"
                             size={130}
                             icon={<FaUserDoctor size={60} />}
-                            photo={props.doctor.user.image ? `${process.env.NEXT_PUBLIC_API_URL}/uploads/user/${props.doctor.user.image}` : undefined} />
+                            photo={props.doctor.user.image ? props.doctor.user.image : undefined} />
                         <div className="mt-[11rem] xl:mt-20">
                             <div className="flex flex-col items-center gap-3">
                                 <h2 className={`text-primary text-center ${robotoBold.className} text-3xl`}>{props.doctor.user.name} {props.doctor.user.surname}</h2>

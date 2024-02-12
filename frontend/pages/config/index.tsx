@@ -326,14 +326,14 @@ export default function Config(props: ConfigProps) {
 
   return (
     <Layout auth={props.auth}>
-      <section className="h-full flex p-8 overflow-scroll lg:overflow-hidden">
-        <div className="w-full flex flex-col items-center lg:flex-row gap-6 mt-[3rem]">
+      <section className="flex px-8">
+        <div className="w-full flex flex-col items-center lg:flex-row gap-6 mt-[3rem] relative md:max-h-[calc(100vh-10rem)]">
           <div className="rounded-md md:w-[calc(100%-15rem)] xl:shadow-md bg-white relative">
             <Avatar
               labelProps={{ className: "hidden" }}
               name={props.doctor.user.name}
               surname={props.doctor.user.surname}
-              rootClassName="absolute top-[-4rem] left-1/2 translate-x-[-50%]"
+              rootClassName="absolute top-[-2rem] left-1/2 translate-x-[-50%]"
               className="bg-primary"
               size={130}
               icon={<FaUserDoctor size={60} />}
@@ -341,7 +341,7 @@ export default function Config(props: ConfigProps) {
                 props.doctor.user.image ? props.doctor.user.image : undefined
               }
             />
-            <div className="mt-20">
+            <div className="mt-24">
               <div className="flex flex-col items-center gap-3">
                 <h2
                   className={`text-primary text-center ${robotoBold.className} text-3xl`}
@@ -438,26 +438,26 @@ export default function Config(props: ConfigProps) {
               </div>
             </div>
           </div>
-          <div className="overflow-hidden min-w-[70%]">
+          <div className="overflow-hidden w-full md:min-w-[70%]">
             <div
-              className={`flex flex-nowrap items-center transition-all ease-in duration-500 ${
+              className={`flex flex-col md:flex-row md:flex-nowrap items-center transition-all ease-in duration-500 ${
                 modify ? "-translate-x-full" : ""
               } gap-4`}
             >
-              <div className="bg-white min-w-[99%] h-full rounded-md shadow-md p-4 flex flex-col justify-center">
-                <div className="flex justify-between items-start gap-8">
-                  <div className="w-1/3 p-4">
+              <div className="bg-white sm:w-1/4 md:min-w-[99%] h-full rounded-md shadow-md p-4 flex flex-col justify-center">
+                <div className="flex flex-col justify-center items-center xl:flex-row xl:justify-between xl:items-start gap-2 md:gap-8">
+                  <div className="w-1/3 p-2">
                     <h3 className="text-primary text-xl text-center">
                       Reunion
                     </h3>
-                    <div className="flex justify-between items-center">
-                      <div>
+                    <div className="xl:flex xl:justify-between xl:items-center">
+                      <div className="flex flex-col justify-center items-center">
                         <h4 className="text-primary text-lg flex justify-center items-center gap-2">
                           <FaStopwatch /> Duracion
                         </h4>
                         <p>{props.doctor.durationMeeting} min</p>
                       </div>
-                      <div>
+                      <div className="flex flex-col justify-center items-center">
                         <h4 className="text-primary text-lg flex justify-center items-center gap-2">
                           <FaMoneyBill1Wave /> Precio
                         </h4>
@@ -465,12 +465,12 @@ export default function Config(props: ConfigProps) {
                       </div>
                     </div>
                   </div>
-                  <div className="h-[112px] w-1 border-l-2 border-primary"></div>
-                  <div className="p-4 w-2/3">
+                  <div className="md:h-[112px] md:w-1 md:border-l-2 md:border-primary"></div>
+                  <div className="p-2 w-2/3">
                     <h3 className="text-primary text-xl text-center">
                       Verificacion
                     </h3>
-                    <div className="flex justify-between items-center">
+                    <div className="flex flex-col p-2 md:flex-row justify-between items-center">
                       {props.doctor.verified ? (
                         <div>
                           <h3 className="text-primary text-lg flex items-center gap-2">
@@ -521,7 +521,7 @@ export default function Config(props: ConfigProps) {
                       borderTop: `thin solid ${theme.palette.primary.main}`,
                     },
                   }}
-                  className="mx-auto my-4"
+                  className="w-1/6 m-auto md:w-full mx-auto my-4"
                 >
                   <GoDotFill color={theme.palette.primary.main} />
                 </Divider>
@@ -530,9 +530,9 @@ export default function Config(props: ConfigProps) {
                     Plan actual
                   </h3>
                   <div
-                    className={`bg-secondary flex justify-between items-center text-white px-8 py-2 mt-2 rounded-md ${robotoBold.className}`}
+                    className={`w-1/4 m-auto md:w-full bg-secondary flex flex-col md:flex-row md:justify-between items-center text-white px-8 py-2 mt-2 rounded-md ${robotoBold.className}`}
                   >
-                    <div className="flex justify-between w-2/3">
+                    <div className="flex flex-col md:flex-row justify-center items-center gap-4 md:justify-between md:gap-0 md:w-2/3">
                       <p>
                         {props.doctor.plan
                           ? props.doctor.plan.name
@@ -545,7 +545,7 @@ export default function Config(props: ConfigProps) {
                       </p>
                     </div>
                     {props.doctor.plan ? (
-                      <ButtonGroup>
+                      <ButtonGroup className="mt-4 md:mt-0">
                         <Link href={"/plan"}>
                           <Button startIcon={<FaCircleUp />} color="info">
                             Actualizar
@@ -566,7 +566,11 @@ export default function Config(props: ConfigProps) {
                       </ButtonGroup>
                     ) : (
                       <Link href={"/plan"}>
-                        <Button startIcon={<FaCircleUp />} color="info">
+                        <Button
+                          startIcon={<FaCircleUp />}
+                          color="info"
+                          className="mt-4 md:mt-0"
+                        >
                           Solicitar
                         </Button>
                       </Link>
@@ -583,7 +587,7 @@ export default function Config(props: ConfigProps) {
                       borderTop: `thin solid ${theme.palette.primary.main}`,
                     },
                   }}
-                  className="mx-auto my-4"
+                  className="w-1/6 m-auto md:w-full mx-auto my-4"
                 >
                   <GoDotFill color={theme.palette.primary.main} />
                 </Divider>
@@ -591,15 +595,15 @@ export default function Config(props: ConfigProps) {
                   <h3 className="text-primary text-xl text-center">
                     Rangos horarios
                   </h3>
-                  <div className="flex items-center">
+                  <div className="flex flex-col md:flex-row items-center">
                     <form
-                      className="w-full flex justify-between items-center my-4 gap-4"
+                      className="w-full flex flex-col md:flex-row justify-between items-center my-4 gap-4"
                       onSubmit={($e: any) => {
                         $e.preventDefault();
                         setConfirmSchedule(true);
                       }}
                     >
-                      <div className="my-4">
+                      <div className="md:my-4">
                         <p className="text-primary text-xl">Dia</p>
                       </div>
                       <Select
@@ -613,7 +617,7 @@ export default function Config(props: ConfigProps) {
                           </MenuItem>
                         ))}
                       </Select>
-                      <div className="my-4">
+                      <div className="md:my-4">
                         <p className="text-primary text-xl">Desde</p>
                       </div>
                       <Select
@@ -650,7 +654,7 @@ export default function Config(props: ConfigProps) {
                       </Button>
                     </form>
                   </div>
-                  <div className="flex items-center mt-2 overflow-x-scroll p-4">
+                  <div className="flex w-1/4 m-auto items-center mt-2 overflow-x-scroll p-4 md:w-full">
                     <div className="mt-8">
                       <div className="my-4">
                         <p className="text-primary text-xl">Desde</p>
@@ -706,8 +710,8 @@ export default function Config(props: ConfigProps) {
                     setConfirmUpdate(true);
                   }}
                 >
-                  <div className="flex justify-between items-start gap-8">
-                    <div className="w-1/3 p-4">
+                  <div className="flex flex-col md:flex-row md:justify-between md:items-start md:gap-8">
+                    <div className="md:w-1/3 p-4">
                       <h3 className="text-primary text-xl text-center">
                         Reunion
                       </h3>
@@ -745,13 +749,13 @@ export default function Config(props: ConfigProps) {
                         </div>
                       </div>
                     </div>
-                    <div className="h-[144px] w-1 border-l-2 border-primary"></div>
-                    <div className="p-4 w-2/3">
+                    <div className="md:h-[144px] md:w-1 md:border-l-2 md:border-primary"></div>
+                    <div className="p-4 md:w-2/3">
                       <h3 className="text-primary text-xl text-center">
                         Datos personales
                       </h3>
-                      <div className="flex justify-between items-center mt-[12px]">
-                        <div>
+                      <div className="flex flex-col justify-center items-center md:flex-row gap-4 md:gap-0 md:justify-between md:items-center mt-[12px]">
+                        <div className="flex flex-col w-full md:w-1/3">
                           <h4 className="text-primary text-xl flex items-center gap-2">
                             <FaPhone /> Telefono
                           </h4>
@@ -763,7 +767,7 @@ export default function Config(props: ConfigProps) {
                             value={updateForm.values.phone}
                           />
                         </div>
-                        <div>
+                        <div className="flex flex-col w-full md:w-2/3">
                           <h4 className="text-primary text-xl flex items-center gap-2">
                             <FaLocationDot /> Direccion de consultorio
                           </h4>
@@ -799,10 +803,10 @@ export default function Config(props: ConfigProps) {
                 <h3 className="text-primary text-xl text-center">
                   Obras sociales
                 </h3>
-                <div className="flex justify-between items-center p-4">
-                  <div className="w-1/3">
+                <div className="md:flex md:justify-between md:items-center p-4">
+                  <div className="md:w-1/3">
                     <Select
-                      className="w-2/3 mr-2"
+                      className="w-full md:w-2/3 mr-2"
                       onChange={($e: any) =>
                         setHealthInsurance($e.target.value)
                       }
@@ -820,11 +824,11 @@ export default function Config(props: ConfigProps) {
                           </MenuItem>
                         ))}
                     </Select>
-                    <Button onClick={() => setConfirmHealthInsurance(true)}>
+                    <Button className="mt-4 md:mt-0" onClick={() => setConfirmHealthInsurance(true)}>
                       Agregar
                     </Button>
                   </div>
-                  <div className="w-2/3 flex justify-center flex-wrap gap-2">
+                  <div className="w-full md:w-2/3 flex justify-center flex-wrap gap-2 mt-8 md:mt-0">
                     {props.doctor.user.healthInsurances.map((hi) => {
                       return (
                         <div

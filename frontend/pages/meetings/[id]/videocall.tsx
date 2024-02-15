@@ -230,11 +230,11 @@ export default function Meeting(props: any) {
   };
 
   return (
-    <Layout auth={props.auth}>
+    <Layout renderSidebar={false} auth={props.auth}>
       <div className="flex h-full">
-        <div className="w-3/4 flex flex-col justify-center xl:p-5">
-          <div className="relative h-full">
-            <div className="w-3/6 md:w-2/6 lg:w-1/6 right-3 top-3 absolute">
+        <div className="w-full flex flex-col justify-center items-center xl:p-5">
+          <div className="relative w-[500px] h-[281px] md:w-[650px] md:h-[365px] lg:w-[700px] lg:h-[394px] xl:w-[900px] xl:h-[506px]">
+            <div className="right-3 top-3 absolute w-[150px] h-[84px] lg:w-[200px] lg:h-[113px]">
               <div className="relative">
                 <video
                   id="my-video"
@@ -287,7 +287,7 @@ export default function Meeting(props: any) {
             </div>
           </div>
         </div>
-        <section className="w-1/4 h-[calc(100%-30px)] my-4 mr-4 bg-white rounded-lg">
+        <section className="w-2/6 h-[calc(100%-30px)] my-4 mr-4 bg-white rounded-lg">
           <div
             className="overflow-y-scroll"
             id="scroll"

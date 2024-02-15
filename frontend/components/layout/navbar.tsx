@@ -36,6 +36,7 @@ interface NavbarProps {
   auth: Auth;
   setSidebarOpened: any;
   sidebarOpened: boolean;
+  renderSidebar: boolean;
 }
 
 const Navbar: React.FC<NavbarProps> = (props) => {
@@ -115,7 +116,7 @@ const Navbar: React.FC<NavbarProps> = (props) => {
 
   return (
     <section className="p-4 bg-white w-full shrink-0 h-20 shadow-md flex items-center justify-between md:justify-end z-10">
-      <div className="md:hidden">
+      {props.renderSidebar && <div className="md:hidden">
         <Hamburger
           size={28}
           color={theme.palette.primary.main}
@@ -123,6 +124,7 @@ const Navbar: React.FC<NavbarProps> = (props) => {
           toggle={() => props.setSidebarOpened(!props.sidebarOpened)}
         />
       </div>
+      }
       <Image
         className="md:hidden"
         src="/logo.png"
@@ -140,9 +142,8 @@ const Navbar: React.FC<NavbarProps> = (props) => {
           <FaBell className={openN ? 'text-primary' : ''} />
         </Badge>
         <div
-          className={`absolute w-[36rem] h-72 -bottom-[19rem] ${
-            openN ? "-right-4" : "-right-[38rem]"
-          } transition-all duration-500 ease-in
+          className={`absolute w-[36rem] h-72 -bottom-[19rem] ${openN ? "-right-4" : "-right-[38rem]"
+            } transition-all duration-500 ease-in
            bg-white border-primary border-4 rounded-md z-50 overflow-y-scroll px-2`}
         >
           <div className="flex justify-end">
@@ -158,9 +159,8 @@ const Navbar: React.FC<NavbarProps> = (props) => {
               <div key={n.id} className="p-2">
                 <div className="flex justify-between items-center">
                   <div
-                    className={`w-2 h-2 rounded-full m-2 ${
-                      !n.readed ? "bg-primary" : ""
-                    }`}
+                    className={`w-2 h-2 rounded-full m-2 ${!n.readed ? "bg-primary" : ""
+                      }`}
                   ></div>
 
                   <div>
@@ -200,12 +200,12 @@ const Navbar: React.FC<NavbarProps> = (props) => {
                       href={
                         n.type === "comment"
                           ? `/meetings/${btoa(
-                              n.meeting.userId +
-                                "." +
-                                moment(n.meeting.startDatetime).format(
-                                  "YYYY-MM-DDTHH:mm:ss"
-                                )
-                            )}`
+                            n.meeting.userId +
+                            "." +
+                            moment(n.meeting.startDatetime).format(
+                              "YYYY-MM-DDTHH:mm:ss"
+                            )
+                          )}`
                           : ""
                       }
                       onClick={() => {
@@ -224,9 +224,8 @@ const Navbar: React.FC<NavbarProps> = (props) => {
         </div>
         <Tooltip placement="right" title="Perfil">
           <IconButton
-            className={`rounded-md hover:bg-primary_light ${
-              menuPosition ? "bg-primary" : ""
-            }`}
+            className={`rounded-md hover:bg-primary_light ${menuPosition ? "bg-primary" : ""
+              }`}
             onClick={handleClick}
             size="small"
           >

@@ -161,39 +161,38 @@ const Navbar: React.FC<NavbarProps> = (props) => {
             elevation: 0,
             sx: {
               overflow: "visible",
-              bgcolor: theme.palette.primary.main,
+              bgcolor: "#fff",
               filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.32))",
-              mt: 1,
             },
           }}
           transformOrigin={{ horizontal: "right", vertical: "top" }}
           anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
         >
-          <div className="flex justify-end">
+          <div className="bg-primary flex justify-end absolute top-0 w-full rounded-md">
             <p
-              className="text-white text-lg mx-4 p-2 hover:underline hover:cursor-pointer"
+              className="text-white text-xl mx-4 p-4 hover:underline hover:cursor-pointer"
               onClick={markAsReadAll}
             >
               Leer todos
             </p>
+            <div className="bg-primary w-full h-1 absolute bottom-0"></div>
           </div>
-          <div className="w-[90%] border-b-2 border-white h-2 m-auto"></div>
-          <div className="max-h-80 overflow-y-scroll">
+          <div className="max-h-80 overflow-y-scroll mt-16">
             {notifications.map((n) => {
               return (
                 <MenuItem sx={{ color: "#ffffff" }}>
-                  <div className="text-white">
+                  <div className="text-black">
                     <div key={n.id} className="p-2">
                       <div className="flex justify-between items-center">
                         <div
                           className={`w-2 h-2 rounded-full m-2 ${
-                            !n.readed ? "bg-white" : ""
+                            !n.readed ? "bg-primary" : ""
                           }`}
                         ></div>
 
                         <div className="mr-2">
                           <div className="flex items-center gap-2">
-                            <p className="p-2">
+                            <p className="p-2 text-lg">
                               {n.type === "verification" ? (
                                 `El doctor ${n.userSend.surname}, ${n.userSend.name} solicitó verificación de su cuenta`
                               ) : n.type === "comment" ? (
@@ -215,11 +214,11 @@ const Navbar: React.FC<NavbarProps> = (props) => {
                               )}
                             </p>
                           </div>
-                          <p className="text-right p-2">
+                          <p className="text-sm text-right p-2 text-gray-400">
                             {moment(n.created_at).format("LLL")}
                           </p>
                         </div>
-                        <div className="min-w-12 flex justify-end gap-2 text-xl">
+                        <div className="min-w-12 flex justify-end gap-2 text-xl text-primary">
                           {!n.readed ? (
                             <FaEnvelope
                               className="hover:cursor-pointer hover:opacity-70"
@@ -250,7 +249,7 @@ const Navbar: React.FC<NavbarProps> = (props) => {
                         </div>
                       </div>
                     </div>
-                    <div className="w-[80%] border-b-2 border-white h-2 m-auto"></div>
+                    <div className="w-[90%] border-b-2 border-primary h-2 m-auto"></div>
                   </div>
                 </MenuItem>
               );

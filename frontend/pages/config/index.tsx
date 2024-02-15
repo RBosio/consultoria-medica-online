@@ -49,6 +49,7 @@ import { useFormik } from "formik";
 import { HealthInsuranceResponseDto } from "@/components/dto/healthInsurance.dto";
 import Link from "next/link";
 import { NotificationResponseDto } from "@/components/dto/notification.dto";
+import moment from "moment";
 
 interface ConfigProps {
   user: UserResponseDto;
@@ -476,7 +477,10 @@ export default function Config(props: ConfigProps) {
                           <h3 className="text-primary text-lg flex items-center gap-2">
                             <FaCheck /> Verificado
                           </h3>
-                          <p>desde 2023-01-25</p>
+                          <p>
+                            desde{" "}
+                            {moment(props.doctor.verifiedSince).format("LL")}
+                          </p>
                         </div>
                       ) : (
                         <div>
@@ -540,7 +544,9 @@ export default function Config(props: ConfigProps) {
                       </p>
                       <p>
                         {props.doctor.plan
-                          ? "Miembro desde 2020-01-14"
+                          ? `Miembro desde ${moment(
+                              props.doctor.planSince
+                            ).format("LL")}`
                           : "Actualmente se encuentra sin plan, solicite uno para comenzar a trabajar"}
                       </p>
                     </div>
@@ -755,7 +761,7 @@ export default function Config(props: ConfigProps) {
                         Datos personales
                       </h3>
                       <div className="flex flex-col justify-center items-center md:flex-row gap-4 md:gap-0 md:justify-between md:items-center mt-[12px]">
-                        <div className="flex flex-col w-full md:w-1/3">
+                        <div className="flex flex-col w-full md:items-center">
                           <h4 className="text-primary text-xl flex items-center gap-2">
                             <FaPhone /> Telefono
                           </h4>
@@ -765,9 +771,10 @@ export default function Config(props: ConfigProps) {
                             onChange={updateForm.handleChange}
                             onBlur={updateForm.handleBlur}
                             value={updateForm.values.phone}
+                            className="md:w-1/2"
                           />
                         </div>
-                        <div className="flex flex-col w-full md:w-2/3">
+                        <div className="flex flex-col w-full md:items-center">
                           <h4 className="text-primary text-xl flex items-center gap-2">
                             <FaLocationDot /> Direccion de consultorio
                           </h4>
@@ -777,6 +784,7 @@ export default function Config(props: ConfigProps) {
                             onChange={updateForm.handleChange}
                             onBlur={updateForm.handleBlur}
                             value={updateForm.values.address}
+                            className="md:w-1/2"
                           />
                         </div>
                       </div>
@@ -824,7 +832,10 @@ export default function Config(props: ConfigProps) {
                           </MenuItem>
                         ))}
                     </Select>
-                    <Button className="mt-4 md:mt-0" onClick={() => setConfirmHealthInsurance(true)}>
+                    <Button
+                      className="mt-4 md:mt-0"
+                      onClick={() => setConfirmHealthInsurance(true)}
+                    >
                       Agregar
                     </Button>
                   </div>

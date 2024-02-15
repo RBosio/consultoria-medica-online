@@ -1,5 +1,5 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm'
-import { User } from './user.entity'
+import { UserHealthInsurance } from './userHealthInsurances.entity'
 
 @Entity()
 export class HealthInsurance {
@@ -12,8 +12,8 @@ export class HealthInsurance {
     @Column({type: 'decimal', precision: 3, scale: 2})
     discount: number
     
-    @OneToMany(() => User, users => users.healthInsurance)
-    users: User[]
+    @OneToMany(() => UserHealthInsurance, userHealthInsurance => userHealthInsurance.healthInsurance)
+    users: UserHealthInsurance[]
     
     @Column({type: Date, default: () => 'CURRENT_TIMESTAMP'})
     created_at: Date

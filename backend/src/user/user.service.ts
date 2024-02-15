@@ -7,19 +7,32 @@ import { User } from 'src/entities/user.entity';
 import { CityService } from 'src/city/city.service';
 import { Doctor } from 'src/entities/doctor.entity';
 import { createDoctorDto } from 'src/doctor/dto/create-doctor.dto';
+import { Speciality } from 'src/entities/speciality.entity';
+import { HealthInsurance } from 'src/entities/health-insurance.entity';
+import { HealthInsuranceService } from 'src/health-insurance/health-insurance.service';
+import { UserHealthInsurance } from 'src/entities/userHealthInsurances.entity';
 
 @Injectable()
 export class UserService {
     constructor(
         @InjectRepository(User) private userRepository: Repository<User>,
         @InjectRepository(Doctor) private doctorRepository: Repository<Doctor>,
-        private cityService: CityService
+        @InjectRepository(UserHealthInsurance) private userHealthInsuranceRepository: Repository<UserHealthInsurance>,
+        private cityService: CityService,
+        private healthInsuranceService: HealthInsuranceService
         ) {}
 
-    findAll(): Promise<User[]> {
-        return this.userRepository.find({
-            relations: ['healthInsurance']
+    async findAll(): Promise<User[]> {
+        const usersFound = await this.userRepository.find({
+            relations: {
+                healthInsurances: {
+                    healthInsurance: true
+                }
+            }
         })
+        usersFound.map(user => user.password = "");
+
+        return usersFound
     }
     
     async findOne(id: number) {
@@ -27,12 +40,17 @@ export class UserService {
             where: {
                 id
             },
-            relations: ['healthInsurance']
+            relations: {
+                healthInsurances: {
+                    healthInsurance: true
+                }
+            }
         })
         if (!userFound) {
             throw new HttpException('Usuario no encontrado', HttpStatus.NOT_FOUND)
         }
-        
+        userFound.password = ""
+    
         return userFound
     }
 
@@ -40,6 +58,30 @@ export class UserService {
         const userFound = await this.userRepository.findOne({
             where: {
                 dni
+            },
+            relations: {
+                healthInsurances: {
+                    healthInsurance: true
+                }
+            }
+        })
+        if (!userFound) {
+            throw new HttpException('Usuario no encontrado', HttpStatus.NOT_FOUND)
+        }
+        userFound.password = ""
+        
+        return userFound
+    }
+
+    async findOneByEmail(email: string) {
+        const userFound = await this.userRepository.findOne({
+            where: {
+                email
+            },
+            relations: {
+                healthInsurances: {
+                    healthInsurance: true
+                }
             }
         })
         if (!userFound) {
@@ -49,10 +91,10 @@ export class UserService {
         return userFound
     }
 
-    async findOneByEmail(email: string) {
+    async findAdmin() {
         const userFound = await this.userRepository.findOne({
             where: {
-                email
+                admin: true
             }
         })
         if (!userFound) {
@@ -81,6 +123,7 @@ export class UserService {
             throw new HttpException('El email ya existe', HttpStatus.BAD_REQUEST)
         }
 
+        
         let newUser = this.userRepository.create(user)
         
         const city = await this.cityService.findOne(user.zipCode)
@@ -88,7 +131,8 @@ export class UserService {
             throw new HttpException('Ciudad no encontrada', HttpStatus.BAD_REQUEST)
         }
         newUser.city = city
-
+        newUser.healthInsurances = []
+        
         newUser = await this.userRepository.save(newUser)
 
         if(doctor) {
@@ -101,21 +145,77 @@ export class UserService {
 
             await this.doctorRepository.save(newDoctor)
         }
-        
+        newUser.password = ""
+
+        user.his.map(async hi => {
+            const healthInsurance = await this.healthInsuranceService.findOne(hi)
+            
+            const userHI = this.userHealthInsuranceRepository.create({
+                user: newUser,
+                healthInsurance
+            })
+            await this.userHealthInsuranceRepository.save(userHI)
+        })
+
         return newUser
     }
 
-    async update(dni: string, user: updateUserDto) {
+    async update(id: number, user: updateUserDto) {
         const userFound = await this.userRepository.findOne({
             where: {
-                dni
+                id
+            },
+            relations: {
+                healthInsurances: {
+                    healthInsurance: true
+                }
             }
         })
         if (!userFound) {
             throw new HttpException('Usuario no encontrado', HttpStatus.NOT_FOUND)
         }
-        
+
         const updateUser = Object.assign(userFound, user)
+
+        if(user.password) {
+            await updateUser.hashPassword()
+        }
+
+        if(user.verify) {
+            const hi = await this.userHealthInsuranceRepository.findOne({
+                where: {
+                    userId: id,
+                    healthInsuranceId: user.healthInsurance
+                }
+            })
+            if (!hi) {
+                throw new HttpException('Obra social no encontrada', HttpStatus.NOT_FOUND)
+            }
+
+            hi.verified = true
+
+            this.userHealthInsuranceRepository.save(hi)
+        } else {
+            if(user.healthInsurance) {
+                const hi = await this.healthInsuranceService.findOne(user.healthInsurance)
+                
+                const newHi = this.userHealthInsuranceRepository.create({
+                    userId: updateUser.id,
+                    healthInsurance: hi,
+                    user: updateUser,
+                })
+
+                await this.userHealthInsuranceRepository.save(newHi)
+            }
+        }
+        const hiUser = await this.userHealthInsuranceRepository.find({
+            where: {
+                userId: id
+            }
+        })
+
+        updateUser.healthInsurances = hiUser
+        
         return this.userRepository.save(updateUser)
     }
     
@@ -129,6 +229,36 @@ export class UserService {
         return result
     }
 
+    async uploadImage(dni: string, url: string) {
+        const userFound = await this.userRepository.findOne({
+            where: {
+                dni
+            }
+        })
+        if (!userFound) {
+            throw new HttpException('Usuario no encontrado', HttpStatus.NOT_FOUND)
+        }
+
+        userFound.image = url
+        return this.userRepository.save(userFound)
+    }
+
+    async uploadHealthInsurance(id: number, healthInsuranceId: number, url: string) {
+        const hi = await this.userHealthInsuranceRepository.findOne({
+            where: {
+                userId: id,
+                healthInsuranceId
+            }
+        })
+        if (!hi) {
+            throw new HttpException('Obra social no encontrada', HttpStatus.NOT_FOUND)
+        }
+
+        hi.file_url = url
+
+        this.userHealthInsuranceRepository.save(hi)
+    }
+    
     async loadUsers() {
         await this.create({
             dni: '33429120',
@@ -142,9 +272,15 @@ export class UserService {
             admin: false,
             gender: false,
             zipCode: "2000",
-            healthInsuranceId: 1
+            his: [1]
         }, null)
         
+        const spec1 = new Speciality()
+        spec1.id = 1
+
+        const spec2 = new Speciality()
+        spec2.id = 2
+
         await this.create({
             dni: '38233911',
             email: 'doctor@gmail.com',
@@ -157,20 +293,17 @@ export class UserService {
             admin: false,
             gender: true,
             zipCode: "2000",
-            healthInsuranceId: 1
+            his: [1]
         }, {
             cuil: "20-38233911-1",
             durationMeeting: 30,
             priceMeeting: 3000,
-            registration: "slaoeiwmdjsq-mskrieldsx-qmaisd.pdf",
-            title: "nfsakjfnaskf-dmasiodmsa-mdasod.pdf",
-            specialities: [{
-                id: 1,
-                name: "",
-                doctors: [],
-                created_at: new Date(),
-                meetings: []
-            }]
+            employmentDate: new Date('1998-04-08T06:00:00'),
+            description: "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Saepe possimus ad ea nisi iusto temporibus cum, voluptatibus fugiat magnam maiores consequatur, architecto harum dignissimos deleniti eius, quisquam natus minus quas. Lorem ipsum dolor sit amet consectetur adipisicing elit. Vel aspernatur repellendus, eos, cupiditate consectetur eum modi laboriosam vero officia quibusdam earum tenetur omnis similique autem ab facilis aut. Laborum, voluptatum. Lorem ipsum dolor sit amet consectetur adipisicing elit. Repudiandae, deleniti deserunt iste corporis possimus, eos facere quis quidem, consequuntur sapiente quae! Quidem repellendus ab nemo praesentium. Sequi modi quis et!",
+            address: 'St. Exupery 240',
+            planId: 1,
+            specialities: [spec1, spec2],
+            verified: true,
         })
         
         await this.create({
@@ -185,7 +318,7 @@ export class UserService {
             admin: true,
             gender: true,
             zipCode: "2000",
-            healthInsuranceId: 1
+            his: [1, 2]
         }, null)
     }
 }

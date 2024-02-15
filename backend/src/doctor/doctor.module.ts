@@ -3,16 +3,14 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { DoctorController } from './doctor.controller';
 import { Doctor } from 'src/entities/doctor.entity';
 import { DoctorService } from './doctor.service';
-import { User } from 'src/entities/user.entity';
-import { UserService } from 'src/user/user.service';
-import { City } from 'src/entities/city.entity';
-import { CityService } from 'src/city/city.service';
+import { UserModule } from 'src/user/user.module';
+import { SpecialityModule } from 'src/speciality/speciality.module';
+import { PlanModule } from 'src/plan/plan.module';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([Doctor, User, City])
-  ],
+  imports: [TypeOrmModule.forFeature([Doctor]), UserModule, SpecialityModule, PlanModule],
   controllers: [DoctorController],
-  providers: [DoctorService, UserService, CityService]
+  providers: [DoctorService],
+  exports: [DoctorService]
 })
 export class DoctorModule {}

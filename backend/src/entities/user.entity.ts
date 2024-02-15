@@ -1,9 +1,12 @@
-import { BeforeInsert, BeforeUpdate, Column, Entity, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm'
+import { BeforeInsert, BeforeUpdate, Column, Entity, ManyToMany, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm'
 import { City } from './city.entity'
 import { hash, compare } from 'bcryptjs'
 import { Doctor } from './doctor.entity'
 import { Meeting } from './meeting.entity'
 import { HealthInsurance } from './health-insurance.entity'
+import { Comment } from './comment.entity'
+import { Notification } from './notification.entity'
+import { UserHealthInsurance } from './userHealthInsurances.entity'
 
 @Entity()
 export class User {
@@ -44,13 +47,7 @@ export class User {
     status: boolean
  
     @Column({nullable: true})
-    photo: string
-
-    @Column()
-    healthInsuranceId: number
-    
-    @Column({default: false})
-    validateHealthInsurance: boolean
+    image: string
     
     @Column({type: Date, default: () => 'CURRENT_TIMESTAMP'})
     created_at: Date
@@ -58,17 +55,25 @@ export class User {
     @ManyToOne(() => City, city => city.users)
     city: City
     
-    @ManyToOne(() => HealthInsurance, healthInsurance => healthInsurance.users)
-    healthInsurance: HealthInsurance
+    @OneToMany(() => UserHealthInsurance, userHealthInsurance => userHealthInsurance.user)
+    healthInsurances: UserHealthInsurance[]
 
-    @OneToOne(() => Doctor, {nullable: false})
+    @OneToOne(() => Doctor)
     doctor: Doctor
 
     @OneToMany(() => Meeting, meetings => meetings.user)
     meetings: Meeting[]
 
+    @OneToMany(() => Comment, comments => comments.user)
+    comments: Comment[]
+
+    @OneToMany(() => Notification, notifications => notifications.userSend)
+    notificationsSend: Notification[]
+
+    @OneToMany(() => Notification, notifications => notifications.userReceive)
+    notificationsReceive: Notification[]
+
     @BeforeInsert()
-    @BeforeUpdate()
     async hashPassword() {
         if (!this.password) {
             return

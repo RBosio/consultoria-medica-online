@@ -13,9 +13,6 @@ export class Speciality {
     @ManyToMany(() => Doctor, doctors => doctors.specialities)
     doctors: Doctor[]
 
-    @OneToMany(() => Meeting, meetings => meetings.speciality)
-    meetings: Meeting[]
-    
     @Column({type: Date, default: () => 'CURRENT_TIMESTAMP'})
     created_at: Date
 }

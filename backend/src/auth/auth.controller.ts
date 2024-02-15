@@ -1,20 +1,27 @@
-import { Body, Controller, HttpException, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, HttpException, Post, UseGuards, Get, Req, Res } from '@nestjs/common';
 import { createUserDto } from 'src/user/dto/create-user.dto';
 import { UserService } from 'src/user/user.service';
 import { AuthService } from './auth.service';
 import { AuthLoginDto } from './dto/auth-login.dto';
-import { loginResponseDto } from './dto/login-response.dto';
 import { User } from 'src/entities/user.entity';
+import { AuthGuard } from './auth.guard';
+import { Request, Response } from 'express';
 
 @Controller('auth')
 export class AuthController {
     constructor(
         private authService: AuthService,
-        private userService: UserService) {}
-    
+        private userService: UserService) { }
+
     @Post('login')
-    login(@Body() userLogin: AuthLoginDto): Promise<loginResponseDto | HttpException> {
-        return this.authService.login(userLogin)
+    async login(@Body() userLogin: AuthLoginDto, @Res() res: Response): Promise<void> {
+        await this.authService.login(userLogin, res);
+    }
+
+    @Post('logout')
+    @UseGuards(AuthGuard)
+    async logout(@Res() res: Response) {
+        return this.authService.logout(res)
     }
 
     @Post('signup')
@@ -22,4 +29,11 @@ export class AuthController {
         const { doctor } = user
         return this.userService.create(user, doctor)
     }
+
+    @Get('session')
+    @UseGuards(AuthGuard)
+    getSession(@Req() req) {
+        return req.user;
+    }
 }
+

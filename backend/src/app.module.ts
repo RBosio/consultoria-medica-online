@@ -32,6 +32,13 @@ import { join } from 'path';
 import { DataSource } from 'typeorm';
 import * as fs from "fs";
 import { UserService } from './user/user.service';
+import { Plan } from './entities/plan.entity';
+import { PlanModule } from './plan/plan.module';
+import { Benefit } from './entities/benefit.entity';
+import { BenefitModule } from './benefit/benefit.module';
+import { Notification } from './entities/notification.entity';
+import { NotificationModule } from './notification/notification.module';
+import { UserHealthInsurance } from './entities/userHealthInsurances.entity';
 
 @Module({
   imports: [
@@ -48,7 +55,7 @@ import { UserService } from './user/user.service';
         username: configService.get('DB_USERNAME'),
         password: configService.get('DB_PASSWORD'),
         database: configService.get('DB_DATABASE'),
-        entities: [Country, Province, City, User, Doctor, Schedule, Speciality, Meeting, MedicalRecord, Comment, File, HealthInsurance],
+        entities: [Country, Province, City, User, Doctor, Schedule, Speciality, Meeting, MedicalRecord, Comment, File, HealthInsurance, Plan, Benefit, Notification, UserHealthInsurance],
         synchronize: configService.get('DB_SYNC'),
         dropSchema: configService.get('DB_DROP')
       }),
@@ -65,7 +72,10 @@ import { UserService } from './user/user.service';
     MeetingModule,
     MedicalRecordModule,
     CommentModule,
-    HealthInsuranceModule
+    HealthInsuranceModule,
+    PlanModule,
+    BenefitModule,
+    NotificationModule
     ],
   controllers: [AppController],
   providers: [AppService]
@@ -79,7 +89,7 @@ export class AppModule {
         
       const queries = readSqlFile('public/defaultData.sql')
       queries.forEach((query, i) => {
-        if(i < 10) {
+        if(i < 6) {
           queryRunner.query(query)
         }
       })
@@ -87,14 +97,19 @@ export class AppModule {
       setTimeout(() => {
         this.userService.loadUsers()
         .then(() => {
+          const doctorsQueries = readSqlFile('public/doctors.sql')
+          doctorsQueries.forEach((query, i) => {
+              queryRunner.query(query)
+          })
           queries.forEach((query, i) => {
-            if(i >= 10) {
+            if(i >= 6) {
               queryRunner.query(query)
             }
           })
         })
       }, 1000)
-      }
+      
+    }
 }
 
 const readSqlFile = (filepath: string): string[] => {

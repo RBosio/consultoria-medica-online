@@ -178,82 +178,84 @@ const Navbar: React.FC<NavbarProps> = (props) => {
             </p>
           </div>
           <div className="w-[90%] border-b-2 border-white h-2 m-auto"></div>
-          {notifications.map((n) => {
-            return (
-              <MenuItem sx={{ color: "#ffffff" }}>
-                <div className="text-white">
-                  <div key={n.id} className="p-2">
-                    <div className="flex justify-between items-center">
-                      <div
-                        className={`w-2 h-2 rounded-full m-2 ${
-                          !n.readed ? "bg-white" : ""
-                        }`}
-                      ></div>
+          <div className="max-h-80 overflow-y-scroll">
+            {notifications.map((n) => {
+              return (
+                <MenuItem sx={{ color: "#ffffff" }}>
+                  <div className="text-white">
+                    <div key={n.id} className="p-2">
+                      <div className="flex justify-between items-center">
+                        <div
+                          className={`w-2 h-2 rounded-full m-2 ${
+                            !n.readed ? "bg-white" : ""
+                          }`}
+                        ></div>
 
-                      <div className="mr-2">
-                        <div className="flex items-center gap-2">
-                          <p className="p-2">
-                            {n.type === "verification" ? (
-                              `El doctor ${n.userSend.surname}, ${n.userSend.name} solicitó verificación de su cuenta`
-                            ) : n.type === "comment" ? (
-                              <>
-                                El{" "}
-                                {props.auth.role === "user"
-                                  ? "doctor"
-                                  : "usuario"}{" "}
-                                {n.userSend.surname}, {n.userSend.name} realizó
-                                un comentario en la reunión del día{" "}
-                                <span>
-                                  {moment(n.meeting.startDatetime).format(
-                                    "LLL"
-                                  )}
-                                </span>
-                              </>
-                            ) : (
-                              ""
-                            )}
+                        <div className="mr-2">
+                          <div className="flex items-center gap-2">
+                            <p className="p-2">
+                              {n.type === "verification" ? (
+                                `El doctor ${n.userSend.surname}, ${n.userSend.name} solicitó verificación de su cuenta`
+                              ) : n.type === "comment" ? (
+                                <>
+                                  El{" "}
+                                  {props.auth.role === "user"
+                                    ? "doctor"
+                                    : "usuario"}{" "}
+                                  {n.userSend.surname}, {n.userSend.name}{" "}
+                                  realizó un comentario en la reunión del día{" "}
+                                  <span>
+                                    {moment(n.meeting.startDatetime).format(
+                                      "LLL"
+                                    )}
+                                  </span>
+                                </>
+                              ) : (
+                                ""
+                              )}
+                            </p>
+                          </div>
+                          <p className="text-right p-2">
+                            {moment(n.created_at).format("LLL")}
                           </p>
                         </div>
-                        <p className="text-right p-2">
-                          {moment(n.created_at).format("LLL")}
-                        </p>
-                      </div>
-                      <div className="min-w-12 flex justify-end gap-2 text-xl">
-                        {!n.readed ? (
-                          <FaEnvelope
-                            className="hover:cursor-pointer hover:opacity-70"
-                            onClick={() => markAsRead(n.id)}
-                          />
-                        ) : (
-                          <FaEnvelopeOpen />
-                        )}
-                        <Link
-                          href={
-                            n.type === "comment"
-                              ? `/meetings/${btoa(
-                                  n.meeting.userId +
-                                    "." +
-                                    moment(n.meeting.startDatetime).format(
-                                      "YYYY-MM-DDTHH:mm:ss"
-                                    )
-                                )}`
-                              : ""
-                          }
-                          onClick={() => {
-                            markAsRead(n.id);
-                            setOpenN(!openN);
-                          }}
-                        >
-                          <FaAngleRight className="hover:opacity-70" />
-                        </Link>
+                        <div className="min-w-12 flex justify-end gap-2 text-xl">
+                          {!n.readed ? (
+                            <FaEnvelope
+                              className="hover:cursor-pointer hover:opacity-70"
+                              onClick={() => markAsRead(n.id)}
+                            />
+                          ) : (
+                            <FaEnvelopeOpen />
+                          )}
+                          <Link
+                            href={
+                              n.type === "comment"
+                                ? `/meetings/${btoa(
+                                    n.meeting.userId +
+                                      "." +
+                                      moment(n.meeting.startDatetime).format(
+                                        "YYYY-MM-DDTHH:mm:ss"
+                                      )
+                                  )}`
+                                : ""
+                            }
+                            onClick={() => {
+                              markAsRead(n.id);
+                              setOpenN(!openN);
+                            }}
+                          >
+                            <FaAngleRight className="hover:opacity-70" />
+                          </Link>
+                        </div>
                       </div>
                     </div>
+                    <div className="w-[80%] border-b-2 border-white h-2 m-auto"></div>
                   </div>
-                  <div className="w-[80%] border-b-2 border-white h-2 m-auto"></div>
-                </div>
-              </MenuItem>
-            );
-          })}
+                </MenuItem>
+              );
+            })}
+          </div>
         </Menu>
         <Tooltip placement="bottom" title="Perfil">
           <IconButton

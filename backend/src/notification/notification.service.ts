@@ -5,6 +5,7 @@ import { createNotificationDto } from './dto/create-notification.dto';
 import { Notification } from 'src/entities/notification.entity';
 import { UserService } from 'src/user/user.service';
 import { MeetingService } from 'src/meeting/meeting.service';
+import { HealthInsuranceService } from 'src/health-insurance/health-insurance.service';
 
 @Injectable()
 export class NotificationService {
@@ -13,6 +14,7 @@ export class NotificationService {
     private notificationRepository: Repository<Notification>,
     private userService: UserService,
     private meetingService: MeetingService,
+    private healthInsuranceService: HealthInsuranceService,
   ) {}
 
   findAllByUser(id: number): Promise<Notification[]> {
@@ -25,6 +27,7 @@ export class NotificationService {
       relations: {
         userSend: true,
         meeting: true,
+        healthInsurance: true,
       },
       order: {
         created_at: 'desc',
@@ -63,6 +66,14 @@ export class NotificationService {
       );
 
       newNotification.meeting = meetingFound;
+    }
+
+    if (notification.healthInsuranceId) {
+      const hi = await this.healthInsuranceService.findOne(
+        notification.healthInsuranceId,
+      );
+
+      newNotification.healthInsurance = hi;
     }
 
     return this.notificationRepository.save(newNotification);

@@ -31,9 +31,11 @@ import {
   DialogContentText,
   DialogTitle,
   Divider,
+  IconButton,
   MenuItem,
   Select,
   Snackbar,
+  Tooltip,
   useTheme,
 } from "@mui/material";
 import { UserResponseDto } from "@/components/dto/user.dto";
@@ -129,6 +131,7 @@ export default function Config(props: ConfigProps) {
   ]);
   const [minutesTo, setMinutesTo] = useState<string[]>([]);
   const [healthInsurance, setHealthInsurance] = useState<number>(0);
+  const [healthInsuranceVerify, setHealthInsuranceVerify] = useState<number>(0);
   const [duration, setDuration] = useState<number>(
     props.doctor.durationMeeting
   );
@@ -143,6 +146,8 @@ export default function Config(props: ConfigProps) {
   const [confirmSchedule, setConfirmSchedule] = useState<boolean>(false);
   const [confirmUpdate, setConfirmUpdate] = useState<boolean>(false);
   const [confirmVerification, setConfirmVerification] =
+    useState<boolean>(false);
+  const [confirmVerificationHI, setConfirmVerificationHI] =
     useState<boolean>(false);
   const [confirmCancelPlan, setConfirmCancelPlan] = useState<boolean>(false);
   const [confirmHealthInsurance, setConfirmHealthInsurance] =
@@ -272,6 +277,9 @@ export default function Config(props: ConfigProps) {
     } else if (confirmVerification) {
       handleClickVerification();
       setConfirmVerification(false);
+    } else if (confirmVerificationHI) {
+      handleClickVerificationHI();
+      setConfirmVerificationHI(false);
     } else if (confirmCancelPlan) {
       handleClickCancelPlan();
       setConfirmCancelPlan(false);
@@ -296,6 +304,35 @@ export default function Config(props: ConfigProps) {
         userIdSend: props.auth.id,
         userIdReceive: user.data.id,
         type: "verification",
+      },
+      {
+        withCredentials: true,
+        headers: { Authorization: `Bearer ${props.auth.token}` },
+      }
+    );
+
+    setMessage("Solicitud realizada con éxito!");
+    setSuccess(true);
+
+    router.push("/config");
+  };
+
+  const handleClickVerificationHI = async () => {
+    const user = await axios.get(
+      `${process.env.NEXT_PUBLIC_API_URL}/user/admin`,
+      {
+        withCredentials: true,
+        headers: { Authorization: `Bearer ${props.auth.token}` },
+      }
+    );
+
+    await axios.post(
+      `${process.env.NEXT_PUBLIC_API_URL}/notification`,
+      {
+        userIdSend: props.auth.id,
+        userIdReceive: user.data.id,
+        type: "verification hi",
+        healthInsuranceId: healthInsuranceVerify,
       },
       {
         withCredentials: true,
@@ -613,7 +650,7 @@ export default function Config(props: ConfigProps) {
                         <p className="text-primary text-xl">Dia</p>
                       </div>
                       <Select
-                        className="w-1/4 outline outline-2 outline-primary hover:outline-green-600"
+                        className="w-1/4 outline outline-1 outline-primary hover:outline-green-600"
                         value={day}
                         onChange={($e: any) => setDay($e.target.value)}
                       >
@@ -627,7 +664,7 @@ export default function Config(props: ConfigProps) {
                         <p className="text-primary text-xl">Desde</p>
                       </div>
                       <Select
-                        className="w-1/4 outline outline-2 outline-primary"
+                        className="w-1/4 outline outline-1 outline-primary"
                         value={from}
                         onChange={handleChange}
                       >
@@ -643,7 +680,7 @@ export default function Config(props: ConfigProps) {
                         <p className="text-primary text-xl">Hasta</p>
                       </div>
                       <Select
-                        className="w-1/4 outline outline-2 outline-primary hover:outline-green-600"
+                        className="w-1/4 outline outline-1 outline-primary hover:outline-green-600"
                         value={to}
                         onChange={($e: any) => setTo($e.target.value)}
                       >
@@ -844,11 +881,35 @@ export default function Config(props: ConfigProps) {
                       return (
                         <div
                           key={hi.healthInsurance.id}
-                          className="flex items-center gap-2 p-2 bg-primary text-white rounded-md"
+                          className="flex items-center gap-2 p-1 bg-primary text-white rounded-md"
                         >
-                          <FaCheckCircle />
-                          <p>{hi.healthInsurance.name}</p>
-                          <FaXmark className="hover:cursor-pointer hover:text-slate-300" />
+                          {hi.verified ? (
+                            <>
+                              <Tooltip title="Verificado">
+                                <IconButton className="text-white text-md">
+                                  <FaCircleCheck />
+                                </IconButton>
+                              </Tooltip>
+                            </>
+                          ) : (
+                            <>
+                              <Tooltip
+                                title="Verificar"
+                                onClick={() => {
+                                  setHealthInsuranceVerify(
+                                    hi.healthInsurance.id
+                                  );
+                                  setConfirmVerificationHI(true);
+                                }}
+                              >
+                                <IconButton className="text-white text-md">
+                                  <FaCircleXmark />
+                                </IconButton>
+                              </Tooltip>
+                            </>
+                          )}
+
+                          <p className="pr-2">{hi.healthInsurance.name}</p>
                         </div>
                       );
                     })}
@@ -862,6 +923,7 @@ export default function Config(props: ConfigProps) {
               confirmSchedule ||
               confirmUpdate ||
               confirmVerification ||
+              confirmVerificationHI ||
               confirmCancelPlan ||
               confirmHealthInsurance
             }
@@ -869,6 +931,7 @@ export default function Config(props: ConfigProps) {
               setConfirmSchedule(false);
               setConfirmUpdate(false);
               setConfirmVerification(false);
+              setConfirmVerificationHI(false);
               setConfirmCancelPlan(false);
               setConfirmHealthInsurance(false);
             }}
@@ -881,7 +944,9 @@ export default function Config(props: ConfigProps) {
                 : confirmUpdate
                 ? "Datos personales"
                 : confirmVerification
-                ? "Verificacion"
+                ? "Verificacion de cuenta"
+                : confirmVerificationHI
+                ? "Verificacion de obra social"
                 : confirmCancelPlan
                 ? "Cancelar plan"
                 : confirmHealthInsurance
@@ -896,6 +961,8 @@ export default function Config(props: ConfigProps) {
                   ? "¿Desea actualizar los datos?"
                   : confirmVerification
                   ? "¿Desea solicitar la verificacion de la cuenta?"
+                  : confirmVerificationHI
+                  ? "¿Desea solicitar la verificacion de la obra social?"
                   : confirmCancelPlan
                   ? "¿Desea cancelar su plan actual?"
                   : confirmHealthInsurance
@@ -911,6 +978,7 @@ export default function Config(props: ConfigProps) {
                   setConfirmSchedule(false);
                   setConfirmUpdate(false);
                   setConfirmVerification(false);
+                  setConfirmVerificationHI(false);
                   setConfirmCancelPlan(false);
                   setConfirmHealthInsurance(false);
                 }}

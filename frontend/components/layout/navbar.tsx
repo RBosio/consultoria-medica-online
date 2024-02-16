@@ -209,6 +209,8 @@ const Navbar: React.FC<NavbarProps> = (props) => {
                                     )}
                                   </span>
                                 </>
+                              ) : n.type === "verification hi" ? (
+                                `El doctor ${n.userSend.surname}, ${n.userSend.name} solicitó verificación de la obra social ${n.healthInsurance.name}`
                               ) : (
                                 ""
                               )}

@@ -8,6 +8,7 @@ import {
   FaMicrophone,
   FaMicrophoneSlash,
   FaPaperPlane,
+  FaUserDoctor,
   FaVideo,
   FaVideoSlash,
   FaXmark,
@@ -18,6 +19,7 @@ import { VideoClient } from "@zoom/videosdk";
 import Input from "@/components/input";
 import { robotoBold } from "@/lib/fonts";
 import axios from "axios";
+import Avatar from "@/components/avatar";
 
 export default function Meeting(props: any) {
   const theme = useTheme();
@@ -25,22 +27,22 @@ export default function Meeting(props: any) {
 
   let client: typeof VideoClient;
 
-  const [meet, setMeet] = useState<any>();
   const [doctor, setDoctor] = useState<DoctorResponseDto>();
   const [user, setUser] = useState<UserResponseDto>();
   const [audio, setAudio] = useState<boolean>(true);
   const [video, setVideo] = useState<boolean>(true);
   const [text, setText] = useState<string>("");
   const [history, setHistory] = useState<any[]>([]);
-  const t: any[] = [];
+  const [showControls, setShowControls] = useState(false);
 
+  console.log(doctor);
 
-  async function join(){
+  async function join() {
     const { id } = router.query;
 
     if (id && typeof id === "string") {
       const [t, startDatetime] = atob(id).split(".");
-      
+
       const res = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/meeting/join/${t}/${startDatetime}`,
         {},
@@ -49,7 +51,7 @@ export default function Meeting(props: any) {
           headers: { Authorization: `Bearer ${props.auth.token}` },
         }
       );
-      
+
       const resp = {
         user: res.data.meeting.user,
         doctor: res.data.meeting.doctor,
@@ -59,14 +61,14 @@ export default function Meeting(props: any) {
       return resp
     }
   }
-  
+
   const joinMeeting = async (
     topic: string,
     token: string,
     myVideo: HTMLVideoElement,
     otherCanvas: HTMLCanvasElement
-    ) => {
-      await client.join(
+  ) => {
+    await client.join(
       topic,
       token,
       `${props.auth.name} ${props.auth.surname}`,
@@ -128,27 +130,27 @@ export default function Meeting(props: any) {
   const meeting = async () => {
     const ZoomVideo = await (await import("@zoom/videosdk")).default;
     const resp = await join()
-  
+
     setUser(resp?.user)
     setDoctor(resp?.doctor)
-      
-    console.log(resp)
-      const myVideo = document.getElementById("my-video") as HTMLVideoElement;
-      const otherCanvas = document.getElementById(
-        "other-canvas"
-      ) as HTMLCanvasElement;
-  
-      const client = await getClient();
 
-      if (
-        ZoomVideo.checkSystemRequirements().video &&
-        ZoomVideo.checkSystemRequirements().audio
-      ) {
-        await client.init("en-US", "Global", { patchJsMedia: true });
-        await BindEvents();
-  
-        await joinMeeting(resp?.tpc, resp?.token, myVideo, otherCanvas);
-      }
+    console.log(resp)
+    const myVideo = document.getElementById("my-video") as HTMLVideoElement;
+    const otherCanvas = document.getElementById(
+      "other-canvas"
+    ) as HTMLCanvasElement;
+
+    const client = await getClient();
+
+    if (
+      ZoomVideo.checkSystemRequirements().video &&
+      ZoomVideo.checkSystemRequirements().audio
+    ) {
+      await client.init("en-US", "Global", { patchJsMedia: true });
+      await BindEvents();
+
+      await joinMeeting(resp?.tpc, resp?.token, myVideo, otherCanvas);
+    }
   };
 
   useEffect(() => {
@@ -232,59 +234,75 @@ export default function Meeting(props: any) {
   return (
     <Layout renderSidebar={false} auth={props.auth}>
       <div className="flex h-full">
-        <div className="w-full flex flex-col justify-center items-center xl:p-5">
-          <div className="relative w-[500px] h-[281px] md:w-[650px] md:h-[365px] lg:w-[700px] lg:h-[394px] xl:w-[900px] xl:h-[506px]">
-            <div className="right-3 top-3 absolute w-[150px] h-[84px] lg:w-[200px] lg:h-[113px]">
-              <div className="relative">
-                <video
-                  id="my-video"
-                  className="bg-gray-800"
-                  style={{ width: "100%", height: "auto" }}
-                ></video>
-                <p className="absolute bottom-0 right-0 text-white mr-2">
-                  {`${props.auth.name} ${props.auth.surname} (You)`}
-                </p>
+        <div className="w-full flex flex-col relative justify-center items-center xl:p-5">
+          <div className="flex flex-col">
+            <div className="flex justify-between bg-primary p-4 rounded-t-md">
+              <Avatar
+                labelProps={{ className: "text-white font-bold text-lg ml-2" }}
+                name={doctor?.user.name ?? ""}
+                surname={doctor?.user.surname ?? ""}
+                className="bg-white"
+                size={70}
+                icon={<FaUserDoctor color={theme.palette.primary.main} size={30} />}
+                photo={doctor?.user.image ? doctor.user.image : undefined} />
+            </div>
+            <div
+              onMouseEnter={() => setShowControls(true)}
+              onMouseLeave={() => setShowControls(false)}
+              className="relative w-[500px] h-[281px] md:w-[650px] md:h-[365px] lg:w-[700px] lg:h-[394px] xl:w-[1000px] xl:h-[562px] overflow-hidden">
+              <div className="right-3 top-3 absolute w-[150px] h-[84px] lg:w-[200px] lg:h-[113px]">
+                <div className="relative">
+                  <video
+                    id="my-video"
+                    className="bg-gray-800"
+                    style={{ width: "100%", height: "auto" }}
+                  ></video>
+                  <p className="absolute bottom-0 right-0 text-white mr-2">
+                    {`${props.auth.name} ${props.auth.surname} (You)`}
+                  </p>
+                </div>
+              </div>
+              <video
+                id="other-canvas"
+                className="bg-gray-600 rounded-b-md"
+                style={{ width: "100%", height: "100%" }}
+              ></video>
+              <p className="absolute bottom-0 right-0 text-white mr-2">
+                {props.auth.role !== "user"
+                  ? `${user ? user.name : ""} ${user ? user.surname : ""}`
+                  : `${doctor ? doctor.user.name : ""} ${doctor ? doctor.user.surname : ""
+                  }`}
+              </p>
+              <div className={`absolute ${showControls ? "bottom-0" : "bottom-[-10%]"} transition-[bottom] ease duration-100 p-4 w-full flex gap-10 justify-center`}>
+                <div
+                  className="w-10 h-10 bg-primary text-white rounded-full flex justify-center items-center hover:opacity-70 hover:cursor-pointer"
+                  onClick={toggleAudio}
+                >
+                  {audio ? (
+                    <FaMicrophone className="text-xl" />
+                  ) : (
+                    <FaMicrophoneSlash className="text-xl" />
+                  )}
+                </div>
+                <div
+                  className="w-10 h-10 bg-primary text-white rounded-full flex justify-center items-center hover:opacity-70 hover:cursor-pointer"
+                  onClick={toggleVideo}
+                >
+                  {video ? (
+                    <FaVideo className="text-xl" />
+                  ) : (
+                    <FaVideoSlash className="text-xl" />
+                  )}
+                </div>
+                <div
+                  className="w-10 h-10 bg-red-600 text-white rounded-full flex justify-center items-center hover:opacity-70 hover:cursor-pointer"
+                  onClick={leaveSession}
+                >
+                  <FaXmark className="text-xl" />
+                </div>
               </div>
             </div>
-            <video
-              id="other-canvas"
-              className="bg-gray-600"
-              style={{ width: "100%", height: "100%" }}
-            ></video>
-            <p className="absolute bottom-0 right-0 text-white mr-2">
-              {props.auth.role !== "user"
-                ? `${user ? user.name : ""} ${user ? user.surname : ""}`
-                : `${doctor ? doctor.user.name : ""} ${doctor ? doctor.user.surname : ""
-                }`}
-            </p>
-            <div className="w-full h-auto flex flex-col p-2 gap-6 absolute left-4 top-1/2 translate-y-[-50%]">
-              <div
-                className="w-10 h-10 bg-primary text-white rounded-full flex justify-center items-center hover:opacity-70 hover:cursor-pointer"
-                onClick={toggleAudio}
-              >
-                {audio ? (
-                  <FaMicrophone className="text-xl" />
-                ) : (
-                  <FaMicrophoneSlash className="text-xl" />
-                )}
-              </div>
-              <div
-                className="w-10 h-10 bg-primary text-white rounded-full flex justify-center items-center hover:opacity-70 hover:cursor-pointer"
-                onClick={toggleVideo}
-              >
-                {video ? (
-                  <FaVideo className="text-xl" />
-                ) : (
-                  <FaVideoSlash className="text-xl" />
-                )}
-              </div>
-              <div
-                className="w-10 h-10 bg-red-600 text-white rounded-full flex justify-center items-center hover:opacity-70 hover:cursor-pointer"
-                onClick={leaveSession}
-              >
-                <FaXmark className="text-xl" />
-              </div>
-            </div>
+
           </div>
         </div>
         <section className="w-2/6 h-[calc(100%-30px)] my-4 mr-4 bg-white rounded-lg">
@@ -351,5 +369,5 @@ export const getServerSideProps = withAuth(
       },
     };
   },
-  {protected: true}
+  { protected: true }
 );

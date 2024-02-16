@@ -83,7 +83,7 @@ export default function Doctor(props: any) {
     return (
         <Layout auth={props.auth}>
             <section className="h-full flex overflow-y-auto xl:p-8">
-                <div className="w-full flex flex-col xl:flex-row xl:gap-6 xl:mt-[3rem]">
+                <div className="w-full flex flex-col xl:flex-row xl:gap-6 xl:mt-[3rem] h-full">
                     <div className="w-full bg-white shrink-0 relative xl:rounded-md xl:shadow-md xl:w-4/12">
                         <Avatar
                             labelProps={{ className: "hidden xl:hidden" }}

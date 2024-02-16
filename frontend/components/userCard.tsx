@@ -17,26 +17,10 @@ import { MeetingResponseDto } from "./dto/meeting.dto";
 import moment from "moment";
 import Button from "./button";
 import Link from "next/link";
+import { showDni } from "@/lib/dni";
 
 const UserCard: React.FC<MeetingResponseDto> = (props) => {
   const theme = useTheme();
-
-  function showDni() {
-    let dni = props.user.dni;
-
-    dni = dni
-      .split("")
-      .map((l, i) => {
-        if (i === 2 || i === 5) {
-          return "." + l;
-        }
-
-        return l;
-      })
-      .join("");
-
-    return dni;
-  }
 
   return (
     <div className="bg-white rounded-md h-full flex flex-col relative w-full">
@@ -74,7 +58,7 @@ const UserCard: React.FC<MeetingResponseDto> = (props) => {
           </div>
           <div className="flex items-center">
             <FaAddressCard className="text-primary" />
-            <p className="px-2">{showDni()}</p>
+            <p className="px-2">{showDni(props.user.dni)}</p>
           </div>
           <div className="flex items-center">
             <FaCalendarDays className="text-primary" />

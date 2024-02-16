@@ -35,6 +35,12 @@ export class MeetingController {
         return this.meetingService.findAllByDoctor(userId, query)
     }
     
+    @Get('medicalRecord/:userId/:doctorId')
+    @Roles(RoleEnum.User, RoleEnum.Doctor)
+    getMeetingsNoMR(@Param('userId') userId: number, @Param('doctorId') doctorId: number): Promise<Meeting[] | HttpException> {
+        return this.meetingService.findByMedicalRecords(userId, doctorId)
+    }
+
     @Get(':id/:startDatetime')
     @Roles(RoleEnum.User, RoleEnum.Doctor)
     getMeeting(@Param('id') id: number, @Param('startDatetime') startDatetime: Date): Promise<Meeting | HttpException> {

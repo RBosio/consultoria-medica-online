@@ -84,12 +84,14 @@ export class MedicalRecordService {
         }
         
         let newMedicalRecord = this.medicalRecordRepository.create(medicalRecord)
-        
+
         const meetingFound = await this.meetingService.findOne(medicalRecord.userId, medicalRecord.startDatetime)
         
         newMedicalRecord = await this.medicalRecordRepository.save(newMedicalRecord)
         
         meetingFound.medicalRecordDatetime = medicalRecord.datetime
+        console.log(meetingFound.userId, meetingFound.startDatetime)
+        
         await this.meetingService.update(meetingFound.userId, meetingFound.startDatetime, meetingFound)
         
         return newMedicalRecord

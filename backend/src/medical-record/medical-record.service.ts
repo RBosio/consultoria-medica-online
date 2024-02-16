@@ -23,7 +23,7 @@ export class MedicalRecordService {
         return this.medicalRecordRepository.find()
     }
     
-    async findByUser(userId: number): Promise<MedicalRecord[]> {
+    async findByUser(userId: number, page: number): Promise<MedicalRecord[]> {
         return this.medicalRecordRepository.find({
             where: {
                 meeting: {
@@ -35,10 +35,14 @@ export class MedicalRecordService {
             relations: {
                 meeting: {
                     user: true,
-                    doctor: true
+                    doctor: {
+                        user: true
+                    }
                 },
                 files: true
-            }
+            },
+            skip: page ? (page - 1) * 5 : 0,
+            take: 5
         })
     }
     
@@ -54,6 +58,19 @@ export class MedicalRecordService {
         }
         
         return medicalRecordFound
+    }
+
+    async getPages(userId: number): Promise<number> {
+        const [_, count] = await this.medicalRecordRepository.findAndCount({
+            where: {
+                meeting: {
+                    user: {
+                        id: userId
+                    }
+                }
+            },
+        })
+        return Math.round(count / 5)
     }
 
     async create(medicalRecord: createMedicalRecordDto): Promise<MedicalRecord | HttpException> {

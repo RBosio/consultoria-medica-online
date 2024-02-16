@@ -16,6 +16,7 @@ import {
 import { MeetingResponseDto } from "./dto/meeting.dto";
 import moment from "moment";
 import Button from "./button";
+import Link from "next/link";
 
 const UserCard: React.FC<MeetingResponseDto> = (props) => {
   const theme = useTheme();
@@ -94,8 +95,16 @@ const UserCard: React.FC<MeetingResponseDto> = (props) => {
             <FaSuitcaseMedical className="text-primary" />
             {props.user.healthInsurances.map((h) => {
               return (
-                <p className="px-2 flex items-center gap-2" key={h.healthInsurance.id}>
-                  {h.healthInsurance.name} {h.verified ? <FaCircleCheck className="text-green-600 text-xl"/> : <FaCircleXmark className="text-red-600 text-xl" />}
+                <p
+                  className="px-2 flex items-center gap-2"
+                  key={h.healthInsurance.id}
+                >
+                  {h.healthInsurance.name}{" "}
+                  {h.verified ? (
+                    <FaCircleCheck className="text-green-600 text-xl" />
+                  ) : (
+                    <FaCircleXmark className="text-red-600 text-xl" />
+                  )}
                 </p>
               );
             })}
@@ -103,8 +112,10 @@ const UserCard: React.FC<MeetingResponseDto> = (props) => {
         </div>
         <div className="w-3/4 h-2 border-b-2 border-emerald-200"></div>
       </div>
-      <div className="h-full flex justify-center items-end">
-        <Button className="w-3/4 my-4">Historia clinica</Button>
+      <div className="h-full flex justify-center items-end my-4">
+        <Link href={`/medical-record/${props.user.id}`}>
+          <Button className="w-full">Historia clinica</Button>
+        </Link>
       </div>
     </div>
   );

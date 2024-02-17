@@ -69,6 +69,8 @@ export class MedicalRecordController {
                     destination: './public/uploads/medical-record',
                     filename: (req, file, cb) => {
                         req.body.url = uuidv4() + '.' + file.originalname.split('.').slice(-1)
+                        req.body.name = file.originalname
+                        
                         cb(null, req.body.url)
                     }
                 })
@@ -80,6 +82,6 @@ export class MedicalRecordController {
     uploadFile(@Param('datetime') datetime: Date, @Req() request: Request) {
         const { body } = request
 
-        return this.medicalRecordService.uploadFile(datetime, body.url)
+        return this.medicalRecordService.uploadFile(datetime, body)
     }
 }

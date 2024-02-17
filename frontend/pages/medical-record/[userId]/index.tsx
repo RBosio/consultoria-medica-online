@@ -18,13 +18,15 @@ import {
   FaAddressCard,
   FaChevronLeft,
   FaChevronRight,
+  FaCircleInfo,
   FaEnvelope,
+  FaPaperclip,
   FaPhone,
   FaUser,
 } from "react-icons/fa6";
 import { useRouter } from "next/router";
 import Link from "next/link";
-import { MenuItem, Select, TextField } from "@mui/material";
+import { Chip, MenuItem, Select, TextField } from "@mui/material";
 import Button from "@/components/button";
 import { MeetingResponseDto } from "@/components/dto/meeting.dto";
 import { showDni } from "@/lib/dni";
@@ -42,6 +44,9 @@ export default function MedicalRecord(props: MedicalRecordI) {
   const [detail, setDetail] = useState<string>();
   const [observations, setObservations] = useState<string>();
   const [meeting, setMeeting] = useState<any>();
+  const [datetime, setDatetime] = useState<any>();
+  const [file, setFile] = useState<any>();
+  const [files, setFiles] = useState<boolean>(false);
 
   const handleClickAdd = async () => {
     if (detail && meeting) {
@@ -66,9 +71,56 @@ export default function MedicalRecord(props: MedicalRecordI) {
     }
   };
 
+  const handleClickAddFile = async () => {
+    if (
+      file.type?.includes("office") ||
+      file.type?.includes("pdf") ||
+      file.type?.includes("jpg") ||
+      file.type?.includes("jpeg") ||
+      file.type?.includes("png")
+    ) {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("type", file.type);
+      await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/medicalRecord/${moment(
+          datetime
+        ).format("YYYY-MM-DDTHH:mm:ss")}/file`,
+        formData,
+        {
+          withCredentials: true,
+          headers: {
+            Authorization: `Bearer ${props.auth.token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+    }
+
+    setFile(null);
+    router.push(`/medical-record/${router.query.userId}`);
+  };
+
+  async function handleClick(name: string, type: string) {
+    await axios({
+      //url: `http://localhost:3000/uploads/user/files/${files.url}`,
+      method: "GET",
+      responseType: "blob",
+    }).then((response) => {
+      if (type.includes("office")) {
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", `${name}`);
+        document.body.appendChild(link);
+        link.click();
+      }
+    });
+  }
+
   return (
-    <Layout auth={props.auth}>
-      <section className="bg-white w-5/6 mx-auto">
+    <Layout auth={props.auth} className="md:overflow-y-hidden">
+      <section className="bg-white w-5/6 mx-auto h-full">
         <div className="flex justify-between items-center px-8 pt-8">
           <div className="flex items-center">
             {props.medicalRecords[0]?.meeting.user.image ? (
@@ -165,115 +217,250 @@ export default function MedicalRecord(props: MedicalRecordI) {
             </div>
           </div>
         </div>
-        <div className="flex justify-end items-center gap-2 text-primary p-4">
-          <Link
-            href={`/medical-record/${router.query.userId}?page=${
-              router.query.page && Number(router.query.page) > 1
-                ? Number(router.query.page) - 1
-                : 1
-            }`}
-          >
-            <FaChevronLeft className="text-2xl" />
-          </Link>
-          <Link
-            href={`/medical-record/${router.query.userId}?page=${
-              router.query.page && Number(router.query.page) < props.pages
-                ? Number(router.query.page) + 1
-                : props.pages
-            }`}
-          >
-            <FaChevronRight className="text-2xl" />
-          </Link>
-          <p className="text-md">
-            Pagina {router.query.page ? router.query.page : 1} - {props.pages}
-          </p>
-        </div>
-        <TableContainer component={Paper}>
-          <Table aria-label="medical record table">
-            <TableHead sx={{ bgcolor: PRIMARY_COLOR }}>
-              <TableRow>
-                <TableCell
-                  align="center"
-                  sx={{ color: "#fff", padding: "1.2rem", fontSize: "1.2rem" }}
-                >
-                  Nombre medico
-                </TableCell>
-                <TableCell
-                  align="center"
-                  sx={{ color: "#fff", padding: "1.2rem", fontSize: "1.2rem" }}
-                >
-                  Apellido medico
-                </TableCell>
-                <TableCell
-                  align="center"
-                  sx={{ color: "#fff", padding: "1.2rem", fontSize: "1.2rem" }}
-                >
-                  Fecha de la reunion
-                </TableCell>
-                <TableCell
-                  align="center"
-                  sx={{
-                    color: "#fff",
-                    padding: "1.2rem",
-                    fontSize: "1.2rem",
-                    width: "40%",
-                  }}
-                >
-                  Detalle
-                </TableCell>
-                <TableCell
-                  align="center"
-                  sx={{
-                    color: "#fff",
-                    padding: "1.2rem",
-                    fontSize: "1.2rem",
-                  }}
-                >
-                  Observaciones
-                </TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {props.medicalRecords.map((row, idx) => (
-                <TableRow
-                  key={idx}
-                  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-                >
+        <div className="mx-8 mt-8">
+          <div className="flex justify-end items-center gap-2 text-primary py-4">
+            <Link
+              href={`/medical-record/${router.query.userId}?page=${
+                router.query.page && Number(router.query.page) > 1
+                  ? Number(router.query.page) - 1
+                  : 1
+              }`}
+            >
+              <FaChevronLeft className="text-2xl" />
+            </Link>
+            <Link
+              href={`/medical-record/${router.query.userId}?page=${
+                router.query.page && Number(router.query.page) < props.pages
+                  ? Number(router.query.page) + 1
+                  : props.pages
+              }`}
+            >
+              <FaChevronRight className="text-2xl" />
+            </Link>
+            <p className="text-md">
+              Pagina {router.query.page ? router.query.page : 1} - {props.pages}
+            </p>
+          </div>
+          <TableContainer component={Paper}>
+            <Table aria-label="medical record table">
+              <TableHead sx={{ bgcolor: PRIMARY_COLOR }}>
+                <TableRow>
                   <TableCell
                     align="center"
-                    sx={{ padding: "1.2rem", fontSize: "1.2rem" }}
+                    sx={{
+                      color: "#fff",
+                      padding: "1.2rem",
+                      fontSize: "1.2rem",
+                    }}
                   >
-                    {row.meeting.doctor.user.name}
+                    Medico
                   </TableCell>
                   <TableCell
                     align="center"
-                    sx={{ padding: "1.2rem", fontSize: "1.2rem" }}
+                    sx={{
+                      color: "#fff",
+                      padding: "1.2rem",
+                      fontSize: "1.2rem",
+                    }}
                   >
-                    {row.meeting.doctor.user.name}
+                    Especialidad
                   </TableCell>
                   <TableCell
                     align="center"
-                    sx={{ padding: "1.2rem", fontSize: "1.2rem" }}
+                    sx={{
+                      color: "#fff",
+                      padding: "1.2rem",
+                      fontSize: "1.2rem",
+                    }}
                   >
-                    {moment(row.meeting.startDatetime).format("LLL")}
+                    Fecha de la reunion
                   </TableCell>
                   <TableCell
                     align="center"
-                    sx={{ padding: "1.2rem", fontSize: "1.2rem" }}
+                    sx={{
+                      color: "#fff",
+                      padding: "1.2rem",
+                      fontSize: "1.2rem",
+                      width: "30%",
+                    }}
                   >
-                    {row.detail}
+                    <div className="flex justify-center items-center gap-2">
+                      Detalle{" "}
+                      {
+                        <FaCircleInfo
+                          className="text-xl hover:cursor-pointer hover:opacity-70"
+                          onClick={() => {
+                            setFile(null);
+                            setFiles(true);
+                          }}
+                        />
+                      }
+                    </div>
                   </TableCell>
                   <TableCell
                     align="center"
-                    sx={{ padding: "1.2rem", fontSize: "1.2rem" }}
+                    sx={{
+                      color: "#fff",
+                      padding: "1.2rem",
+                      fontSize: "1.2rem",
+                    }}
                   >
-                    {row.observations}
+                    Observaciones
                   </TableCell>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+              </TableHead>
+              <TableBody>
+                {props.medicalRecords.map((row, idx) => (
+                  <TableRow
+                    key={idx}
+                    sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                  >
+                    <TableCell
+                      align="center"
+                      sx={{ padding: "1.2rem", fontSize: "1.2rem" }}
+                    >
+                      {row.meeting.doctor.user.surname +
+                        ", " +
+                        row.meeting.doctor.user.name}
+                    </TableCell>
+                    <TableCell
+                      align="center"
+                      sx={{ padding: "1.2rem", fontSize: "1.2rem" }}
+                    >
+                      <div className="flex justify-center gap-2">
+                        {row.meeting.doctor.specialities.map((s) => {
+                          return (
+                            <Chip
+                              key={s.id}
+                              size="small"
+                              variant="outlined"
+                              color="primary"
+                              label={s.name}
+                            />
+                          );
+                        })}
+                      </div>
+                    </TableCell>
+                    <TableCell
+                      align="center"
+                      sx={{ padding: "1.2rem", fontSize: "1.2rem" }}
+                    >
+                      {moment(row.meeting.startDatetime).format("LLL")}
+                    </TableCell>
+                    <TableCell
+                      align="center"
+                      sx={{
+                        padding: "1.2rem",
+                        fontSize: "1.2rem",
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        gap: "1rem",
+                      }}
+                    >
+                      {row.detail}{" "}
+                      <div className="flex gap-2">
+                        {row.files.length > 0 ? (
+                          ""
+                        ) : (
+                          <FaPaperclip
+                            onClick={() => {
+                              const file = document.getElementById("file");
+                              setDatetime(row.datetime);
+                              setFiles(false);
+                              file?.click();
+                            }}
+                            className="text-primary hover:cursor-pointer hover:opacity-70"
+                          />
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell
+                      align="center"
+                      sx={{ padding: "1.2rem", fontSize: "1.2rem" }}
+                    >
+                      {row.observations ? row.observations : "-"}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </div>
+        <input
+          type="file"
+          name="file"
+          id="file"
+          className="hidden"
+          onChange={($e) =>
+            $e.target.files ? setFile($e.target.files[0]) : ""
+          }
+        />
+        {file ? (
+          <div className="w-1/2 p-8">
+            <div className="flex items-center gap-2">
+              {file?.type.includes("office") ? (
+                <p
+                  className="text-primary mt-[2px] p-[2px] rounded-sm hover:cursor-pointer hover:opacity-70 underline w-3/4"
+                  //              onClick={() => handlerClick(file?.name, file?.type)}
+                >
+                  {file?.name}
+                </p>
+              ) : (
+                <Link
+                  target="_blank"
+                  href={"aca nomas"}
+                  // href={`http://localhost:3000/uploads/user/files/${file?.url}`}
+                >
+                  <p className="text-primary mt-[2px] p-[2px] rounded-sm hover:cursor-pointer hover:opacity-70 underline">
+                    {file?.name}
+                  </p>
+                </Link>
+              )}
+              <Button
+                startIcon={<FaPaperclip />}
+                className="bg-primary text-white"
+                onClick={handleClickAddFile}
+              >
+                Agregar
+              </Button>
+            </div>
+          </div>
+        ) : (
+          ""
+        )}
+        {files ? (
+          <div className="flex justify-center items-center gap-2 text-xl p-4">
+            {props.medicalRecords.map((mr) => {
+              return (
+                <>
+                  {mr.files[0]?.type.includes("office") ? (
+                    <p
+                      className="text-primary mt-[2px] p-[2px] rounded-sm hover:cursor-pointer hover:opacity-70 underline w-3/4"
+                      onClick={() =>
+                        handleClick(mr.files[0].name, mr.files[0].type)
+                      }
+                    >
+                      {file?.name}
+                    </p>
+                  ) : (
+                    <Link
+                      className="flex items-center"
+                      target="_blank"
+                      href={`http://localhost:3000/uploads/medical-record/${mr.files[0]?.url}`}
+                    >
+                      <p className="text-primary mt-[2px] p-[2px] rounded-sm hover:cursor-pointer hover:opacity-70 underline">
+                        {mr.files[0]?.name}
+                      </p>
+                    </Link>
+                  )}
+                </>
+              );
+            })}
+          </div>
+        ) : (
+          ""
+        )}
       </section>
     </Layout>
   );

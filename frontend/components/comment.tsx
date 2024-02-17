@@ -12,7 +12,7 @@ const Comment: React.FC<CommentResponseDto> = (props) => {
   const theme = useTheme();
   const router = useRouter();
 
-  async function handlerClick(name: string, type: string) {
+  async function handleClick(name: string, type: string) {
     await axios({
       url: `http://localhost:3000/uploads/user/files/${props.files.url}`,
       method: "GET",
@@ -54,7 +54,7 @@ const Comment: React.FC<CommentResponseDto> = (props) => {
               <p
                 key={props.files.url}
                 className="text-primary mt-[2px] p-[2px] rounded-sm hover:cursor-pointer hover:opacity-70 underline w-3/4"
-                onClick={() => handlerClick(props.files.name, props.files.type)}
+                onClick={() => handleClick(props.files.name, props.files.type)}
               >
                 {props.files.name}
               </p>

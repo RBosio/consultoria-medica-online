@@ -48,27 +48,48 @@ VALUES
     (6, 14, 18, 1);
 
 INSERT INTO
-    medical_record (datetime, detail)
+    medical_record (datetime, detail, observations)
 VALUES
-    ("2024-01-20T20:00:00", "Detalle");
+    ("2024-01-20T20:00:00", "Detalle", "Observaciones"),
+    ("2024-01-20T20:00:01", "Detalle", "Observaciones"),
+    ("2024-01-20T20:00:02", "Detalle", "Observaciones"),
+    ("2024-01-20T20:00:03", "Detalle", "Observaciones"),
+    ("2024-01-20T20:00:04", "Detalle", "Observaciones"),
+    ("2024-01-20T20:00:05", "Detalle", "Observaciones"),
+    ("2024-01-20T20:00:06", "Detalle", "Observaciones"),
+    ("2024-01-20T20:00:07", "Detalle", "Observaciones"),
+    ("2024-01-20T20:00:08", "Detalle", "Observaciones"),
+    ("2024-01-20T20:00:09", "Detalle", "Observaciones"),
+    ("2024-01-20T20:00:10", "Detalle", "Observaciones"),
+    ("2024-01-20T20:00:11", "Detalle", "Observaciones"),
+    ("2024-01-20T20:00:12", "Detalle", "Observaciones"),
+    ("2024-01-20T20:00:13", "Detalle", "Observaciones"),
+    ("2024-01-20T20:00:14", "Detalle", "Observaciones"),
+    ("2024-01-20T20:00:15", "Detalle", "Observaciones"),
+    ("2024-01-20T20:00:16", "Detalle", "Observaciones"),
+    ("2024-01-20T20:00:17", "Detalle", "Observaciones"),
+    ("2024-01-20T20:00:18", "Detalle", "Observaciones"),
+    ("2024-01-20T20:00:19", "Detalle", "Observaciones"),
+    ("2024-01-20T20:00:20", "Detalle", "Observaciones");
 
 INSERT INTO
     meeting (
         userId,
         startDatetime,
         doctorId,
+        medicalRecordDatetime,
         status
     )
 VALUES
-    (1, "2024-01-17T10:30:00", 1, "Pendiente"),
-    (1, "2024-01-23T09:30:00", 1, "Pendiente"),
-    (1, "2024-02-17T18:00:00", 1, "Pendiente"),
-    (1, "2024-02-09T09:00:00", 1, "Finalizada"),
-    (1, "2024-02-18T14:30:00", 1, "Cancelada"),
-    (1, "2024-04-24T14:00:00", 1, "Finalizada"),
-    (1, "2024-04-19T14:45:00", 1, "Finalizada"),
-    (1, "2024-04-29T09:00:00", 1, "Finalizada"),
-    (1, "2024-05-10T16:30:00", 1, "Cancelada");
+    (1, "2024-01-17T10:30:00", 1, "2024-01-20T20:00:12", "Pendiente"),
+    (1, "2024-01-23T09:30:00", 1, "2024-01-20T20:00:13", "Pendiente"),
+    (1, "2024-02-17T18:00:00", 1, "2024-01-20T20:00:14", "Pendiente"),
+    (1, "2024-02-09T09:00:00", 1, "2024-01-20T20:00:15", "Finalizada"),
+    (1, "2024-02-18T14:30:00", 1, "2024-01-20T20:00:16", "Cancelada"),
+    (1, "2024-04-24T14:00:00", 1, "2024-01-20T20:00:17", "Finalizada"),
+    (1, "2024-04-19T14:45:00", 1, "2024-01-20T20:00:18", "Finalizada"),
+    (1, "2024-04-29T09:00:00", 1, "2024-01-20T20:00:19", "Finalizada"),
+    (1, "2024-05-10T16:30:00", 1, "2024-01-20T20:00:20", "Cancelada");
 
 INSERT INTO
     comment (

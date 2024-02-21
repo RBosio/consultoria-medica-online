@@ -45,19 +45,28 @@ const Navbar: React.FC<NavbarProps> = (props) => {
   const router = useRouter();
 
   const [menuPosition, setMenuPosition] = useState<null | HTMLElement>(null);
+  const [notifyPosition, setNotifyPosition] = useState<null | HTMLElement>(
+    null
+  );
   const [o, setO] = useState(false);
   const [openN, setOpenN] = useState(false);
   const [notifications, setNotifications] = useState<NotificationResponseDto[]>(
     []
   );
   const open = Boolean(menuPosition);
+  const openNotify = Boolean(notifyPosition);
 
   const handleClose = () => {
     setMenuPosition(null);
+    setNotifyPosition(null);
   };
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setMenuPosition(event.currentTarget);
+  };
+
+  const handleClickNotify = (event: React.MouseEvent<HTMLElement>) => {
+    setNotifyPosition(event.currentTarget);
   };
 
   useEffect(() => {
@@ -135,96 +144,138 @@ const Navbar: React.FC<NavbarProps> = (props) => {
         alt="Logo HealthTech"
       />
       <div className="flex items-center justify-center relative">
-        <Badge
-          badgeContent={notifications.filter((n) => !n.readed).length}
-          color="primary"
-          className="text-secondary text-2xl mx-4 hover:cursor-pointer hover:opacity-70"
-          onClick={() => setOpenN(!openN)}
-        >
-          <FaBell className={openN ? 'text-primary' : ''} />
-        </Badge>
-        <div
-          className={`absolute w-[36rem] h-72 -bottom-[19rem] ${openN ? "-right-4" : "-right-[38rem]"
-            } transition-all duration-500 ease-in
-           bg-white border-primary border-4 rounded-md z-50 overflow-y-scroll px-2`}
-        >
-          <div className="flex justify-end">
-            <p
-              className="text-primary p-2 hover:underline hover:cursor-pointer"
-              onClick={markAsReadAll}
+        <Tooltip placement="bottom" title="Notificaciones">
+          <IconButton onClick={handleClickNotify} size="small">
+            <Badge
+              badgeContent={notifications.filter((n) => !n.readed).length}
+              color="primary"
+              className="text-secondary text-2xl mx-4 hover:cursor-pointer hover:opacity-70"
             >
-              Leer todos
-            </p>
-          </div>
-          {notifications.map((n) => {
-            return (
-              <div key={n.id} className="p-2">
-                <div className="flex justify-between items-center">
-                  <div
-                    className={`w-2 h-2 rounded-full m-2 ${!n.readed ? "bg-primary" : ""
-                      }`}
-                  ></div>
+              <FaBell className={openN ? "text-primary" : ""} />
+            </Badge>
+          </IconButton>
+        </Tooltip>
+        <Menu
+          anchorEl={notifyPosition}
+          id="account-menu"
+          open={openNotify}
+          onClose={handleClose}
+          onClick={handleClose}
+          PaperProps={{
+            elevation: 0,
+            sx: {
+              overflow: "visible",
+              bgcolor: "#fff",
+              filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.32))",
+            },
+          }}
+          transformOrigin={{ horizontal: "right", vertical: "top" }}
+          anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+        >
+          <div className="min-w-[500px]">
+            <div className="bg-primary flex justify-end absolute top-0 w-full rounded-md">
+              {notifications.length > 0 ? (
+                <p
+                  className="text-white text-xl mx-4 p-4 hover:underline hover:cursor-pointer"
+                  onClick={markAsReadAll}
+                >
+                  Leer todos
+                </p>
+              ) : (
+                <p className="text-xl text-white p-4">
+                  Por el momento no existen notificaciones a mostrar
+                </p>
+              )}
+              <div className="bg-primary w-full h-1 absolute bottom-0"></div>
+            </div>
+            {notifications.length > 0 ? (
+              <div className="max-h-80 overflow-y-scroll mt-16">
+                {notifications.map((n) => {
+                  return (
+                    <MenuItem sx={{ color: "#ffffff" }}>
+                      <div className="text-black">
+                        <div key={n.id} className="p-2">
+                          <div className="flex justify-between items-center">
+                            <div
+                              className={`w-2 h-2 rounded-full m-2 ${
+                                !n.readed ? "bg-primary" : ""
+                              }`}
+                            ></div>
 
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <p className="p-2">
-                        {n.type === "verification" ? (
-                          `El doctor ${n.userSend.surname}, ${n.userSend.name} solicitó verificación de su cuenta`
-                        ) : n.type === "comment" ? (
-                          <>
-                            El{" "}
-                            {props.auth.role === "user" ? "doctor" : "usuario"}{" "}
-                            {n.userSend.surname}, {n.userSend.name} realizó un
-                            comentario en la reunión del día{" "}
-                            <span>
-                              {moment(n.meeting.startDatetime).format("LLL")}
-                            </span>
-                          </>
-                        ) : (
-                          ""
-                        )}
-                      </p>
-                    </div>
-                    <p className="text-primary text-right">
-                      {moment(n.created_at).format("LLL")}
-                    </p>
-                  </div>
-                  <div className="min-w-12 flex justify-end gap-2 text-primary text-xl">
-                    {!n.readed ? (
-                      <FaEnvelope
-                        className="hover:cursor-pointer hover:opacity-70"
-                        onClick={() => markAsRead(n.id)}
-                      />
-                    ) : (
-                      <FaEnvelopeOpen />
-                    )}
-                    <Link
-                      href={
-                        n.type === "comment"
-                          ? `/meetings/${btoa(
-                            n.meeting.userId +
-                            "." +
-                            moment(n.meeting.startDatetime).format(
-                              "YYYY-MM-DDTHH:mm:ss"
-                            )
-                          )}`
-                          : ""
-                      }
-                      onClick={() => {
-                        markAsRead(n.id);
-                        setOpenN(!openN);
-                      }}
-                    >
-                      <FaAngleRight className="hover:opacity-70" />
-                    </Link>
-                  </div>
-                </div>
-                <div className="w-[90%] border-b-2 border-primary h-2 m-auto"></div>
+                            <div className="mr-2">
+                              <div className="flex items-center gap-2">
+                                <p className="p-2 text-lg">
+                                  {n.type === "verification" ? (
+                                    `El doctor ${n.userSend.surname}, ${n.userSend.name} solicitó verificación de su cuenta`
+                                  ) : n.type === "comment" ? (
+                                    <>
+                                      El{" "}
+                                      {props.auth.role === "user"
+                                        ? "doctor"
+                                        : "usuario"}{" "}
+                                      {n.userSend.surname}, {n.userSend.name}{" "}
+                                      realizó un comentario en la reunión del
+                                      día{" "}
+                                      <span>
+                                        {moment(n.meeting.startDatetime).format(
+                                          "LLL"
+                                        )}
+                                      </span>
+                                    </>
+                                  ) : n.type === "verification hi" ? (
+                                    `El doctor ${n.userSend.surname}, ${n.userSend.name} solicitó verificación de la obra social ${n.healthInsurance.name}`
+                                  ) : (
+                                    ""
+                                  )}
+                                </p>
+                              </div>
+                              <p className="text-sm text-right p-2 text-gray-400">
+                                {moment(n.created_at).format("LLL")}
+                              </p>
+                            </div>
+                            <div className="min-w-12 flex justify-end gap-2 text-xl text-primary">
+                              {!n.readed ? (
+                                <FaEnvelope
+                                  className="hover:cursor-pointer hover:opacity-70"
+                                  onClick={() => markAsRead(n.id)}
+                                />
+                              ) : (
+                                <FaEnvelopeOpen />
+                              )}
+                              <Link
+                                href={
+                                  n.type === "comment"
+                                    ? `/meetings/${btoa(
+                                        n.meeting.userId +
+                                          "." +
+                                          moment(
+                                            n.meeting.startDatetime
+                                          ).format("YYYY-MM-DDTHH:mm:ss")
+                                      )}`
+                                    : ""
+                                }
+                                onClick={() => {
+                                  markAsRead(n.id);
+                                  setOpenN(!openN);
+                                }}
+                              >
+                                <FaAngleRight className="hover:opacity-70" />
+                              </Link>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="w-[90%] border-b-2 border-primary h-2 m-auto"></div>
+                      </div>
+                    </MenuItem>
+                  );
+                })}
               </div>
-            );
-          })}
-        </div>
-        <Tooltip placement="right" title="Perfil">
+            ) : (
+              ""
+            )}
+          </div>
+        </Menu>
+        <Tooltip placement="bottom" title="Perfil">
           <IconButton
             className={`rounded-md hover:bg-primary_light ${menuPosition ? "bg-primary" : ""
               }`}

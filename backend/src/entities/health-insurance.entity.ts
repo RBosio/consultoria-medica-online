@@ -1,5 +1,6 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm'
 import { UserHealthInsurance } from './userHealthInsurances.entity'
+import { Notification } from './notification.entity'
 
 @Entity()
 export class HealthInsurance {
@@ -11,6 +12,9 @@ export class HealthInsurance {
     
     @Column({type: 'decimal', precision: 3, scale: 2})
     discount: number
+
+    @OneToMany(() => Notification, notification => notification.healthInsurance)
+    notifications: Notification[]
     
     @OneToMany(() => UserHealthInsurance, userHealthInsurance => userHealthInsurance.healthInsurance)
     users: UserHealthInsurance[]

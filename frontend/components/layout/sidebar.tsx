@@ -4,7 +4,7 @@ import { IconButton, List, ListItemButton, ListItemIcon, ListItemText } from "@m
 import { MdSpaceDashboard } from "react-icons/md";
 import { MdOutlineAdminPanelSettings } from "react-icons/md";
 import { PiGearSix } from "react-icons/pi";
-import { FaUserDoctor, FaVideo } from "react-icons/fa6"
+import { FaFileMedical, FaUserDoctor, FaVideo } from "react-icons/fa6"
 import { GrLogout } from "react-icons/gr";
 import { useTheme } from "@mui/material";
 import { useRouter } from "next/router";
@@ -43,6 +43,12 @@ const Sidebar: React.FC<SidebarProps> = (props) => {
                 path: `/meetings`,
                 icon: <FaVideo />,
                 hide : false,
+            },
+            {
+                name: "Mi historia clinica",
+                path: `/medical-record/${props.auth.id}`,
+                icon: <FaFileMedical />,
+                hide : props.auth.role !== 'user',
             },
             {
                 name: "Configuración",

@@ -1,6 +1,7 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm'
+import { Column, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn } from 'typeorm'
 import { User } from './user.entity'
 import { Meeting } from './meeting.entity'
+import { HealthInsurance } from './health-insurance.entity'
 
 @Entity()
 export class Notification {
@@ -18,6 +19,9 @@ export class Notification {
 
     @Column({ default: false })
     readed: boolean
+
+    @ManyToOne(() => HealthInsurance, healthInsurance => healthInsurance.notifications, { nullable: true })
+    healthInsurance: HealthInsurance
 
     @ManyToOne(() => User, user => user.notificationsSend, {nullable: false})
     @JoinColumn({name: 'userIdSend'})

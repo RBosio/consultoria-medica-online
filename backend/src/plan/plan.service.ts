@@ -16,7 +16,7 @@ export class PlanService {
         })
     }
     
-    async findOne(id: number): Promise<Plan | HttpException> {
+    async findOne(id: number): Promise<Plan> {
         const planFound = await this.planRepository.findOne({
             where: {
                 id

@@ -18,14 +18,8 @@ export class File {
     
     @Column({ nullable: true })
     medicalRecordDatetime: Date
-    
-    // @Column({ nullable: true })
-    // commentMeetingUserId: number
 
-    // @Column({ nullable: true })
-    // commentDatetime: Date
-
-    @Column()
+    @Column({nullable: true})
     commentId: number
 
     @ManyToOne(() => MedicalRecord, medicalRecord => medicalRecord.files)

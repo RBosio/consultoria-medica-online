@@ -1,7 +1,7 @@
 import withAuth from "@/lib/withAuth";
 import { Auth } from "@/../shared/types";
 import Layout from "@/components/layout";
-import { CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, useTheme } from "@mui/material";
+import { CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Fab, useTheme } from "@mui/material";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import {
@@ -22,6 +22,7 @@ import axios from "axios";
 import Avatar from "@/components/avatar";
 import { IoIosTimer, IoMdArrowRoundBack } from "react-icons/io";
 import Button from "@/components/button";
+import { BsFillChatLeftTextFill } from "react-icons/bs";
 
 export default function Meeting(props: any) {
   const theme = useTheme();
@@ -41,6 +42,14 @@ export default function Meeting(props: any) {
   const [startTimer, setStartTimer] = useState(false);
   const [loading, setLoading] = useState(false);
   const [cancelDialog, setCancelDialog] = useState(false);
+  const [openedChat, setOpenedChat] = useState(false);
+
+  const handleOnClose = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    const target = e.target as HTMLDivElement;
+    if (target.id === "container") {
+      setOpenedChat(false);
+    }
+  };
 
   async function join() {
     const { id } = router.query;
@@ -359,7 +368,32 @@ export default function Meeting(props: any) {
 
           </div>
         </div>
-        <section className="w-2/6 h-[calc(100%-30px)] my-4 mr-4 bg-white rounded-lg">
+        <Fab
+            color="primary"
+            onClick={() =>
+              openedChat ? setOpenedChat(false) : setOpenedChat(true)
+            }
+            aria-label="chat"
+            className="z-0 bg-secondary hover:bg-[#4F4F4F] absolute bottom-4 right-8 text-white sm:hidden"
+          >
+            <BsFillChatLeftTextFill />
+          </Fab>        
+        <div
+            onClick={handleOnClose}
+            id="container"
+            className={
+              openedChat
+                ? "fixed z-50 inset-0 backdrop-blur-sm bg-black bg-opacity-30"
+                : "w-[100%] sm:w-[37.5%] max-h-full bg-white rounded-lg mt-5 sm:mt-0 hidden  sm:inline "
+            }
+          >
+            <section
+              className={
+                openedChat
+                  ? "flex flex-col h-5/6  bg-white"
+                  : "w-[100%] sm:w-[37.5%] max-h-full bg-white rounded-lg mt-5 sm:mt-0 hidden  sm:inline "
+              }
+            >
           <div
             className="overflow-y-scroll"
             id="scroll"
@@ -410,6 +444,7 @@ export default function Meeting(props: any) {
             />
           </form>
         </section>
+        </div>
         <Dialog
           open={cancelDialog}
           onClose={() => setCancelDialog(false)}

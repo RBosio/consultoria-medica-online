@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { ReactElement, useEffect, useState } from "react";
 import Avatar from "../avatar";
 import { Auth } from "../../../shared/types";
 import {
@@ -37,6 +37,7 @@ interface NavbarProps {
   setSidebarOpened: any;
   sidebarOpened: boolean;
   renderSidebar: boolean;
+  leftElement?: ReactElement;
 }
 
 const Navbar: React.FC<NavbarProps> = (props) => {
@@ -115,7 +116,8 @@ const Navbar: React.FC<NavbarProps> = (props) => {
   };
 
   return (
-    <section className="p-4 bg-white w-full shrink-0 h-20 shadow-md flex items-center justify-between md:justify-end z-10">
+    <section className={`p-4 bg-white w-full shrink-0 h-20 shadow-md flex items-center justify-between ${props.leftElement ? "" : "md:justify-end"} z-10`}>
+      {props.leftElement}
       {props.renderSidebar && <div className="md:hidden">
         <Hamburger
           size={28}

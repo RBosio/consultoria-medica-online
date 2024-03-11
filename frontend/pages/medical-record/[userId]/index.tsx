@@ -122,11 +122,11 @@ export default function MedicalRecord(props: MedicalRecordI) {
     <Layout auth={props.auth}>
       <section className="bg-white w-5/6 mx-auto">
         <div
-          className={`flex ${
+          className={`flex flex-col md:flex-row ${
             props.auth.role === "doctor" ? "justify-between" : "justify-center"
           } items-center px-8 pt-8`}
         >
-          <div className="flex items-center">
+          <div className="flex flex-col md:flex-row items-center">
             {props.medicalRecords[0]?.meeting.user.image ? (
               <img
                 src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/user/images/${props.medicalRecords[0].meeting.user.image}`}
@@ -162,8 +162,8 @@ export default function MedicalRecord(props: MedicalRecordI) {
             </div>
           </div>
           {props.auth.role === "doctor" ? (
-            <div className="w-2/3">
-              <div className="flex justify-center items-center gap-4">
+            <div className="md:w-2/3">
+              <div className="flex flex-col md:flex-row justify-center items-center gap-4 mt-4 md:mt-0">
                 <TextField
                   onChange={($e) => setDetail($e.target.value)}
                   id="outlined-multiline-static"
@@ -187,8 +187,8 @@ export default function MedicalRecord(props: MedicalRecordI) {
                   focused
                 />
               </div>
-              <div className="mt-4 flex justify-between items-center">
-                <div className="flex items-center gap-2 w-1/2">
+              <div className="mt-4 flex flex-col md:flex-row justify-between items-center">
+                <div className="flex items-center gap-2 md:w-1/2">
                   <h5 className="text-primary text-xl">Reunion</h5>
                   <Select
                     onChange={($e) => setMeeting($e.target.value)}
@@ -213,12 +213,14 @@ export default function MedicalRecord(props: MedicalRecordI) {
                     )}
                   </Select>
                 </div>
-                <Button
-                  onClick={handleClickAdd}
-                  sx={{ width: "40%", margin: "auto" }}
-                >
-                  Agregar
-                </Button>
+                <div className="mt-4 md:mt-0 w-full flex justify-center">
+                  <Button
+                    onClick={handleClickAdd}
+                    sx={{ width: "40%", margin: "auto" }}
+                  >
+                    Agregar
+                  </Button>
+                </div>
               </div>
             </div>
           ) : (
@@ -405,35 +407,37 @@ export default function MedicalRecord(props: MedicalRecordI) {
             $e.target.files ? setFile($e.target.files[0]) : ""
           }
         />
-        {file ? (
-          <div className="w-1/2 p-8">
-            <div className="flex items-center gap-2">
-              {file?.type.includes("office") ? (
-                <p className="text-primary mt-[2px] p-[2px] rounded-sm underline">
-                  {file?.name}
-                </p>
-              ) : (
-                <p className="text-primary mt-[2px] p-[2px] rounded-sm underline">
-                  {file?.name}
-                </p>
-              )}
-              <Button
-                startIcon={<FaPaperclip />}
-                className="bg-primary text-white"
-                onClick={handleClickAddFile}
-              >
-                Agregar
-              </Button>
+        <div className="flex justify-center md:justify-normal">
+          {file ? (
+            <div className="md:w-1/2 p-8">
+              <div className="flex items-center gap-2">
+                {file?.type.includes("office") ? (
+                  <p className="text-primary mt-[2px] p-[2px] rounded-sm underline">
+                    {file?.name}
+                  </p>
+                ) : (
+                  <p className="text-primary mt-[2px] p-[2px] rounded-sm underline">
+                    {file?.name}
+                  </p>
+                )}
+                <Button
+                  startIcon={<FaPaperclip />}
+                  className="bg-primary text-white"
+                  onClick={handleClickAddFile}
+                >
+                  Agregar
+                </Button>
+              </div>
             </div>
-          </div>
-        ) : (
-          ""
-        )}
+          ) : (
+            ""
+          )}
+        </div>
         {files ? (
           <div className="flex justify-center items-center gap-2 text-xl p-4">
-            {props.medicalRecords.map((mr) => {
+            {props.medicalRecords.map((mr, idx) => {
               return (
-                <>
+                <div key={idx}>
                   {mr.files[0]?.type.includes("office") ? (
                     <p
                       className="text-primary mt-[2px] p-[2px] rounded-sm hover:cursor-pointer hover:opacity-70 underline"
@@ -458,7 +462,7 @@ export default function MedicalRecord(props: MedicalRecordI) {
                       </p>
                     </Link>
                   )}
-                </>
+                </div>
               );
             })}
           </div>

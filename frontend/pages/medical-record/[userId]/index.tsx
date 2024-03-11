@@ -119,8 +119,8 @@ export default function MedicalRecord(props: MedicalRecordI) {
   }
 
   return (
-    <Layout auth={props.auth} className="md:overflow-y-hidden">
-      <section className="bg-white w-5/6 mx-auto h-full">
+    <Layout auth={props.auth}>
+      <section className="bg-white w-5/6 mx-auto">
         <div
           className={`flex ${
             props.auth.role === "doctor" ? "justify-between" : "justify-center"
@@ -225,7 +225,7 @@ export default function MedicalRecord(props: MedicalRecordI) {
             ""
           )}
         </div>
-        <div className="mx-8 mt-8">
+        <div className="mx-8 mt-8 pb-4">
           <div className="flex justify-end items-center gap-2 text-primary py-4">
             <Link
               href={`/medical-record/${router.query.userId}?page=${
@@ -324,6 +324,7 @@ export default function MedicalRecord(props: MedicalRecordI) {
                     sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                   >
                     <TableCell
+                      className="text-sm"
                       align="center"
                       sx={{ padding: "1.2rem", fontSize: "1.2rem" }}
                     >
@@ -332,6 +333,7 @@ export default function MedicalRecord(props: MedicalRecordI) {
                         row.meeting.doctor.user.name}
                     </TableCell>
                     <TableCell
+                      className="text-sm"
                       align="center"
                       sx={{ padding: "1.2rem", fontSize: "1.2rem" }}
                     >
@@ -350,41 +352,39 @@ export default function MedicalRecord(props: MedicalRecordI) {
                       </div>
                     </TableCell>
                     <TableCell
+                      className="text-sm"
                       align="center"
                       sx={{ padding: "1.2rem", fontSize: "1.2rem" }}
                     >
                       {moment(row.meeting.startDatetime).format("LLL")}
                     </TableCell>
                     <TableCell
+                      className="text-sm"
                       align="center"
-                      sx={{
-                        padding: "1.2rem",
-                        fontSize: "1.2rem",
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        gap: "1rem",
-                      }}
+                      sx={{ padding: "1.2rem", fontSize: "1.2rem" }}
                     >
-                      {row.detail}{" "}
-                      <div className="flex gap-2">
-                        {row.files.length > 0 ||
-                        props.auth.role !== "doctor" ? (
-                          ""
-                        ) : (
-                          <FaPaperclip
-                            onClick={() => {
-                              const file = document.getElementById("file");
-                              setDatetime(row.datetime);
-                              setFiles(false);
-                              file?.click();
-                            }}
-                            className="text-primary hover:cursor-pointer hover:opacity-70"
-                          />
-                        )}
+                      <div className="flex justify-center items-center gap-2">
+                        {row.detail}
+                        <div className="flex gap-2">
+                          {row.files.length > 0 ||
+                          props.auth.role !== "doctor" ? (
+                            ""
+                          ) : (
+                            <FaPaperclip
+                              onClick={() => {
+                                const file = document.getElementById("file");
+                                setDatetime(row.datetime);
+                                setFiles(false);
+                                file?.click();
+                              }}
+                              className="text-primary hover:cursor-pointer hover:opacity-70"
+                            />
+                          )}
+                        </div>
                       </div>
                     </TableCell>
                     <TableCell
+                      className="text-sm"
                       align="center"
                       sx={{ padding: "1.2rem", fontSize: "1.2rem" }}
                     >

@@ -42,8 +42,8 @@ export class MedicalRecordService {
         },
         files: true,
       },
-      skip: page ? (page - 1) * 5 : 0,
-      take: 5,
+      skip: page ? (page - 1) * 10 : 0,
+      take: 10,
     });
   }
 
@@ -71,7 +71,7 @@ export class MedicalRecordService {
         },
       },
     });
-    return Math.round(count / 5);
+    return Math.round(count / 10);
   }
 
   async create(

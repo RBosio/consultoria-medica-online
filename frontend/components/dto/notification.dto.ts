@@ -1,3 +1,4 @@
+import { HealthInsuranceResponseDto } from "./healthInsurance.dto"
 import { MeetingResponseDto } from "./meeting.dto"
 import { UserResponseDto } from "./user.dto"
 
@@ -10,4 +11,5 @@ export interface NotificationResponseDto {
     created_at: Date
     userSend: UserResponseDto
     meeting: MeetingResponseDto
+    healthInsurance: HealthInsuranceResponseDto
 }

@@ -3,7 +3,6 @@ import { createMedicalRecordDto } from './dto/create-medical-record.dto';
 import { updateMedicalRecordDto } from './dto/update-medical-record.dto';
 import { MedicalRecordService } from './medical-record.service';
 import { MedicalRecord } from 'src/entities/medical-record.entity';
-import { Meeting } from 'src/entities/meeting.entity';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { v4 as uuidv4 } from 'uuid';
@@ -27,8 +26,15 @@ export class MedicalRecordController {
     
     @Get('user/:userId')
     @Roles(RoleEnum.User, RoleEnum.Doctor)
-    getMedicalRecordsByUser(@Param('userId', ParseIntPipe) userId: number): Promise<MedicalRecord[]> {
-        return this.medicalRecordService.findByUser(userId)
+    getMedicalRecordsByUser(@Param('userId', ParseIntPipe) userId: number, @Req() req: Request): Promise<MedicalRecord[]> {
+        const page = Number(req.query.page)
+        return this.medicalRecordService.findByUser(userId, page)
+    }
+
+    @Get('user/pages/:userId')
+    @Roles(RoleEnum.User, RoleEnum.Doctor)
+    getPages(@Param('userId', ParseIntPipe) userId: number): Promise<number> {
+        return this.medicalRecordService.getPages(userId)
     }
     
     @Get(':datetime')
@@ -63,6 +69,8 @@ export class MedicalRecordController {
                     destination: './public/uploads/medical-record',
                     filename: (req, file, cb) => {
                         req.body.url = uuidv4() + '.' + file.originalname.split('.').slice(-1)
+                        req.body.name = file.originalname
+                        
                         cb(null, req.body.url)
                     }
                 })
@@ -74,6 +82,6 @@ export class MedicalRecordController {
     uploadFile(@Param('datetime') datetime: Date, @Req() request: Request) {
         const { body } = request
 
-        return this.medicalRecordService.uploadFile(datetime, body.url)
+        return this.medicalRecordService.uploadFile(datetime, body)
     }
 }

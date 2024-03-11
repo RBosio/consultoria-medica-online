@@ -1,13 +1,14 @@
 import withAuth from "@/lib/withAuth";
 import { Auth } from "@/../shared/types";
 import Layout from "@/components/layout";
-import { useTheme } from "@mui/material";
+import { CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, useTheme } from "@mui/material";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import {
   FaMicrophone,
   FaMicrophoneSlash,
   FaPaperPlane,
+  FaUserDoctor,
   FaVideo,
   FaVideoSlash,
   FaXmark,
@@ -18,6 +19,9 @@ import { VideoClient } from "@zoom/videosdk";
 import Input from "@/components/input";
 import { robotoBold } from "@/lib/fonts";
 import axios from "axios";
+import Avatar from "@/components/avatar";
+import { IoIosTimer, IoMdArrowRoundBack } from "react-icons/io";
+import Button from "@/components/button";
 
 export default function Meeting(props: any) {
   const theme = useTheme();
@@ -25,22 +29,25 @@ export default function Meeting(props: any) {
 
   let client: typeof VideoClient;
 
-  const [meet, setMeet] = useState<any>();
   const [doctor, setDoctor] = useState<DoctorResponseDto>();
   const [user, setUser] = useState<UserResponseDto>();
   const [audio, setAudio] = useState<boolean>(true);
   const [video, setVideo] = useState<boolean>(true);
   const [text, setText] = useState<string>("");
   const [history, setHistory] = useState<any[]>([]);
-  const t: any[] = [];
+  const [showControls, setShowControls] = useState(false);
+  const [time, setTime] = useState('00:00');
+  const [count, setCount] = useState(0);
+  const [startTimer, setStartTimer] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [cancelDialog, setCancelDialog] = useState(false);
 
-
-  async function join(){
+  async function join() {
     const { id } = router.query;
 
     if (id && typeof id === "string") {
       const [t, startDatetime] = atob(id).split(".");
-      
+
       const res = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/meeting/join/${t}/${startDatetime}`,
         {},
@@ -49,7 +56,7 @@ export default function Meeting(props: any) {
           headers: { Authorization: `Bearer ${props.auth.token}` },
         }
       );
-      
+
       const resp = {
         user: res.data.meeting.user,
         doctor: res.data.meeting.doctor,
@@ -59,14 +66,14 @@ export default function Meeting(props: any) {
       return resp
     }
   }
-  
+
   const joinMeeting = async (
     topic: string,
     token: string,
     myVideo: HTMLVideoElement,
     otherCanvas: HTMLCanvasElement
-    ) => {
-      await client.join(
+  ) => {
+    await client.join(
       topic,
       token,
       `${props.auth.name} ${props.auth.surname}`,
@@ -126,30 +133,51 @@ export default function Meeting(props: any) {
   };
 
   const meeting = async () => {
+    setLoading(true);
     const ZoomVideo = await (await import("@zoom/videosdk")).default;
     const resp = await join()
-  
+
     setUser(resp?.user)
     setDoctor(resp?.doctor)
-      
-    console.log(resp)
-      const myVideo = document.getElementById("my-video") as HTMLVideoElement;
-      const otherCanvas = document.getElementById(
-        "other-canvas"
-      ) as HTMLCanvasElement;
-  
-      const client = await getClient();
 
-      if (
-        ZoomVideo.checkSystemRequirements().video &&
-        ZoomVideo.checkSystemRequirements().audio
-      ) {
-        await client.init("en-US", "Global", { patchJsMedia: true });
-        await BindEvents();
-  
-        await joinMeeting(resp?.tpc, resp?.token, myVideo, otherCanvas);
-      }
+    console.log(resp)
+    const myVideo = document.getElementById("my-video") as HTMLVideoElement;
+    const otherCanvas = document.getElementById(
+      "other-canvas"
+    ) as HTMLCanvasElement;
+
+    const client = await getClient();
+
+    if (
+      ZoomVideo.checkSystemRequirements().video &&
+      ZoomVideo.checkSystemRequirements().audio
+    ) {
+      await client.init("en-US", "Global", { patchJsMedia: true });
+      await BindEvents();
+
+      await joinMeeting(resp?.tpc, resp?.token, myVideo, otherCanvas);
+
+    }
+
+    setLoading(false);
+    setStartTimer(true);
   };
+
+  useEffect(() => {
+    if (!startTimer) {
+      return;
+    }
+    var id = setInterval(() => {
+      var left = count + (new Date().getTime() - initTime.getTime());
+      setCount(left);
+      showTimer(left);
+      if (left <= 0) {
+        setTime("00:00");
+        clearInterval(id);
+      }
+    }, 1);
+    return () => clearInterval(id);
+  }, [startTimer]);
 
   useEffect(() => {
     meeting()
@@ -229,65 +257,109 @@ export default function Meeting(props: any) {
     setText("");
   };
 
+  const initTime = new Date();
+
+  const showTimer = (ms: number) => {
+    const second = Math.floor((ms / 1000) % 60)
+      .toString()
+      .padStart(2, "0");
+    const minute = Math.floor((ms / 1000 / 60) % 60)
+      .toString()
+      .padStart(2, "0");
+    setTime(
+      minute + ":" + second
+    );
+  };
+
   return (
-    <Layout auth={props.auth}>
+    <Layout navbarLeftElement={
+      <Button onClick={() => router.push("/")} startIcon={<IoMdArrowRoundBack />}>Atrás</Button>
+    } renderSidebar={false} auth={props.auth}>
       <div className="flex h-full">
-        <div className="w-3/4 flex flex-col justify-center xl:p-5">
-          <div className="relative h-full">
-            <div className="w-3/6 md:w-2/6 lg:w-1/6 right-3 top-3 absolute">
-              <div className="relative">
-                <video
-                  id="my-video"
-                  className="bg-gray-800"
-                  style={{ width: "100%", height: "auto" }}
-                ></video>
-                <p className="absolute bottom-0 right-0 text-white mr-2">
-                  {`${props.auth.name} ${props.auth.surname} (You)`}
+        <div className="w-full flex flex-col relative justify-center items-center xl:p-5">
+          <div className="flex flex-col relative">
+            {loading ? <div className="absolute top-0 right-0 w-full h-full bg-black z-10 opacity-75 flex items-center justify-center">
+              <div className="flex flex-col items-center gap-4">
+                <CircularProgress />
+                <span className="font-bold text-white">Su videollamada se está cargando...</span>
+              </div>
+            </div> : null}
+            <div className="flex justify-between items-center bg-primary p-4 rounded-t-md">
+              <Avatar
+                labelProps={{ className: "text-white font-bold text-lg ml-2" }}
+                name={doctor?.user.name ?? ""}
+                surname={doctor?.user.surname ?? ""}
+                className="bg-white"
+                size={70}
+                icon={<FaUserDoctor color={theme.palette.primary.main} size={30} />}
+                photo={doctor?.user.image ? doctor.user.image : undefined} />
+              <div className="text-white flex items-center gap-1">
+                <IoIosTimer size={25} />
+                <p className="text-xl">
+                  {time}
                 </p>
               </div>
             </div>
-            <video
-              id="other-canvas"
-              className="bg-gray-600"
-              style={{ width: "100%", height: "100%" }}
-            ></video>
-            <p className="absolute bottom-0 right-0 text-white mr-2">
-              {props.auth.role !== "user"
-                ? `${user ? user.name : ""} ${user ? user.surname : ""}`
-                : `${doctor ? doctor.user.name : ""} ${doctor ? doctor.user.surname : ""
-                }`}
-            </p>
-            <div className="w-full h-auto flex flex-col p-2 gap-6 absolute left-4 top-1/2 translate-y-[-50%]">
-              <div
-                className="w-10 h-10 bg-primary text-white rounded-full flex justify-center items-center hover:opacity-70 hover:cursor-pointer"
-                onClick={toggleAudio}
-              >
-                {audio ? (
-                  <FaMicrophone className="text-xl" />
-                ) : (
-                  <FaMicrophoneSlash className="text-xl" />
-                )}
+            <div
+              onMouseEnter={() => setShowControls(true)}
+              onMouseLeave={() => setShowControls(false)}
+              className="relative w-[500px] h-[281px] md:w-[650px] md:h-[365px] lg:w-[700px] lg:h-[394px] xl:w-[1100px] xl:h-[619px] overflow-hidden">
+              <div className="right-3 top-3 absolute w-[150px] h-[84px] lg:w-[200px] lg:h-[113px]">
+                <div className="relative">
+                  <video
+                    id="my-video"
+                    className="bg-gray-800"
+                    style={{ width: "100%", height: "auto" }}
+                  ></video>
+                  <p className="absolute bottom-0 right-0 text-white mr-2">
+                    {`${props.auth.name} ${props.auth.surname} (You)`}
+                  </p>
+                </div>
               </div>
-              <div
-                className="w-10 h-10 bg-primary text-white rounded-full flex justify-center items-center hover:opacity-70 hover:cursor-pointer"
-                onClick={toggleVideo}
-              >
-                {video ? (
-                  <FaVideo className="text-xl" />
-                ) : (
-                  <FaVideoSlash className="text-xl" />
-                )}
-              </div>
-              <div
-                className="w-10 h-10 bg-red-600 text-white rounded-full flex justify-center items-center hover:opacity-70 hover:cursor-pointer"
-                onClick={leaveSession}
-              >
-                <FaXmark className="text-xl" />
+              <video
+                id="other-canvas"
+                className="bg-gray-600 rounded-b-md"
+                style={{ width: "100%", height: "100%" }}
+              ></video>
+              <p className="absolute bottom-0 right-0 text-white mr-2">
+                {props.auth.role !== "user"
+                  ? `${user ? user.name : ""} ${user ? user.surname : ""}`
+                  : `${doctor ? doctor.user.name : ""} ${doctor ? doctor.user.surname : ""
+                  }`}
+              </p>
+              <div className={`absolute ${showControls ? "bottom-0" : "bottom-[-30%]"} transition-[bottom] ease duration-200 p-4 w-full flex gap-10 justify-center`}>
+                <div
+                  className="w-10 h-10 bg-primary text-white rounded-full flex justify-center items-center hover:opacity-70 hover:cursor-pointer"
+                  onClick={toggleAudio}
+                >
+                  {audio ? (
+                    <FaMicrophone className="text-xl" />
+                  ) : (
+                    <FaMicrophoneSlash className="text-xl" />
+                  )}
+                </div>
+                <div
+                  className="w-10 h-10 bg-primary text-white rounded-full flex justify-center items-center hover:opacity-70 hover:cursor-pointer"
+                  onClick={toggleVideo}
+                >
+                  {video ? (
+                    <FaVideo className="text-xl" />
+                  ) : (
+                    <FaVideoSlash className="text-xl" />
+                  )}
+                </div>
+                <div
+                  className="w-10 h-10 bg-red-600 text-white rounded-full flex justify-center items-center hover:opacity-70 hover:cursor-pointer"
+                  onClick={() => setCancelDialog(true)}
+                >
+                  <FaXmark className="text-xl" />
+                </div>
               </div>
             </div>
+
           </div>
         </div>
-        <section className="w-1/4 h-[calc(100%-30px)] my-4 mr-4 bg-white rounded-lg">
+        <section className="w-2/6 h-[calc(100%-30px)] my-4 mr-4 bg-white rounded-lg">
           <div
             className="overflow-y-scroll"
             id="scroll"
@@ -338,6 +410,27 @@ export default function Meeting(props: any) {
             />
           </form>
         </section>
+        <Dialog
+          open={cancelDialog}
+          onClose={() => setCancelDialog(false)}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <DialogTitle className={`${robotoBold.className} text-red-600`} id="alert-dialog-title">
+            Salir de Videollamada
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+              ¿Estás seguro que deseas salir de la videollamada? No podrás volver a conectarte luego de abandonar la misma.
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button color="error" variant="text" onClick={() => setCancelDialog(false)}>Cancelar</Button>
+            <Button onClick={leaveSession} autoFocus>
+              Confirmar
+            </Button>
+          </DialogActions>
+        </Dialog>
       </div>
     </Layout>
   );
@@ -351,5 +444,5 @@ export const getServerSideProps = withAuth(
       },
     };
   },
-  {protected: true}
+  { protected: true }
 );

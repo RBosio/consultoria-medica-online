@@ -47,6 +47,7 @@ export default function Home(props: HealthInsurance) {
   const [edit, setEdit] = useState(false);
   const [confirm, setConfirm] = useState<boolean>(false);
   const [update, setUpdate] = useState<boolean>(false);
+  const [cancel, setCancel] = useState<boolean>(false);
 
   const StyledTableCell = styled(TableCell)(() => ({
     [`&.${tableCellClasses.head}`]: {
@@ -125,9 +126,31 @@ export default function Home(props: HealthInsurance) {
     },
   });
 
+  const deleteHealthInsurance = async () => {
+    const id = localStorage.getItem("healthInsuranceId");
+    console.log(id);
+    await axios.delete(
+      `${process.env.NEXT_PUBLIC_API_URL}/healthInsurance/${id}`,
+      {
+        withCredentials: true,
+        headers: { Authorization: `Bearer ${props.auth.token}` },
+      }
+    );
+
+    setUpdate(false);
+    setEdit(false);
+    setCancel(false);
+
+    setMessage("Obra social eliminada correctamente!");
+    setSuccess(true);
+    router.push(`/admin/health-insurances`);
+  };
+
   const onConfirmClick = () => {
     if (addHealthInsurance.values.name.length > 0) {
       addHealthInsurance.handleSubmit();
+    } else if (cancel) {
+      deleteHealthInsurance();
     } else {
       editHealthInsurance.handleSubmit();
     }
@@ -207,7 +230,16 @@ export default function Home(props: HealthInsurance) {
                               className="hover:cursor-pointer hover:opacity-70"
                               onClick={() => showEdit(row.id)}
                             />{" "}
-                            <FaXmark className="hover:cursor-pointer hover:opacity-70" />
+                            <FaXmark
+                              onClick={() => {
+                                localStorage.setItem(
+                                  "healthInsuranceId",
+                                  row.id.toString()
+                                );
+                                setCancel(true);
+                              }}
+                              className="hover:cursor-pointer hover:opacity-70"
+                            />
                           </div>
                         </StyledTableCell>
                       </StyledTableRow>
@@ -279,10 +311,11 @@ export default function Home(props: HealthInsurance) {
           </section>
         </div>
         <Dialog
-          open={confirm || update}
+          open={confirm || update || cancel}
           onClose={() => {
             setConfirm(false);
             setUpdate(false);
+            setCancel(false);
           }}
           aria-labelledby="alert-dialog-title"
           aria-describedby="alert-dialog-description"
@@ -296,6 +329,8 @@ export default function Home(props: HealthInsurance) {
                 ? "¿Desea agregar la obra social?"
                 : update
                 ? "¿Desea actualizar los datos?"
+                : cancel
+                ? "¿Desea eliminar la obra social?"
                 : ""}
             </DialogContentText>
           </DialogContent>
@@ -306,6 +341,7 @@ export default function Home(props: HealthInsurance) {
               onClick={() => {
                 setConfirm(false);
                 setUpdate(false);
+                setCancel(false);
               }}
             >
               Cancelar

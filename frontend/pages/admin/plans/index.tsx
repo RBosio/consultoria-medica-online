@@ -23,7 +23,7 @@ import {
   tableCellClasses,
   useTheme,
 } from "@mui/material";
-import { FaAngleRight, FaCircleInfo, FaPlus } from "react-icons/fa6";
+import { FaAngleRight, FaCircleInfo, FaPlus, FaXmark } from "react-icons/fa6";
 import Button from "@/components/button";
 import Input from "@/components/input";
 import { useFormik } from "formik";
@@ -48,6 +48,7 @@ export default function Home(props: Plan) {
   const [edit, setEdit] = useState(false);
   const [confirm, setConfirm] = useState<boolean>(false);
   const [update, setUpdate] = useState<boolean>(false);
+  const [cancel, setCancel] = useState<boolean>(false);
   const [plan, setPlan] = useState<any>();
 
   const StyledTableCell = styled(TableCell)(() => ({
@@ -121,9 +122,28 @@ export default function Home(props: Plan) {
     },
   });
 
+  const deletePlan = async () => {
+    const id = localStorage.getItem("planId");
+    console.log(id);
+    await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/plan/${id}`, {
+      withCredentials: true,
+      headers: { Authorization: `Bearer ${props.auth.token}` },
+    });
+
+    setUpdate(false);
+    setEdit(false);
+    setCancel(false);
+
+    setMessage("Plan eliminado correctamente!");
+    setSuccess(true);
+    router.push(`/admin/plans`);
+  };
+
   const onConfirmClick = () => {
     if (addPlan.values.name.length > 0) {
       addPlan.handleSubmit();
+    } else if (cancel) {
+      deletePlan();
     } else {
       editPlan.handleSubmit();
     }
@@ -138,14 +158,6 @@ export default function Home(props: Plan) {
     });
 
     setPlan(p.data);
-
-    // editPlan.setValues({
-    //   id: p.data.id,
-    //   name: p.data.name,
-    //   price: p.data.price * 100,
-    // });
-
-    // setEdit(true);
   };
 
   return (
@@ -199,6 +211,16 @@ export default function Home(props: Plan) {
                             <FaCircleInfo
                               className="hover:cursor-pointer hover:opacity-70"
                               onClick={() => showDetail(row.id)}
+                            />{" "}
+                            <FaXmark
+                              onClick={() => {
+                                localStorage.setItem(
+                                  "planId",
+                                  row.id.toString()
+                                );
+                                setCancel(true);
+                              }}
+                              className="hover:cursor-pointer hover:opacity-70"
                             />
                           </div>
                         </StyledTableCell>
@@ -309,10 +331,11 @@ export default function Home(props: Plan) {
           </section>
         </div>
         <Dialog
-          open={confirm || update}
+          open={confirm || update || cancel}
           onClose={() => {
             setConfirm(false);
             setUpdate(false);
+            setCancel(false);
           }}
           aria-labelledby="alert-dialog-title"
           aria-describedby="alert-dialog-description"
@@ -326,6 +349,8 @@ export default function Home(props: Plan) {
                 ? "¿Desea agregar el plan?"
                 : update
                 ? "¿Desea actualizar los datos?"
+                : cancel
+                ? "¿Desea eliminar el plan?"
                 : ""}
             </DialogContentText>
           </DialogContent>
@@ -336,6 +361,7 @@ export default function Home(props: Plan) {
               onClick={() => {
                 setConfirm(false);
                 setUpdate(false);
+                setCancel(false);
               }}
             >
               Cancelar

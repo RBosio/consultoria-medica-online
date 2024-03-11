@@ -1,4 +1,4 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm'
+import { Column, DeleteDateColumn, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm'
 import { UserHealthInsurance } from './userHealthInsurances.entity'
 
 @Entity()
@@ -17,4 +17,7 @@ export class HealthInsurance {
     
     @Column({type: Date, default: () => 'CURRENT_TIMESTAMP'})
     created_at: Date
+
+    @DeleteDateColumn()
+    deleted_at: Date
 }

@@ -24,7 +24,7 @@ import {
   tableCellClasses,
   useTheme,
 } from "@mui/material";
-import { FaPlus } from "react-icons/fa6";
+import { FaPlus, FaXmark } from "react-icons/fa6";
 import { FaEdit } from "react-icons/fa";
 import Button from "@/components/button";
 import Input from "@/components/input";
@@ -206,7 +206,8 @@ export default function Home(props: HealthInsurance) {
                             <FaEdit
                               className="hover:cursor-pointer hover:opacity-70"
                               onClick={() => showEdit(row.id)}
-                            />
+                            />{" "}
+                            <FaXmark className="hover:cursor-pointer hover:opacity-70" />
                           </div>
                         </StyledTableCell>
                       </StyledTableRow>

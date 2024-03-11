@@ -24,7 +24,7 @@ import {
   tableCellClasses,
   useTheme,
 } from "@mui/material";
-import { FaPlus } from "react-icons/fa6";
+import { FaPlus, FaXmark } from "react-icons/fa6";
 import { FaEdit } from "react-icons/fa";
 import Button from "@/components/button";
 import Input from "@/components/input";
@@ -46,6 +46,7 @@ export default function Home(props: Speciality) {
   const [add, setAdd] = useState(false);
   const [edit, setEdit] = useState(false);
   const [confirm, setConfirm] = useState<boolean>(false);
+  const [cancel, setCancel] = useState<boolean>(false);
   const [update, setUpdate] = useState<boolean>(false);
 
   const StyledTableCell = styled(TableCell)(() => ({
@@ -114,6 +115,7 @@ export default function Home(props: Speciality) {
 
       setUpdate(false);
       setEdit(false);
+      setCancel(false);
 
       setMessage("Especialidad editada correctamente!");
       setSuccess(true);
@@ -121,9 +123,27 @@ export default function Home(props: Speciality) {
     },
   });
 
+  const deleteSpeciality = async () => {
+    const id = localStorage.getItem("specialityId");
+    await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/speciality/${id}`, {
+      withCredentials: true,
+      headers: { Authorization: `Bearer ${props.auth.token}` },
+    });
+
+    setUpdate(false);
+    setEdit(false);
+    setCancel(false);
+
+    setMessage("Especialidad eliminada correctamente!");
+    setSuccess(true);
+    router.push(`/admin/specialities`);
+  };
+
   const onConfirmClick = () => {
     if (addSpeciality.values.name.length > 0) {
       addSpeciality.handleSubmit();
+    } else if (cancel) {
+      deleteSpeciality();
     } else {
       editSpeciality.handleSubmit();
     }
@@ -195,6 +215,16 @@ export default function Home(props: Speciality) {
                             <FaEdit
                               className="hover:cursor-pointer hover:opacity-70"
                               onClick={() => showEdit(row.id)}
+                            />{" "}
+                            <FaXmark
+                              onClick={() => {
+                                localStorage.setItem(
+                                  "specialityId",
+                                  row.id.toString()
+                                );
+                                setCancel(true);
+                              }}
+                              className="hover:cursor-pointer hover:opacity-70"
                             />
                           </div>
                         </StyledTableCell>
@@ -252,10 +282,11 @@ export default function Home(props: Speciality) {
           </section>
         </div>
         <Dialog
-          open={confirm || update}
+          open={confirm || update || cancel}
           onClose={() => {
             setConfirm(false);
             setUpdate(false);
+            setCancel(false);
           }}
           aria-labelledby="alert-dialog-title"
           aria-describedby="alert-dialog-description"
@@ -269,6 +300,8 @@ export default function Home(props: Speciality) {
                 ? "¿Desea agregar la especialidad?"
                 : update
                 ? "¿Desea actualizar los datos?"
+                : cancel
+                ? "¿Desea eliminar la especialidad?"
                 : ""}
             </DialogContentText>
           </DialogContent>
@@ -279,6 +312,7 @@ export default function Home(props: Speciality) {
               onClick={() => {
                 setConfirm(false);
                 setUpdate(false);
+                setCancel(false);
               }}
             >
               Cancelar

@@ -162,173 +162,175 @@ export default function Home(props: Plan) {
 
   return (
     <Layout auth={props.auth}>
-      <div className="flex justify-center items-center h-full">
-        <div className="flex items-center h-full gap-4 w-[90%]">
+      <div className="flex justify-center items-center">
+        <div className="flex flex-col md:flex-row items-center gap-4 w-[90%] mt-12">
           <SidebarAdmin
             auth={props.auth}
             setSidebarOpened={true}
             sidebarOpened
           />
-          <section className="w-full h-[calc(100%-5rem)] bg-white rounded-md flex flex-col items-center relative">
-            <div className="w-5/6 mt-12">
-              <div className="flex justify-end">
-                <Button
-                  startIcon={<FaPlus />}
-                  onClick={() => {
-                    setEdit(false);
-                    setAdd(true);
-                  }}
-                >
-                  Agregar
-                </Button>
-              </div>
-              <TableContainer component={Paper} className="mt-4">
-                <Table sx={{ minWidth: 700 }} aria-label="customized table">
-                  <TableHead>
-                    <TableRow>
-                      <StyledTableCell align="center">#</StyledTableCell>
-                      <StyledTableCell align="center">Nombre</StyledTableCell>
-                      <StyledTableCell align="center">Precio</StyledTableCell>
-                      <StyledTableCell align="center">
-                        Operaciones
-                      </StyledTableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {props.plans.map((row) => (
-                      <StyledTableRow key={row.id}>
-                        <StyledTableCell align="center">
-                          {row.id}
-                        </StyledTableCell>
-                        <StyledTableCell align="center">
-                          {row.name}
-                        </StyledTableCell>
-                        <StyledTableCell align="center">
-                          $ {row.price}
-                        </StyledTableCell>
-                        <StyledTableCell align="center">
-                          <div className="flex justify-center items-center gap-4">
-                            <FaCircleInfo
-                              className="hover:cursor-pointer hover:opacity-70"
-                              onClick={() => showDetail(row.id)}
-                            />{" "}
-                            <FaXmark
-                              onClick={() => {
-                                localStorage.setItem(
-                                  "planId",
-                                  row.id.toString()
-                                );
-                                setCancel(true);
-                              }}
-                              className="hover:cursor-pointer hover:opacity-70"
-                            />
-                          </div>
-                        </StyledTableCell>
-                      </StyledTableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </div>
-            <div>
-              {plan ? (
-                <div className="p-2 m-4 relative">
-                  <h4
-                    className={`text-primary text-3xl text-center ${robotoBold.className}`}
+          <div className="bg-white p-4 w-full">
+            <section className="w-full rounded-md flex flex-col items-center relative">
+              <div className="w-5/6">
+                <div className="flex justify-end">
+                  <Button
+                    startIcon={<FaPlus />}
+                    onClick={() => {
+                      setEdit(false);
+                      setAdd(true);
+                    }}
                   >
-                    {plan.name}
-                  </h4>
-                  <h3
-                    className={`text-secondary text-md text-center ${robotoBold.className} font-normal`}
-                  >
-                    $ {plan.price}
-                  </h3>
-                  <h4 className="text-primary text-xl text-center underline mt-8">
-                    Beneficios
-                  </h4>
-                  <div className="flex justify-center">
-                    <div>
-                      {plan.benefits.length === 0 ? (
-                        <div className="bg-secondary text-white font-semibold p-4 rounded-lg mt-4">
-                          Actualmente no se encuentran beneficios para este
-                          plan!
-                        </div>
-                      ) : (
-                        plan.benefits.map((b: BenefitResponseDto) => {
-                          return (
-                            <div
-                              className="flex justify-between items-center gap-2 text-white bg-secondary p-4 rounded-md m-2"
-                              key={b.id}
-                            >
-                              <div className="flex items-center gap-2">
-                                <FaAngleRight /> <p>{b.name}</p>
-                              </div>
+                    Agregar
+                  </Button>
+                </div>
+                <TableContainer component={Paper} className="mt-4">
+                  <Table sx={{ minWidth: 700 }} aria-label="customized table">
+                    <TableHead>
+                      <TableRow>
+                        <StyledTableCell align="center">#</StyledTableCell>
+                        <StyledTableCell align="center">Nombre</StyledTableCell>
+                        <StyledTableCell align="center">Precio</StyledTableCell>
+                        <StyledTableCell align="center">
+                          Operaciones
+                        </StyledTableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {props.plans.map((row) => (
+                        <StyledTableRow key={row.id}>
+                          <StyledTableCell align="center">
+                            {row.id}
+                          </StyledTableCell>
+                          <StyledTableCell align="center">
+                            {row.name}
+                          </StyledTableCell>
+                          <StyledTableCell align="center">
+                            $ {row.price}
+                          </StyledTableCell>
+                          <StyledTableCell align="center">
+                            <div className="flex justify-center items-center gap-4">
+                              <FaCircleInfo
+                                className="hover:cursor-pointer hover:opacity-70"
+                                onClick={() => showDetail(row.id)}
+                              />{" "}
+                              <FaXmark
+                                onClick={() => {
+                                  localStorage.setItem(
+                                    "planId",
+                                    row.id.toString()
+                                  );
+                                  setCancel(true);
+                                }}
+                                className="hover:cursor-pointer hover:opacity-70"
+                              />
                             </div>
-                          );
-                        })
-                      )}
+                          </StyledTableCell>
+                        </StyledTableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </div>
+              <div>
+                {plan ? (
+                  <div className="p-2 m-4 relative">
+                    <h4
+                      className={`text-primary text-3xl text-center ${robotoBold.className}`}
+                    >
+                      {plan.name}
+                    </h4>
+                    <h3
+                      className={`text-secondary text-md text-center ${robotoBold.className} font-normal`}
+                    >
+                      $ {plan.price}
+                    </h3>
+                    <h4 className="text-primary text-xl text-center underline mt-8">
+                      Beneficios
+                    </h4>
+                    <div className="flex justify-center">
+                      <div>
+                        {plan.benefits.length === 0 ? (
+                          <div className="bg-secondary text-white font-semibold p-4 rounded-lg mt-4">
+                            Actualmente no se encuentran beneficios para este
+                            plan!
+                          </div>
+                        ) : (
+                          plan.benefits.map((b: BenefitResponseDto) => {
+                            return (
+                              <div
+                                className="flex justify-between items-center gap-2 text-white bg-secondary p-4 rounded-md m-2"
+                                key={b.id}
+                              >
+                                <div className="flex items-center gap-2">
+                                  <FaAngleRight /> <p>{b.name}</p>
+                                </div>
+                              </div>
+                            );
+                          })
+                        )}
+                      </div>
                     </div>
                   </div>
+                ) : (
+                  ""
+                )}
+              </div>
+              {add ? (
+                <div className="absolute bg-white bottom-10 p-8 border border-primary rounded-md shadow-md">
+                  <h4 className="text-primary text-xl mb-4 text-center">
+                    Agregar plan
+                  </h4>
+                  <form className="flex gap-4" onSubmit={addPlan.handleSubmit}>
+                    <Input
+                      placeholder="Nombre"
+                      type="text"
+                      name="name"
+                      onChange={addPlan.handleChange}
+                      onBlur={addPlan.handleBlur}
+                    />
+                    <Input
+                      placeholder="Precio"
+                      type="number"
+                      name="price"
+                      onChange={addPlan.handleChange}
+                      onBlur={addPlan.handleBlur}
+                    />
+                    <Button onClick={() => setConfirm(true)}>Agregar</Button>
+                  </form>
                 </div>
               ) : (
                 ""
               )}
-            </div>
-            {add ? (
-              <div className="absolute bg-white bottom-10 p-8 border border-primary rounded-md shadow-md">
-                <h4 className="text-primary text-xl mb-4 text-center">
-                  Agregar plan
-                </h4>
-                <form className="flex gap-4" onSubmit={addPlan.handleSubmit}>
-                  <Input
-                    placeholder="Nombre"
-                    type="text"
-                    name="name"
-                    onChange={addPlan.handleChange}
-                    onBlur={addPlan.handleBlur}
-                  />
-                  <Input
-                    placeholder="Precio"
-                    type="number"
-                    name="price"
-                    onChange={addPlan.handleChange}
-                    onBlur={addPlan.handleBlur}
-                  />
-                  <Button onClick={() => setConfirm(true)}>Agregar</Button>
-                </form>
-              </div>
-            ) : (
-              ""
-            )}
-            {edit ? (
-              <div className="absolute bg-white bottom-10 p-8 border border-primary rounded-md shadow-md">
-                <h4 className="text-primary text-xl mb-4 text-center">
-                  Editar plan
-                </h4>
-                <form className="flex gap-4" onSubmit={editPlan.handleSubmit}>
-                  <Input
-                    placeholder="Nombre"
-                    type="text"
-                    name="name"
-                    onChange={editPlan.handleChange}
-                    onBlur={editPlan.handleBlur}
-                    value={editPlan.values.name}
-                  />
-                  <Input
-                    placeholder="Precio"
-                    type="number"
-                    name="price"
-                    onChange={editPlan.handleChange}
-                    onBlur={editPlan.handleBlur}
-                    value={editPlan.values.price}
-                  />
-                  <Button onClick={() => setUpdate(true)}>Editar</Button>
-                </form>
-              </div>
-            ) : (
-              ""
-            )}
-          </section>
+              {edit ? (
+                <div className="absolute bg-white bottom-10 p-8 border border-primary rounded-md shadow-md">
+                  <h4 className="text-primary text-xl mb-4 text-center">
+                    Editar plan
+                  </h4>
+                  <form className="flex gap-4" onSubmit={editPlan.handleSubmit}>
+                    <Input
+                      placeholder="Nombre"
+                      type="text"
+                      name="name"
+                      onChange={editPlan.handleChange}
+                      onBlur={editPlan.handleBlur}
+                      value={editPlan.values.name}
+                    />
+                    <Input
+                      placeholder="Precio"
+                      type="number"
+                      name="price"
+                      onChange={editPlan.handleChange}
+                      onBlur={editPlan.handleBlur}
+                      value={editPlan.values.price}
+                    />
+                    <Button onClick={() => setUpdate(true)}>Editar</Button>
+                  </form>
+                </div>
+              ) : (
+                ""
+              )}
+            </section>
+          </div>
         </div>
         <Dialog
           open={confirm || update || cancel}

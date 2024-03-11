@@ -7,7 +7,12 @@ import {
   useTheme,
 } from "@mui/material";
 import { useRouter } from "next/router";
-import { FaHandshake, FaKitMedical, FaThumbsUp, FaUserDoctor } from "react-icons/fa6";
+import {
+  FaHandshake,
+  FaKitMedical,
+  FaThumbsUp,
+  FaUserDoctor,
+} from "react-icons/fa6";
 import Avatar from "./avatar";
 import Link from "next/link";
 import { Auth } from "../../shared/types";
@@ -56,14 +61,10 @@ const SidebarAdmin: React.FC<SidebarAdminProps> = (props) => {
   return (
     <section
       className={`
-        absolute transition-[left] 
-        duration-300 ease-in
-        top-0 ${props.sidebarOpened ? "left-0" : "left-[-48rem]"} 
         w-full md:w-60
-        shrink-0 bg-white 
-        z-30 shadow-lg md:static
-        ml-12 rounded-lg
-        h-[calc(100%-20rem)]`}
+        bg-white
+        shadow-lg md:static
+        md:ml-12 mt-4 md:mt-0 rounded-lg`}
     >
       <div className="flex flex-col h-[calc(100%-5rem)] items-center md:justify-between">
         <Avatar

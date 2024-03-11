@@ -23,20 +23,14 @@ import {
   tableCellClasses,
   useTheme,
 } from "@mui/material";
-import {
-  FaAngleRight,
-  FaCheck,
-  FaCircleInfo,
-  FaPlus,
-  FaXmark,
-} from "react-icons/fa6";
-import { FaEdit } from "react-icons/fa";
+import { FaAngleRight, FaCircleInfo, FaPlus } from "react-icons/fa6";
 import Button from "@/components/button";
 import Input from "@/components/input";
 import { useFormik } from "formik";
 import { useRouter } from "next/router";
 import { PlanResponseDto } from "@/components/dto/plan.dto";
 import { robotoBold } from "@/lib/fonts";
+import { BenefitResponseDto } from "@/components/dto/benefit.dto";
 
 interface Plan {
   auth: Auth;
@@ -54,7 +48,7 @@ export default function Home(props: Plan) {
   const [edit, setEdit] = useState(false);
   const [confirm, setConfirm] = useState<boolean>(false);
   const [update, setUpdate] = useState<boolean>(false);
-  const [plan, setPlan] = useState<PlanResponseDto>();
+  const [plan, setPlan] = useState<any>();
 
   const StyledTableCell = styled(TableCell)(() => ({
     [`&.${tableCellClasses.head}`]: {
@@ -83,11 +77,9 @@ export default function Home(props: Plan) {
   const addPlan = useFormik({
     initialValues: {
       name: "",
-      discount: 0,
+      price: 0,
     },
     onSubmit: async (values, { setSubmitting }) => {
-      values.discount = values.discount / 100;
-
       await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/plan`, values, {
         withCredentials: true,
         headers: { Authorization: `Bearer ${props.auth.token}` },
@@ -98,7 +90,7 @@ export default function Home(props: Plan) {
       setConfirm(false);
       setAdd(false);
 
-      setMessage("Obra social agregada correctamente!");
+      setMessage("Plan agregado correctamente!");
       setSuccess(true);
       router.push(`/admin/plans`);
     },
@@ -108,12 +100,12 @@ export default function Home(props: Plan) {
     initialValues: {
       id: 0,
       name: "",
-      discount: 0,
+      price: 0,
     },
     onSubmit: async (values, { setSubmitting }) => {
       await axios.patch(
         `${process.env.NEXT_PUBLIC_API_URL}/plan/${values.id}`,
-        { name: values.name, discount: values.discount / 100 },
+        { name: values.name, price: values.price },
         {
           withCredentials: true,
           headers: { Authorization: `Bearer ${props.auth.token}` },
@@ -123,7 +115,7 @@ export default function Home(props: Plan) {
       setUpdate(false);
       setEdit(false);
 
-      setMessage("Obra social editada correctamente!");
+      setMessage("Plan editada correctamente!");
       setSuccess(true);
       router.push(`/admin/plans`);
     },
@@ -150,7 +142,7 @@ export default function Home(props: Plan) {
     // editPlan.setValues({
     //   id: p.data.id,
     //   name: p.data.name,
-    //   discount: p.data.discount * 100,
+    //   price: p.data.price * 100,
     // });
 
     // setEdit(true);
@@ -207,8 +199,7 @@ export default function Home(props: Plan) {
                             <FaCircleInfo
                               className="hover:cursor-pointer hover:opacity-70"
                               onClick={() => showDetail(row.id)}
-                            />{" "}
-                            <FaXmark className="hover:cursor-pointer hover:opacity-70" />
+                            />
                           </div>
                         </StyledTableCell>
                       </StyledTableRow>
@@ -225,25 +216,35 @@ export default function Home(props: Plan) {
                   >
                     {plan.name}
                   </h4>
-                  <h4 className="text-primary text-xl text-center underline">
+                  <h3
+                    className={`text-secondary text-md text-center ${robotoBold.className} font-normal`}
+                  >
+                    $ {plan.price}
+                  </h3>
+                  <h4 className="text-primary text-xl text-center underline mt-8">
                     Beneficios
                   </h4>
-                  <FaXmark className="text-primary text-2xl hover:cursor-pointer hover:opacity-70 absolute top-4 right-4" onClick={() => setPlan(null)}/>
                   <div className="flex justify-center">
                     <div>
-                      {plan.benefits.map((b) => {
-                        return (
-                          <div
-                            className="flex justify-between items-center gap-2 text-white bg-secondary p-4 rounded-md m-2"
-                            key={b.id}
-                          >
-                            <div className="flex items-center gap-2">
-                              <FaAngleRight /> <p>{b.name}</p>
+                      {plan.benefits.length === 0 ? (
+                        <div className="bg-secondary text-white font-semibold p-4 rounded-lg mt-4">
+                          Actualmente no se encuentran beneficios para este
+                          plan!
+                        </div>
+                      ) : (
+                        plan.benefits.map((b: BenefitResponseDto) => {
+                          return (
+                            <div
+                              className="flex justify-between items-center gap-2 text-white bg-secondary p-4 rounded-md m-2"
+                              key={b.id}
+                            >
+                              <div className="flex items-center gap-2">
+                                <FaAngleRight /> <p>{b.name}</p>
+                              </div>
                             </div>
-                            <FaXmark className="ml-4 hover:cursor-pointer hover:opacity-70" />
-                          </div>
-                        );
-                      })}
+                          );
+                        })
+                      )}
                     </div>
                   </div>
                 </div>
@@ -254,7 +255,7 @@ export default function Home(props: Plan) {
             {add ? (
               <div className="absolute bg-white bottom-10 p-8 border border-primary rounded-md shadow-md">
                 <h4 className="text-primary text-xl mb-4 text-center">
-                  Agregar obra social
+                  Agregar plan
                 </h4>
                 <form className="flex gap-4" onSubmit={addPlan.handleSubmit}>
                   <Input
@@ -267,7 +268,7 @@ export default function Home(props: Plan) {
                   <Input
                     placeholder="Precio"
                     type="number"
-                    name="discount"
+                    name="price"
                     onChange={addPlan.handleChange}
                     onBlur={addPlan.handleBlur}
                   />
@@ -280,7 +281,7 @@ export default function Home(props: Plan) {
             {edit ? (
               <div className="absolute bg-white bottom-10 p-8 border border-primary rounded-md shadow-md">
                 <h4 className="text-primary text-xl mb-4 text-center">
-                  Editar obra social
+                  Editar plan
                 </h4>
                 <form className="flex gap-4" onSubmit={editPlan.handleSubmit}>
                   <Input
@@ -294,10 +295,10 @@ export default function Home(props: Plan) {
                   <Input
                     placeholder="Precio"
                     type="number"
-                    name="discount"
+                    name="price"
                     onChange={editPlan.handleChange}
                     onBlur={editPlan.handleBlur}
-                    value={editPlan.values.discount}
+                    value={editPlan.values.price}
                   />
                   <Button onClick={() => setUpdate(true)}>Editar</Button>
                 </form>
@@ -317,12 +318,12 @@ export default function Home(props: Plan) {
           aria-describedby="alert-dialog-description"
         >
           <DialogTitle id="alert-dialog-title" className="text-center">
-            {confirm ? "Obra social" : ""}
+            {confirm ? "Plan" : ""}
           </DialogTitle>
           <DialogContent>
             <DialogContentText id="alert-dialog-description">
               {confirm
-                ? "¿Desea agregar la obra social?"
+                ? "¿Desea agregar el plan?"
                 : update
                 ? "¿Desea actualizar los datos?"
                 : ""}

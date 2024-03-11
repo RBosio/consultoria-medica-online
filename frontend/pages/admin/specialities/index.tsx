@@ -24,7 +24,7 @@ import {
   tableCellClasses,
   useTheme,
 } from "@mui/material";
-import { FaCheck, FaPlus, FaXmark } from "react-icons/fa6";
+import { FaPlus } from "react-icons/fa6";
 import { FaEdit } from "react-icons/fa";
 import Button from "@/components/button";
 import Input from "@/components/input";
@@ -86,7 +86,7 @@ export default function Home(props: Speciality) {
         }
       );
 
-      addSpeciality.values.name = ""
+      addSpeciality.values.name = "";
 
       setConfirm(false);
       setAdd(false);
@@ -142,7 +142,7 @@ export default function Home(props: Speciality) {
 
     editSpeciality.setValues({
       id: sp.data.id,
-      name: sp.data.name
+      name: sp.data.name,
     });
 
     setEdit(true);
@@ -195,8 +195,7 @@ export default function Home(props: Speciality) {
                             <FaEdit
                               className="hover:cursor-pointer hover:opacity-70"
                               onClick={() => showEdit(row.id)}
-                            />{" "}
-                            <FaXmark className="hover:cursor-pointer hover:opacity-70" />
+                            />
                           </div>
                         </StyledTableCell>
                       </StyledTableRow>

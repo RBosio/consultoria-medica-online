@@ -295,23 +295,29 @@ const Profile: React.FC<ProfileProps> = (props) => {
                     className="flex justify-center items-center gap-2"
                     key={idx}
                   >
-                    <div className="mx-2">{h.healthInsurance.name}</div>
-                    {h.verified ? (
-                      <FaCircleCheck className="text-green-600 text-lg" />
-                    ) : (
+                    {h.healthInsurance?.name ? (
                       <>
-                        <FaCircleXmark className="text-red-600 text-lg" />
-                        {!request ? (
-                          <FaCertificate
-                            className="text-primary text-lg hover:cursor-pointer hover:opacity-70"
-                            onClick={() => {
-                              setConfirmVerification(true);
-                            }}
-                          />
+                        <div className="mx-2">{h.healthInsurance.name}</div>
+                        {h.verified ? (
+                          <FaCircleCheck className="text-green-600 text-lg" />
                         ) : (
-                          ""
+                          <>
+                            <FaCircleXmark className="text-red-600 text-lg" />
+                            {!request ? (
+                              <FaCertificate
+                                className="text-primary text-lg hover:cursor-pointer hover:opacity-70"
+                                onClick={() => {
+                                  setConfirmVerification(true);
+                                }}
+                              />
+                            ) : (
+                              ""
+                            )}
+                          </>
                         )}
                       </>
+                    ) : (
+                      ""
                     )}
                   </div>
                 );

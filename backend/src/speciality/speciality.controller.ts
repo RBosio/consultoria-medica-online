@@ -15,13 +15,13 @@ export class SpecialityController {
     constructor(private specialityService: SpecialityService) {}
     
     @Get()
-    @Roles(RoleEnum.User, RoleEnum.Doctor)
+    @Roles(RoleEnum.User, RoleEnum.Doctor, RoleEnum.Admin)
     getSpecialities(): Promise<Speciality[]> {
         return this.specialityService.findAll()
     }
     
     @Get(':id')
-    @Roles(RoleEnum.User, RoleEnum.Doctor)
+    @Roles(RoleEnum.User, RoleEnum.Doctor, RoleEnum.Admin)
     getSpeciality(@Param('id', ParseIntPipe) id: number): Promise<Speciality | HttpException> {
         return this.specialityService.findOne(id)
     }

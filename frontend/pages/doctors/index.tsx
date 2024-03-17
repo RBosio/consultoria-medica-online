@@ -37,7 +37,7 @@ export default function Doctors(props: any) {
     <Layout auth={props.auth}>
       <section className='h-full flex flex-col xl:flex-row overflow-hidden'>
         <Filters setOpenedFilters={setOpenedFilters} openedFilters={openedFilters} healthInsurances={props.healthInsurances} specialities={props.specialities} />
-        <div className="w-full p-4 sm:p-10 grow overflow-x-hidden flex flex-col items-center gap-10 relative">
+        <div className="w-full p-2 sm:p-4 md:p-10 grow overflow-x-hidden flex flex-col items-center gap-10 relative">
           <p className="absolute invisible top-[-4rem]" ref={ref}>q</p>
           {
             props.doctors.items.length === 0 ?
@@ -123,8 +123,8 @@ const Filters: React.FC<FiltersProps> = (props) => {
   };
 
   return (
-    <div className={`h-full bg-white transition-[right] duration-300 ease-in-out ${props.openedFilters ? "right-0" : "right-[-63rem]"} 
-    z-10 shadow-xl absolute w-full md:w-[calc(100%-15rem)] overflow-y-auto 
+    <div className={`h-full bg-white transition-[right] duration-300 ease-in-out ${props.openedFilters ? "right-0" : "right-[-63rem] md:flex flex-col"} 
+    z-10 shadow-xl fixed w-full md:w-[calc(100%-15rem)] overflow-y-auto 
     xl:z-0 xl:static xl:min-w-64 xl:w-4/12 xl:rounded-md xl:m-6 xl:h-auto`}>
       <span className="flex items-center justify-center">
         <h2 className={`${robotoBold.className} text-primary text-xl my-4`}>Filtrar</h2>
@@ -132,9 +132,9 @@ const Filters: React.FC<FiltersProps> = (props) => {
           <IoIosCloseCircleOutline color="#D92222" size="30" />
         </IconButton>
       </span>
-      <div className="px-4 w-full">
+      <div className="px-4 h-full w-full">
         <Divider />
-        <form onSubmit={filtersForm.handleSubmit} className="py-3 flex flex-col gap-8">
+        <form onSubmit={filtersForm.handleSubmit} className="py-3 flex flex-col gap-1 md:gap-8">
           <Input name="name" onChange={filtersForm.handleChange} startadornment={<FaUserDoctor color={theme.palette.primary.main} />} fullWidth label="Nombre" />
           <Autocomplete
             onChange={(event, newValue: any) => {
@@ -190,7 +190,7 @@ const Filters: React.FC<FiltersProps> = (props) => {
               </ToggleButton>
             </ToggleButtonGroup>
           </div>
-          <Button className="mt-[4rem] xl:mt-0" type='submit' size='large' startIcon={<IoMdSearch />}>Buscar</Button>
+          <Button className="xl:mt-0" type='submit' size='large' startIcon={<IoMdSearch />}>Buscar</Button>
         </form>
       </div>
     </div>

@@ -137,10 +137,10 @@ export default function Meetings(props: Meeting) {
     <Layout auth={props.auth}>
       <main>
       <form
-          className="flex justify-between items-center bg-white p-4 sm:p-6 shadow-md gap-4 sm:gap-8 md:gap-12"
+          className="flex flex-col sm:flex-row sm:justify-between sm:items-center bg-white p-3 sm:p-6 shadow-md gap-3 sm:gap-8 md:gap-12"
           onSubmit={filtersForm.handleSubmit}
         >
-          <div className={`${props.auth.role === "user" ? "w-1/3" : "w-1/2"}`}>
+          <div className={`${props.auth.role === "user" ? "w-full sm:w-1/3" : "w-full sm:w-1/2"}`}>
             <Input
               name="name"
               onChange={filtersForm.handleChange}
@@ -151,7 +151,7 @@ export default function Meetings(props: Meeting) {
               label="Nombre"
             />
           </div>
-          <div className={`${props.auth.role === "user" ? "w-1/3" : "hidden"}`}>
+          <div className={`${props.auth.role === "user" ? "w-full sm:w-1/3" : "hidden"}`}>
             <Autocomplete
               onChange={(event, newValue: any) => {
                 filtersForm.setFieldValue(
@@ -175,7 +175,7 @@ export default function Meetings(props: Meeting) {
               )}
             />
           </div>
-          <div className={`${props.auth.role === "user" ? "w-1/3" : "w-1/2"}`}>
+          <div className={`${props.auth.role === "user" ? "w-full sm:w-1/3" : "w-full sm:w-1/2"}`}>
             <Autocomplete
               onChange={(event, newValue: any) => {
                 filtersForm.setFieldValue(
@@ -205,7 +205,7 @@ export default function Meetings(props: Meeting) {
           </Button>
         </form>
         <section>
-          <div className="w-[95%] overflow-hidden m-auto relative px-[14px] mt-8">
+          <div className="w-[95%] overflow-hidden m-auto relative px-[14px] sm:mt-8">
           <div
               className="flex flex-nowrap items-center transition-all ease-in "
               style={{ transitionDuration: ".5s" }}

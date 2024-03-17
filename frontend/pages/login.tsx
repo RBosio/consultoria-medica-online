@@ -101,7 +101,7 @@ export default function Login(props: any) {
                             <GoDotFill color={theme.palette.primary.main} />
                         </Divider>
                         <p className="text-center text-black">¿No estás registrado aún?
-                            <Link className={`font-bold cursor-pointer text-primary  hover:underline mx-1`} href="#">
+                            <Link className={`font-bold cursor-pointer text-primary  hover:underline mx-1`} href="/register">
                                 Crear una cuenta
                             </Link>
                         </p>

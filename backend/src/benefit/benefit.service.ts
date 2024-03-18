@@ -18,6 +18,9 @@ export class BenefitService {
         const benefitFound = await this.benefitRepository.findOne({
             where: {
                 id
+            },
+            relations: {
+                plans: true
             }
         })
         if (!benefitFound) {

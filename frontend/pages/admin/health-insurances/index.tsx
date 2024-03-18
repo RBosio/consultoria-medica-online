@@ -178,14 +178,16 @@ export default function Home(props: HealthInsurance) {
 
   return (
     <Layout auth={props.auth}>
-      <div className="flex justify-center items-center">
-        <div className="flex flex-col md:flex-row items-center gap-4 w-[90%] mt-12">
-          <SidebarAdmin
-            auth={props.auth}
-            setSidebarOpened={true}
-            sidebarOpened
-          />
-          <div className="bg-white p-4 w-full">
+      <div className="flex justify-center">
+        <div className="flex flex-col md:flex-row justify-center gap-4 w-[90%] mt-12">
+          <div>
+            <SidebarAdmin
+              auth={props.auth}
+              setSidebarOpened={true}
+              sidebarOpened
+            />
+          </div>
+          <div className="bg-white p-4 w-full h-full">
             <section className="w-full rounded-md flex flex-col items-center relative">
               <div className="w-5/6">
                 <div className="flex justify-end">
@@ -250,7 +252,7 @@ export default function Home(props: HealthInsurance) {
                 </TableContainer>
               </div>
               {add ? (
-                <div className="absolute bg-white bottom-10 p-8 border border-primary rounded-md shadow-md">
+                <div className="bg-white p-8 border border-primary rounded-md shadow-md mt-12">
                   <h4 className="text-primary text-xl mb-4 text-center">
                     Agregar obra social
                   </h4>
@@ -279,7 +281,7 @@ export default function Home(props: HealthInsurance) {
                 ""
               )}
               {edit ? (
-                <div className="absolute bg-white bottom-10 p-8 border border-primary rounded-md shadow-md">
+                <div className="bg-white p-8 border border-primary rounded-md shadow-md mt-12">
                   <h4 className="text-primary text-xl mb-4 text-center">
                     Editar obra social
                   </h4>
@@ -394,5 +396,5 @@ export const getServerSideProps = withAuth(
       },
     };
   },
-  true
+  { protected: true }
 );

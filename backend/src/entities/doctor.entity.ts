@@ -28,6 +28,9 @@ export class Doctor {
     @Column({default: false})
     verified: boolean
     
+    @Column({nullable: true})
+    verifiedSince: Date
+    
     @Column({default: 0, type: 'decimal', precision: 2, scale: 1})
     avgRate: number
 
@@ -45,6 +48,9 @@ export class Doctor {
     
     @Column({nullable: true})
     planId: number
+
+    @Column({nullable: true})
+    planSince: Date
     
     seniority: number
     

@@ -1,3 +1,4 @@
+import { PlanResponseDto } from "./plan.dto";
 import { SpecialityResponseDto } from "./speciality.dto";
 import { UserResponseDto } from "./user.dto";
 
@@ -12,4 +13,7 @@ export interface DoctorResponseDto {
     user: UserResponseDto
     specialities: SpecialityResponseDto[]
     verified: boolean
+    verifiedSince: Date
+    plan: PlanResponseDto
+    planSince: Date
 }

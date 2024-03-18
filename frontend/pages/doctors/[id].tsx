@@ -18,13 +18,13 @@ import Button from "@/components/button";
 import { useRouter } from "next/router";
 
 export default function Doctor(props: any) {
-    
+
     const theme = useTheme();
     const router = useRouter();
     const [selectedDate, setSelectedDate] = useState("");
     const [confirmTurn, setConfirmTurn] = useState(false);
     const [meetingError, setMeetingError] = useState(false);
-    
+
     const handleDateChange = (
         event: React.MouseEvent<HTMLElement>,
         newDate: any,
@@ -53,7 +53,7 @@ export default function Doctor(props: any) {
                     headers: { Authorization: `Bearer ${props.auth.token}` }
                 });
 
-            router.push(`/meetings/${btoa(router.query.id+'.'+selectedDate)}`);
+            router.push(`/meetings/${btoa(router.query.id + '.' + selectedDate)}`);
         }
         catch (error) {
             setMeetingError(true);
@@ -62,7 +62,7 @@ export default function Doctor(props: any) {
 
     const getDiscount = () => {
 
-        if(!props.user.validateHealthInsurance) return null;
+        if (!props.user.validateHealthInsurance) return null;
 
         const doctorsWorkingFor = props.doctor.user.healthInsurances;
         const userHealthInsurance = props.user.healthInsurances[0];
@@ -82,9 +82,9 @@ export default function Doctor(props: any) {
 
     return (
         <Layout auth={props.auth}>
-            <section className="h-full flex overflow-y-auto xl:p-8">
-                <div className="w-full flex flex-col xl:flex-row xl:gap-6 xl:mt-[3rem]">
-                    <div className="w-full bg-white shrink-0 relative xl:rounded-md xl:shadow-md xl:w-4/12">
+            <section className="flex overflow-y-auto xl:p-8">
+                <div className="flex flex-col xl:flex-row xl:gap-6 xl:mt-[3rem]">
+                    <div className="bg-white shrink-0 relative xl:rounded-md xl:shadow-md xl:w-4/12">
                         <Avatar
                             labelProps={{ className: "hidden xl:hidden" }}
                             name={props.doctor.user.name}
@@ -93,8 +93,8 @@ export default function Doctor(props: any) {
                             className="bg-primary"
                             size={130}
                             icon={<FaUserDoctor size={60} />}
-                            photo={props.doctor.user.image ? `${process.env.NEXT_PUBLIC_API_URL}/uploads/user/${props.doctor.user.image}` : undefined} />
-                        <div className="mt-[11rem] xl:mt-20">
+                            photo={props.doctor.user.image ? props.doctor.user.image : undefined} />
+                        <div className="mt-[11rem] xl:mt-20 bg-white">
                             <div className="flex flex-col items-center gap-3">
                                 <h2 className={`text-primary text-center ${robotoBold.className} text-3xl`}>{props.doctor.user.name} {props.doctor.user.surname}</h2>
                                 <div className="flex gap-2">
@@ -111,7 +111,7 @@ export default function Doctor(props: any) {
                                 }}>
                                     <GoDotFill color={theme.palette.primary.main} />
                                 </Divider>
-                                <div className="w-full p-4 flex flex-col gap-6">
+                                <div className="p-4 flex flex-col gap-6">
                                     <div className="flex flex-col gap-2">
                                         <h2 className="text-primary text-xl">Descripción</h2>
                                         <p className="line-clamp-[10]">{props.doctor.description}</p>
@@ -141,7 +141,7 @@ export default function Doctor(props: any) {
                             </div>
                         </div>
                     </div>
-                    <div className="xl:hidden bg-white flex justify-center w-full">
+                    <div className="xl:hidden bg-white flex justify-center">
                         <Divider variant="middle" sx={{
                             "&": {
                                 width: "70%",
@@ -156,9 +156,9 @@ export default function Doctor(props: any) {
                     </div>
                     <div className="flex flex-col bg-white p-4 gap-2 shadow-md grow xl:rounded-md relative">
                         <div className="w-full h-32 flex items-center justify-center bg-primary absolute right-0 top-0 xl:w-56 xl:h-56 xl:rounded-tr-md">
-                            <span className="hidden xl:block absolute bottom-0 w-0 h-0 border-x-solid border-x-transparent border-x-[7rem] border-b-[3rem] border-b-solid border-b-white"/>
+                            <span className="hidden xl:block absolute bottom-0 w-0 h-0 border-x-solid border-x-transparent border-x-[7rem] border-b-[3rem] border-b-solid border-b-white" />
                             <div className="flex flex-col text-white w-full h-full py-2">
-                                <div className="flex items-center gap-1 px-2 pb-1 rounded-tr-md border-b-[1px] border-white w-full">
+                                <div className="flex items-center gap-1 px-2 pb-1 rounded-tr-md border-b-[1px] border-white">
                                     <IoIosPricetag />
                                     <h2>CONSULTA</h2>
                                 </div>
@@ -184,7 +184,7 @@ export default function Doctor(props: any) {
                             <IoTimeSharp size={20} color={theme.palette.primary.main} />
                             <h2 className={`text-primary text-2xl ${robotoBold.className}`}>Solicitar Turno</h2>
                         </div>
-                        <div className="flex flex-col h-full">
+                        <div className="flex flex-col">
                             <div className="flex flex-col gap-4">
                                 {props.doctorAvailability.map((da: any) => {
                                     let [day, date] = da.formattedDate.split(", ");
@@ -225,7 +225,7 @@ export default function Doctor(props: any) {
                                 })}
 
                             </div>
-                            <div className="my-6 flex justify-center items-center h-full xl:-0">
+                            <div className="my-6 flex justify-center items-center xl:-0">
                                 <Button onClick={() => setConfirmTurn(true)} disabled={!Boolean(selectedDate)} className="w-40">Aceptar</Button>
                             </div>
                         </div>
@@ -308,4 +308,4 @@ export const getServerSideProps = withAuth(async (auth: Auth | null, context: an
     };
 
 
-}, true)
+}, { protected: true })

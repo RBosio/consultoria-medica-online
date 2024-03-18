@@ -25,6 +25,8 @@ import { robotoBold } from "@/lib/fonts";
 import Button from "@/components/button";
 import UserCard from "@/components/userCard";
 import DoctorCard from "@/components/doctorCard";
+import Link from "next/link";
+
 interface MeetingI {
   meeting: MeetingResponseDto;
   comments: CommentResponseDto[];
@@ -33,6 +35,7 @@ interface MeetingI {
 }
 
 export default function DetailMeeting(props: MeetingI) {
+
   const theme = useTheme();
   const router = useRouter();
 
@@ -208,34 +211,11 @@ export default function DetailMeeting(props: MeetingI) {
     handleClickComment();
   }
 
-  async function joinMeeting() {
-    const { id } = router.query;
-
-    if (id && typeof id === "string") {
-      const [t, startDatetime] = atob(id).split(".");
-
-      const res = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/meeting/join/${t}/${startDatetime}`,
-        {},
-        {
-          withCredentials: true,
-          headers: { Authorization: `Bearer ${props.auth.token}` },
-        }
-      );
-      localStorage.setItem("tokenMeeting", res.data.tokenMeeting);
-      localStorage.setItem("tpc", props.meeting.tpc);
-      router.push("/meetings/videocall");
-    }
-  }
-
   useEffect(() => {
     const scrollBar = document.getElementById("scroll");
     if (scrollBar) {
       scrollBar.scrollTop = 20000;
     }
-
-    localStorage.setItem("user", JSON.stringify(props.meeting.user));
-    localStorage.setItem("doctor", JSON.stringify(props.meeting.doctor));
   }, []);
 
   return (
@@ -264,8 +244,8 @@ export default function DetailMeeting(props: MeetingI) {
                   <div className="text-gray-500 text-xs mt-2 flex justify-end">
                     {props.meeting.cancelDate
                       ? moment(props.meeting.cancelDate).format(
-                          "DD/MM/YYYY HH:mm"
-                        )
+                        "DD/MM/YYYY HH:mm"
+                      )
                       : moment(new Date()).format("DD/MM/YYYY HH:mm")}
                   </div>
                 </div>
@@ -333,25 +313,31 @@ export default function DetailMeeting(props: MeetingI) {
 
               <div className="flex justify-end items-center w-full mb-2">
                 {props.auth.role === "user" ? (
-                  <Button
-                    className="bg-green-600 hover:bg-green-800 mr-2"
-                    size="small"
-                    endIcon={<FaPlay />}
-                    disabled={props.meeting.status !== "Pendiente"}
-                    onClick={joinMeeting}
-                  >
-                    Unirse
-                  </Button>
+                  <>
+                    <Link href={`/meetings/${router.query.id}/videocall`}>
+                      <Button
+                        className="bg-green-600 hover:bg-green-800 mr-2"
+                        size="small"
+                        endIcon={<FaPlay />}
+                        disabled={props.meeting.status !== "Pendiente"}
+                      >
+                        Unirse
+                      </Button>
+                    </Link>
+                  </>
                 ) : (
-                  <Button
-                    className="bg-green-600 hover:bg-green-800 mr-2"
-                    size="small"
-                    endIcon={<FaPlay />}
-                    disabled={props.meeting.status !== "Pendiente"}
-                    onClick={joinMeeting}
-                  >
-                    Iniciar reunion
-                  </Button>
+                  <>
+                    <Link href={`/meetings/${router.query.id}/videocall`}>
+                      <Button
+                        className="bg-green-600 hover:bg-green-800 mr-2"
+                        size="small"
+                        endIcon={<FaPlay />}
+                        disabled={props.meeting.status !== "Pendiente"}
+                      >
+                        Iniciar reunion
+                      </Button>
+                    </Link>
+                  </>
                 )}
                 {props.meeting.status === "Pendiente" ? (
                   <Button
@@ -455,9 +441,8 @@ export default function DetailMeeting(props: MeetingI) {
               >
                 {file ? (
                   <div
-                    className={`w-full py-1 px-2 bg-primary rounded-md text-white flex justify-between items-center overflow-x-hidden h-8 ${
-                      file.name.length > 60 ? "overflow-y-scroll" : ""
-                    }`}
+                    className={`w-full py-1 px-2 bg-primary rounded-md text-white flex justify-between items-center overflow-x-hidden h-8 ${file.name.length > 60 ? "overflow-y-scroll" : ""
+                      }`}
                   >
                     <div className={`${robotoBold.className}`}>{file.name}</div>
                     <FaXmark
@@ -544,12 +529,12 @@ export const getServerSideProps = withAuth(
       };
     } catch {
       return {
-        props: {
-          meeting: { items: {} },
-          auth,
-        },
+        redirect: {
+          destination: '/meetings',
+          permanent: false
+        }
       };
     }
   },
-  true
+  { protected: true }
 );

@@ -9,4 +9,5 @@ export class createDoctorDto {
     address: string
     planId: number
     specialities: Speciality[]
+    verified: boolean
 }

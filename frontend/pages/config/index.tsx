@@ -7,7 +7,7 @@ import Avatar from "@/components/avatar";
 import {
   FaCertificate,
   FaCheck,
-  FaCircleInfo,
+  FaCircleCheck,
   FaCircleUp,
   FaCircleXmark,
   FaLocationDot,
@@ -31,9 +31,11 @@ import {
   DialogContentText,
   DialogTitle,
   Divider,
+  IconButton,
   MenuItem,
   Select,
   Snackbar,
+  Tooltip,
   useTheme,
 } from "@mui/material";
 import { UserResponseDto } from "@/components/dto/user.dto";
@@ -49,6 +51,7 @@ import { useFormik } from "formik";
 import { HealthInsuranceResponseDto } from "@/components/dto/healthInsurance.dto";
 import Link from "next/link";
 import { NotificationResponseDto } from "@/components/dto/notification.dto";
+import moment from "moment";
 
 interface ConfigProps {
   user: UserResponseDto;
@@ -128,6 +131,7 @@ export default function Config(props: ConfigProps) {
   ]);
   const [minutesTo, setMinutesTo] = useState<string[]>([]);
   const [healthInsurance, setHealthInsurance] = useState<number>(0);
+  const [healthInsuranceVerify, setHealthInsuranceVerify] = useState<number>(0);
   const [duration, setDuration] = useState<number>(
     props.doctor.durationMeeting
   );
@@ -143,6 +147,11 @@ export default function Config(props: ConfigProps) {
   const [confirmUpdate, setConfirmUpdate] = useState<boolean>(false);
   const [confirmVerification, setConfirmVerification] =
     useState<boolean>(false);
+  const [confirmVerificationHI, setConfirmVerificationHI] =
+    useState<boolean>(false);
+  const [confirmCancelPlan, setConfirmCancelPlan] = useState<boolean>(false);
+  const [confirmHealthInsurance, setConfirmHealthInsurance] =
+    useState<boolean>(false);
 
   const updateForm = useFormik({
     initialValues: {
@@ -152,30 +161,35 @@ export default function Config(props: ConfigProps) {
       address: props.doctor.address,
     },
     onSubmit: async (values, { setSubmitting }) => {
-      values.durationMeeting = duration;
+      if (values.priceMeeting.toString().length > 0) {
+        values.durationMeeting = duration;
+        await axios.patch(
+          `${process.env.NEXT_PUBLIC_API_URL}/user/${props.doctor.user.id}`,
+          values,
+          {
+            withCredentials: true,
+            headers: { Authorization: `Bearer ${props.auth.token}` },
+          }
+        );
 
-      await axios.patch(
-        `${process.env.NEXT_PUBLIC_API_URL}/user/${props.doctor.user.dni}`,
-        values,
-        {
-          withCredentials: true,
-          headers: { Authorization: `Bearer ${props.auth.token}` },
-        }
-      );
+        await axios.patch(
+          `${process.env.NEXT_PUBLIC_API_URL}/doctor/${props.doctor.id}`,
+          values,
+          {
+            withCredentials: true,
+            headers: { Authorization: `Bearer ${props.auth.token}` },
+          }
+        );
 
-      await axios.patch(
-        `${process.env.NEXT_PUBLIC_API_URL}/doctor/${props.doctor.id}`,
-        values,
-        {
-          withCredentials: true,
-          headers: { Authorization: `Bearer ${props.auth.token}` },
-        }
-      );
+        setModify(false);
 
-      setModify(false);
+        setMessage("Datos actualizados correctamente!");
+        setSuccess(true);
+      } else {
+        setMessage("Ingrese un valor al precio de la reunion");
+        setError(true);
+      }
 
-      setMessage("Datos actualizados correctamente!");
-      setSuccess(true);
       router.push(`/config`);
     },
   });
@@ -188,32 +202,35 @@ export default function Config(props: ConfigProps) {
       doctorId: props.doctor.id,
     },
     onSubmit: async (values, { setSubmitting }) => {
-      if (day && from && to) {
+      if (day > -1 && from && to) {
         values.day = day;
         values.start_hour = Number(from);
         values.end_hour = Number(to);
-      }
 
-      try {
-        if (values.end_hour != 0) {
-          await axios.post(
-            `${process.env.NEXT_PUBLIC_API_URL}/schedule`,
-            values,
-            {
-              withCredentials: true,
-              headers: { Authorization: `Bearer ${props.auth.token}` },
-            }
-          );
+        try {
+          if (values.end_hour != 0) {
+            await axios.post(
+              `${process.env.NEXT_PUBLIC_API_URL}/schedule`,
+              values,
+              {
+                withCredentials: true,
+                headers: { Authorization: `Bearer ${props.auth.token}` },
+              }
+            );
 
-          setMessage("Rango horario agregado con éxito!");
-          setSuccess(true);
+            setMessage("Rango horario agregado con éxito!");
+            setSuccess(true);
 
-          setDay(-1);
-          setFrom("");
-          setTo("");
+            setDay(-1);
+            setFrom("");
+            setTo("");
+          }
+        } catch (e: any) {
+          setMessage(e.response.data.message);
+          setError(true);
         }
-      } catch (e: any) {
-        setMessage(e.response.data.message);
+      } else {
+        setMessage("Debe cargar todos los datos");
         setError(true);
       }
 
@@ -234,7 +251,7 @@ export default function Config(props: ConfigProps) {
 
   const handleClickHealthInsurance = async () => {
     await axios.patch(
-      `${process.env.NEXT_PUBLIC_API_URL}/user/${props.doctor.user.dni}`,
+      `${process.env.NEXT_PUBLIC_API_URL}/user/${props.doctor.user.id}`,
       {
         healthInsurance,
       },
@@ -243,6 +260,9 @@ export default function Config(props: ConfigProps) {
         headers: { Authorization: `Bearer ${props.auth.token}` },
       }
     );
+
+    setMessage("Obra social agregada con éxito!");
+    setSuccess(true);
 
     router.push("/config");
   };
@@ -254,9 +274,18 @@ export default function Config(props: ConfigProps) {
     } else if (confirmUpdate) {
       updateForm.handleSubmit();
       setConfirmUpdate(false);
-    } else {
+    } else if (confirmVerification) {
       handleClickVerification();
       setConfirmVerification(false);
+    } else if (confirmVerificationHI) {
+      handleClickVerificationHI();
+      setConfirmVerificationHI(false);
+    } else if (confirmCancelPlan) {
+      handleClickCancelPlan();
+      setConfirmCancelPlan(false);
+    } else {
+      handleClickHealthInsurance();
+      setConfirmHealthInsurance(false);
     }
   };
 
@@ -288,16 +317,61 @@ export default function Config(props: ConfigProps) {
     router.push("/config");
   };
 
+  const handleClickVerificationHI = async () => {
+    const user = await axios.get(
+      `${process.env.NEXT_PUBLIC_API_URL}/user/admin`,
+      {
+        withCredentials: true,
+        headers: { Authorization: `Bearer ${props.auth.token}` },
+      }
+    );
+
+    await axios.post(
+      `${process.env.NEXT_PUBLIC_API_URL}/notification`,
+      {
+        userIdSend: props.auth.id,
+        userIdReceive: user.data.id,
+        type: "verification hi",
+        healthInsuranceId: healthInsuranceVerify,
+      },
+      {
+        withCredentials: true,
+        headers: { Authorization: `Bearer ${props.auth.token}` },
+      }
+    );
+
+    setMessage("Solicitud realizada con éxito!");
+    setSuccess(true);
+
+    router.push("/config");
+  };
+
+  const handleClickCancelPlan = async () => {
+    await axios.patch(
+      `${process.env.NEXT_PUBLIC_API_URL}/doctor/plan/${props.doctor.id}`,
+      {},
+      {
+        withCredentials: true,
+        headers: { Authorization: `Bearer ${props.auth.token}` },
+      }
+    );
+
+    setMessage("Plan cancelado con éxito!");
+    setSuccess(true);
+
+    router.push("/config");
+  };
+
   return (
     <Layout auth={props.auth}>
-      <section className="h-full flex p-8 overflow-scroll lg:overflow-hidden">
-        <div className="w-full flex flex-col items-center lg:flex-row gap-6 mt-[3rem]">
+      <section className="flex px-8">
+        <div className="w-full flex flex-col items-center lg:flex-row gap-6 mt-[3rem] relative md:max-h-[calc(100vh-10rem)]">
           <div className="rounded-md md:w-[calc(100%-15rem)] xl:shadow-md bg-white relative">
             <Avatar
               labelProps={{ className: "hidden" }}
               name={props.doctor.user.name}
               surname={props.doctor.user.surname}
-              rootClassName="absolute top-[-4rem] left-1/2 translate-x-[-50%]"
+              rootClassName="absolute top-[-2rem] left-1/2 translate-x-[-50%]"
               className="bg-primary"
               size={130}
               icon={<FaUserDoctor size={60} />}
@@ -305,7 +379,7 @@ export default function Config(props: ConfigProps) {
                 props.doctor.user.image ? props.doctor.user.image : undefined
               }
             />
-            <div className="mt-20">
+            <div className="mt-24">
               <div className="flex flex-col items-center gap-3">
                 <h2
                   className={`text-primary text-center ${robotoBold.className} text-3xl`}
@@ -359,20 +433,36 @@ export default function Config(props: ConfigProps) {
                       <div className="flex gap-2 text-primary items-center font-bold">
                         <FaPhone size={15} />
                         <p className="text-secondary">
-                          {props.doctor.user.phone}
+                          {props.doctor.user.phone
+                            ? props.doctor.user.phone
+                            : "-"}
                         </p>
                       </div>
-                      <div className="flex gap-2 text-primary items-center font-bold">
-                        <FaSuitcaseMedical size={15} />
-                        <p className="text-secondary">
-                          {props.doctor.user.healthInsurances
-                            .map((hi) => hi.name)
-                            .join(" | ")}
-                        </p>
+                      <div className="flex gap-2 items-center font-bold">
+                        <FaSuitcaseMedical className="text-primary" />
+                        <div className="px-2">
+                          {props.doctor.user.healthInsurances.map((hi: any) => {
+                            return (
+                              <p
+                                key={hi.healthInsurance.id}
+                                className="flex items-center gap-2"
+                              >
+                                {hi.healthInsurance.name}{" "}
+                                {hi.verified ? (
+                                  <FaCircleCheck className="text-green-600 text-xl" />
+                                ) : (
+                                  <FaCircleXmark className="text-red-600 text-xl" />
+                                )}
+                              </p>
+                            );
+                          })}
+                        </div>
                       </div>
                       <div className="flex gap-2 text-primary items-center font-bold">
                         <FaLocationDot size={15} />
-                        <p className="text-secondary">{props.doctor.address}</p>
+                        <p className="text-secondary">
+                          {props.doctor.address ? props.doctor.address : "-"}
+                        </p>
                       </div>
                       <Button
                         startIcon={<FaEdit />}
@@ -386,26 +476,26 @@ export default function Config(props: ConfigProps) {
               </div>
             </div>
           </div>
-          <div className="overflow-hidden min-w-[70%]">
+          <div className="overflow-hidden w-full md:min-w-[70%]">
             <div
-              className={`flex flex-nowrap items-center transition-all ease-in duration-500 ${
+              className={`flex flex-col md:flex-row md:flex-nowrap items-center transition-all ease-in duration-500 ${
                 modify ? "-translate-x-full" : ""
-              }`}
+              } gap-4`}
             >
-              <div className="bg-white min-w-full rounded-md shadow-md p-4 flex flex-col justify-center">
-                <div className="flex justify-between items-start gap-8">
-                  <div className="w-1/3 p-4">
+              <div className="bg-white sm:w-1/4 md:min-w-[99%] h-full rounded-md shadow-md p-4 flex flex-col justify-center">
+                <div className="flex flex-col justify-center items-center xl:flex-row xl:justify-between xl:items-start gap-2 md:gap-8">
+                  <div className="w-1/3 p-2">
                     <h3 className="text-primary text-xl text-center">
                       Reunion
                     </h3>
-                    <div className="flex justify-between items-center">
-                      <div>
+                    <div className="xl:flex xl:justify-between xl:items-center">
+                      <div className="flex flex-col justify-center items-center">
                         <h4 className="text-primary text-lg flex justify-center items-center gap-2">
                           <FaStopwatch /> Duracion
                         </h4>
                         <p>{props.doctor.durationMeeting} min</p>
                       </div>
-                      <div>
+                      <div className="flex flex-col justify-center items-center">
                         <h4 className="text-primary text-lg flex justify-center items-center gap-2">
                           <FaMoneyBill1Wave /> Precio
                         </h4>
@@ -413,18 +503,21 @@ export default function Config(props: ConfigProps) {
                       </div>
                     </div>
                   </div>
-                  <div className="h-[112px] w-1 border-l-2 border-primary"></div>
-                  <div className="p-4 w-2/3">
+                  <div className="md:h-[112px] md:w-1 md:border-l-2 md:border-primary"></div>
+                  <div className="p-2 w-2/3">
                     <h3 className="text-primary text-xl text-center">
                       Verificacion
                     </h3>
-                    <div className="flex justify-between items-center">
+                    <div className="flex flex-col p-2 md:flex-row justify-between items-center">
                       {props.doctor.verified ? (
                         <div>
                           <h3 className="text-primary text-lg flex items-center gap-2">
                             <FaCheck /> Verificado
                           </h3>
-                          <p>desde 2023-01-25</p>
+                          <p>
+                            desde{" "}
+                            {moment(props.doctor.verifiedSince).format("LL")}
+                          </p>
                         </div>
                       ) : (
                         <div>
@@ -469,7 +562,7 @@ export default function Config(props: ConfigProps) {
                       borderTop: `thin solid ${theme.palette.primary.main}`,
                     },
                   }}
-                  className="mx-auto my-4"
+                  className="w-1/6 m-auto md:w-full mx-auto my-4"
                 >
                   <GoDotFill color={theme.palette.primary.main} />
                 </Divider>
@@ -478,30 +571,53 @@ export default function Config(props: ConfigProps) {
                     Plan actual
                   </h3>
                   <div
-                    className={`bg-secondary flex justify-between items-center text-white px-8 py-2 mt-2 rounded-md ${robotoBold.className}`}
+                    className={`w-1/4 m-auto md:w-full bg-secondary flex flex-col md:flex-row md:justify-between items-center text-white px-8 py-2 mt-2 rounded-md ${robotoBold.className}`}
                   >
-                    <div className="flex justify-between w-1/2">
-                      <p>Plan 1</p>
-                      <p>Miembro desde 2020-01-14</p>
+                    <div className="flex flex-col md:flex-row justify-center items-center gap-4 md:justify-between md:gap-0 md:w-2/3">
+                      <p>
+                        {props.doctor.plan
+                          ? props.doctor.plan.name
+                          : "Sin plan"}
+                      </p>
+                      <p>
+                        {props.doctor.plan
+                          ? `Miembro desde ${moment(
+                              props.doctor.planSince
+                            ).format("LL")}`
+                          : "Actualmente se encuentra sin plan, solicite uno para comenzar a trabajar"}
+                      </p>
                     </div>
-                    <ButtonGroup>
+                    {props.doctor.plan ? (
+                      <ButtonGroup className="mt-4 md:mt-0">
+                        <Link href={"/plan"}>
+                          <Button startIcon={<FaCircleUp />} color="info">
+                            Actualizar
+                          </Button>
+                        </Link>
+                        <Button
+                          sx={{
+                            "&.MuiButton-contained": {
+                              background: "#AC0606",
+                              color: "#fff",
+                            },
+                          }}
+                          startIcon={<FaCircleXmark />}
+                          onClick={() => setConfirmCancelPlan(true)}
+                        >
+                          Cancelar
+                        </Button>
+                      </ButtonGroup>
+                    ) : (
                       <Link href={"/plan"}>
-                        <Button startIcon={<FaCircleUp />} color="info">
-                          Actualizar
+                        <Button
+                          startIcon={<FaCircleUp />}
+                          color="info"
+                          className="mt-4 md:mt-0"
+                        >
+                          Solicitar
                         </Button>
                       </Link>
-                      <Button
-                        sx={{
-                          "&.MuiButton-contained": {
-                            background: "#AC0606",
-                            color: "#fff",
-                          },
-                        }}
-                        startIcon={<FaCircleXmark />}
-                      >
-                        Cancelar
-                      </Button>
-                    </ButtonGroup>
+                    )}
                   </div>
                 </div>
                 <Divider
@@ -514,7 +630,7 @@ export default function Config(props: ConfigProps) {
                       borderTop: `thin solid ${theme.palette.primary.main}`,
                     },
                   }}
-                  className="mx-auto my-4"
+                  className="w-1/6 m-auto md:w-full mx-auto my-4"
                 >
                   <GoDotFill color={theme.palette.primary.main} />
                 </Divider>
@@ -522,19 +638,19 @@ export default function Config(props: ConfigProps) {
                   <h3 className="text-primary text-xl text-center">
                     Rangos horarios
                   </h3>
-                  <div className="flex items-center">
+                  <div className="flex flex-col md:flex-row items-center">
                     <form
-                      className="w-full flex justify-between items-center my-4 gap-4"
+                      className="w-full flex flex-col md:flex-row justify-between items-center my-4 gap-4"
                       onSubmit={($e: any) => {
                         $e.preventDefault();
                         setConfirmSchedule(true);
                       }}
                     >
-                      <div className="my-4">
+                      <div className="md:my-4">
                         <p className="text-primary text-xl">Dia</p>
                       </div>
                       <Select
-                        className="w-1/4"
+                        className="w-1/4 outline outline-1 outline-primary hover:outline-green-600"
                         value={day}
                         onChange={($e: any) => setDay($e.target.value)}
                       >
@@ -544,11 +660,11 @@ export default function Config(props: ConfigProps) {
                           </MenuItem>
                         ))}
                       </Select>
-                      <div className="my-4">
+                      <div className="md:my-4">
                         <p className="text-primary text-xl">Desde</p>
                       </div>
                       <Select
-                        className="w-1/4"
+                        className="w-1/4 outline outline-1 outline-primary"
                         value={from}
                         onChange={handleChange}
                       >
@@ -564,7 +680,7 @@ export default function Config(props: ConfigProps) {
                         <p className="text-primary text-xl">Hasta</p>
                       </div>
                       <Select
-                        className="w-1/4"
+                        className="w-1/4 outline outline-1 outline-primary hover:outline-green-600"
                         value={to}
                         onChange={($e: any) => setTo($e.target.value)}
                       >
@@ -581,7 +697,7 @@ export default function Config(props: ConfigProps) {
                       </Button>
                     </form>
                   </div>
-                  <div className="flex items-center mt-2">
+                  <div className="flex w-1/4 m-auto items-center mt-2 overflow-x-scroll p-4 md:w-full">
                     <div className="mt-8">
                       <div className="my-4">
                         <p className="text-primary text-xl">Desde</p>
@@ -594,33 +710,34 @@ export default function Config(props: ConfigProps) {
                       return (
                         <div key={idx}>
                           {day.day >= 0 ? (
-                            <p className="text-primary text-xl border-y-2 border-primary px-10 py-2">
+                            <p className="text-primary text-xl text-center border-y-2 border-primary px-10 py-2">
                               {day.d}
                             </p>
                           ) : (
                             ""
                           )}
-                          <div className="flex justify-center items-center">
+                          <div className="flex justify-center items-center mx-4">
                             {props.schedules.map((s) => {
-                              if (s.day === day.day) {
-                                return (
-                                  <div
-                                    className="bg-primary text-xl text-white m-1 my-2 rounded-md border border-slate-600"
-                                    key={s.id}
-                                  >
-                                    <p className="text-center p-2 border-b border-slate-600">
-                                      {s.start_hour < 10
-                                        ? "0".concat(s.start_hour.toString())
-                                        : s.start_hour}
-                                    </p>
-                                    <p className="text-center p-2">
-                                      {s.end_hour < 10
-                                        ? "0".concat(s.end_hour.toString())
-                                        : s.end_hour}
-                                    </p>
-                                  </div>
-                                );
-                              }
+                              return (
+                                <div key={s.id}>
+                                  {s.day === day.day ? (
+                                    <div className="bg-primary text-xl text-white m-1 my-2 rounded-md border border-slate-600">
+                                      <p className="text-center p-2 border-b border-slate-600">
+                                        {s.start_hour < 10
+                                          ? "0".concat(s.start_hour.toString())
+                                          : s.start_hour}
+                                      </p>
+                                      <p className="text-center p-2">
+                                        {s.end_hour < 10
+                                          ? "0".concat(s.end_hour.toString())
+                                          : s.end_hour}
+                                      </p>
+                                    </div>
+                                  ) : (
+                                    ""
+                                  )}
+                                </div>
+                              );
                             })}
                           </div>
                         </div>
@@ -636,8 +753,8 @@ export default function Config(props: ConfigProps) {
                     setConfirmUpdate(true);
                   }}
                 >
-                  <div className="flex justify-between items-start gap-8">
-                    <div className="w-1/3 p-4">
+                  <div className="flex flex-col md:flex-row md:justify-between md:items-start md:gap-8">
+                    <div className="md:w-1/3 p-4">
                       <h3 className="text-primary text-xl text-center">
                         Reunion
                       </h3>
@@ -675,13 +792,13 @@ export default function Config(props: ConfigProps) {
                         </div>
                       </div>
                     </div>
-                    <div className="h-[144px] w-1 border-l-2 border-primary"></div>
-                    <div className="p-4 w-2/3">
+                    <div className="md:h-[144px] md:w-1 md:border-l-2 md:border-primary"></div>
+                    <div className="p-4 md:w-2/3">
                       <h3 className="text-primary text-xl text-center">
                         Datos personales
                       </h3>
-                      <div className="flex justify-between items-center mt-[12px]">
-                        <div>
+                      <div className="flex flex-col justify-center items-center md:flex-row gap-4 md:gap-0 md:justify-between md:items-center mt-[12px]">
+                        <div className="flex flex-col w-full md:items-center">
                           <h4 className="text-primary text-xl flex items-center gap-2">
                             <FaPhone /> Telefono
                           </h4>
@@ -691,9 +808,10 @@ export default function Config(props: ConfigProps) {
                             onChange={updateForm.handleChange}
                             onBlur={updateForm.handleBlur}
                             value={updateForm.values.phone}
+                            className="md:w-1/2"
                           />
                         </div>
-                        <div>
+                        <div className="flex flex-col w-full md:items-center">
                           <h4 className="text-primary text-xl flex items-center gap-2">
                             <FaLocationDot /> Direccion de consultorio
                           </h4>
@@ -703,6 +821,7 @@ export default function Config(props: ConfigProps) {
                             onChange={updateForm.handleChange}
                             onBlur={updateForm.handleBlur}
                             value={updateForm.values.address}
+                            className="md:w-1/2"
                           />
                         </div>
                       </div>
@@ -729,10 +848,10 @@ export default function Config(props: ConfigProps) {
                 <h3 className="text-primary text-xl text-center">
                   Obras sociales
                 </h3>
-                <div className="flex justify-between items-center p-4">
-                  <div className="w-1/3">
+                <div className="md:flex md:justify-between md:items-center p-4">
+                  <div className="md:w-1/3">
                     <Select
-                      className="w-2/3 mr-2"
+                      className="w-full md:w-2/3 mr-2"
                       onChange={($e: any) =>
                         setHealthInsurance($e.target.value)
                       }
@@ -741,7 +860,7 @@ export default function Config(props: ConfigProps) {
                         .filter(
                           (hi) =>
                             !props.doctor.user.healthInsurances
-                              .map((hi) => hi.id)
+                              .map((hi) => hi.healthInsurance.id)
                               .includes(hi.id)
                         )
                         .map((hi: HealthInsuranceResponseDto) => (
@@ -750,20 +869,47 @@ export default function Config(props: ConfigProps) {
                           </MenuItem>
                         ))}
                     </Select>
-                    <Button onClick={handleClickHealthInsurance}>
+                    <Button
+                      className="mt-4 md:mt-0"
+                      onClick={() => setConfirmHealthInsurance(true)}
+                    >
                       Agregar
                     </Button>
                   </div>
-                  <div className="w-2/3 flex justify-center flex-wrap gap-2">
+                  <div className="w-full md:w-2/3 flex justify-center flex-wrap gap-2 mt-8 md:mt-0">
                     {props.doctor.user.healthInsurances.map((hi) => {
                       return (
                         <div
-                          key={hi.id}
-                          className="flex items-center gap-2 p-2 bg-primary text-white rounded-md"
+                          key={hi.healthInsurance.id}
+                          className="flex items-center gap-2 p-1 bg-primary text-white rounded-md"
                         >
-                          <FaCheckCircle />
-                          <p>{hi.name}</p>
-                          <FaXmark className="hover:cursor-pointer hover:text-slate-300" />
+                          {hi.verified ? (
+                            <>
+                              <Tooltip title="Verificado">
+                                <IconButton className="text-white text-md">
+                                  <FaCircleCheck />
+                                </IconButton>
+                              </Tooltip>
+                            </>
+                          ) : (
+                            <>
+                              <Tooltip
+                                title="Verificar"
+                                onClick={() => {
+                                  setHealthInsuranceVerify(
+                                    hi.healthInsurance.id
+                                  );
+                                  setConfirmVerificationHI(true);
+                                }}
+                              >
+                                <IconButton className="text-white text-md">
+                                  <FaCircleXmark />
+                                </IconButton>
+                              </Tooltip>
+                            </>
+                          )}
+
+                          <p className="pr-2">{hi.healthInsurance.name}</p>
                         </div>
                       );
                     })}
@@ -773,11 +919,21 @@ export default function Config(props: ConfigProps) {
             </div>
           </div>
           <Dialog
-            open={confirmSchedule || confirmUpdate || confirmVerification}
+            open={
+              confirmSchedule ||
+              confirmUpdate ||
+              confirmVerification ||
+              confirmVerificationHI ||
+              confirmCancelPlan ||
+              confirmHealthInsurance
+            }
             onClose={() => {
               setConfirmSchedule(false);
               setConfirmUpdate(false);
               setConfirmVerification(false);
+              setConfirmVerificationHI(false);
+              setConfirmCancelPlan(false);
+              setConfirmHealthInsurance(false);
             }}
             aria-labelledby="alert-dialog-title"
             aria-describedby="alert-dialog-description"
@@ -787,7 +943,15 @@ export default function Config(props: ConfigProps) {
                 ? "Rango horario"
                 : confirmUpdate
                 ? "Datos personales"
-                : "Verificacion"}
+                : confirmVerification
+                ? "Verificacion de cuenta"
+                : confirmVerificationHI
+                ? "Verificacion de obra social"
+                : confirmCancelPlan
+                ? "Cancelar plan"
+                : confirmHealthInsurance
+                ? "Confirmar obra social"
+                : ""}
             </DialogTitle>
             <DialogContent>
               <DialogContentText id="alert-dialog-description">
@@ -795,7 +959,15 @@ export default function Config(props: ConfigProps) {
                   ? "¿Desea agregar el rango horario?"
                   : confirmUpdate
                   ? "¿Desea actualizar los datos?"
-                  : "¿Desea solicitar la verificacion de la cuenta?"}
+                  : confirmVerification
+                  ? "¿Desea solicitar la verificacion de la cuenta?"
+                  : confirmVerificationHI
+                  ? "¿Desea solicitar la verificacion de la obra social?"
+                  : confirmCancelPlan
+                  ? "¿Desea cancelar su plan actual?"
+                  : confirmHealthInsurance
+                  ? "¿Desea agregar la obra social?"
+                  : ""}
               </DialogContentText>
             </DialogContent>
             <DialogActions>
@@ -806,6 +978,9 @@ export default function Config(props: ConfigProps) {
                   setConfirmSchedule(false);
                   setConfirmUpdate(false);
                   setConfirmVerification(false);
+                  setConfirmVerificationHI(false);
+                  setConfirmCancelPlan(false);
+                  setConfirmHealthInsurance(false);
                 }}
               >
                 Cancelar
@@ -890,5 +1065,5 @@ export const getServerSideProps = withAuth(
       },
     };
   },
-  true
+  { protected: true, role: "doctor" }
 );

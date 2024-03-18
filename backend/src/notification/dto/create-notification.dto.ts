@@ -4,4 +4,5 @@ export class createNotificationDto {
     type: string
     meetingUserId: number
     meetingStartDatetime: Date
+    healthInsuranceId: number
 }

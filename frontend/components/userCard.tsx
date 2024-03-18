@@ -4,6 +4,8 @@ import { robotoBold } from "@/lib/fonts";
 import {
   FaAddressCard,
   FaCalendarDays,
+  FaCircleCheck,
+  FaCircleXmark,
   FaEnvelope,
   FaMars,
   FaPhone,
@@ -14,26 +16,11 @@ import {
 import { MeetingResponseDto } from "./dto/meeting.dto";
 import moment from "moment";
 import Button from "./button";
+import Link from "next/link";
+import { showDni } from "@/lib/dni";
 
 const UserCard: React.FC<MeetingResponseDto> = (props) => {
   const theme = useTheme();
-
-  function showDni() {
-    let dni = props.user.dni;
-
-    dni = dni
-      .split("")
-      .map((l, i) => {
-        if (i === 2 || i === 5) {
-          return "." + l;
-        }
-
-        return l;
-      })
-      .join("");
-
-    return dni;
-  }
 
   return (
     <div className="bg-white rounded-md h-full flex flex-col relative w-full">
@@ -71,7 +58,7 @@ const UserCard: React.FC<MeetingResponseDto> = (props) => {
           </div>
           <div className="flex items-center">
             <FaAddressCard className="text-primary" />
-            <p className="px-2">{showDni()}</p>
+            <p className="px-2">{showDni(props.user.dni)}</p>
           </div>
           <div className="flex items-center">
             <FaCalendarDays className="text-primary" />
@@ -92,8 +79,16 @@ const UserCard: React.FC<MeetingResponseDto> = (props) => {
             <FaSuitcaseMedical className="text-primary" />
             {props.user.healthInsurances.map((h) => {
               return (
-                <p className="px-2" key={h.id}>
-                  {h.name}
+                <p
+                  className="px-2 flex items-center gap-2"
+                  key={h.healthInsurance.id}
+                >
+                  {h.healthInsurance.name}{" "}
+                  {h.verified ? (
+                    <FaCircleCheck className="text-green-600 text-xl" />
+                  ) : (
+                    <FaCircleXmark className="text-red-600 text-xl" />
+                  )}
                 </p>
               );
             })}
@@ -101,8 +96,10 @@ const UserCard: React.FC<MeetingResponseDto> = (props) => {
         </div>
         <div className="w-3/4 h-2 border-b-2 border-emerald-200"></div>
       </div>
-      <div className="h-full flex justify-center items-end">
-        <Button className="w-3/4 my-4">Historia clinica</Button>
+      <div className="h-full flex justify-center items-end my-4">
+        <Link href={`/medical-record/${props.user.id}`}>
+          <Button className="w-full">Historia clinica</Button>
+        </Link>
       </div>
     </div>
   );

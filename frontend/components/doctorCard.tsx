@@ -2,6 +2,8 @@ import { Chip, useTheme } from "@mui/material";
 import React from "react";
 import { robotoBold } from "@/lib/fonts";
 import {
+  FaCircleCheck,
+  FaCircleXmark,
   FaEnvelope,
   FaLocationDot,
   FaPhone,
@@ -72,7 +74,11 @@ const DoctorCard: React.FC<MeetingResponseDto> = (props) => {
           </div>
           <div className="flex items-center">
             <FaSuitcaseMedical className="text-primary" />
-            <p className="px-2">{props.doctor.user.healthInsurances.map((hi: any) => hi.name).join(" | ")}</p>
+            <div className="px-2">{props.doctor.user.healthInsurances.map((hi: any) => {
+              return (
+                <p key={hi.healthInsurance.id} className="flex items-center gap-2">{hi.healthInsurance.name} {hi.verified ? <FaCircleCheck className="text-green-600 text-xl"/> : <FaCircleXmark className="text-red-600 text-xl" />}</p>
+              )
+              })}</div>
           </div>
           {props.doctor.address ? (
             <div className="flex items-center">

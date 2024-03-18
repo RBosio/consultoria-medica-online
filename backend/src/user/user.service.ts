@@ -181,7 +181,7 @@ export class UserService {
             await updateUser.hashPassword()
         }
 
-        if(user.healthInsurance) {
+        if(user.verify) {
             const hi = await this.userHealthInsuranceRepository.findOne({
                 where: {
                     userId: id,
@@ -196,14 +196,25 @@ export class UserService {
 
             this.userHealthInsuranceRepository.save(hi)
         } else {
-            const hi = await this.userHealthInsuranceRepository.find({
-                where: {
-                    userId: id
-                }
-            })
+            if(user.healthInsurance) {
+                const hi = await this.healthInsuranceService.findOne(user.healthInsurance)
+                
+                const newHi = this.userHealthInsuranceRepository.create({
+                    userId: updateUser.id,
+                    healthInsurance: hi,
+                    user: updateUser,
+                })
 
-            updateUser.healthInsurances = hi
+                await this.userHealthInsuranceRepository.save(newHi)
+            }
         }
+        const hiUser = await this.userHealthInsuranceRepository.find({
+            where: {
+                userId: id
+            }
+        })
+
+        updateUser.healthInsurances = hiUser
         
         return this.userRepository.save(updateUser)
     }
@@ -247,8 +258,6 @@ export class UserService {
 
         this.userHealthInsuranceRepository.save(hi)
     }
-
-    
     
     async loadUsers() {
         await this.create({
@@ -293,7 +302,8 @@ export class UserService {
             description: "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Saepe possimus ad ea nisi iusto temporibus cum, voluptatibus fugiat magnam maiores consequatur, architecto harum dignissimos deleniti eius, quisquam natus minus quas. Lorem ipsum dolor sit amet consectetur adipisicing elit. Vel aspernatur repellendus, eos, cupiditate consectetur eum modi laboriosam vero officia quibusdam earum tenetur omnis similique autem ab facilis aut. Laborum, voluptatum. Lorem ipsum dolor sit amet consectetur adipisicing elit. Repudiandae, deleniti deserunt iste corporis possimus, eos facere quis quidem, consequuntur sapiente quae! Quidem repellendus ab nemo praesentium. Sequi modi quis et!",
             address: 'St. Exupery 240',
             planId: 1,
-            specialities: [spec1, spec2]
+            specialities: [spec1, spec2],
+            verified: true,
         })
         
         await this.create({

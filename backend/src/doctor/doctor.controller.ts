@@ -41,6 +41,12 @@ export class DoctorController {
     verifyDoctor(@Param('id') id: number) {
         return this.doctorService.verify(id)
     }
+
+    @Patch('plan/:id')
+    @Roles(RoleEnum.Doctor)
+    cancelPlan(@Param('id') id: number) {
+        return this.doctorService.cancelPlan(id)
+    }
     
     @Patch(':id')
     @Roles(RoleEnum.Doctor)

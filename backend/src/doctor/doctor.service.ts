@@ -8,13 +8,15 @@ import { getDoctorsDto } from './dto/get-doctors.dto';
 import * as Moment from 'moment';
 import { extendMoment } from 'moment-range';
 import { SpecialityService } from 'src/speciality/speciality.service';
+import { PlanService } from 'src/plan/plan.service';
 
 @Injectable()
 export class DoctorService {
     constructor(
         @InjectRepository(Doctor) private doctorRepository: Repository<Doctor>,
         private userService: UserService,
-        private specialityService: SpecialityService
+        private specialityService: SpecialityService,
+        private planService: PlanService
     ) { }
 
     async findAll(query: getDoctorsDto) {
@@ -165,9 +167,12 @@ export class DoctorService {
             },
             relations: {
                 user: {
-                    healthInsurances: true
+                    healthInsurances: {
+                        healthInsurance: true
+                    }
                 },
-                specialities: true
+                specialities: true,
+                plan: true
             }
         })
 
@@ -187,6 +192,7 @@ export class DoctorService {
         }
 
         doctorFound.verified = true
+        doctorFound.verifiedSince = new Date()
 
         return this.doctorRepository.save(doctorFound)
     }
@@ -203,8 +209,26 @@ export class DoctorService {
             throw new HttpException('Medico no encontrado', HttpStatus.NOT_FOUND)
         }
 
+        if(doctor.planId) {
+            const plan = await this.planService.findOne(doctor.planId)
+            
+            doctorFound.plan = plan
+            doctorFound.planSince = new Date()
+        }
+
         const updateDoctor = Object.assign(doctorFound, doctor)
         return this.doctorRepository.save(updateDoctor)
+    }
+
+    async cancelPlan(id: number) {
+        const doctor = await this.findOne(id)
+        if (!doctor) {
+            throw new HttpException('Medico no encontrado', HttpStatus.NOT_FOUND)
+        }
+
+        doctor.plan = null
+
+        this.doctorRepository.save(doctor)
     }
 
     async delete(id: number) {

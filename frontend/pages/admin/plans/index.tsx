@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Layout from "@/components/layout";
 import withAuth from "@/lib/withAuth";
 import SidebarAdmin from "@/components/sidebarAdmin";
@@ -6,11 +6,16 @@ import { Auth } from "../../../../shared/types";
 import axios from "axios";
 import {
   Alert,
+  Checkbox,
   Dialog,
   DialogActions,
   DialogContent,
   DialogContentText,
   DialogTitle,
+  FormControl,
+  FormControlLabel,
+  FormGroup,
+  FormLabel,
   Paper,
   Snackbar,
   Table,
@@ -50,6 +55,10 @@ export default function Home(props: Plan) {
   const [update, setUpdate] = useState<boolean>(false);
   const [cancel, setCancel] = useState<boolean>(false);
   const [plan, setPlan] = useState<any>();
+  const [planUpdate, setPlanUpdate] = useState<any>();
+  const [addBenefits, setAddBenefits] = useState<any>();
+  const [benefits, setBenefits] = useState<any>();
+  const [checkeds, setCheckeds] = useState<number[]>([]);
 
   const StyledTableCell = styled(TableCell)(() => ({
     [`&.${tableCellClasses.head}`]: {
@@ -88,6 +97,7 @@ export default function Home(props: Plan) {
 
       addPlan.values.name = "";
       setPlan(null);
+      setPlanUpdate(null);
 
       setConfirm(false);
       setAdd(false);
@@ -159,6 +169,53 @@ export default function Home(props: Plan) {
     });
 
     setPlan(p.data);
+    setPlanUpdate(p.data);
+    setCheckeds(p.data.benefits.map((b: BenefitResponseDto) => b.id));
+  };
+
+  const addBenefitsPlan = async () => {
+    let benefits = await axios.get(
+      `${process.env.NEXT_PUBLIC_API_URL}/benefit`,
+      {
+        withCredentials: true,
+        headers: { Authorization: `Bearer ${props.auth.token}` },
+      }
+    );
+
+    benefits = benefits.data;
+    setBenefits(benefits);
+
+    setAddBenefits(true);
+  };
+
+  const checkboxOnChange = (e: any) => {
+    if (e.target.checked) {
+      const checked = checkeds.concat(Number(e.target.name));
+      setCheckeds(checked);
+    } else {
+      const checked = checkeds.filter((c) => c !== Number(e.target.name));
+      setCheckeds(checked);
+    }
+  };
+
+  const handleSubmitBenefits = async (e: any) => {
+    e.preventDefault();
+
+    await axios.patch(
+      `${process.env.NEXT_PUBLIC_API_URL}/plan/${plan.id}/benefits`,
+      {
+        ben: checkeds.map((c) => ({
+          id: c,
+        })),
+      },
+      {
+        withCredentials: true,
+        headers: { Authorization: `Bearer ${props.auth.token}` },
+      }
+    );
+
+    setAddBenefits(false);
+    setPlan(null);
   };
 
   return (
@@ -182,6 +239,7 @@ export default function Home(props: Plan) {
                       setEdit(false);
                       setAdd(true);
                       setPlan(null);
+                      setPlanUpdate(null);
                     }}
                   >
                     Agregar
@@ -248,29 +306,70 @@ export default function Home(props: Plan) {
                     >
                       $ {plan.price}
                     </h3>
-                    <h4 className="text-primary text-xl text-center underline mt-8">
-                      Beneficios
-                    </h4>
+                    <div className="text-primary text-xl flex justify-center items-center gap-4 mt-8">
+                      <h4 className="text-center underline">Beneficios</h4>
+                      <div
+                        className="hover:cursor-pointer hover:opacity-70"
+                        onClick={addBenefitsPlan}
+                      >
+                        <FaPlus />
+                      </div>
+                    </div>
                     <div className="flex justify-center">
                       <div className="md:flex md:justify-center md:items-center md:flex-wrap">
-                        {plan.benefits.length === 0 ? (
-                          <div className="bg-secondary text-white font-semibold p-4 rounded-lg mt-4">
-                            Actualmente no se encuentran beneficios para este
-                            plan!
-                          </div>
-                        ) : (
-                          plan.benefits.map((b: BenefitResponseDto) => {
-                            return (
-                              <div
-                                className="flex justify-between items-center gap-2 text-white bg-secondary p-4 rounded-md m-2"
-                                key={b.id}
-                              >
-                                <div className="flex items-center gap-2">
-                                  <FaAngleRight /> <p>{b.name}</p>
+                        {!addBenefits ? (
+                          plan.benefits.length === 0 ? (
+                            <div className="bg-secondary text-white font-semibold p-4 rounded-lg mt-4">
+                              Actualmente no se encuentran beneficios para este
+                              plan!
+                            </div>
+                          ) : (
+                            plan.benefits.map((b: BenefitResponseDto) => {
+                              return (
+                                <div
+                                  className="flex justify-between items-center gap-2 text-white bg-secondary p-4 rounded-md m-2"
+                                  key={b.id}
+                                >
+                                  <div className="flex items-center gap-2">
+                                    <FaAngleRight /> <p>{b.name}</p>
+                                  </div>
                                 </div>
+                              );
+                            })
+                          )
+                        ) : (
+                          <form
+                            onSubmit={handleSubmitBenefits}
+                            className="flex flex-col"
+                          >
+                            {benefits.map((b: BenefitResponseDto) => (
+                              <div
+                                key={b.id}
+                                className="flex justify-center items-center gap-2 mx-4"
+                              >
+                                <FormControl component="fieldset">
+                                  <div className="flex items-center gap-4">
+                                    {b.name}
+
+                                    <FormGroup aria-label="position" row>
+                                      <FormControlLabel
+                                        control={
+                                          <Checkbox
+                                            name={b.id.toString()}
+                                            onChange={checkboxOnChange}
+                                            checked={checkeds.includes(b.id)}
+                                          />
+                                        }
+                                        label=""
+                                        labelPlacement="end"
+                                      />
+                                    </FormGroup>
+                                  </div>
+                                </FormControl>
                               </div>
-                            );
-                          })
+                            ))}
+                            <Button type="submit">Aceptar</Button>
+                          </form>
                         )}
                       </div>
                     </div>

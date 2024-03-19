@@ -394,7 +394,6 @@ export const getServerSideProps = withAuth(
       }
     );
 
-    console.log(benefits.data);
     benefits = benefits.data;
 
     return {

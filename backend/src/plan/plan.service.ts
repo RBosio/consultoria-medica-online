@@ -4,11 +4,13 @@ import { Repository } from 'typeorm';
 import { createPlanDto } from './dto/create-plan.dto';
 import { updatePlanDto } from './dto/update-plan.dto';
 import { Plan } from 'src/entities/plan.entity';
+import { BenefitService } from 'src/benefit/benefit.service';
 
 @Injectable()
 export class PlanService {
   constructor(
     @InjectRepository(Plan) private planRepository: Repository<Plan>,
+    private benefitService: BenefitService,
   ) {}
 
   findAll(): Promise<Plan[]> {
@@ -47,6 +49,26 @@ export class PlanService {
     const newPlan = this.planRepository.create(plan);
 
     return this.planRepository.save(newPlan);
+  }
+
+  async modifyBenefits(id: number, { ben }) {
+    const planFound = await this.planRepository.findOne({
+      where: {
+        id,
+      },
+    });
+    if (!planFound) {
+      throw new HttpException('Plan no encontrado', HttpStatus.NOT_FOUND);
+    }
+    planFound.benefits = ben
+    /* ben.map(async (b) => {
+      const benefit = await this.benefitService.findOne(b);
+      planFound.benefits.push(benefit);
+      console.log(planFound.benefits);
+    }); */
+
+    await this.planRepository.save(planFound);
+    return;
   }
 
   async update(id: number, plan: updatePlanDto) {

@@ -14,7 +14,9 @@ export default function Home(props: any) {
             setSidebarOpened={true}
             sidebarOpened
           />
-          <section className="h-[calc(100%-5rem)] bg-white rounded-md w-full">doctor</section>
+          <section className="h-[calc(100%-5rem)] bg-white rounded-md w-full">
+            doctor
+          </section>
         </div>
       </div>
     </Layout>
@@ -29,5 +31,5 @@ export const getServerSideProps = withAuth(
       },
     };
   },
-  true
+  { protected: true }
 );

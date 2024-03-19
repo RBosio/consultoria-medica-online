@@ -14,10 +14,13 @@ export class BenefitService {
         return this.benefitRepository.find()
     }
     
-    async findOne(id: number): Promise<Benefit | HttpException> {
+    async findOne(id: number): Promise<Benefit> {
         const benefitFound = await this.benefitRepository.findOne({
             where: {
                 id
+            },
+            relations: {
+                plans: true
             }
         })
         if (!benefitFound) {

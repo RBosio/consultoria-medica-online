@@ -66,7 +66,7 @@ export default function Register(props: any) {
 
     return (
         <Layout auth={props.auth} renderNavbar={false} renderSidebar={false}>
-            <section className="h-full flex">
+            <section className="h-full flex overflow-hidden">
                 <div className="hidden sm:block sm:bg-primary sm:w-4/12 md:w-5/12 h-full relative overflow-hidden">
                     <video className="h-full object-cover" autoPlay muted loop id="video-background">
                         <source src={`/${props.chosenVideo}.mp4`} type="video/mp4" />
@@ -75,7 +75,7 @@ export default function Register(props: any) {
                     <div className={`p-5 flex justify-center bg-gradient-to-b from-emerald-900 to-emerald-400 opacity-90 absolute bottom-0 right-0 h-full w-full`}>
                     </div>
                 </div>
-                <div className="h-full grow flex flex-col items-center py-4">
+                <div className="h-full grow flex flex-col items-center py-4 overflow-y-auto">
                     <Image src="/logo.png" width={300} height={300} alt="Logo HealthTech" />
                     <div className="w-full px-12">
                         <h2 className={`text-center mb-6 mt-12 text-primary font-bold text-2xl ${robotoBold.className} uppercase`}>Registro</h2>
@@ -133,6 +133,8 @@ export default function Register(props: any) {
                                 <DatePicker
                                     label="Fecha de Nacimiento"
                                     name="birthday"
+                                    className="w-full"
+                                    
                                 />
                                 <Input
                                     name="phone"

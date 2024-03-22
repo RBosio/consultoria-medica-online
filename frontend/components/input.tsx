@@ -48,7 +48,7 @@ const Input: React.FC<ExtendedTextFieldProps> = (props) => {
                 endAdornment: props.type === "password" ? passwordHandler : props.endadornment,
                 ...props.InputProps,
             }}
-            variant='standard'
+            variant={props.variant ? props.variant : 'standard'}
             sx={{
                 "& .MuiInputBase-input": {
                     color: theme.palette.secondary.main,

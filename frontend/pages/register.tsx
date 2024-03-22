@@ -13,6 +13,7 @@ import Alert from "@mui/material/Alert";
 import Snackbar from "@mui/material/Snackbar";
 import { useState } from "react";
 import { useRouter } from "next/router";
+import DatePicker from "@/components/dateInput";
 
 export default function Register(props: any) {
 
@@ -84,6 +85,7 @@ export default function Register(props: any) {
                                 <div className="flex gap-6">
                                     <Input
                                         name="name"
+                                        variant="outlined"
                                         className="w-6/12"
                                         onChange={registerForm.handleChange}
                                         onBlur={registerForm.handleBlur}
@@ -94,6 +96,7 @@ export default function Register(props: any) {
                                     />
                                     <Input
                                         name="surname"
+                                        variant="outlined"
                                         className="w-6/12"
                                         onChange={registerForm.handleChange}
                                         onBlur={registerForm.handleBlur}
@@ -106,6 +109,7 @@ export default function Register(props: any) {
                                 <div className="flex gap-6">
                                     <Input
                                         name="dni"
+                                        variant="outlined"
                                         className="w-6/12"
                                         onChange={registerForm.handleChange}
                                         onBlur={registerForm.handleBlur}
@@ -116,6 +120,7 @@ export default function Register(props: any) {
                                     />
                                     <Input
                                         name="cuit"
+                                        variant="outlined"
                                         className="w-6/12"
                                         onChange={registerForm.handleChange}
                                         onBlur={registerForm.handleBlur}
@@ -125,17 +130,13 @@ export default function Register(props: any) {
                                         helperText={registerForm.errors.cuit && registerForm.touched.cuit && registerForm.errors.cuit}
                                     />
                                 </div>
-                                <Input
-                                    name="birthday"
-                                    onChange={registerForm.handleChange}
-                                    onBlur={registerForm.handleBlur}
-                                    value={registerForm.values.birthday}
+                                <DatePicker
                                     label="Fecha de Nacimiento"
-                                    error={Boolean(registerForm.touched.birthday && registerForm.errors.birthday)}
-                                    helperText={registerForm.errors.birthday && registerForm.touched.birthday && registerForm.errors.birthday}
+                                    name="birthday"
                                 />
                                 <Input
                                     name="phone"
+                                    variant="outlined"
                                     onChange={registerForm.handleChange}
                                     onBlur={registerForm.handleBlur}
                                     value={registerForm.values.phone}
@@ -146,6 +147,7 @@ export default function Register(props: any) {
                                 <div className="flex gap-6">
                                     <Input
                                         name="province"
+                                        variant="outlined"
                                         className="w-6/12"
                                         onChange={registerForm.handleChange}
                                         onBlur={registerForm.handleBlur}
@@ -156,6 +158,7 @@ export default function Register(props: any) {
                                     />
                                     <Input
                                         name="city"
+                                        variant="outlined"
                                         className="w-6/12"
                                         onChange={registerForm.handleChange}
                                         onBlur={registerForm.handleBlur}
@@ -170,6 +173,7 @@ export default function Register(props: any) {
                                 <h3 className={`text-primary font-bold text-lg uppercase`}>Datos de la Cuenta</h3>
                                 <Input
                                     type="email"
+                                    variant="outlined"
                                     name="email"
                                     onChange={registerForm.handleChange}
                                     onBlur={registerForm.handleBlur}
@@ -181,6 +185,7 @@ export default function Register(props: any) {
                                 <div className="flex gap-6">
                                     <Input
                                         type="password"
+                                        variant="outlined"
                                         className="w-6/12"
                                         name="password"
                                         onChange={registerForm.handleChange}
@@ -192,6 +197,7 @@ export default function Register(props: any) {
                                     />
                                     <Input
                                         type="password"
+                                        variant="outlined"
                                         className="w-6/12"
                                         name="repeat_password"
                                         onChange={registerForm.handleChange}

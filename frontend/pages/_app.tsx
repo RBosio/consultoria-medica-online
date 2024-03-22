@@ -3,6 +3,8 @@ import type { AppProps } from 'next/app'
 import { ThemeProvider, createTheme } from '@mui/material';
 import { PRIMARY_COLOR, SECONDARY_COLOR, PRIMARY_COLOR_LIGHT } from "@/constants";
 import NextNProgress from 'nextjs-progressbar';
+import { LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 
 const theme = createTheme({
   palette: {
@@ -15,7 +17,7 @@ const theme = createTheme({
     },
   },
   breakpoints: {
-    values:{
+    values: {
       xs: 0,
       sm: 640,
       md: 768,
@@ -27,9 +29,11 @@ const theme = createTheme({
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
-    <ThemeProvider theme={theme}>
-      <NextNProgress options={{showSpinner:false}} color={theme.palette.primary.main} height={4}/>
-      <Component {...pageProps} />
-    </ThemeProvider>
+    <LocalizationProvider dateAdapter={AdapterDayjs}>
+      <ThemeProvider theme={theme}>
+        <NextNProgress options={{ showSpinner: false }} color={theme.palette.primary.main} height={4} />
+        <Component {...pageProps} />
+      </ThemeProvider>
+    </LocalizationProvider>
   );
 }

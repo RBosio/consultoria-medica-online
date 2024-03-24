@@ -30,6 +30,7 @@ import Button from "@/components/button";
 import Input from "@/components/input";
 import { useFormik } from "formik";
 import { useRouter } from "next/router";
+import { PRIMARY_COLOR } from "@/constants";
 
 interface Speciality {
   auth: Auth;
@@ -194,26 +195,67 @@ export default function Home(props: Speciality) {
                   </Button>
                 </div>
                 <TableContainer component={Paper} className="mt-4">
-                  <Table sx={{ minWidth: 700 }} aria-label="customized table">
-                    <TableHead>
+                  <Table aria-label="medical record table">
+                    <TableHead sx={{ bgcolor: PRIMARY_COLOR }}>
                       <TableRow>
-                        <StyledTableCell align="center">#</StyledTableCell>
-                        <StyledTableCell align="center">Nombre</StyledTableCell>
-                        <StyledTableCell align="center">
+                        <TableCell
+                          align="center"
+                          sx={{
+                            color: "#fff",
+                            padding: "1.2rem",
+                            fontSize: "1.2rem",
+                          }}
+                        >
+                          #
+                        </TableCell>
+                        <TableCell
+                          align="center"
+                          sx={{
+                            color: "#fff",
+                            padding: "1.2rem",
+                            fontSize: "1.2rem",
+                          }}
+                        >
+                          Nombre
+                        </TableCell>
+                        <TableCell
+                          align="center"
+                          sx={{
+                            color: "#fff",
+                            padding: "1.2rem",
+                            fontSize: "1.2rem",
+                          }}
+                        >
                           Operaciones
-                        </StyledTableCell>
+                        </TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
                       {props.specialities.map((row) => (
-                        <StyledTableRow key={row.id}>
-                          <StyledTableCell align="center">
+                        <TableRow
+                          sx={{
+                            "&:last-child td, &:last-child th": { border: 0 },
+                          }}
+                        >
+                          <TableCell
+                            className="text-sm"
+                            align="center"
+                            sx={{ padding: "1.2rem", fontSize: "1.2rem" }}
+                          >
                             {row.id}
-                          </StyledTableCell>
-                          <StyledTableCell align="center">
+                          </TableCell>
+                          <TableCell
+                            className="text-sm"
+                            align="center"
+                            sx={{ padding: "1.2rem", fontSize: "1.2rem" }}
+                          >
                             {row.name}
-                          </StyledTableCell>
-                          <StyledTableCell align="center">
+                          </TableCell>
+                          <TableCell
+                            className="text-sm"
+                            align="center"
+                            sx={{ padding: "1.2rem", fontSize: "1.2rem" }}
+                          >
                             <div className="flex justify-center items-center gap-4">
                               <FaEdit
                                 className="hover:cursor-pointer hover:opacity-70"
@@ -230,8 +272,8 @@ export default function Home(props: Speciality) {
                                 className="hover:cursor-pointer hover:opacity-70"
                               />
                             </div>
-                          </StyledTableCell>
-                        </StyledTableRow>
+                          </TableCell>
+                        </TableRow>
                       ))}
                     </TableBody>
                   </Table>

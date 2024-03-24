@@ -96,6 +96,8 @@ export default function Home(props: Plan) {
       });
 
       addPlan.values.name = "";
+      addPlan.values.price = 0;
+
       setPlan(null);
       setPlanUpdate(null);
 
@@ -127,6 +129,9 @@ export default function Home(props: Plan) {
       setUpdate(false);
       setEdit(false);
 
+      addPlan.values.name = "";
+      addPlan.values.price = 0;
+
       setMessage("Plan editada correctamente!");
       setSuccess(true);
       router.push(`/admin/plans`);
@@ -135,7 +140,6 @@ export default function Home(props: Plan) {
 
   const deletePlan = async () => {
     const id = localStorage.getItem("planId");
-    console.log(id);
     await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/plan/${id}`, {
       withCredentials: true,
       headers: { Authorization: `Bearer ${props.auth.token}` },
@@ -155,8 +159,12 @@ export default function Home(props: Plan) {
       addPlan.handleSubmit();
     } else if (cancel) {
       deletePlan();
-    } else {
+    } else if (editPlan.values.name.length > 0) {
       editPlan.handleSubmit();
+    } else {
+      setConfirm(false);
+      setAdd(false);
+      setEdit(false);
     }
   };
 
@@ -294,6 +302,7 @@ export default function Home(props: Plan) {
                     <TableBody>
                       {props.plans.map((row) => (
                         <TableRow
+                          key={row.id}
                           sx={{
                             "&:last-child td, &:last-child th": { border: 0 },
                           }}

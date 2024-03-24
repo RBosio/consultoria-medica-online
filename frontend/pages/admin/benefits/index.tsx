@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Layout from "@/components/layout";
 import withAuth from "@/lib/withAuth";
 import SidebarAdmin from "@/components/sidebarAdmin";
@@ -23,7 +23,14 @@ import {
   tableCellClasses,
   useTheme,
 } from "@mui/material";
-import { FaAngleRight, FaCircleInfo, FaPlus, FaXmark } from "react-icons/fa6";
+import {
+  FaAngleRight,
+  FaChevronLeft,
+  FaChevronRight,
+  FaCircleInfo,
+  FaPlus,
+  FaXmark,
+} from "react-icons/fa6";
 import Button from "@/components/button";
 import Input from "@/components/input";
 import { useFormik } from "formik";
@@ -31,6 +38,7 @@ import { useRouter } from "next/router";
 import { robotoBold } from "@/lib/fonts";
 import { BenefitResponseDto } from "@/components/dto/benefit.dto";
 import { PlanResponseDto } from "@/components/dto/plan.dto";
+import { PRIMARY_COLOR } from "@/constants";
 
 interface Benefit {
   auth: Auth;
@@ -50,30 +58,29 @@ export default function Home(props: Benefit) {
   const [update, setUpdate] = useState<boolean>(false);
   const [cancel, setCancel] = useState<boolean>(false);
   const [benefit, setBenefit] = useState<any>();
+  const [benefits, setSpecialities] = useState<any[]>([]);
+  const [page, setPage] = useState<any>();
 
-  const StyledTableCell = styled(TableCell)(() => ({
-    [`&.${tableCellClasses.head}`]: {
-      backgroundColor: theme.palette.primary.main,
-      color: theme.palette.common.white,
-      fontSize: 18,
-    },
-    [`&.${tableCellClasses.body}`]: {
-      color: theme.palette.common.white,
-      fontSize: 14,
-    },
-  }));
+  useEffect(() => {
+    setPage(1);
+    setSpecialities(
+      props.benefits.filter((sp, idx) => idx >= 4 * 0 && idx < 4)
+    );
+  }, []);
 
-  const StyledTableRow = styled(TableRow)(({ theme }) => ({
-    "&:nth-of-type(odd)": {
-      backgroundColor: theme.palette.secondary.main,
-    },
-    "&:nth-of-type(even)": {
-      backgroundColor: theme.palette.secondary.light,
-    },
-    "&:last-child td, &:last-child th": {
-      border: 0,
-    },
-  }));
+  const pagination = (p: number, sp?: BenefitResponseDto[]) => {
+    if (!sp) {
+      if (p === 0 || p === Math.ceil(props.benefits.length / 4) + 1) return;
+
+      setPage(p);
+      setSpecialities(
+        props.benefits.filter((sp, idx) => idx >= 4 * (p - 1) && idx < 4 * p)
+      );
+    } else {
+      setPage(p);
+      setSpecialities(sp.filter((s, idx) => idx >= 4 * (p - 1) && idx < 4 * p));
+    }
+  };
 
   const addBenefit = useFormik({
     initialValues: {
@@ -86,10 +93,21 @@ export default function Home(props: Benefit) {
         headers: { Authorization: `Bearer ${props.auth.token}` },
       });
 
+      let benefits = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/benefit`,
+        {
+          withCredentials: true,
+          headers: { Authorization: `Bearer ${props.auth.token}` },
+        }
+      );
+
       addBenefit.values.name = "";
 
       setConfirm(false);
       setAdd(false);
+
+      setSpecialities(benefits.data);
+      pagination(page, benefits.data);
 
       setMessage("Benefit agregado correctamente!");
       setSuccess(true);
@@ -113,18 +131,29 @@ export default function Home(props: Benefit) {
         }
       );
 
+      let benefits = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/benefit`,
+        {
+          withCredentials: true,
+          headers: { Authorization: `Bearer ${props.auth.token}` },
+        }
+      );
+
       setUpdate(false);
       setEdit(false);
 
       setMessage("Benefit editada correctamente!");
       setSuccess(true);
+
+      setSpecialities(benefits.data);
+      pagination(page, benefits.data);
+
       router.push(`/admin/benefits`);
     },
   });
 
   const deleteBenefit = async () => {
     const id = localStorage.getItem("benefitId");
-    console.log(id);
     await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/benefit/${id}`, {
       withCredentials: true,
       headers: { Authorization: `Bearer ${props.auth.token}` },
@@ -137,6 +166,13 @@ export default function Home(props: Benefit) {
 
     setMessage("Benefit eliminado correctamente!");
     setSuccess(true);
+
+    setSpecialities(props.benefits.filter((sp) => sp.id != Number(id)));
+    pagination(
+      page,
+      props.benefits.filter((sp) => sp.id != Number(id))
+    );
+
     router.push(`/admin/benefits`);
   };
 
@@ -145,8 +181,12 @@ export default function Home(props: Benefit) {
       addBenefit.handleSubmit();
     } else if (cancel) {
       deleteBenefit();
-    } else {
+    } else if (editBenefit.values.name.length > 0) {
       editBenefit.handleSubmit();
+    } else {
+      setConfirm(false);
+      setAdd(false);
+      setEdit(false);
     }
   };
 
@@ -190,28 +230,90 @@ export default function Home(props: Benefit) {
                     Agregar
                   </Button>
                 </div>
-                <TableContainer component={Paper} className="mt-4">
-                  <Table sx={{ minWidth: 700 }} aria-label="customized table">
-                    <TableHead>
+                <div className="flex justify-end items-center gap-2 text-primary py-4">
+                  <FaChevronLeft
+                    className="text-2xl hover:cursor-pointer"
+                    onClick={() => {
+                      pagination(page - 1);
+                    }}
+                  />
+
+                  <FaChevronRight
+                    className="text-2xl hover:cursor-pointer"
+                    onClick={() => {
+                      pagination(page + 1);
+                    }}
+                  />
+
+                  <p className="text-md">
+                    Pagina {page ? page : 1} -{" "}
+                    {Math.ceil(props.benefits.length / 4)}
+                  </p>
+                </div>
+                <TableContainer component={Paper}>
+                  <Table aria-label="medical record table">
+                    <TableHead sx={{ bgcolor: PRIMARY_COLOR }}>
                       <TableRow>
-                        <StyledTableCell align="center">#</StyledTableCell>
-                        <StyledTableCell align="center">Nombre</StyledTableCell>
-                        <StyledTableCell align="center">
+                        <TableCell
+                          align="center"
+                          sx={{
+                            color: "#fff",
+                            padding: "1.2rem",
+                            fontSize: "1.2rem",
+                          }}
+                        >
+                          #
+                        </TableCell>
+                        <TableCell
+                          align="center"
+                          sx={{
+                            color: "#fff",
+                            padding: "1.2rem",
+                            fontSize: "1.2rem",
+                          }}
+                        >
+                          Nombre
+                        </TableCell>
+                        <TableCell
+                          align="center"
+                          sx={{
+                            color: "#fff",
+                            padding: "1.2rem",
+                            fontSize: "1.2rem",
+                          }}
+                        >
                           Operaciones
-                        </StyledTableCell>
+                        </TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {props.benefits.map((row) => (
-                        <StyledTableRow key={row.id}>
-                          <StyledTableCell align="center">
+                      {benefits.map((row) => (
+                        <TableRow
+                          key={row.id}
+                          sx={{
+                            "&:last-child td, &:last-child th": { border: 0 },
+                          }}
+                        >
+                          <TableCell
+                            className="text-sm"
+                            align="center"
+                            sx={{ padding: "1.2rem", fontSize: "1.2rem" }}
+                          >
                             {row.id}
-                          </StyledTableCell>
-                          <StyledTableCell align="center">
+                          </TableCell>
+                          <TableCell
+                            className="text-sm"
+                            align="center"
+                            sx={{ padding: "1.2rem", fontSize: "1.2rem" }}
+                          >
                             {row.name}
-                          </StyledTableCell>
-                          <StyledTableCell align="center">
-                            <div className="flex justify-center items-center gap-4">
+                          </TableCell>
+                          <TableCell
+                            className="text-sm"
+                            align="center"
+                            sx={{ padding: "1.2rem", fontSize: "1.2rem" }}
+                          >
+                            <div className="flex justify-center items-center gap-4 text-primary">
                               <FaCircleInfo
                                 className="hover:cursor-pointer hover:opacity-70"
                                 onClick={() => showDetail(row.id)}
@@ -227,8 +329,8 @@ export default function Home(props: Benefit) {
                                 className="hover:cursor-pointer hover:opacity-70"
                               />
                             </div>
-                          </StyledTableCell>
-                        </StyledTableRow>
+                          </TableCell>
+                        </TableRow>
                       ))}
                     </TableBody>
                   </Table>
@@ -298,7 +400,7 @@ export default function Home(props: Benefit) {
               {edit ? (
                 <div className="bg-white p-8 border border-primary rounded-md shadow-md mt-12">
                   <h4 className="text-primary text-xl mb-4 text-center">
-                    Editar benefit
+                    Editar beneficio
                   </h4>
                   <form
                     className="flex gap-4"
@@ -337,7 +439,7 @@ export default function Home(props: Benefit) {
           <DialogContent>
             <DialogContentText id="alert-dialog-description">
               {confirm
-                ? "¿Desea agregar el benefit?"
+                ? "¿Desea agregar el beneficio?"
                 : update
                 ? "¿Desea actualizar los datos?"
                 : cancel

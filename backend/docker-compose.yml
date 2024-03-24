@@ -3,7 +3,7 @@ version: '3'
 services:
   mysql:
     container_name: mysql
-    image: mysql:8.3
+    image: mysql
     env_file:
       - .env
     ports:

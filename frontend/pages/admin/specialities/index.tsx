@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Layout from "@/components/layout";
 import withAuth from "@/lib/withAuth";
 import SidebarAdmin from "@/components/sidebarAdmin";
@@ -24,12 +24,19 @@ import {
   tableCellClasses,
   useTheme,
 } from "@mui/material";
-import { FaPlus, FaXmark } from "react-icons/fa6";
+import {
+  FaChevronLeft,
+  FaChevronRight,
+  FaPlus,
+  FaXmark,
+} from "react-icons/fa6";
 import { FaEdit } from "react-icons/fa";
 import Button from "@/components/button";
 import Input from "@/components/input";
 import { useFormik } from "formik";
 import { useRouter } from "next/router";
+import { PRIMARY_COLOR } from "@/constants";
+import Link from "next/link";
 
 interface Speciality {
   auth: Auth;
@@ -48,30 +55,29 @@ export default function Home(props: Speciality) {
   const [confirm, setConfirm] = useState<boolean>(false);
   const [cancel, setCancel] = useState<boolean>(false);
   const [update, setUpdate] = useState<boolean>(false);
+  const [specialities, setSpecialities] = useState<any[]>([]);
+  const [page, setPage] = useState<any>();
 
-  const StyledTableCell = styled(TableCell)(() => ({
-    [`&.${tableCellClasses.head}`]: {
-      backgroundColor: theme.palette.primary.main,
-      color: theme.palette.common.white,
-      fontSize: 18,
-    },
-    [`&.${tableCellClasses.body}`]: {
-      color: theme.palette.common.white,
-      fontSize: 14,
-    },
-  }));
+  useEffect(() => {
+    setPage(1);
+    setSpecialities(
+      props.specialities.filter(
+        (sp, idx) => idx >= 4 * (page - 1) && idx < 4 * page
+      )
+    );
+  }, []);
 
-  const StyledTableRow = styled(TableRow)(({ theme }) => ({
-    "&:nth-of-type(odd)": {
-      backgroundColor: theme.palette.secondary.main,
-    },
-    "&:nth-of-type(even)": {
-      backgroundColor: theme.palette.secondary.light,
-    },
-    "&:last-child td, &:last-child th": {
-      border: 0,
-    },
-  }));
+  const pagination = (p: number) => {
+    console.log(p);
+    if (p === 0 || p === Math.ceil(props.specialities.length / 4) + 1) return;
+
+    setPage(p);
+    setSpecialities(
+      props.specialities.filter(
+        (sp, idx) => idx >= 4 * (p - 1) && idx < 4 * p
+      )
+    );
+  };
 
   const addSpeciality = useFormik({
     initialValues: {
@@ -193,27 +199,88 @@ export default function Home(props: Speciality) {
                     Agregar
                   </Button>
                 </div>
-                <TableContainer component={Paper} className="mt-4">
-                  <Table sx={{ minWidth: 700 }} aria-label="customized table">
-                    <TableHead>
+                <div className="flex justify-end items-center gap-2 text-primary py-4">
+                  <FaChevronLeft
+                    className="text-2xl hover:cursor-pointer"
+                    onClick={() => {
+                      pagination(page - 1);
+                    }}
+                  />
+
+                  <FaChevronRight
+                    className="text-2xl hover:cursor-pointer"
+                    onClick={() => {
+                      pagination(page + 1);
+                    }}
+                  />
+
+                  <p className="text-md">
+                    Pagina {page ? page : 1} -{" "}
+                    {Math.ceil(props.specialities.length / 4)}
+                  </p>
+                </div>
+                <TableContainer component={Paper}>
+                  <Table aria-label="medical record table">
+                    <TableHead sx={{ bgcolor: PRIMARY_COLOR }}>
                       <TableRow>
-                        <StyledTableCell align="center">#</StyledTableCell>
-                        <StyledTableCell align="center">Nombre</StyledTableCell>
-                        <StyledTableCell align="center">
+                        <TableCell
+                          align="center"
+                          sx={{
+                            color: "#fff",
+                            padding: "1.2rem",
+                            fontSize: "1.2rem",
+                          }}
+                        >
+                          #
+                        </TableCell>
+                        <TableCell
+                          align="center"
+                          sx={{
+                            color: "#fff",
+                            padding: "1.2rem",
+                            fontSize: "1.2rem",
+                          }}
+                        >
+                          Nombre
+                        </TableCell>
+                        <TableCell
+                          align="center"
+                          sx={{
+                            color: "#fff",
+                            padding: "1.2rem",
+                            fontSize: "1.2rem",
+                          }}
+                        >
                           Operaciones
-                        </StyledTableCell>
+                        </TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {props.specialities.map((row) => (
-                        <StyledTableRow key={row.id}>
-                          <StyledTableCell align="center">
+                      {specialities.map((row) => (
+                        <TableRow
+                          sx={{
+                            "&:last-child td, &:last-child th": { border: 0 },
+                          }}
+                        >
+                          <TableCell
+                            className="text-sm"
+                            align="center"
+                            sx={{ padding: "1.2rem", fontSize: "1.2rem" }}
+                          >
                             {row.id}
-                          </StyledTableCell>
-                          <StyledTableCell align="center">
+                          </TableCell>
+                          <TableCell
+                            className="text-sm"
+                            align="center"
+                            sx={{ padding: "1.2rem", fontSize: "1.2rem" }}
+                          >
                             {row.name}
-                          </StyledTableCell>
-                          <StyledTableCell align="center">
+                          </TableCell>
+                          <TableCell
+                            className="text-sm"
+                            align="center"
+                            sx={{ padding: "1.2rem", fontSize: "1.2rem" }}
+                          >
                             <div className="flex justify-center items-center gap-4">
                               <FaEdit
                                 className="hover:cursor-pointer hover:opacity-70"
@@ -230,8 +297,8 @@ export default function Home(props: Speciality) {
                                 className="hover:cursor-pointer hover:opacity-70"
                               />
                             </div>
-                          </StyledTableCell>
-                        </StyledTableRow>
+                          </TableCell>
+                        </TableRow>
                       ))}
                     </TableBody>
                   </Table>

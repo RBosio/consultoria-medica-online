@@ -15,7 +15,6 @@ import {
   FormControl,
   FormControlLabel,
   FormGroup,
-  FormLabel,
   Paper,
   Snackbar,
   Table,
@@ -36,6 +35,7 @@ import { useRouter } from "next/router";
 import { PlanResponseDto } from "@/components/dto/plan.dto";
 import { robotoBold } from "@/lib/fonts";
 import { BenefitResponseDto } from "@/components/dto/benefit.dto";
+import { PRIMARY_COLOR } from "@/constants";
 
 interface Plan {
   auth: Auth;
@@ -246,31 +246,85 @@ export default function Home(props: Plan) {
                   </Button>
                 </div>
                 <TableContainer component={Paper} className="mt-4">
-                  <Table sx={{ minWidth: 700 }} aria-label="customized table">
-                    <TableHead>
+                  <Table aria-label="medical record table">
+                    <TableHead sx={{ bgcolor: PRIMARY_COLOR }}>
                       <TableRow>
-                        <StyledTableCell align="center">#</StyledTableCell>
-                        <StyledTableCell align="center">Nombre</StyledTableCell>
-                        <StyledTableCell align="center">Precio</StyledTableCell>
-                        <StyledTableCell align="center">
+                        <TableCell
+                          align="center"
+                          sx={{
+                            color: "#fff",
+                            padding: "1.2rem",
+                            fontSize: "1.2rem",
+                          }}
+                        >
+                          #
+                        </TableCell>
+                        <TableCell
+                          align="center"
+                          sx={{
+                            color: "#fff",
+                            padding: "1.2rem",
+                            fontSize: "1.2rem",
+                          }}
+                        >
+                          Nombre
+                        </TableCell>
+                        <TableCell
+                          align="center"
+                          sx={{
+                            color: "#fff",
+                            padding: "1.2rem",
+                            fontSize: "1.2rem",
+                          }}
+                        >
+                          Precio
+                        </TableCell>
+                        <TableCell
+                          align="center"
+                          sx={{
+                            color: "#fff",
+                            padding: "1.2rem",
+                            fontSize: "1.2rem",
+                          }}
+                        >
                           Operaciones
-                        </StyledTableCell>
+                        </TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
                       {props.plans.map((row) => (
-                        <StyledTableRow key={row.id}>
-                          <StyledTableCell align="center">
+                        <TableRow
+                          sx={{
+                            "&:last-child td, &:last-child th": { border: 0 },
+                          }}
+                        >
+                          <TableCell
+                            className="text-sm"
+                            align="center"
+                            sx={{ padding: "1.2rem", fontSize: "1.2rem" }}
+                          >
                             {row.id}
-                          </StyledTableCell>
-                          <StyledTableCell align="center">
+                          </TableCell>
+                          <TableCell
+                            className="text-sm"
+                            align="center"
+                            sx={{ padding: "1.2rem", fontSize: "1.2rem" }}
+                          >
                             {row.name}
-                          </StyledTableCell>
-                          <StyledTableCell align="center">
+                          </TableCell>
+                          <TableCell
+                            className="text-sm"
+                            align="center"
+                            sx={{ padding: "1.2rem", fontSize: "1.2rem" }}
+                          >
                             $ {row.price}
-                          </StyledTableCell>
-                          <StyledTableCell align="center">
-                            <div className="flex justify-center items-center gap-4">
+                          </TableCell>
+                          <TableCell
+                            className="text-sm"
+                            align="center"
+                            sx={{ padding: "1.2rem", fontSize: "1.2rem" }}
+                          >
+                            <div className="flex justify-center items-center gap-4 text-primary">
                               <FaCircleInfo
                                 className="hover:cursor-pointer hover:opacity-70"
                                 onClick={() => showDetail(row.id)}
@@ -286,8 +340,8 @@ export default function Home(props: Plan) {
                                 className="hover:cursor-pointer hover:opacity-70"
                               />
                             </div>
-                          </StyledTableCell>
-                        </StyledTableRow>
+                          </TableCell>
+                        </TableRow>
                       ))}
                     </TableBody>
                   </Table>

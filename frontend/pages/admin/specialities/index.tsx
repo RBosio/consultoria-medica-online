@@ -34,7 +34,6 @@ import Input from "@/components/input";
 import { useFormik } from "formik";
 import { useRouter } from "next/router";
 import { PRIMARY_COLOR } from "@/constants";
-import Link from "next/link";
 
 interface Speciality {
   auth: Auth;
@@ -42,7 +41,6 @@ interface Speciality {
 }
 
 export default function Home(props: Speciality) {
-  const theme = useTheme();
   const router = useRouter();
 
   const [error, setError] = useState<boolean>(false);

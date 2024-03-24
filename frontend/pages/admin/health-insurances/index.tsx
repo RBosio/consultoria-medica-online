@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Layout from "@/components/layout";
 import withAuth from "@/lib/withAuth";
 import SidebarAdmin from "@/components/sidebarAdmin";
@@ -24,12 +24,18 @@ import {
   tableCellClasses,
   useTheme,
 } from "@mui/material";
-import { FaPlus, FaXmark } from "react-icons/fa6";
+import {
+  FaChevronLeft,
+  FaChevronRight,
+  FaPlus,
+  FaXmark,
+} from "react-icons/fa6";
 import { FaEdit } from "react-icons/fa";
 import Button from "@/components/button";
 import Input from "@/components/input";
 import { useFormik } from "formik";
 import { useRouter } from "next/router";
+import { PRIMARY_COLOR } from "@/constants";
 
 interface HealthInsurance {
   auth: Auth;
@@ -48,30 +54,15 @@ export default function Home(props: HealthInsurance) {
   const [confirm, setConfirm] = useState<boolean>(false);
   const [update, setUpdate] = useState<boolean>(false);
   const [cancel, setCancel] = useState<boolean>(false);
+  const [healthInsurances, setHealthInsurances] = useState<any[]>([]);
+  const [page, setPage] = useState<any>();
 
-  const StyledTableCell = styled(TableCell)(() => ({
-    [`&.${tableCellClasses.head}`]: {
-      backgroundColor: theme.palette.primary.main,
-      color: theme.palette.common.white,
-      fontSize: 18,
-    },
-    [`&.${tableCellClasses.body}`]: {
-      color: theme.palette.common.white,
-      fontSize: 14,
-    },
-  }));
-
-  const StyledTableRow = styled(TableRow)(({ theme }) => ({
-    "&:nth-of-type(odd)": {
-      backgroundColor: theme.palette.secondary.main,
-    },
-    "&:nth-of-type(even)": {
-      backgroundColor: theme.palette.secondary.light,
-    },
-    "&:last-child td, &:last-child th": {
-      border: 0,
-    },
-  }));
+  useEffect(() => {
+    setPage(1);
+    setHealthInsurances(
+      props.healthInsurances.filter((hi, idx) => idx >= 4 * 0 && idx < 4)
+    );
+  }, []);
 
   const addHealthInsurance = useFormik({
     initialValues: {
@@ -117,11 +108,23 @@ export default function Home(props: HealthInsurance) {
         }
       );
 
+      let healthInsurances = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/healthInsurance`,
+        {
+          withCredentials: true,
+          headers: { Authorization: `Bearer ${props.auth.token}` },
+        }
+      );
+
       setUpdate(false);
       setEdit(false);
 
       setMessage("Obra social editada correctamente!");
       setSuccess(true);
+
+      setHealthInsurances(healthInsurances.data);
+      pagination(page, healthInsurances.data);
+
       router.push(`/admin/health-insurances`);
     },
   });
@@ -143,6 +146,15 @@ export default function Home(props: HealthInsurance) {
 
     setMessage("Obra social eliminada correctamente!");
     setSuccess(true);
+
+    setHealthInsurances(
+      props.healthInsurances.filter((hi) => hi.id != Number(id))
+    );
+    pagination(
+      page,
+      props.healthInsurances.filter((hi) => hi.id != Number(id))
+    );
+
     router.push(`/admin/health-insurances`);
   };
 
@@ -176,6 +188,25 @@ export default function Home(props: HealthInsurance) {
     setEdit(true);
   };
 
+  const pagination = (p: number, sp?: HealthInsuranceResponseDto[]) => {
+    if (!sp) {
+      if (p === 0 || p === Math.ceil(props.healthInsurances.length / 4) + 1)
+        return;
+
+      setPage(p);
+      setHealthInsurances(
+        props.healthInsurances.filter(
+          (hi, idx) => idx >= 4 * (p - 1) && idx < 4 * p
+        )
+      );
+    } else {
+      setPage(p);
+      setHealthInsurances(
+        sp.filter((s, idx) => idx >= 4 * (p - 1) && idx < 4 * p)
+      );
+    }
+  };
+
   return (
     <Layout auth={props.auth}>
       <div className="flex justify-center">
@@ -201,34 +232,107 @@ export default function Home(props: HealthInsurance) {
                     Agregar
                   </Button>
                 </div>
-                <TableContainer component={Paper} className="mt-4">
-                  <Table sx={{ minWidth: 700 }} aria-label="customized table">
-                    <TableHead>
+                <div className="flex justify-end items-center gap-2 text-primary py-4">
+                  <FaChevronLeft
+                    className="text-2xl hover:cursor-pointer"
+                    onClick={() => {
+                      pagination(page - 1);
+                    }}
+                  />
+
+                  <FaChevronRight
+                    className="text-2xl hover:cursor-pointer"
+                    onClick={() => {
+                      pagination(page + 1);
+                    }}
+                  />
+
+                  <p className="text-md">
+                    Pagina {page ? page : 1} -{" "}
+                    {Math.ceil(props.healthInsurances.length / 4)}
+                  </p>
+                </div>
+                <TableContainer component={Paper}>
+                  <Table aria-label="medical record table">
+                    <TableHead sx={{ bgcolor: PRIMARY_COLOR }}>
                       <TableRow>
-                        <StyledTableCell align="center">#</StyledTableCell>
-                        <StyledTableCell align="center">Nombre</StyledTableCell>
-                        <StyledTableCell align="center">
+                        <TableCell
+                          align="center"
+                          sx={{
+                            color: "#fff",
+                            padding: "1.2rem",
+                            fontSize: "1.2rem",
+                          }}
+                        >
+                          #
+                        </TableCell>
+                        <TableCell
+                          align="center"
+                          sx={{
+                            color: "#fff",
+                            padding: "1.2rem",
+                            fontSize: "1.2rem",
+                          }}
+                        >
+                          Nombre
+                        </TableCell>
+                        <TableCell
+                          align="center"
+                          sx={{
+                            color: "#fff",
+                            padding: "1.2rem",
+                            fontSize: "1.2rem",
+                          }}
+                        >
                           Descuento
-                        </StyledTableCell>
-                        <StyledTableCell align="center">
+                        </TableCell>
+                        <TableCell
+                          align="center"
+                          sx={{
+                            color: "#fff",
+                            padding: "1.2rem",
+                            fontSize: "1.2rem",
+                          }}
+                        >
                           Operaciones
-                        </StyledTableCell>
+                        </TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {props.healthInsurances.map((row) => (
-                        <StyledTableRow key={row.id}>
-                          <StyledTableCell align="center">
+                      {healthInsurances.map((row) => (
+                        <TableRow
+                          key={row.id}
+                          sx={{
+                            "&:last-child td, &:last-child th": { border: 0 },
+                          }}
+                        >
+                          <TableCell
+                            className="text-sm"
+                            align="center"
+                            sx={{ padding: "1.2rem", fontSize: "1.2rem" }}
+                          >
                             {row.id}
-                          </StyledTableCell>
-                          <StyledTableCell align="center">
+                          </TableCell>
+                          <TableCell
+                            className="text-sm"
+                            align="center"
+                            sx={{ padding: "1.2rem", fontSize: "1.2rem" }}
+                          >
                             {row.name}
-                          </StyledTableCell>
-                          <StyledTableCell align="center">
+                          </TableCell>
+                          <TableCell
+                            className="text-sm"
+                            align="center"
+                            sx={{ padding: "1.2rem", fontSize: "1.2rem" }}
+                          >
                             {row.discount * 100} %
-                          </StyledTableCell>
-                          <StyledTableCell align="center">
-                            <div className="flex justify-center items-center gap-4">
+                          </TableCell>
+                          <TableCell
+                            className="text-sm"
+                            align="center"
+                            sx={{ padding: "1.2rem", fontSize: "1.2rem" }}
+                          >
+                            <div className="flex justify-center items-center gap-4 text-primary">
                               <FaEdit
                                 className="hover:cursor-pointer hover:opacity-70"
                                 onClick={() => showEdit(row.id)}
@@ -244,8 +348,8 @@ export default function Home(props: HealthInsurance) {
                                 className="hover:cursor-pointer hover:opacity-70"
                               />
                             </div>
-                          </StyledTableCell>
-                        </StyledTableRow>
+                          </TableCell>
+                        </TableRow>
                       ))}
                     </TableBody>
                   </Table>

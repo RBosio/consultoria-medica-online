@@ -20,8 +20,6 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  styled,
-  tableCellClasses,
   useTheme,
 } from "@mui/material";
 import {
@@ -61,22 +59,24 @@ export default function Home(props: Speciality) {
   useEffect(() => {
     setPage(1);
     setSpecialities(
-      props.specialities.filter(
-        (sp, idx) => idx >= 4 * (page - 1) && idx < 4 * page
-      )
+      props.specialities.filter((sp, idx) => idx >= 4 * 0 && idx < 4)
     );
   }, []);
 
-  const pagination = (p: number) => {
-    console.log(p);
-    if (p === 0 || p === Math.ceil(props.specialities.length / 4) + 1) return;
+  const pagination = (p: number, sp?: SpecialityResponseDto[]) => {
+    if (!sp) {
+      if (p === 0 || p === Math.ceil(props.specialities.length / 4) + 1) return;
 
-    setPage(p);
-    setSpecialities(
-      props.specialities.filter(
-        (sp, idx) => idx >= 4 * (p - 1) && idx < 4 * p
-      )
-    );
+      setPage(p);
+      setSpecialities(
+        props.specialities.filter(
+          (sp, idx) => idx >= 4 * (p - 1) && idx < 4 * p
+        )
+      );
+    } else {
+      setPage(p);
+      setSpecialities(sp.filter((s, idx) => idx >= 4 * (p - 1) && idx < 4 * p));
+    }
   };
 
   const addSpeciality = useFormik({
@@ -119,12 +119,24 @@ export default function Home(props: Speciality) {
         }
       );
 
+      let specialities = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/speciality`,
+        {
+          withCredentials: true,
+          headers: { Authorization: `Bearer ${props.auth.token}` },
+        }
+      );
+
       setUpdate(false);
       setEdit(false);
       setCancel(false);
 
       setMessage("Especialidad editada correctamente!");
       setSuccess(true);
+
+      setSpecialities(specialities.data);
+      pagination(page, specialities.data);
+
       router.push(`/admin/specialities`);
     },
   });
@@ -142,6 +154,13 @@ export default function Home(props: Speciality) {
 
     setMessage("Especialidad eliminada correctamente!");
     setSuccess(true);
+
+    setSpecialities(props.specialities.filter((sp) => sp.id != Number(id)));
+    pagination(
+      page,
+      props.specialities.filter((sp) => sp.id != Number(id))
+    );
+
     router.push(`/admin/specialities`);
   };
 
@@ -258,6 +277,7 @@ export default function Home(props: Speciality) {
                     <TableBody>
                       {specialities.map((row) => (
                         <TableRow
+                          key={row.id}
                           sx={{
                             "&:last-child td, &:last-child th": { border: 0 },
                           }}
@@ -281,7 +301,7 @@ export default function Home(props: Speciality) {
                             align="center"
                             sx={{ padding: "1.2rem", fontSize: "1.2rem" }}
                           >
-                            <div className="flex justify-center items-center gap-4">
+                            <div className="flex justify-center items-center gap-4 text-primary">
                               <FaEdit
                                 className="hover:cursor-pointer hover:opacity-70"
                                 onClick={() => showEdit(row.id)}

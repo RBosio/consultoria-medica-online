@@ -70,6 +70,19 @@ export default function Home(props: HealthInsurance) {
       discount: 0,
     },
     onSubmit: async (values, { setSubmitting }) => {
+      if (
+        values.discount === 0 ||
+        values.discount === null ||
+        values.discount === undefined
+      ) {
+        setConfirm(false);
+        setAdd(false);
+
+        setMessage("Ingrese todos los campos!");
+        setError(true);
+        return;
+      }
+
       values.discount = values.discount / 100;
 
       await axios.post(
@@ -81,13 +94,26 @@ export default function Home(props: HealthInsurance) {
         }
       );
 
+      let healthInsurances = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/healthInsurance`,
+        {
+          withCredentials: true,
+          headers: { Authorization: `Bearer ${props.auth.token}` },
+        }
+      );
+
       addHealthInsurance.values.name = "";
+      addHealthInsurance.values.discount = 0;
 
       setConfirm(false);
       setAdd(false);
 
       setMessage("Obra social agregada correctamente!");
       setSuccess(true);
+
+      setHealthInsurances(healthInsurances.data);
+      pagination(page, healthInsurances.data);
+
       router.push(`/admin/health-insurances`);
     },
   });
@@ -99,6 +125,20 @@ export default function Home(props: HealthInsurance) {
       discount: 0,
     },
     onSubmit: async (values, { setSubmitting }) => {
+      if (
+        values.discount === 0 ||
+        values.discount === null ||
+        values.discount === undefined
+      ) {
+        setConfirm(false);
+        setEdit(false);
+
+        setMessage("Ingrese todos los campos!");
+        setError(true);
+        return;
+      }
+      console.log(values);
+
       await axios.patch(
         `${process.env.NEXT_PUBLIC_API_URL}/healthInsurance/${values.id}`,
         { name: values.name, discount: values.discount / 100 },
@@ -131,7 +171,6 @@ export default function Home(props: HealthInsurance) {
 
   const deleteHealthInsurance = async () => {
     const id = localStorage.getItem("healthInsuranceId");
-    console.log(id);
     await axios.delete(
       `${process.env.NEXT_PUBLIC_API_URL}/healthInsurance/${id}`,
       {
@@ -163,8 +202,12 @@ export default function Home(props: HealthInsurance) {
       addHealthInsurance.handleSubmit();
     } else if (cancel) {
       deleteHealthInsurance();
-    } else {
+    } else if (editHealthInsurance.values.name.length > 0) {
       editHealthInsurance.handleSubmit();
+    } else {
+      setConfirm(false);
+      setAdd(false);
+      setUpdate(false);
     }
   };
 

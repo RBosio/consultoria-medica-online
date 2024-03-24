@@ -91,10 +91,21 @@ export default function Home(props: Speciality) {
         }
       );
 
+      let specialities = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/speciality`,
+        {
+          withCredentials: true,
+          headers: { Authorization: `Bearer ${props.auth.token}` },
+        }
+      );
+
       addSpeciality.values.name = "";
 
       setConfirm(false);
       setAdd(false);
+
+      setSpecialities(specialities.data);
+      pagination(page, specialities.data);
 
       setMessage("Especialidad agregada correctamente!");
       setSuccess(true);
@@ -167,8 +178,12 @@ export default function Home(props: Speciality) {
       addSpeciality.handleSubmit();
     } else if (cancel) {
       deleteSpeciality();
-    } else {
+    } else if (editSpeciality.values.name.length > 0) {
       editSpeciality.handleSubmit();
+    } else {
+      setConfirm(false);
+      setAdd(false);
+      setEdit(false);
     }
   };
 

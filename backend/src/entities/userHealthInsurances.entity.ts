@@ -14,6 +14,12 @@ export class UserHealthInsurance {
     verified: boolean
 
     @Column({nullable: true})
+    date_verified: Date
+
+    @Column({nullable: true})
+    file_name: string
+
+    @Column({nullable: true})
     file_url: string
 
     @ManyToOne(() => User, user => user.meetings, {nullable: false})

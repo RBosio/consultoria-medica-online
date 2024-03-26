@@ -1,6 +1,6 @@
 export class updateUserDto {
     password?: string
     phone?: string
-    healthInsurance?: number
+    healthInsuranceId?: number
     verify?: boolean
 }

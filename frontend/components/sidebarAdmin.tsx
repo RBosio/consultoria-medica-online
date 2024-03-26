@@ -11,6 +11,7 @@ import {
   FaHandshake,
   FaKitMedical,
   FaThumbsUp,
+  FaUser,
   FaUserDoctor,
 } from "react-icons/fa6";
 import Avatar from "./avatar";
@@ -30,9 +31,9 @@ const SidebarAdmin: React.FC<SidebarAdminProps> = (props) => {
   const routes = {
     top: [
       {
-        name: "Profesionales",
-        path: "/admin/doctors",
-        icon: <FaUserDoctor />,
+        name: "Usuarios",
+        path: "/admin/users",
+        icon: <FaUser />,
       },
       {
         name: "Beneficios",

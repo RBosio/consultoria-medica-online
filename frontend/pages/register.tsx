@@ -19,7 +19,7 @@ import { CiCircleCheck } from "react-icons/ci";
 
 export default function Register(props: any) {
 
-    const [success, setSuccess] = useState(true);
+    const [success, setSuccess] = useState(false);
 
     return (
         <Layout auth={props.auth} renderNavbar={false} renderSidebar={false}>
@@ -34,7 +34,7 @@ export default function Register(props: any) {
                 </div>
                 <div className="h-full grow flex flex-col items-center py-4 overflow-y-auto">
                     <Image src="/logo.png" width={300} height={300} alt="Logo HealthTech" />
-                    {success ? <RegisterSuccess /> : <RegisterForm />}
+                    {success ? <RegisterSuccess/> : <RegisterForm setSuccess={setSuccess}/>}
                 </div>
             </section>
         </Layout >
@@ -47,7 +47,7 @@ const RegisterSuccess: React.FC = () => {
 
     return (
         <div className="w-full h-full flex justify-center items-center">
-            <div className="w-6/12 shadow-lg">
+            <div className="w-11/12 sm:w-9/12 lg:w-6/12 shadow-lg">
                 <div className="bg-primary w-full flex justify-center p-2">
                     <CiCircleCheck color="#ffffff" size={100} />
                 </div>
@@ -61,10 +61,8 @@ const RegisterSuccess: React.FC = () => {
     );
 };
 
-const RegisterForm: React.FC = () => {
+const RegisterForm: React.FC<any> = (props) => {
 
-    const router = useRouter();
-    const theme = useTheme();
     const [formError, setFormError] = useState(false);
     const registerForm = useFormik({
         initialValues: {
@@ -83,8 +81,8 @@ const RegisterForm: React.FC = () => {
         validationSchema: Yup.object({
             name: Yup.string().required('Debes ingresar tu nombre').min(1, 'El nombre debe tener al menos 1 carácter'),
             surname: Yup.string().required('Debes ingresar tu apellido').min(1, 'El apellido debe tener al menos 1 carácter'),
-            dni: Yup.string().required('Debes ingresar tu DNI').matches(/^[0-9]{8}$/, 'El DNI debe tener 8 dígitos'),
-            cuit: Yup.string().required('Debes ingresar tu CUIT').matches(/^\d{2}-\d{8}-\d$/, 'El CUIT debe tener el formato xx-xxxxxxxx-x'),
+            dni: Yup.string().required('Debes ingresar tu DNI').matches(/^[\d]{1,3}\.?[\d]{3,3}\.?[\d]{3,3}$/, 'Debes ingresar un DNI válido'),
+            cuit: Yup.string().required('Debes ingresar tu CUIT').matches(/^(20|23|24|27|30|33|34)\d{8}\d{1}$/gm, 'Debes ingresar un CUIT válido'),
             email: Yup.string().required('Debes ingresar tu e-mail').email('Debes ingresar un mail válido'),
             phone: Yup.string().required('Debes ingresar tu teléfono').matches(/^(?:(?:00)?549?)?0?(?:11|[2368]\d)(?:(?=\d{0,2}15)\d{2})??\d{8}$/, 'Debes ingresar un teléfono válido'),
             password: Yup.string().required('Debes ingresar tu contraseña').min(8, 'La contraseña debe tener al menos 8 carácteres'),
@@ -96,16 +94,14 @@ const RegisterForm: React.FC = () => {
         }),
         onSubmit: async (values, { setSubmitting }) => {
             try {
-                setFormError(true);
-                // let registerReq = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, values, { withCredentials: true });
-                // registerReq = registerReq.data;
-                // router.push(`/`);
+                props.setSuccess(true);
+                // Lógica backend
             }
             catch (error: any) {
                 if ([404, 401].includes(error.response.status)) {
 
                 } else {
-                    //setFormError(true);
+                    setFormError(true);
                 };
             }
             finally {

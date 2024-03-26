@@ -32,7 +32,7 @@ const SidebarAdmin: React.FC<SidebarAdminProps> = (props) => {
     top: [
       {
         name: "Usuarios",
-        path: "/admin/users",
+        path: "/admin",
         icon: <FaUser />,
       },
       {

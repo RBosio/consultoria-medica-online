@@ -22,7 +22,7 @@ const DatePicker: React.FC<any> = (props) => {
                         color: props.error ? theme.palette.error.main : theme.palette.primary.main
                     },
                     "& .MuiOutlinedInput-notchedOutline, &:focus-within .MuiOutlinedInput-notchedOutline": {
-                        borderColor: props.error ? theme.palette.error.main : theme.palette.primary.main
+                        borderColor: props.error ? theme.palette.error.main : ""
                     },
                 }}
 

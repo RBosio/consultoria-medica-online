@@ -34,6 +34,7 @@ import { PRIMARY_COLOR } from "@/constants";
 import { UserResponseDto } from "@/components/dto/user.dto";
 import { UserHealthInsuranceResponseDto } from "@/components/dto/userHealthInsurance.dto";
 import Link from "next/link";
+import Button from "@/components/button";
 
 interface Speciality {
   auth: Auth;
@@ -46,7 +47,8 @@ export default function Home(props: Speciality) {
   const [error, setError] = useState<boolean>(false);
   const [success, setSuccess] = useState<boolean>(false);
   const [message, setMessage] = useState<string>("");
-  const [user, setUser] = useState<UserResponseDto>();
+  const [confirm, setConfirm] = useState<boolean>(false);
+  const [user, setUser] = useState<UserResponseDto | null>();
   const [info, setInfo] = useState<boolean>(false);
   const [users, setUsers] = useState<any[]>([]);
   const [test, setTest] = useState<any[]>([]);
@@ -69,6 +71,38 @@ export default function Home(props: Speciality) {
       setPage(p);
       setUsers(sp.filter((s, idx) => idx >= 10 * (p - 1) && idx < 10 * p));
     }
+  };
+
+  const onConfirmClick = async () => {
+    const healthInsuranceId = Number(localStorage.getItem("healthInsuranceId"));
+    const userHIId = Number(localStorage.getItem("userHIId"));
+
+    await axios.patch(
+      `${process.env.NEXT_PUBLIC_API_URL}/user/${userHIId}`,
+      {
+        healthInsuranceId,
+        verify: true,
+      },
+      {
+        withCredentials: true,
+        headers: { Authorization: `Bearer ${props.auth.token}` },
+      }
+    );
+
+    setSuccess(true);
+    setMessage("Obra social validada correctamente");
+
+    const user = props.users.find((u) => u.id === userHIId);
+    user?.healthInsurances.map(
+      (hi) =>
+        hi.healthInsurance.id === healthInsuranceId && (hi.verified = true)
+    );
+
+    setUsers(props.users.map((u) => (u.id === userHIId ? user : u)));
+    setUser(null);
+
+    setConfirm(false);
+    router.push(`/admin/users`);
   };
 
   return (
@@ -199,9 +233,15 @@ export default function Home(props: Speciality) {
                           >
                             <div className="flex justify-center items-center gap-2">
                               {row.healthInsurances.map(
-                                (hi: UserHealthInsuranceResponseDto) => {
+                                (
+                                  hi: UserHealthInsuranceResponseDto,
+                                  idx: number
+                                ) => {
                                   return (
-                                    <div className="flex justify-center gap-1">
+                                    <div
+                                      className="flex justify-center gap-1"
+                                      key={idx}
+                                    >
                                       {hi.healthInsurance.name}
                                       {hi.verified ? (
                                         <FaCheck className="text-green-500" />
@@ -299,10 +339,36 @@ export default function Home(props: Speciality) {
                           <p className="text-primary text-lg">
                             Obras sociales:
                           </p>{" "}
-                          {user.healthInsurances.map((hi) => {
+                          {user.healthInsurances.map((hi, idx) => {
                             return (
-                              <div className="flex gap-2">
-                                {hi.healthInsurance.name}
+                              <div
+                                className="flex items-center gap-2"
+                                key={idx}
+                              >
+                                <p
+                                  className={`${
+                                    hi.verified
+                                      ? "text-green-600"
+                                      : "text-red-600"
+                                  }
+                                  hover:cursor-pointer hover:underline`}
+                                  onClick={() => {
+                                    if (hi.verified) return;
+
+                                    localStorage.setItem(
+                                      "healthInsuranceId",
+                                      hi.healthInsurance.id.toString()
+                                    );
+                                    localStorage.setItem(
+                                      "userHIId",
+                                      user.id.toString()
+                                    );
+
+                                    setConfirm(true);
+                                  }}
+                                >
+                                  {hi.healthInsurance.name}
+                                </p>
                                 {hi.verified ? (
                                   <FaCheck className="text-green-500" />
                                 ) : (
@@ -318,6 +384,7 @@ export default function Home(props: Speciality) {
                             if (hi.file_url) {
                               return (
                                 <Link
+                                  key={idx}
                                   target="_blank"
                                   href={`http://localhost:3000/uploads/user/healthInsurances/${hi.file_url}`}
                                   className="flex justify-center gap-2 underline text-sm"
@@ -344,6 +411,37 @@ export default function Home(props: Speciality) {
             </section>
           </div>
         </div>
+        <Dialog
+          open={confirm}
+          onClose={() => {
+            setConfirm(false);
+          }}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <DialogTitle id="alert-dialog-title" className="text-center">
+            {confirm ? "Validar obra social" : ""}
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+              {confirm ? "¿Desea validar la obra social?" : ""}
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button
+              color="error"
+              variant="text"
+              onClick={() => {
+                setConfirm(false);
+              }}
+            >
+              Cancelar
+            </Button>
+            <Button onClick={onConfirmClick} autoFocus>
+              Confirmar
+            </Button>
+          </DialogActions>
+        </Dialog>
         <Snackbar
           open={error || success}
           anchorOrigin={{ vertical: "top", horizontal: "center" }}

@@ -190,7 +190,7 @@ export class UserService {
       const hi = await this.userHealthInsuranceRepository.findOne({
         where: {
           userId: id,
-          healthInsuranceId: user.healthInsurance,
+          healthInsuranceId: user.healthInsuranceId,
         },
       });
       if (!hi) {
@@ -204,9 +204,9 @@ export class UserService {
 
       this.userHealthInsuranceRepository.save(hi);
     } else {
-      if (user.healthInsurance) {
+      if (user.healthInsuranceId) {
         const hi = await this.healthInsuranceService.findOne(
-          user.healthInsurance,
+          user.healthInsuranceId,
         );
 
         const newHi = this.userHealthInsuranceRepository.create({

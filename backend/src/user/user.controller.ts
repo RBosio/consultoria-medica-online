@@ -48,7 +48,7 @@ export class UserController {
   }
 
   @Patch(':id')
-  @Roles(RoleEnum.User, RoleEnum.Doctor)
+  @Roles(RoleEnum.User, RoleEnum.Doctor, RoleEnum.Admin)
   updateUser(
     @Param('id', ParseIntPipe) id: number,
     @Body() user: updateUserDto,

@@ -30,9 +30,11 @@ import { Chip, MenuItem, Select, TextField } from "@mui/material";
 import Button from "@/components/button";
 import { MeetingResponseDto } from "@/components/dto/meeting.dto";
 import { showDni } from "@/lib/dni";
+import { UserResponseDto } from "@/components/dto/user.dto";
 
 interface MedicalRecordI {
   medicalRecords: MedicalRecordResponse[];
+  user: UserResponseDto;
   pages: number;
   meetings: MeetingResponseDto[];
   auth: Auth;
@@ -127,9 +129,9 @@ export default function MedicalRecord(props: MedicalRecordI) {
           } items-center px-8 pt-8`}
         >
           <div className="flex flex-col md:flex-row items-center">
-            {props.medicalRecords[0]?.meeting.user.image ? (
+            {props.user.image ? (
               <img
-                src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/user/images/${props.medicalRecords[0].meeting.user.image}`}
+                src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/user/images/${props.user.image}`}
                 alt="Profile photo"
                 className="h-64 sm:h-56 object-cover w-full"
               />
@@ -142,21 +144,18 @@ export default function MedicalRecord(props: MedicalRecordI) {
             )}
             <div className="flex flex-col items-center ml-4">
               <h3 className="text-primary text-3xl">
-                {props.medicalRecords[0]?.meeting.user.name}{" "}
-                {props.medicalRecords[0]?.meeting.user.surname}
+                {props.user.name} {props.user.surname}
               </h3>
               <h5 className="text-md flex items-center gap-2">
-                <FaEnvelope className="text-primary" />{" "}
-                {props.medicalRecords[0]?.meeting.user.email}
+                <FaEnvelope className="text-primary" /> {props.user.email}
               </h5>
               <div className="flex flex-col">
                 <p className="flex items-center gap-2">
-                  <FaPhone className="text-primary" />{" "}
-                  {props.medicalRecords[0]?.meeting.user.phone}
+                  <FaPhone className="text-primary" /> {props.user.phone}
                 </p>
                 <p className="flex items-center gap-2">
                   <FaAddressCard className="text-primary" />{" "}
-                  {showDni(props.medicalRecords[0]?.meeting.user.dni)}
+                  {props.user.dni && showDni(props.user.dni)}
                 </p>
               </div>
             </div>
@@ -488,6 +487,16 @@ export const getServerSideProps = withAuth(
 
     medicalRecords = medicalRecords.data;
 
+    let user = await axios.get(
+      `${process.env.NEXT_PUBLIC_API_URL}/user/id/${userId}`,
+      {
+        withCredentials: true,
+        headers: { Authorization: `Bearer ${context.req.cookies.token}` },
+      }
+    );
+
+    user = user.data;
+
     let pages = await axios.get(
       `${process.env.NEXT_PUBLIC_API_URL}/medicalRecord/user/pages/${userId}`,
       {
@@ -512,6 +521,7 @@ export const getServerSideProps = withAuth(
       props: {
         auth,
         medicalRecords,
+        user,
         pages,
         meetings,
       },

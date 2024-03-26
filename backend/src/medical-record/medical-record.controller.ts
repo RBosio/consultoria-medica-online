@@ -19,26 +19,26 @@ export class MedicalRecordController {
     constructor(private medicalRecordService: MedicalRecordService) {}
     
     @Get()
-    @Roles(RoleEnum.User, RoleEnum.Doctor)
+    @Roles(RoleEnum.User, RoleEnum.Doctor, RoleEnum.Admin)
     getMedicalRecords(): Promise<MedicalRecord[]> {
         return this.medicalRecordService.findAll()
     }
     
     @Get('user/:userId')
-    @Roles(RoleEnum.User, RoleEnum.Doctor)
+    @Roles(RoleEnum.User, RoleEnum.Doctor, RoleEnum.Admin)
     getMedicalRecordsByUser(@Param('userId', ParseIntPipe) userId: number, @Req() req: Request): Promise<MedicalRecord[]> {
         const page = Number(req.query.page)
         return this.medicalRecordService.findByUser(userId, page)
     }
 
     @Get('user/pages/:userId')
-    @Roles(RoleEnum.User, RoleEnum.Doctor)
+    @Roles(RoleEnum.User, RoleEnum.Doctor, RoleEnum.Admin)
     getPages(@Param('userId', ParseIntPipe) userId: number): Promise<number> {
         return this.medicalRecordService.getPages(userId)
     }
     
     @Get(':datetime')
-    @Roles(RoleEnum.User, RoleEnum.Doctor)
+    @Roles(RoleEnum.User, RoleEnum.Doctor, RoleEnum.Admin)
     getMedicalRecord(@Param('datetime') datetime: Date): Promise<MedicalRecord | HttpException> {
         return this.medicalRecordService.findOne(datetime)
     }

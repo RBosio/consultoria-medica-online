@@ -79,6 +79,25 @@ export class UserService {
     return userFound;
   }
 
+  async findOneById(id: number) {
+    const userFound = await this.userRepository.findOne({
+      where: {
+        id,
+      },
+      relations: {
+        healthInsurances: {
+          healthInsurance: true,
+        },
+      },
+    });
+    if (!userFound) {
+      throw new HttpException('Usuario no encontrado', HttpStatus.NOT_FOUND);
+    }
+    userFound.password = '';
+
+    return userFound;
+  }
+
   async findOneByEmail(email: string) {
     const userFound = await this.userRepository.findOne({
       where: {

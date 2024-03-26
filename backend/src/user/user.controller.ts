@@ -41,6 +41,14 @@ export class UserController {
     return this.userService.findAdmin();
   }
 
+  @Get('id/:id')
+  @Roles(RoleEnum.User, RoleEnum.Doctor, RoleEnum.Admin)
+  getUserById(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<User | HttpException> {
+    return this.userService.findOneById(id);
+  }
+
   @Get(':dni')
   @Roles(RoleEnum.User, RoleEnum.Doctor, RoleEnum.Admin)
   getUser(@Param('dni') dni: string): Promise<User | HttpException> {

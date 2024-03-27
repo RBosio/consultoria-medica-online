@@ -26,28 +26,25 @@ export default function Meetings(props: Meeting) {
   const [index, setIndex] = useState(0);
   const [position, setPosition] = useState(0);
 
-  const isClient = typeof window === 'object';
+  const isClient = typeof window === "object";
 
-  const [isDesktop, setDesktop] = useState(false); 
+  const [isDesktop, setDesktop] = useState(false);
 
   useEffect(() => {
     if (!isClient) {
-      return; 
+      return;
     }
 
     function handleResize() {
-      setDesktop((window.innerWidth > 1024)
-      );
+      setDesktop(window.innerWidth > 1024);
     }
-    window.addEventListener('resize', handleResize);
-    handleResize(); 
-    return () => window.removeEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
+    handleResize();
+    return () => window.removeEventListener("resize", handleResize);
   }, [isClient]);
 
-
-
-  let i: number
-  isDesktop ? (i = 5) : (i = 3)
+  let i: number;
+  isDesktop ? (i = 5) : (i = 3);
   let page: number = 0;
 
   const back = () => {
@@ -65,7 +62,7 @@ export default function Meetings(props: Meeting) {
   const next = () => {
     const carouselInner = document.getElementById("carouselInner");
     let i: number;
-    isDesktop ? (i = 5) : (i = 3)
+    isDesktop ? (i = 5) : (i = 3);
     if (index < Math.ceil(props.meetings.length / (i - 1)) - 1) {
       setIndex(index + 1);
       if (carouselInner) {
@@ -78,7 +75,7 @@ export default function Meetings(props: Meeting) {
 
   const points = (ind: number) => {
     if (ind + 1 == i) {
-      isDesktop ? (i += 4) : (i += 2)
+      isDesktop ? (i += 4) : (i += 2);
       page++;
       return (
         <div
@@ -136,11 +133,15 @@ export default function Meetings(props: Meeting) {
   return (
     <Layout auth={props.auth}>
       <main>
-      <form
-          className="flex justify-between items-center bg-white p-4 sm:p-6 shadow-md gap-4 sm:gap-8 md:gap-12"
+        <form
+          className="flex flex-col sm:flex-row sm:justify-between sm:items-center bg-white p-3 sm:p-6 shadow-md gap-3 sm:gap-8 md:gap-12"
           onSubmit={filtersForm.handleSubmit}
         >
-          <div className={`${props.auth.role === "user" ? "w-1/3" : "w-1/2"}`}>
+          <div
+            className={`${
+              props.auth.role === "user" ? "w-full sm:w-1/3" : "w-full sm:w-1/2"
+            }`}
+          >
             <Input
               name="name"
               onChange={filtersForm.handleChange}
@@ -151,7 +152,11 @@ export default function Meetings(props: Meeting) {
               label="Nombre"
             />
           </div>
-          <div className={`${props.auth.role === "user" ? "w-1/3" : "hidden"}`}>
+          <div
+            className={`${
+              props.auth.role === "user" ? "w-full sm:w-1/3" : "hidden"
+            }`}
+          >
             <Autocomplete
               onChange={(event, newValue: any) => {
                 filtersForm.setFieldValue(
@@ -175,7 +180,11 @@ export default function Meetings(props: Meeting) {
               )}
             />
           </div>
-          <div className={`${props.auth.role === "user" ? "w-1/3" : "w-1/2"}`}>
+          <div
+            className={`${
+              props.auth.role === "user" ? "w-full sm:w-1/3" : "w-full sm:w-1/2"
+            }`}
+          >
             <Autocomplete
               onChange={(event, newValue: any) => {
                 filtersForm.setFieldValue(
@@ -205,8 +214,8 @@ export default function Meetings(props: Meeting) {
           </Button>
         </form>
         <section>
-          <div className="w-[95%] overflow-hidden m-auto relative px-[14px] mt-8">
-          <div
+          <div className="w-[95%] overflow-hidden m-auto relative px-[14px] sm:mt-8">
+            <div
               className="flex flex-nowrap items-center transition-all ease-in "
               style={{ transitionDuration: ".5s" }}
               id="carouselInner"
@@ -246,7 +255,7 @@ export default function Meetings(props: Meeting) {
                 ""
               )}
 
-              {props.meetings.length / (isDesktop ? 4 : 2) > 1      
+              {props.meetings.length / (isDesktop ? 4 : 2) > 1
                 ? props.meetings.map((m, i) => {
                     return points(i);
                   })
@@ -291,7 +300,7 @@ export const getServerSideProps = withAuth(
 
     try {
       let meetings;
-      if (auth?.role === "user") {
+      if (auth?.role !== "doctor") {
         meetings = await axios.get(
           `${process.env.NEXT_PUBLIC_API_URL}/meeting/user/${
             auth?.id
@@ -341,5 +350,5 @@ export const getServerSideProps = withAuth(
       };
     }
   },
-  {protected: true}
+  { protected: true }
 );

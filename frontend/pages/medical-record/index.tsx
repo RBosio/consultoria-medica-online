@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Layout from "@/components/layout";
 import withAuth from "@/lib/withAuth";
-import { Auth } from "../../../../shared/types";
+import { Auth } from "../../../shared/types";
 
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -229,7 +229,7 @@ export default function MedicalRecord(props: MedicalRecordI) {
         <div className="mx-8 mt-8 pb-4">
           <div className="flex justify-end items-center gap-2 text-primary py-4">
             <Link
-              href={`/medical-record/${router.query.userId}?page=${
+              href={`/medical-record?page=${
                 router.query.page && Number(router.query.page) > 1
                   ? Number(router.query.page) - 1
                   : 1
@@ -238,7 +238,7 @@ export default function MedicalRecord(props: MedicalRecordI) {
               <FaChevronLeft className="text-2xl" />
             </Link>
             <Link
-              href={`/medical-record/${router.query.userId}?page=${
+              href={`/medical-record?page=${
                 router.query.page && Number(router.query.page) < props.pages
                   ? Number(router.query.page) + 1
                   : props.pages
@@ -475,7 +475,8 @@ export default function MedicalRecord(props: MedicalRecordI) {
 
 export const getServerSideProps = withAuth(
   async (auth: Auth | null, context: any) => {
-    const { userId, page } = context.query;
+    const { page } = context.query;
+    const userId = auth?.id;
 
     let medicalRecords = await axios.get(
       `${process.env.NEXT_PUBLIC_API_URL}/medicalRecord/user/${userId}?page=${page}`,

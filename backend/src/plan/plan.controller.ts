@@ -1,4 +1,15 @@
-import { Controller, Get, Post, Body, Param, Delete, Patch, HttpException, ParseIntPipe, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Delete,
+  Patch,
+  HttpException,
+  ParseIntPipe,
+  UseGuards,
+} from '@nestjs/common';
 import { createPlanDto } from './dto/create-plan.dto';
 import { updatePlanDto } from './dto/update-plan.dto';
 import { PlanService } from './plan.service';
@@ -11,36 +22,49 @@ import { RoleEnum } from 'src/enums/role.enum';
 @Controller('plan')
 @UseGuards(AuthGuard, RolesGuard)
 export class PlanController {
+  constructor(private planService: PlanService) {}
 
-    constructor(private planService: PlanService) {}
-    
-    @Get()
-    @Roles(RoleEnum.User, RoleEnum.Doctor, RoleEnum.Admin)
-    getPlans(): Promise<Plan[]> {
-        return this.planService.findAll()
-    }
-    
-    @Get(':id')
-    @Roles(RoleEnum.User, RoleEnum.Doctor, RoleEnum.Admin)
-    getPlan(@Param('id', ParseIntPipe) id: number): Promise<Plan | HttpException> {
-        return this.planService.findOne(id)
-    }
+  @Get()
+  @Roles(RoleEnum.User, RoleEnum.Doctor, RoleEnum.Admin)
+  getPlans(): Promise<Plan[]> {
+    return this.planService.findAll();
+  }
 
-    @Post()
-    @Roles(RoleEnum.Admin)
-    createPlan(@Body() plan: createPlanDto): Promise<Plan | HttpException> {
-        return this.planService.create(plan)
-    }
+  @Get(':id')
+  @Roles(RoleEnum.User, RoleEnum.Doctor, RoleEnum.Admin)
+  getPlan(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<Plan | HttpException> {
+    return this.planService.findOne(id);
+  }
 
-    @Patch(':id')
-    @Roles(RoleEnum.Admin)
-    updatePlan(@Param('id', ParseIntPipe) id: number, @Body() plan: updatePlanDto) {
-        return this.planService.update(id, plan)
-    }
+  @Post()
+  @Roles(RoleEnum.Admin)
+  createPlan(@Body() plan: createPlanDto): Promise<Plan | HttpException> {
+    return this.planService.create(plan);
+  }
 
-    @Delete(':id')
-    @Roles(RoleEnum.Admin)
-    deletePlan(@Param('id', ParseIntPipe) id: number) {
-        return this.planService.delete(id)
-    }
+  @Patch(':id/benefits')
+  @Roles(RoleEnum.Admin)
+  modifyBenefits(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() benefits: { ben: any[] },
+  ): Promise<void> {
+    return this.planService.modifyBenefits(id, benefits);
+  }
+
+  @Patch(':id')
+  @Roles(RoleEnum.Admin)
+  updatePlan(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() plan: updatePlanDto,
+  ) {
+    return this.planService.update(id, plan);
+  }
+
+  @Delete(':id')
+  @Roles(RoleEnum.Admin)
+  deletePlan(@Param('id', ParseIntPipe) id: number) {
+    return this.planService.delete(id);
+  }
 }

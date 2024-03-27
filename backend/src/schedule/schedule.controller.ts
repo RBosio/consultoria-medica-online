@@ -16,13 +16,13 @@ export class ScheduleController {
     constructor(private scheduleService: ScheduleService) {}
     
     @Get(':doctorId')
-    @Roles(RoleEnum.User, RoleEnum.Doctor)
+    @Roles(RoleEnum.User, RoleEnum.Doctor, RoleEnum.Admin)
     getSchedules(@Param('doctorId', ParseIntPipe) doctorId: number): Promise<Schedule[]> {
         return this.scheduleService.findAll(doctorId)
     }
     
     @Get('doctor/:doctorId')
-    @Roles(RoleEnum.User, RoleEnum.Doctor)
+    @Roles(RoleEnum.User, RoleEnum.Doctor, RoleEnum.Admin)
     getSchedulesByDoctor(@Param('doctorId', ParseIntPipe) doctorId: number): Promise<ScheduleResponseDto[]> {
         return this.scheduleService.findByDoctor(doctorId)
     }

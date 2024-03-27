@@ -7,6 +7,7 @@ import { Benefit } from 'src/entities/benefit.entity';
 @Module({
   imports: [TypeOrmModule.forFeature([Benefit])],
   controllers: [BenefitController],
-  providers: [BenefitService]
+  providers: [BenefitService],
+  exports: [BenefitService],
 })
 export class BenefitModule {}

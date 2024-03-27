@@ -46,9 +46,9 @@ const Sidebar: React.FC<SidebarProps> = (props) => {
             },
             {
                 name: "Mi historia clinica",
-                path: `/medical-record/${props.auth.id}`,
+                path: `/medical-record`,
                 icon: <FaFileMedical />,
-                hide : props.auth.role !== 'user',
+                hide : props.auth.role === 'doctor',
             },
             {
                 name: "Configuración",

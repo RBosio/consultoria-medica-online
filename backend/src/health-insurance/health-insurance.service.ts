@@ -57,7 +57,7 @@ export class HealthInsuranceService {
     }
     
     async delete(id: number) {
-        const result = await this.healthInsuranceRepository.delete({id})
+        const result = await this.healthInsuranceRepository.softDelete({id})
     
         if (result.affected == 0) {
             throw new HttpException('Obra social no encontrada', HttpStatus.NOT_FOUND)

@@ -1,4 +1,17 @@
-import { Controller, Get, Body, Param, Delete, Patch, HttpException, UseGuards, UseInterceptors, Post, Req, ParseIntPipe } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Body,
+  Param,
+  Delete,
+  Patch,
+  HttpException,
+  UseGuards,
+  UseInterceptors,
+  Post,
+  Req,
+  ParseIntPipe,
+} from '@nestjs/common';
 import { updateUserDto } from './dto/update-user.dto';
 import { UserService } from './user.service';
 import { User } from 'src/entities/user.entity';
@@ -14,78 +27,88 @@ import { Request } from 'express';
 @Controller('user')
 @UseGuards(AuthGuard, RolesGuard)
 export class UserController {
+  constructor(private userService: UserService) {}
 
-    constructor(private userService: UserService) {}
+  @Get()
+  @Roles(RoleEnum.Admin)
+  getUsers(): Promise<User[]> {
+    return this.userService.findAll();
+  }
 
-    @Get()
-    @Roles(RoleEnum.Admin)
-    getUsers(): Promise<User[]> {
-        return this.userService.findAll()
-    }
-    
-    @Get('admin')
-    @Roles(RoleEnum.User, RoleEnum.Doctor)
-    getAdmin(): Promise<User | HttpException> {
-        return this.userService.findAdmin()
-    }
-    
-    @Get(':dni')
-    @Roles(RoleEnum.User, RoleEnum.Doctor, RoleEnum.Admin)
-    getUser(@Param('dni') dni: string): Promise<User | HttpException> {
-        return this.userService.findOneByDni(dni)
-    }
+  @Get('admin')
+  @Roles(RoleEnum.User, RoleEnum.Doctor)
+  getAdmin(): Promise<User | HttpException> {
+    return this.userService.findAdmin();
+  }
 
-    @Patch(':id')
-    @Roles(RoleEnum.User, RoleEnum.Doctor)
-    updateUser(@Param('id', ParseIntPipe) id: number, @Body() user: updateUserDto) {
-        return this.userService.update(id, user)
-    }
+  @Get('id/:id')
+  @Roles(RoleEnum.User, RoleEnum.Doctor, RoleEnum.Admin)
+  getUserById(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<User | HttpException> {
+    return this.userService.findOneById(id);
+  }
 
-    @Delete(':dni')
-    @Roles(RoleEnum.Admin)
-    deleteUser(@Param('dni') dni: string) {
-        return this.userService.delete(dni)
-    }
+  @Get(':dni')
+  @Roles(RoleEnum.User, RoleEnum.Doctor, RoleEnum.Admin)
+  getUser(@Param('dni') dni: string): Promise<User | HttpException> {
+    return this.userService.findOneByDni(dni);
+  }
 
-    @UseInterceptors(
-        FileInterceptor(
-            'file',
-            {
-                storage: diskStorage({
-                    destination: './public/uploads/user/images',
-                    filename: (req, file, cb) => {
-                        req.body.url = uuidv4() + '.' + file.originalname.split('.').slice(-1)
-                        cb(null, req.body.url)
-                    }
-                })
-            }
-        )
-    )
-    @Post(':dni/image')
-    uploadImage(@Param('dni') dni: string, @Req() request: Request) {
-        const { body } = request
+  @Patch(':id')
+  @Roles(RoleEnum.User, RoleEnum.Doctor, RoleEnum.Admin)
+  updateUser(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() user: updateUserDto,
+  ) {
+    return this.userService.update(id, user);
+  }
 
-        return this.userService.uploadImage(dni, body.url)
-    }
+  @Delete(':dni')
+  @Roles(RoleEnum.Admin)
+  deleteUser(@Param('dni') dni: string) {
+    return this.userService.delete(dni);
+  }
 
-    @UseInterceptors(
-        FileInterceptor(
-            'file',
-            {
-                storage: diskStorage({
-                    destination: './public/uploads/user/healthInsurances',
-                    filename: (req, file, cb) => {
-                        req.body.url = uuidv4() + '.' + file.originalname.split('.').slice(-1)
-                        cb(null, req.body.url)
-                    }
-                })
-            }
-        )
-    )
-    @Post('healthInsurance')
-    uploadHealthInsurance(@Req() request: Request) {
-        const { body } = request
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({
+        destination: './public/uploads/user/images',
+        filename: (req, file, cb) => {
+          req.body.url =
+            uuidv4() + '.' + file.originalname.split('.').slice(-1);
+          cb(null, req.body.url);
+        },
+      }),
+    }),
+  )
+  @Post(':dni/image')
+  uploadImage(@Param('dni') dni: string, @Req() request: Request) {
+    const { body } = request;
 
-        return this.userService.uploadHealthInsurance(body.id, body.healthInsuranceId, body.url)
-    }
+    return this.userService.uploadImage(dni, body.url);
+  }
+
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({
+        destination: './public/uploads/user/healthInsurances',
+        filename: (req, file, cb) => {
+          req.body.url =
+            uuidv4() + '.' + file.originalname.split('.').slice(-1);
+          cb(null, req.body.url);
+        },
+      }),
+    }),
+  )
+  @Post('healthInsurance')
+  uploadHealthInsurance(@Req() request: Request) {
+    const { body } = request;
+
+    return this.userService.uploadHealthInsurance(
+      body.id,
+      body.healthInsuranceId,
+      body.url,
+    );
+  }
 }

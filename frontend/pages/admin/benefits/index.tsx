@@ -6,11 +6,14 @@ import { Auth } from "../../../../shared/types";
 import axios from "axios";
 import {
   Alert,
+  Box,
   Dialog,
   DialogActions,
   DialogContent,
   DialogContentText,
   DialogTitle,
+  Fade,
+  Modal,
   Paper,
   Snackbar,
   Table,
@@ -19,6 +22,7 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  Typography,
   styled,
   tableCellClasses,
   useTheme,
@@ -46,7 +50,6 @@ interface Benefit {
 }
 
 export default function Home(props: Benefit) {
-  const theme = useTheme();
   const router = useRouter();
 
   const [error, setError] = useState<boolean>(false);
@@ -60,6 +63,7 @@ export default function Home(props: Benefit) {
   const [benefit, setBenefit] = useState<any>();
   const [benefits, setSpecialities] = useState<any[]>([]);
   const [page, setPage] = useState<any>();
+  const [o, setO] = useState(false);
 
   useEffect(() => {
     setPage(1);
@@ -105,11 +109,12 @@ export default function Home(props: Benefit) {
 
       setConfirm(false);
       setAdd(false);
+      setO(false);
 
       setSpecialities(benefits.data);
       pagination(page, benefits.data);
 
-      setMessage("Benefit agregado correctamente!");
+      setMessage("Beneficio agregado correctamente!");
       setSuccess(true);
       router.push(`/admin/benefits`);
     },
@@ -141,8 +146,9 @@ export default function Home(props: Benefit) {
 
       setUpdate(false);
       setEdit(false);
+      setO(false);
 
-      setMessage("Benefit editada correctamente!");
+      setMessage("Beneficio editada correctamente!");
       setSuccess(true);
 
       setSpecialities(benefits.data);
@@ -164,7 +170,7 @@ export default function Home(props: Benefit) {
     setCancel(false);
     setBenefit(null);
 
-    setMessage("Benefit eliminado correctamente!");
+    setMessage("Beneficio eliminado correctamente!");
     setSuccess(true);
 
     setSpecialities(props.benefits.filter((sp) => sp.id != Number(id)));
@@ -225,6 +231,7 @@ export default function Home(props: Benefit) {
                       setEdit(false);
                       setAdd(true);
                       setBenefit(null);
+                      setO(true);
                     }}
                   >
                     Agregar
@@ -316,7 +323,10 @@ export default function Home(props: Benefit) {
                             <div className="flex justify-center items-center gap-4 text-primary">
                               <FaCircleInfo
                                 className="hover:cursor-pointer hover:opacity-70"
-                                onClick={() => showDetail(row.id)}
+                                onClick={() => {
+                                  showDetail(row.id);
+                                  setO(true);
+                                }}
                               />{" "}
                               <FaXmark
                                 onClick={() => {
@@ -336,90 +346,132 @@ export default function Home(props: Benefit) {
                   </Table>
                 </TableContainer>
               </div>
-              <div>
-                {benefit ? (
-                  <div className="p-2 m-4 relative">
-                    <h4
-                      className={`text-primary text-3xl text-center ${robotoBold.className}`}
+              <Modal
+                open={o}
+                onClose={() => setO(false)}
+                aria-labelledby="modal-modal-title"
+                aria-describedby="modal-modal-description"
+              >
+                <Fade in={o}>
+                  <Box
+                    sx={{
+                      position: "absolute" as "absolute",
+                      top: "50%",
+                      left: "50%",
+                      transform: "translate(-50%, -50%)",
+                      width: 800,
+                      bgcolor: "background.paper",
+
+                      boxShadow: 24,
+                      p: 4,
+                    }}
+                  >
+                    <Typography
+                      id="modal-modal-title"
+                      variant="h6"
+                      component="h2"
+                      className="text-center text-primary text-2xl"
                     >
-                      {benefit.name}
-                    </h4>
-                    <h4 className="text-primary text-xl text-center underline mt-8">
-                      Planes en los que se encuentra el beneficio
-                    </h4>
-                    <div className="flex justify-center">
-                      <div className="md:flex md:justify-center md:items-center md:flex-wrap">
-                        {benefit.plans.length === 0 ? (
-                          <div className="bg-secondary text-white font-semibold p-4 rounded-lg mt-4">
-                            Actualmente no se encuentran planes con este
-                            beneficio!
+                      Especialidad
+                    </Typography>
+                    <Typography
+                      id="modal-modal-description"
+                      component={"span"}
+                      variant={"body2"}
+                      sx={{ mt: 2 }}
+                    >
+                      <div>
+                        {benefit ? (
+                          <div className="p-2 m-4 relative">
+                            <h4
+                              className={`text-primary text-3xl text-center ${robotoBold.className}`}
+                            >
+                              {benefit.name}
+                            </h4>
+                            <h4 className="text-primary text-xl text-center underline mt-8">
+                              Planes en los que se encuentra el beneficio
+                            </h4>
+                            <div className="flex justify-center">
+                              <div className="md:flex md:justify-center md:items-center md:flex-wrap">
+                                {benefit.plans.length === 0 ? (
+                                  <div className="bg-secondary text-white font-semibold p-4 rounded-lg mt-4">
+                                    Actualmente no se encuentran planes con este
+                                    beneficio!
+                                  </div>
+                                ) : (
+                                  benefit.plans.map((p: PlanResponseDto) => {
+                                    return (
+                                      <div
+                                        className="flex justify-between items-center gap-2 text-white bg-secondary p-4 rounded-md m-2"
+                                        key={p.id}
+                                      >
+                                        <div className="flex items-center gap-2">
+                                          <FaAngleRight /> <p>{p.name}</p>
+                                        </div>
+                                      </div>
+                                    );
+                                  })
+                                )}
+                              </div>
+                            </div>
                           </div>
                         ) : (
-                          benefit.plans.map((p: PlanResponseDto) => {
-                            return (
-                              <div
-                                className="flex justify-between items-center gap-2 text-white bg-secondary p-4 rounded-md m-2"
-                                key={p.id}
-                              >
-                                <div className="flex items-center gap-2">
-                                  <FaAngleRight /> <p>{p.name}</p>
-                                </div>
-                              </div>
-                            );
-                          })
+                          ""
                         )}
                       </div>
-                    </div>
-                  </div>
-                ) : (
-                  ""
-                )}
-              </div>
-              {add ? (
-                <div className="bg-white p-8 border border-primary rounded-md shadow-md mt-12">
-                  <h4 className="text-primary text-xl mb-4 text-center">
-                    Agregar beneficio
-                  </h4>
-                  <form
-                    className="flex gap-4"
-                    onSubmit={addBenefit.handleSubmit}
-                  >
-                    <Input
-                      placeholder="Nombre"
-                      type="text"
-                      name="name"
-                      onChange={addBenefit.handleChange}
-                      onBlur={addBenefit.handleBlur}
-                    />
-                    <Button onClick={() => setConfirm(true)}>Agregar</Button>
-                  </form>
-                </div>
-              ) : (
-                ""
-              )}
-              {edit ? (
-                <div className="bg-white p-8 border border-primary rounded-md shadow-md mt-12">
-                  <h4 className="text-primary text-xl mb-4 text-center">
-                    Editar beneficio
-                  </h4>
-                  <form
-                    className="flex gap-4"
-                    onSubmit={editBenefit.handleSubmit}
-                  >
-                    <Input
-                      placeholder="Nombre"
-                      type="text"
-                      name="name"
-                      onChange={editBenefit.handleChange}
-                      onBlur={editBenefit.handleBlur}
-                      value={editBenefit.values.name}
-                    />
-                    <Button onClick={() => setUpdate(true)}>Editar</Button>
-                  </form>
-                </div>
-              ) : (
-                ""
-              )}
+                      {add ? (
+                        <div className="bg-white p-8 border border-primary rounded-md shadow-md mt-12">
+                          <h4 className="text-primary text-xl mb-4 text-center">
+                            Agregar beneficio
+                          </h4>
+                          <form
+                            className="flex justify-center gap-4"
+                            onSubmit={addBenefit.handleSubmit}
+                          >
+                            <Input
+                              placeholder="Nombre"
+                              type="text"
+                              name="name"
+                              onChange={addBenefit.handleChange}
+                              onBlur={addBenefit.handleBlur}
+                            />
+                            <Button onClick={() => setConfirm(true)}>
+                              Agregar
+                            </Button>
+                          </form>
+                        </div>
+                      ) : (
+                        ""
+                      )}
+                      {edit ? (
+                        <div className="bg-white p-8 border border-primary rounded-md shadow-md mt-12">
+                          <h4 className="text-primary text-xl mb-4 text-center">
+                            Editar beneficio
+                          </h4>
+                          <form
+                            className="flex justify-center gap-4"
+                            onSubmit={editBenefit.handleSubmit}
+                          >
+                            <Input
+                              placeholder="Nombre"
+                              type="text"
+                              name="name"
+                              onChange={editBenefit.handleChange}
+                              onBlur={editBenefit.handleBlur}
+                              value={editBenefit.values.name}
+                            />
+                            <Button onClick={() => setUpdate(true)}>
+                              Editar
+                            </Button>
+                          </form>
+                        </div>
+                      ) : (
+                        ""
+                      )}
+                    </Typography>
+                  </Box>
+                </Fade>
+              </Modal>
             </section>
           </div>
         </div>
@@ -429,12 +481,13 @@ export default function Home(props: Benefit) {
             setConfirm(false);
             setUpdate(false);
             setCancel(false);
+            setO(false);
           }}
           aria-labelledby="alert-dialog-title"
           aria-describedby="alert-dialog-description"
         >
           <DialogTitle id="alert-dialog-title" className="text-center">
-            {confirm ? "Benefit" : ""}
+            {confirm ? "Beneficio" : ""}
           </DialogTitle>
           <DialogContent>
             <DialogContentText id="alert-dialog-description">

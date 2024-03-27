@@ -19,7 +19,7 @@ export class DoctorController {
     constructor(private doctorService: DoctorService) {}
 
     @Get()
-    @Roles(RoleEnum.User, RoleEnum.Doctor)
+    @Roles(RoleEnum.User, RoleEnum.Doctor, RoleEnum.Admin)
     getDoctors(@Query() query: getDoctorsDto) {
         return this.doctorService.findAll(query)
     }

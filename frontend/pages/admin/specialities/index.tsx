@@ -7,11 +7,14 @@ import axios from "axios";
 import { SpecialityResponseDto } from "@/components/dto/speciality.dto";
 import {
   Alert,
+  Box,
   Dialog,
   DialogActions,
   DialogContent,
   DialogContentText,
   DialogTitle,
+  Fade,
+  Modal,
   Paper,
   Snackbar,
   Table,
@@ -20,6 +23,7 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  Typography,
   useTheme,
 } from "@mui/material";
 import {
@@ -53,6 +57,7 @@ export default function Home(props: Speciality) {
   const [update, setUpdate] = useState<boolean>(false);
   const [specialities, setSpecialities] = useState<any[]>([]);
   const [page, setPage] = useState<any>();
+  const [o, setO] = useState(false);
 
   useEffect(() => {
     setPage(1);
@@ -103,6 +108,7 @@ export default function Home(props: Speciality) {
 
       setConfirm(false);
       setAdd(false);
+      setO(false);
 
       setSpecialities(specialities.data);
       pagination(page, specialities.data);
@@ -139,6 +145,7 @@ export default function Home(props: Speciality) {
       setUpdate(false);
       setEdit(false);
       setCancel(false);
+      setO(false);
 
       setMessage("Especialidad editada correctamente!");
       setSuccess(true);
@@ -226,6 +233,7 @@ export default function Home(props: Speciality) {
                     onClick={() => {
                       setEdit(false);
                       setAdd(true);
+                      setO(true);
                     }}
                   >
                     Agregar
@@ -317,7 +325,10 @@ export default function Home(props: Speciality) {
                             <div className="flex justify-center items-center gap-4 text-primary">
                               <FaEdit
                                 className="hover:cursor-pointer hover:opacity-70"
-                                onClick={() => showEdit(row.id)}
+                                onClick={() => {
+                                  showEdit(row.id);
+                                  setO(true);
+                                }}
                               />{" "}
                               <FaXmark
                                 onClick={() => {
@@ -337,51 +348,89 @@ export default function Home(props: Speciality) {
                   </Table>
                 </TableContainer>
               </div>
-              {add ? (
-                <div className="bg-white p-8 border border-primary rounded-md shadow-md mt-12">
-                  <h4 className="text-primary text-xl mb-4 text-center">
-                    Agregar especialidad
-                  </h4>
-                  <form
-                    className="flex gap-4"
-                    onSubmit={addSpeciality.handleSubmit}
+              <Modal
+                open={o}
+                onClose={() => setO(false)}
+                aria-labelledby="modal-modal-title"
+                aria-describedby="modal-modal-description"
+              >
+                <Fade in={o}>
+                  <Box
+                    sx={{
+                      position: "absolute" as "absolute",
+                      top: "50%",
+                      left: "50%",
+                      transform: "translate(-50%, -50%)",
+                      width: 800,
+                      bgcolor: "background.paper",
+
+                      boxShadow: 24,
+                      p: 4,
+                    }}
                   >
-                    <Input
-                      placeholder="Nombre"
-                      type="text"
-                      name="name"
-                      onChange={addSpeciality.handleChange}
-                      onBlur={addSpeciality.handleBlur}
-                    />
-                    <Button onClick={() => setConfirm(true)}>Agregar</Button>
-                  </form>
-                </div>
-              ) : (
-                ""
-              )}
-              {edit ? (
-                <div className="bg-white p-8 border border-primary rounded-md shadow-md mt-12">
-                  <h4 className="text-primary text-xl mb-4 text-center">
-                    Editar especialidad
-                  </h4>
-                  <form
-                    className="flex gap-4"
-                    onSubmit={editSpeciality.handleSubmit}
-                  >
-                    <Input
-                      placeholder="Nombre"
-                      type="text"
-                      name="name"
-                      onChange={editSpeciality.handleChange}
-                      onBlur={editSpeciality.handleBlur}
-                      value={editSpeciality.values.name}
-                    />
-                    <Button onClick={() => setUpdate(true)}>Editar</Button>
-                  </form>
-                </div>
-              ) : (
-                ""
-              )}
+                    <Typography
+                      id="modal-modal-title"
+                      variant="h6"
+                      component="h2"
+                      className="text-center text-primary text-2xl"
+                    >
+                      Especialidad
+                    </Typography>
+                    <Typography
+                      id="modal-modal-description"
+                      component={"span"}
+                      variant={"body2"}
+                      sx={{ mt: 2 }}
+                    >
+                      {add && (
+                        <div className="bg-white p-8 border border-primary rounded-md shadow-md mt-12">
+                          <h4 className="text-primary text-xl mb-4 text-center">
+                            Agregar especialidad
+                          </h4>
+                          <form
+                            className="flex justify-center gap-4"
+                            onSubmit={addSpeciality.handleSubmit}
+                          >
+                            <Input
+                              placeholder="Nombre"
+                              type="text"
+                              name="name"
+                              onChange={addSpeciality.handleChange}
+                              onBlur={addSpeciality.handleBlur}
+                            />
+                            <Button onClick={() => setConfirm(true)}>
+                              Agregar
+                            </Button>
+                          </form>
+                        </div>
+                      )}
+                      {edit && (
+                        <div className="bg-white p-8 border border-primary rounded-md shadow-md mt-12">
+                          <h4 className="text-primary text-xl mb-4 text-center">
+                            Editar especialidad
+                          </h4>
+                          <form
+                            className="flex justify-center gap-4"
+                            onSubmit={editSpeciality.handleSubmit}
+                          >
+                            <Input
+                              placeholder="Nombre"
+                              type="text"
+                              name="name"
+                              onChange={editSpeciality.handleChange}
+                              onBlur={editSpeciality.handleBlur}
+                              value={editSpeciality.values.name}
+                            />
+                            <Button onClick={() => setUpdate(true)}>
+                              Editar
+                            </Button>
+                          </form>
+                        </div>
+                      )}
+                    </Typography>
+                  </Box>
+                </Fade>
+              </Modal>
             </section>
           </div>
         </div>
@@ -391,6 +440,7 @@ export default function Home(props: Speciality) {
             setConfirm(false);
             setUpdate(false);
             setCancel(false);
+            setO(false);
           }}
           aria-labelledby="alert-dialog-title"
           aria-describedby="alert-dialog-description"

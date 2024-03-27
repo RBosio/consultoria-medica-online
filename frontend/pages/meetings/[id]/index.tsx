@@ -35,7 +35,6 @@ interface MeetingI {
 }
 
 export default function DetailMeeting(props: MeetingI) {
-
   const theme = useTheme();
   const router = useRouter();
 
@@ -156,7 +155,7 @@ export default function DetailMeeting(props: MeetingI) {
               : props.meeting.user.id,
           type: "comment",
           meetingUserId: t,
-          meetingStartDatetime: startDatetime
+          meetingStartDatetime: startDatetime,
         },
         {
           withCredentials: true,
@@ -244,8 +243,8 @@ export default function DetailMeeting(props: MeetingI) {
                   <div className="text-gray-500 text-xs mt-2 flex justify-end">
                     {props.meeting.cancelDate
                       ? moment(props.meeting.cancelDate).format(
-                        "DD/MM/YYYY HH:mm"
-                      )
+                          "DD/MM/YYYY HH:mm"
+                        )
                       : moment(new Date()).format("DD/MM/YYYY HH:mm")}
                   </div>
                 </div>
@@ -319,7 +318,10 @@ export default function DetailMeeting(props: MeetingI) {
                         className="bg-green-600 hover:bg-green-800 mr-2"
                         size="small"
                         endIcon={<FaPlay />}
-                        disabled={props.meeting.status !== "Pendiente"}
+                        disabled={
+                          props.meeting.status !== "Pendiente" &&
+                          props.meeting.status !== "Pagada"
+                        }
                       >
                         Unirse
                       </Button>
@@ -332,14 +334,18 @@ export default function DetailMeeting(props: MeetingI) {
                         className="bg-green-600 hover:bg-green-800 mr-2"
                         size="small"
                         endIcon={<FaPlay />}
-                        disabled={props.meeting.status !== "Pendiente"}
+                        disabled={
+                          props.meeting.status !== "Pendiente" &&
+                          props.meeting.status !== "Pagada"
+                        }
                       >
                         Iniciar reunion
                       </Button>
                     </Link>
                   </>
                 )}
-                {props.meeting.status === "Pendiente" ? (
+                {props.meeting.status === "Pendiente" ||
+                props.meeting.status === "Pagada" ? (
                   <Button
                     className="mr-2"
                     size="small"
@@ -441,8 +447,9 @@ export default function DetailMeeting(props: MeetingI) {
               >
                 {file ? (
                   <div
-                    className={`w-full py-1 px-2 bg-primary rounded-md text-white flex justify-between items-center overflow-x-hidden h-8 ${file.name.length > 60 ? "overflow-y-scroll" : ""
-                      }`}
+                    className={`w-full py-1 px-2 bg-primary rounded-md text-white flex justify-between items-center overflow-x-hidden h-8 ${
+                      file.name.length > 60 ? "overflow-y-scroll" : ""
+                    }`}
                   >
                     <div className={`${robotoBold.className}`}>{file.name}</div>
                     <FaXmark
@@ -530,9 +537,9 @@ export const getServerSideProps = withAuth(
     } catch {
       return {
         redirect: {
-          destination: '/meetings',
-          permanent: false
-        }
+          destination: "/meetings",
+          permanent: false,
+        },
       };
     }
   },

@@ -314,8 +314,6 @@ export class MeetingService {
       accessToken: this.configService.get<string>('MP_ACCESS_TOKEN'),
     });
 
-    console.log(pref);
-
     const body = {
       items: [
         {

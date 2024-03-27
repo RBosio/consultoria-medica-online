@@ -195,7 +195,7 @@ export default function Meetings(props: Meeting) {
               disablePortal
               noOptionsText="Estado no encontrado"
               options={[
-                { id: "Pendiente", label: "Pendiente" },
+                { id: "Pagada", label: "Pagada" },
                 { id: "Finalizada", label: "Finalizada" },
                 { id: "Cancelada", label: "Cancelada" },
               ]}

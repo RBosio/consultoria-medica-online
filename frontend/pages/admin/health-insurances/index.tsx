@@ -87,6 +87,14 @@ export default function Home(props: HealthInsurance) {
         setMessage("Ingrese todos los campos!");
         setError(true);
         return;
+      } else if (values.discount < 0 || values.discount > 100) {
+        setConfirm(false);
+        setAdd(false);
+        setO(false);
+
+        setMessage("El descuento debe ser entre 0 y 100!");
+        setError(true);
+        return;
       }
 
       values.discount = values.discount / 100;
@@ -137,15 +145,22 @@ export default function Home(props: HealthInsurance) {
         values.discount === null ||
         values.discount === undefined
       ) {
-        setConfirm(false);
+        setUpdate(false);
         setEdit(false);
         setO(false);
 
         setMessage("Ingrese todos los campos!");
         setError(true);
         return;
+      } else if (values.discount < 0 || values.discount > 100) {
+        setUpdate(false);
+        setEdit(false);
+        setO(false);
+
+        setMessage("El descuento debe ser entre 0 y 100!");
+        setError(true);
+        return;
       }
-      console.log(values);
 
       await axios.patch(
         `${process.env.NEXT_PUBLIC_API_URL}/healthInsurance/${values.id}`,

@@ -7,11 +7,14 @@ import axios from "axios";
 import { SpecialityResponseDto } from "@/components/dto/speciality.dto";
 import {
   Alert,
+  Box,
   Dialog,
   DialogActions,
   DialogContent,
   DialogContentText,
   DialogTitle,
+  Fade,
+  Modal,
   Paper,
   Snackbar,
   Table,
@@ -20,7 +23,7 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  useTheme,
+  Typography,
 } from "@mui/material";
 import {
   FaChevronLeft,
@@ -51,8 +54,8 @@ export default function Home(props: Speciality) {
   const [user, setUser] = useState<UserResponseDto | null>();
   const [info, setInfo] = useState<boolean>(false);
   const [users, setUsers] = useState<any[]>([]);
-  const [test, setTest] = useState<any[]>([]);
   const [page, setPage] = useState<any>();
+  const [o, setO] = useState(false);
 
   useEffect(() => {
     setPage(1);
@@ -102,12 +105,11 @@ export default function Home(props: Speciality) {
     setUser(null);
 
     setConfirm(false);
-    router.push(`/admin`);
   };
 
   return (
     <Layout auth={props.auth}>
-      <div className="flex justify-center">
+      <div id="scroller" className="flex justify-center">
         <div className="flex flex-col md:flex-row justify-center gap-4 w-[90%] mt-12">
           <div>
             <SidebarAdmin
@@ -263,7 +265,8 @@ export default function Home(props: Speciality) {
                               className="flex justify-center items-center gap-4 text-primary p-2 hover:cursor-pointer"
                               onClick={() => {
                                 setUser(row);
-                                setTest(row.healthInsurances);
+                                setO(true);
+
                                 setInfo(true);
                               }}
                             >
@@ -275,138 +278,188 @@ export default function Home(props: Speciality) {
                     </TableBody>
                   </Table>
                 </TableContainer>
-                <div className="bg-white mt-4">
-                  <div className="flex flex-col md:flex-row gap-4 md:gap-0 justify-between w-5/6 mx-auto">
-                    {user && (
-                      <div className="flex flex-col gap-2">
-                        <div className="flex items-center gap-2">
-                          <p className="text-primary text-lg">Nombre:</p>{" "}
-                          {user.name}
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <p className="text-primary text-lg">Apellido:</p>{" "}
-                          {user.surname}
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <p className="text-primary text-lg">Email:</p>{" "}
-                          {user.email}
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <p className="text-primary text-lg">Teléfono:</p>{" "}
-                          {user.phone || "-"}
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <p className="text-primary text-lg">Dni:</p>{" "}
-                          {user.dni}
-                        </div>
-                      </div>
-                    )}
-                    {user?.doctor && (
-                      <div className="flex flex-col gap-2">
-                        <div className="flex items-center gap-2">
-                          <p className="text-primary text-lg">Verificado:</p>
-                          {user.doctor?.verified ? (
-                            <FaCheck className="text-green-400" />
-                          ) : (
-                            <FaXmark className="text-red-400" />
-                          )}
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <p className="text-primary text-lg">
-                            Duración de la reunión:
-                          </p>
-                          {user.doctor?.durationMeeting} min
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <p className="text-primary text-lg">Dirección:</p>
-                          {user.doctor?.address}
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <p className="text-primary text-lg">
-                            Especialidades:{" "}
-                          </p>
-                          {user.doctor?.specialities
-                            .map((s) => s.name)
-                            .join(", ")}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                  <div className="w-5/6 mx-auto mt-2">
-                    {user && (
-                      <>
-                        <div className="flex items-center gap-2">
-                          <p className="text-primary text-lg">
-                            Obras sociales:
-                          </p>{" "}
-                          {user.healthInsurances.map((hi, idx) => {
-                            return (
-                              <div
-                                className="flex items-center gap-2"
-                                key={idx}
-                              >
-                                <p
-                                  className={`${
-                                    hi.verified
-                                      ? "text-green-600"
-                                      : "text-red-600"
-                                  }
+                <Modal
+                  open={o}
+                  onClose={() => setO(false)}
+                  aria-labelledby="modal-modal-title"
+                  aria-describedby="modal-modal-description"
+                >
+                  <Fade in={o}>
+                    <Box
+                      sx={{
+                        position: "absolute" as "absolute",
+                        top: "50%",
+                        left: "50%",
+                        transform: "translate(-50%, -50%)",
+                        width: 800,
+                        bgcolor: "background.paper",
+
+                        boxShadow: 24,
+                        p: 4,
+                      }}
+                    >
+                      <Typography
+                        id="modal-modal-title"
+                        variant="h6"
+                        component="h2"
+                        className="text-center text-primary text-2xl"
+                      >
+                        Información del usuario
+                      </Typography>
+                      <Typography
+                        id="modal-modal-description"
+                        component={"span"}
+                        variant={"body2"}
+                        sx={{ mt: 2 }}
+                      >
+                        {user && (
+                          <div
+                            className={`mt-4 p-4 ${
+                              !user?.doctor && "flex flex-col items-center"
+                            }`}
+                          >
+                            <div className="flex flex-col md:flex-row gap-4 md:gap-0 justify-between">
+                              <div className="flex flex-col gap-2">
+                                <div className="flex items-center gap-2">
+                                  <p className="text-primary text-lg">
+                                    Nombre:
+                                  </p>{" "}
+                                  {user.name}
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <p className="text-primary text-lg">
+                                    Apellido:
+                                  </p>{" "}
+                                  {user.surname}
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <p className="text-primary text-lg">Email:</p>{" "}
+                                  {user.email}
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <p className="text-primary text-lg">
+                                    Teléfono:
+                                  </p>{" "}
+                                  {user.phone || "-"}
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <p className="text-primary text-lg">Dni:</p>{" "}
+                                  {user.dni}
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <p className="text-primary text-lg">
+                                    Obras sociales:
+                                  </p>{" "}
+                                  {user.healthInsurances.map((hi, idx) => {
+                                    return (
+                                      <div
+                                        className="flex items-center gap-2"
+                                        key={idx}
+                                      >
+                                        <p
+                                          className={`${
+                                            hi.verified
+                                              ? "text-green-600"
+                                              : "text-red-600"
+                                          }
                                   hover:cursor-pointer hover:underline`}
-                                  onClick={() => {
-                                    if (hi.verified) return;
+                                          onClick={() => {
+                                            if (hi.verified) return;
 
-                                    localStorage.setItem(
-                                      "healthInsuranceId",
-                                      hi.healthInsurance.id.toString()
-                                    );
-                                    localStorage.setItem(
-                                      "userHIId",
-                                      user.id.toString()
-                                    );
+                                            localStorage.setItem(
+                                              "healthInsuranceId",
+                                              hi.healthInsurance.id.toString()
+                                            );
+                                            localStorage.setItem(
+                                              "userHIId",
+                                              user.id.toString()
+                                            );
 
-                                    setConfirm(true);
-                                  }}
-                                >
-                                  {hi.healthInsurance.name}
-                                </p>
-                                {hi.verified ? (
-                                  <FaCheck className="text-green-500" />
-                                ) : (
-                                  <FaXmark className="text-red-500" />
-                                )}
+                                            setConfirm(true);
+                                          }}
+                                        >
+                                          {hi.healthInsurance.name}
+                                        </p>
+                                        {hi.verified ? (
+                                          <FaCheck className="text-green-500" />
+                                        ) : (
+                                          <FaXmark className="text-red-500" />
+                                        )}
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <p className="text-primary text-lg">
+                                    Archivos:
+                                  </p>{" "}
+                                  {user?.healthInsurances.map((hi, idx) => {
+                                    if (hi.file_url) {
+                                      return (
+                                        <Link
+                                          key={idx}
+                                          target="_blank"
+                                          href={`http://localhost:3000/uploads/user/healthInsurances/${hi.file_url}`}
+                                          className="flex justify-center gap-2 underline text-sm"
+                                        >
+                                          {hi.file_name}
+                                        </Link>
+                                      );
+                                    }
+                                  })}
+                                </div>
                               </div>
-                            );
-                          })}
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <p className="text-primary text-lg">Archivos:</p>{" "}
-                          {user?.healthInsurances.map((hi, idx) => {
-                            if (hi.file_url) {
-                              return (
-                                <Link
-                                  key={idx}
-                                  target="_blank"
-                                  href={`http://localhost:3000/uploads/user/healthInsurances/${hi.file_url}`}
-                                  className="flex justify-center gap-2 underline text-sm"
-                                >
-                                  {hi.file_name}
-                                </Link>
-                              );
-                            }
-                          })}
-                        </div>
-                      </>
-                    )}
-                  </div>
-                  <div className="w-5/6 mx-auto mt-4">
-                    {user?.doctor && (
-                      <div className="flex flex-col md:flex-row items-center md:items-start gap-2">
-                        <p className="text-primary text-lg">Descripcion:</p>{" "}
-                        {user.doctor?.description}
-                      </div>
-                    )}
-                  </div>
-                </div>
+                              {user?.doctor && (
+                                <div className="flex flex-col gap-2">
+                                  <div className="flex items-center gap-2">
+                                    <p className="text-primary text-lg">
+                                      Verificado:
+                                    </p>
+                                    {user.doctor?.verified ? (
+                                      <FaCheck className="text-green-400" />
+                                    ) : (
+                                      <FaXmark className="text-red-400" />
+                                    )}
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <p className="text-primary text-lg">
+                                      Duración de la reunión:
+                                    </p>
+                                    {user.doctor?.durationMeeting} min
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <p className="text-primary text-lg">
+                                      Dirección:
+                                    </p>
+                                    {user.doctor?.address}
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <p className="text-primary text-lg">
+                                      Especialidades:{" "}
+                                    </p>
+                                    {user.doctor?.specialities
+                                      .map((s) => s.name)
+                                      .join(", ")}
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                            {user?.doctor && (
+                              <div className="w-5/6 mx-auto mt-4">
+                                <div className="flex flex-col md:flex-row items-center md:items-start gap-2">
+                                  <p className="text-primary text-lg">
+                                    Descripcion:
+                                  </p>{" "}
+                                  {user.doctor?.description}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </Typography>
+                    </Box>
+                  </Fade>
+                </Modal>
               </div>
             </section>
           </div>

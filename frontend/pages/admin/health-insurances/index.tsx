@@ -7,11 +7,14 @@ import axios from "axios";
 import { HealthInsuranceResponseDto } from "@/components/dto/healthInsurance.dto";
 import {
   Alert,
+  Box,
   Dialog,
   DialogActions,
   DialogContent,
   DialogContentText,
   DialogTitle,
+  Fade,
+  Modal,
   Paper,
   Snackbar,
   Table,
@@ -20,6 +23,7 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  Typography,
   styled,
   tableCellClasses,
   useTheme,
@@ -56,6 +60,7 @@ export default function Home(props: HealthInsurance) {
   const [cancel, setCancel] = useState<boolean>(false);
   const [healthInsurances, setHealthInsurances] = useState<any[]>([]);
   const [page, setPage] = useState<any>();
+  const [o, setO] = useState(false);
 
   useEffect(() => {
     setPage(1);
@@ -77,6 +82,7 @@ export default function Home(props: HealthInsurance) {
       ) {
         setConfirm(false);
         setAdd(false);
+        setO(false);
 
         setMessage("Ingrese todos los campos!");
         setError(true);
@@ -107,6 +113,7 @@ export default function Home(props: HealthInsurance) {
 
       setConfirm(false);
       setAdd(false);
+      setO(false);
 
       setMessage("Obra social agregada correctamente!");
       setSuccess(true);
@@ -132,6 +139,7 @@ export default function Home(props: HealthInsurance) {
       ) {
         setConfirm(false);
         setEdit(false);
+        setO(false);
 
         setMessage("Ingrese todos los campos!");
         setError(true);
@@ -158,6 +166,7 @@ export default function Home(props: HealthInsurance) {
 
       setUpdate(false);
       setEdit(false);
+      setO(false);
 
       setMessage("Obra social editada correctamente!");
       setSuccess(true);
@@ -270,6 +279,7 @@ export default function Home(props: HealthInsurance) {
                     onClick={() => {
                       setEdit(false);
                       setAdd(true);
+                      setO(true);
                     }}
                   >
                     Agregar
@@ -378,7 +388,10 @@ export default function Home(props: HealthInsurance) {
                             <div className="flex justify-center items-center gap-4 text-primary">
                               <FaEdit
                                 className="hover:cursor-pointer hover:opacity-70"
-                                onClick={() => showEdit(row.id)}
+                                onClick={() => {
+                                  setO(true);
+                                  showEdit(row.id);
+                                }}
                               />{" "}
                               <FaXmark
                                 onClick={() => {
@@ -398,66 +411,108 @@ export default function Home(props: HealthInsurance) {
                   </Table>
                 </TableContainer>
               </div>
-              {add ? (
-                <div className="bg-white p-8 border border-primary rounded-md shadow-md mt-12">
-                  <h4 className="text-primary text-xl mb-4 text-center">
-                    Agregar obra social
-                  </h4>
-                  <form
-                    className="flex gap-4"
-                    onSubmit={addHealthInsurance.handleSubmit}
+              <Modal
+                open={o}
+                onClose={() => setO(false)}
+                aria-labelledby="modal-modal-title"
+                aria-describedby="modal-modal-description"
+              >
+                <Fade in={o}>
+                  <Box
+                    sx={{
+                      position: "absolute" as "absolute",
+                      top: "50%",
+                      left: "50%",
+                      transform: "translate(-50%, -50%)",
+                      width: 800,
+                      bgcolor: "background.paper",
+
+                      boxShadow: 24,
+                      p: 4,
+                    }}
                   >
-                    <Input
-                      placeholder="Nombre"
-                      type="text"
-                      name="name"
-                      onChange={addHealthInsurance.handleChange}
-                      onBlur={addHealthInsurance.handleBlur}
-                    />
-                    <Input
-                      placeholder="Descuento"
-                      type="number"
-                      name="discount"
-                      onChange={addHealthInsurance.handleChange}
-                      onBlur={addHealthInsurance.handleBlur}
-                    />
-                    <Button onClick={() => setConfirm(true)}>Agregar</Button>
-                  </form>
-                </div>
-              ) : (
-                ""
-              )}
-              {edit ? (
-                <div className="bg-white p-8 border border-primary rounded-md shadow-md mt-12">
-                  <h4 className="text-primary text-xl mb-4 text-center">
-                    Editar obra social
-                  </h4>
-                  <form
-                    className="flex gap-4"
-                    onSubmit={editHealthInsurance.handleSubmit}
-                  >
-                    <Input
-                      placeholder="Nombre"
-                      type="text"
-                      name="name"
-                      onChange={editHealthInsurance.handleChange}
-                      onBlur={editHealthInsurance.handleBlur}
-                      value={editHealthInsurance.values.name}
-                    />
-                    <Input
-                      placeholder="Descuento"
-                      type="number"
-                      name="discount"
-                      onChange={editHealthInsurance.handleChange}
-                      onBlur={editHealthInsurance.handleBlur}
-                      value={editHealthInsurance.values.discount}
-                    />
-                    <Button onClick={() => setUpdate(true)}>Editar</Button>
-                  </form>
-                </div>
-              ) : (
-                ""
-              )}
+                    <Typography
+                      id="modal-modal-title"
+                      variant="h6"
+                      component="h2"
+                      className="text-center text-primary text-2xl"
+                    >
+                      Obra social
+                    </Typography>
+                    <Typography
+                      id="modal-modal-description"
+                      component={"span"}
+                      variant={"body2"}
+                      sx={{ mt: 2 }}
+                    >
+                      {add ? (
+                        <div className="bg-white p-8 border border-primary rounded-md shadow-md mt-12">
+                          <h4 className="text-primary text-xl mb-4 text-center">
+                            Agregar obra social
+                          </h4>
+                          <form
+                            className="flex justify-center gap-4"
+                            onSubmit={addHealthInsurance.handleSubmit}
+                          >
+                            <Input
+                              placeholder="Nombre"
+                              type="text"
+                              name="name"
+                              onChange={addHealthInsurance.handleChange}
+                              onBlur={addHealthInsurance.handleBlur}
+                            />
+                            <Input
+                              placeholder="Descuento"
+                              type="number"
+                              name="discount"
+                              onChange={addHealthInsurance.handleChange}
+                              onBlur={addHealthInsurance.handleBlur}
+                            />
+                            <Button onClick={() => setConfirm(true)}>
+                              Agregar
+                            </Button>
+                          </form>
+                        </div>
+                      ) : (
+                        ""
+                      )}
+                      {edit ? (
+                        <div className="bg-white p-8 border border-primary rounded-md shadow-md mt-12">
+                          <h4 className="text-primary text-xl mb-4 text-center">
+                            Editar obra social
+                          </h4>
+                          <form
+                            className="flex justify-center gap-4"
+                            onSubmit={editHealthInsurance.handleSubmit}
+                          >
+                            <Input
+                              placeholder="Nombre"
+                              type="text"
+                              name="name"
+                              onChange={editHealthInsurance.handleChange}
+                              onBlur={editHealthInsurance.handleBlur}
+                              value={editHealthInsurance.values.name}
+                            />
+                            <Input
+                              placeholder="Descuento"
+                              type="number"
+                              name="discount"
+                              onChange={editHealthInsurance.handleChange}
+                              onBlur={editHealthInsurance.handleBlur}
+                              value={editHealthInsurance.values.discount}
+                            />
+                            <Button onClick={() => setUpdate(true)}>
+                              Editar
+                            </Button>
+                          </form>
+                        </div>
+                      ) : (
+                        ""
+                      )}
+                    </Typography>
+                  </Box>
+                </Fade>
+              </Modal>
             </section>
           </div>
         </div>
@@ -467,6 +522,7 @@ export default function Home(props: HealthInsurance) {
             setConfirm(false);
             setUpdate(false);
             setCancel(false);
+            setO(false);
           }}
           aria-labelledby="alert-dialog-title"
           aria-describedby="alert-dialog-description"

@@ -1,5 +1,4 @@
 import { BeforeInsert, BeforeUpdate, Column, Entity, ManyToMany, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm'
-import { City } from './city.entity'
 import { hash, compare } from 'bcryptjs'
 import { Doctor } from './doctor.entity'
 import { Meeting } from './meeting.entity'
@@ -51,9 +50,6 @@ export class User {
     
     @Column({type: Date, default: () => 'CURRENT_TIMESTAMP'})
     created_at: Date
-
-    @ManyToOne(() => City, city => city.users)
-    city: City
     
     @OneToMany(() => UserHealthInsurance, userHealthInsurance => userHealthInsurance.user)
     healthInsurances: UserHealthInsurance[]

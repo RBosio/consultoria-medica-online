@@ -4,7 +4,6 @@ import { Repository } from 'typeorm';
 import { createUserDto } from './dto/create-user.dto';
 import { updateUserDto } from './dto/update-user.dto';
 import { User } from 'src/entities/user.entity';
-import { CityService } from 'src/city/city.service';
 import { Doctor } from 'src/entities/doctor.entity';
 import { createDoctorDto } from 'src/doctor/dto/create-doctor.dto';
 import { Speciality } from 'src/entities/speciality.entity';
@@ -18,7 +17,6 @@ export class UserService {
         @InjectRepository(User) private userRepository: Repository<User>,
         @InjectRepository(Doctor) private doctorRepository: Repository<Doctor>,
         @InjectRepository(UserHealthInsurance) private userHealthInsuranceRepository: Repository<UserHealthInsurance>,
-        private cityService: CityService,
         private healthInsuranceService: HealthInsuranceService
         ) {}
 
@@ -126,11 +124,6 @@ export class UserService {
         
         let newUser = this.userRepository.create(user)
         
-        const city = await this.cityService.findOne(user.zipCode)
-        if (!city) {
-            throw new HttpException('Ciudad no encontrada', HttpStatus.BAD_REQUEST)
-        }
-        newUser.city = city
         newUser.healthInsurances = []
         
         newUser = await this.userRepository.save(newUser)
@@ -271,7 +264,6 @@ export class UserService {
             birthday: new Date("1993-04-01"),
             admin: false,
             gender: false,
-            zipCode: "2000",
             his: [1]
         }, null)
         
@@ -292,7 +284,6 @@ export class UserService {
             birthday: new Date("1998-08-14"),
             admin: false,
             gender: true,
-            zipCode: "2000",
             his: [1]
         }, {
             cuil: "20-38233911-1",
@@ -317,7 +308,6 @@ export class UserService {
             birthday: new Date("1993-04-01"),
             admin: true,
             gender: true,
-            zipCode: "2000",
             his: [1, 2]
         }, null)
     }

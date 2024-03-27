@@ -12,7 +12,6 @@ export class createUserDto {
     birthday: Date
     admin?: boolean
     gender: boolean
-    zipCode: string
     healthInsurances?: HealthInsurance[]
     his: number[]
     doctor?: createDoctorDto

@@ -62,6 +62,12 @@ export class MeetingController {
     return this.meetingService.findByMedicalRecords(userId, doctorId);
   }
 
+  @Get('lastPayment/:userId')
+  @Roles(RoleEnum.User, RoleEnum.Admin)
+  lastPayment(@Param('userId') userId: number) {
+    return this.meetingService.lastPayment(userId);
+  }
+
   @Get(':id/:startDatetime')
   @Roles(RoleEnum.User, RoleEnum.Doctor, RoleEnum.Admin)
   getMeeting(
@@ -88,6 +94,20 @@ export class MeetingController {
     @Param('startDatetime') startDatetime: Date,
   ): Promise<joinMeetingResponseDto | HttpException> {
     return this.meetingService.joinMeeting(req, id, startDatetime);
+  }
+
+  @Post('create-preference')
+  @Roles(RoleEnum.User, RoleEnum.Doctor, RoleEnum.Admin)
+  createPreference(
+    @Body() createPreference: any,
+  ): Promise<any | HttpException> {
+    return this.meetingService.createPreference(createPreference);
+  }
+
+  @Patch('pay/:id/:startDatetime')
+  @Roles(RoleEnum.User, RoleEnum.Admin)
+  pay(@Param('id') id: number, @Param('startDatetime') startDatetime: Date) {
+    return this.meetingService.pay(id, startDatetime);
   }
 
   @Patch(':id/:startDatetime')

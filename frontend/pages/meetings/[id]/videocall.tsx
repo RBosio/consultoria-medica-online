@@ -149,7 +149,6 @@ export default function Meeting(props: any) {
     setUser(resp?.user)
     setDoctor(resp?.doctor)
 
-    console.log(resp)
     const myVideo = document.getElementById("my-video") as HTMLVideoElement;
     const otherCanvas = document.getElementById(
       "other-canvas"

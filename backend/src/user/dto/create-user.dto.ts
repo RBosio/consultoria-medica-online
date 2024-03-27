@@ -15,4 +15,5 @@ export class createUserDto {
     healthInsurances?: HealthInsurance[]
     his: number[]
     doctor?: createDoctorDto
+    city: number
 }

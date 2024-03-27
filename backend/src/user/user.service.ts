@@ -264,6 +264,7 @@ export class UserService {
             birthday: new Date("1993-04-01"),
             admin: false,
             gender: false,
+            city: 82084,
             his: [1]
         }, null)
         
@@ -284,6 +285,7 @@ export class UserService {
             birthday: new Date("1998-08-14"),
             admin: false,
             gender: true,
+            city: 82084,
             his: [1]
         }, {
             cuil: "20-38233911-1",
@@ -308,6 +310,7 @@ export class UserService {
             birthday: new Date("1993-04-01"),
             admin: true,
             gender: true,
+            city: 82084,
             his: [1, 2]
         }, null)
     }

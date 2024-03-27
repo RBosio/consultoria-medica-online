@@ -50,6 +50,9 @@ export class User {
     
     @Column({type: Date, default: () => 'CURRENT_TIMESTAMP'})
     created_at: Date
+
+    @Column({default: false})
+    city: number
     
     @OneToMany(() => UserHealthInsurance, userHealthInsurance => userHealthInsurance.user)
     healthInsurances: UserHealthInsurance[]

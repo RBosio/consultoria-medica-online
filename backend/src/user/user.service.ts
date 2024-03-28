@@ -103,43 +103,45 @@ export class UserService {
     }
 
     async create(user: createUserDto, doctor: createDoctorDto) {
+
         const userFoundDni = await this.userRepository.findOne({
             where: {
                 dni: user.dni
             }
         })
         if (userFoundDni) {
-            throw new HttpException('El dni ya existe', HttpStatus.BAD_REQUEST)
+            throw new HttpException('El DNI ya ha sido registrado', HttpStatus.BAD_REQUEST)
         }
-        
+
         const userFoundEmail = await this.userRepository.findOne({
             where: {
                 email: user.email
             }
         })
         if (userFoundEmail) {
-            throw new HttpException('El email ya existe', HttpStatus.BAD_REQUEST)
+            throw new HttpException('El E-mail ya ha sido registrado', HttpStatus.BAD_REQUEST)
         }
 
-        
         let newUser = this.userRepository.create(user)
-        
-        newUser.healthInsurances = []
         
         newUser = await this.userRepository.save(newUser)
 
+        //TODO: REVISTAR LA LÓGICA DE ABAJO SI SE PUEDE HACER EN OTROS ENDPOINTS SEPARADOS (HI, Doctor y Admin)
+        
         if(doctor) {
             const newDoctor = this.doctorRepository.create(doctor)
-
+            
             const { specialities } = doctor
             newDoctor.specialities = specialities
             
             newDoctor.user = newUser
-
+            
             await this.doctorRepository.save(newDoctor)
         }
         newUser.password = ""
-
+        
+        newUser.healthInsurances = []
+        
         user.his.map(async hi => {
             const healthInsurance = await this.healthInsuranceService.findOne(hi)
             

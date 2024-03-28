@@ -34,7 +34,7 @@ export default function Register(props: any) {
                 </div>
                 <div className="h-full grow flex flex-col items-center py-4 overflow-y-auto">
                     <Image src="/logo.png" width={300} height={300} alt="Logo HealthTech" />
-                    {success ? <RegisterSuccess/> : <RegisterForm setSuccess={setSuccess}/>}
+                    {success ? <RegisterSuccess /> : <RegisterForm setSuccess={setSuccess} />}
                 </div>
             </section>
         </Layout >
@@ -77,6 +77,7 @@ const RegisterForm: React.FC<any> = (props) => {
             phone: '',
             province: '',
             city: '',
+            gender: '',
         },
         validationSchema: Yup.object({
             name: Yup.string().required('Debes ingresar tu nombre').min(1, 'El nombre debe tener al menos 1 carácter'),
@@ -90,14 +91,19 @@ const RegisterForm: React.FC<any> = (props) => {
             birthday: Yup.date().required(),
             city: Yup.number().required("Debes ingresar tu ciudad"),
             province: Yup.number().typeError("Debes ingresar tu provincia").required("Debes ingresar tu provincia"),
+            gender: Yup.number().typeError("Debes ingresar tu Sexo").required("Debes ingresar tu Sexo"),
 
         }),
         onSubmit: async (values, { setSubmitting }) => {
             try {
-                props.setSuccess(true);
-                // Lógica backend
+                const temp = { ...values, birthday: values.birthday.toDate() };
+                console.log(temp.birthday);
+                //props.setSuccess(true);
+                let registerReq = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/signup`, temp, { withCredentials: true });
+                registerReq = registerReq.data;
             }
             catch (error: any) {
+                console.log(error);
                 if ([404, 401].includes(error.response.status)) {
 
                 } else {
@@ -117,7 +123,7 @@ const RegisterForm: React.FC<any> = (props) => {
         const getProvinces = async () => {
             let provinces: any = await axios.get('https://apis.datos.gob.ar/georef/api/provincias');
             provinces = provinces.data;
-            setProvinces(provinces.provincias.map((p: any) => ({ id: p.id, label: p.nombre })))
+            setProvinces(provinces.provincias.map((p: any) => ({ id: parseInt(p.id), label: p.nombre })))
         };
 
         getProvinces();
@@ -128,7 +134,7 @@ const RegisterForm: React.FC<any> = (props) => {
         const getCities = async () => {
             let cities: any = await axios.get(`https://apis.datos.gob.ar/georef/api/departamentos?provincia=${registerForm.values.province}&max=135`);
             cities = cities.data;
-            setCities(cities.departamentos.map((c: any) => ({ id: c.id, label: c.nombre })));
+            setCities(cities.departamentos.map((c: any) => ({ id: parseInt(c.id), label: c.nombre })));
         };
 
         if (!registerForm.values.province) return;
@@ -202,6 +208,22 @@ const RegisterForm: React.FC<any> = (props) => {
                         error={Boolean(registerForm.touched.birthday && registerForm.errors.birthday)}
                         className="w-full"
 
+                    />
+                    <Autocomplete
+                        onChange={(event, newValue: any) => {
+                            registerForm.setFieldValue('gender', newValue ? newValue.id : "");
+                        }}
+                        disablePortal
+                        noOptionsText="No se encontraron Sexos"
+                        options={[{ id: 0, label: "Masculino" }, { id: 1, label: "Femenino" }]}
+                        renderInput={(params: any) => <Input
+                            error={Boolean(registerForm.touched.gender && registerForm.errors.gender)}
+                            helperText={registerForm.errors.gender && registerForm.touched.gender && registerForm.errors.gender}
+                            variant="outlined"
+                            onChange={registerForm.handleChange}
+                            onBlur={registerForm.handleBlur}
+                            name="gender" {...params}
+                            label="Sexo" />}
                     />
                     <Input
                         name="phone"

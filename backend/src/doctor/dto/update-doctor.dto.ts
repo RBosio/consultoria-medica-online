@@ -10,5 +10,6 @@ export class updateDoctorDto {
     description?: string
     address?: string
     planId?: number
+    userId?: number
     specialities?: Speciality[]
 }

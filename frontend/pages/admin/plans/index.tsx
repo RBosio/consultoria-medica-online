@@ -106,7 +106,10 @@ export default function Home(props: Plan) {
 
       setMessage("Plan agregado correctamente!");
       setSuccess(true);
-      router.push(`/admin/plans`);
+
+      setTimeout(() => {
+        router.push(`/admin/plans`);
+      }, 2000);
     },
   });
 

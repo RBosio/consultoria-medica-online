@@ -12,6 +12,9 @@ export class Plan {
     
     @Column()
     price: number
+
+    @Column()
+    planId: string
     
     @OneToMany(() => Doctor, doctors => doctors.plan)
     doctors: Doctor[]

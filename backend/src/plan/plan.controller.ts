@@ -44,6 +44,15 @@ export class PlanController {
     return this.planService.create(plan);
   }
 
+  @Post('subscribe/:planId')
+  @Roles(RoleEnum.Doctor)
+  subscribe(
+    @Param('planId', ParseIntPipe) planId: number,
+    @Body() data: { cardToken: string },
+  ): Promise<Plan | HttpException> {
+    return this.planService.subscribe(planId, data.cardToken);
+  }
+
   @Patch(':id/benefits')
   @Roles(RoleEnum.Admin)
   modifyBenefits(

@@ -11,6 +11,7 @@
   "dependencies": {
     "@emotion/react": "^11.11.3",
     "@emotion/styled": "^11.11.0",
+    "@mercadopago/sdk-react": "^0.0.18",
     "@mui/material": "^5.15.3",
     "@zoom/videosdk": "^1.10.5",
     "axios": "^1.6.5",
@@ -19,6 +20,7 @@
     "i": "^0.3.7",
     "moment": "^2.30.1",
     "next": "14.0.4",
+    "next-transpile-modules": "^10.0.1",
     "nextjs-progressbar": "^0.0.16",
     "npm": "^10.2.5",
     "react": "^18",

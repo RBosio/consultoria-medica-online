@@ -1,6 +1,6 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Between, IsNull, Repository } from 'typeorm';
+import { Between, In, IsNull, Repository } from 'typeorm';
 import { updateMeetingDto } from './dto/update-meeting.dto';
 import { Meeting } from 'src/entities/meeting.entity';
 import { createMeetingDto } from './dto/create-meeting.dto';
@@ -13,6 +13,10 @@ import { getMeetingsDto } from './dto/get-meetings.dto';
 import { UserService } from 'src/user/user.service';
 import * as Moment from 'moment';
 import { extendMoment } from 'moment-range';
+import MercadoPagoConfig, { Preference } from 'mercadopago';
+import { ConfigService } from '@nestjs/config';
+import { v4 as uuid } from 'uuid';
+import * as moment from 'moment';
 
 export interface RequestT extends Request {
   user: {
@@ -28,6 +32,7 @@ export class MeetingService {
     private jwtService: JwtService,
     private userService: UserService,
     private doctorService: DoctorService,
+    private configService: ConfigService,
   ) {}
 
   async findAll(): Promise<Meeting[]> {
@@ -52,6 +57,7 @@ export class MeetingService {
       },
       where: {
         userId,
+        status: In(['Pagada', 'Finalizada', 'Cancelada']),
       },
     });
 
@@ -88,6 +94,7 @@ export class MeetingService {
       },
       where: {
         doctorId: doctorFound.id,
+        status: In(['Pagada', 'Finalizada', 'Cancelada']),
       },
     });
 
@@ -113,6 +120,7 @@ export class MeetingService {
     return this.meetingRepository.find({
       where: {
         userId,
+        status: In(['Pagada', 'Finalizada', 'Cancelada']),
       },
       relations: ['user', 'doctor', 'medicalRecord'],
     });
@@ -181,6 +189,19 @@ export class MeetingService {
             id: doctorId,
           },
         },
+      },
+    });
+  }
+
+  async lastPayment(userId: number) {
+    return this.meetingRepository.findOne({
+      where: {
+        user: {
+          id: userId,
+        },
+      },
+      order: {
+        created_at: 'DESC',
       },
     });
   }
@@ -286,6 +307,56 @@ export class MeetingService {
       }),
       meeting,
     };
+  }
+
+  async createPreference(pref: any) {
+    const client = new MercadoPagoConfig({
+      accessToken: this.configService.get<string>('MP_ACCESS_TOKEN'),
+    });
+
+    const body = {
+      items: [
+        {
+          id: uuid(),
+          title: `Consulta médica para el día ${moment(
+            pref.startDatetime,
+          ).format('LL')} a las ${moment(pref.startDatetime).format(
+            'LT',
+          )} con el Dr. Bilardo`,
+          quantity: 1,
+          currency_id: 'ARS',
+          unit_price: pref.price,
+        },
+      ],
+      back_urls: {
+        success: 'http://localhost:4200/payment/success',
+        failure: 'http://localhost:4200/payment/failure',
+        pending: 'http://localhost:4200/payment/pending',
+      },
+      auto_return: 'approved',
+    };
+
+    const preference = new Preference(client);
+    const result = await preference.create({ body });
+
+    return { id: result.id };
+  }
+
+  async pay(userId: number, startDatetime: Date) {
+    const meetingFound = await this.meetingRepository.findOne({
+      where: {
+        userId,
+        startDatetime,
+      },
+    });
+
+    if (!meetingFound) {
+      throw new HttpException('Reunion no encontrada', HttpStatus.NOT_FOUND);
+    }
+
+    meetingFound.status = 'Pagada';
+
+    await this.meetingRepository.save(meetingFound);
   }
 
   async update(userId: number, startDatetime: Date, meeting: updateMeetingDto) {

@@ -30,7 +30,7 @@ import { HealthInsuranceModule } from './health-insurance/health-insurance.modul
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { DataSource } from 'typeorm';
-import * as fs from "fs";
+import * as fs from 'fs';
 import { UserService } from './user/user.service';
 import { Plan } from './entities/plan.entity';
 import { PlanModule } from './plan/plan.module';
@@ -45,7 +45,9 @@ import { UserHealthInsurance } from './entities/userHealthInsurances.entity';
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'public'),
     }),
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
@@ -55,9 +57,26 @@ import { UserHealthInsurance } from './entities/userHealthInsurances.entity';
         username: configService.get('DB_USERNAME'),
         password: configService.get('DB_PASSWORD'),
         database: configService.get('DB_DATABASE'),
-        entities: [Country, Province, City, User, Doctor, Schedule, Speciality, Meeting, MedicalRecord, Comment, File, HealthInsurance, Plan, Benefit, Notification, UserHealthInsurance],
+        entities: [
+          Country,
+          Province,
+          City,
+          User,
+          Doctor,
+          Schedule,
+          Speciality,
+          Meeting,
+          MedicalRecord,
+          Comment,
+          File,
+          HealthInsurance,
+          Plan,
+          Benefit,
+          Notification,
+          UserHealthInsurance,
+        ],
         synchronize: configService.get('DB_SYNC'),
-        dropSchema: configService.get('DB_DROP')
+        dropSchema: configService.get('DB_DROP'),
       }),
       inject: [ConfigService],
     }),
@@ -75,41 +94,39 @@ import { UserHealthInsurance } from './entities/userHealthInsurances.entity';
     HealthInsuranceModule,
     PlanModule,
     BenefitModule,
-    NotificationModule
-    ],
+    NotificationModule,
+  ],
   controllers: [AppController],
-  providers: [AppService]
+  providers: [AppService],
 })
 export class AppModule {
   constructor(
     private dataSource: DataSource,
-    private userService: UserService
-    ) {
-      const queryRunner = this.dataSource.createQueryRunner()
-        
-      const queries = readSqlFile('public/defaultData.sql')
-      queries.forEach((query, i) => {
-        if(i < 6) {
-          queryRunner.query(query)
-        }
-      })
-    
-      setTimeout(() => {
-        this.userService.loadUsers()
-        .then(() => {
-          const doctorsQueries = readSqlFile('public/doctors.sql')
-          doctorsQueries.forEach((query, i) => {
-              queryRunner.query(query)
-          })
-          queries.forEach((query, i) => {
-            if(i >= 6) {
-              queryRunner.query(query)
-            }
-          })
-        })
-      }, 1000)
-      
-    }
+    private userService: UserService,
+  ) {
+    const queryRunner = this.dataSource.createQueryRunner();
+
+    const queries = readSqlFile('public/defaultData.sql');
+    queries.forEach((query, i) => {
+      if (i < 6) {
+        queryRunner.query(query);
+      }
+    });
+
+    setTimeout(() => {
+      this.userService.loadUsers().then(() => {
+        const doctorsQueries = readSqlFile('public/doctors.sql');
+        doctorsQueries.forEach((query, i) => {
+          queryRunner.query(query);
+        });
+        queries.forEach((query, i) => {
+          if (i >= 6) {
+            queryRunner.query(query);
+          }
+        });
+      });
+    }, 1000);
+  }
 }
 
 const readSqlFile = (filepath: string): string[] => {

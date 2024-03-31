@@ -104,6 +104,7 @@ export default function Home(props: Speciality) {
     setUsers(props.users.map((u) => (u.id === userHIId ? user : u)));
     setUser(null);
 
+    setO(false);
     setConfirm(false);
   };
 

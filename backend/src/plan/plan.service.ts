@@ -69,7 +69,7 @@ export class PlanService {
             payment_types: [{}],
             payment_methods: [{}],
           },
-          back_url: 'http://localhost:4200',
+          back_url: 'https://www.mercadopago.com.ar',
         },
         {
           headers: {
@@ -91,6 +91,59 @@ export class PlanService {
         console.log(res.data.id);
         newPlan.planId = res.data.id;
         return this.planRepository.save(newPlan);
+      });
+
+    return true;
+  }
+
+  async subscribe(id: number, cardToken: string): Promise<any> {
+    const planFound = await this.planRepository.findOne({
+      where: {
+        id,
+      },
+    });
+    if (!planFound) {
+      throw new HttpException('El plan no existe', HttpStatus.NOT_FOUND);
+    }
+
+    this.httpService
+      .post(
+        'https://api.mercadopago.com/preapproval',
+        {
+          preapproval_plan_id: planFound.planId,
+          reason: 'Plan de suscripción - ' + planFound.name,
+          external_reference: 'YG-1234',
+          payer_email: 'test_user@testuser.com',
+          card_token_id: 'e3ed6f098462036dd2cbabe314b9de2a',
+          auto_recurring: {
+            frequency: 1,
+            frequency_type: 'months',
+            start_date: '2020-06-02T13:07:14.260Z',
+            end_date: '2022-07-20T15:59:52.581Z',
+            transaction_amount: planFound.price,
+            currency_id: 'ARS',
+          },
+          back_url: 'https://www.mercadopago.com.ar',
+          status: 'authorized',
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${this.configService.get(
+              'MP_ACCESS_TOKEN_SUB',
+            )}`,
+            'Content-Type': 'application/json',
+          },
+        },
+      )
+      .pipe(
+        map((res) => res),
+        catchError((error) => {
+          console.error(error);
+          return error;
+        }),
+      )
+      .subscribe((res: any) => {
+        console.log(res.data);
       });
 
     return true;

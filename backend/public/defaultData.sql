@@ -30,10 +30,10 @@ VALUES
     ('IOSFA', 0.20);
 
 INSERT INTO
-    plan (name, price)
+    plan (name, price, planId)
 VALUES
-    ('Plan 1', 12000),
-    ('Plan 2', 20000);
+    ('Plan 1', 12000, "asdasd-asd-asdasasdas"),
+    ('Plan 2', 20000, "adsda-sadasdas-dasdsad");
 
 INSERT INTO
     schedule (day, start_hour, end_hour, doctorId)

@@ -4,13 +4,16 @@ import { Repository } from 'typeorm';
 import { createPlanDto } from './dto/create-plan.dto';
 import { updatePlanDto } from './dto/update-plan.dto';
 import { Plan } from 'src/entities/plan.entity';
-import { BenefitService } from 'src/benefit/benefit.service';
+import { ConfigService } from '@nestjs/config';
+import { HttpService } from '@nestjs/axios';
+import { catchError, map } from 'rxjs';
 
 @Injectable()
 export class PlanService {
   constructor(
     @InjectRepository(Plan) private planRepository: Repository<Plan>,
-    private benefitService: BenefitService,
+    private configService: ConfigService,
+    private httpService: HttpService,
   ) {}
 
   findAll(): Promise<Plan[]> {
@@ -37,7 +40,7 @@ export class PlanService {
     return planFound;
   }
 
-  async create(plan: createPlanDto): Promise<Plan | HttpException> {
+  async create(plan: createPlanDto): Promise<any> {
     const planFound = await this.planRepository.findOne({
       where: {
         name: plan.name,
@@ -48,7 +51,49 @@ export class PlanService {
     }
     const newPlan = this.planRepository.create(plan);
 
-    return this.planRepository.save(newPlan);
+    this.httpService
+      .post(
+        'https://api.mercadopago.com/preapproval_plan',
+        {
+          reason: 'Plan de suscripción - ' + newPlan.name,
+          auto_recurring: {
+            frequency: 1,
+            frequency_type: 'months',
+            repetitions: 12,
+            billing_day: 10,
+            billing_day_proportional: true,
+            transaction_amount: newPlan.price,
+            currency_id: 'ARS',
+          },
+          payment_methods_allowed: {
+            payment_types: [{}],
+            payment_methods: [{}],
+          },
+          back_url: 'http://localhost:4200',
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${this.configService.get(
+              'MP_ACCESS_TOKEN_SUB',
+            )}`,
+            'Content-Type': 'application/json',
+          },
+        },
+      )
+      .pipe(
+        map((res) => res),
+        catchError((error) => {
+          console.error(error);
+          return error;
+        }),
+      )
+      .subscribe((res: any) => {
+        console.log(res.data.id);
+        newPlan.planId = res.data.id;
+        return this.planRepository.save(newPlan);
+      });
+
+    return true;
   }
 
   async modifyBenefits(id: number, { ben }) {
@@ -60,12 +105,7 @@ export class PlanService {
     if (!planFound) {
       throw new HttpException('Plan no encontrado', HttpStatus.NOT_FOUND);
     }
-    planFound.benefits = ben
-    /* ben.map(async (b) => {
-      const benefit = await this.benefitService.findOne(b);
-      planFound.benefits.push(benefit);
-      console.log(planFound.benefits);
-    }); */
+    planFound.benefits = ben;
 
     await this.planRepository.save(planFound);
     return;

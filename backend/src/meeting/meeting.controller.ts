@@ -96,12 +96,13 @@ export class MeetingController {
     return this.meetingService.joinMeeting(req, id, startDatetime);
   }
 
-  @Post('create-preference')
+  @Post('create-preference/:doctorId')
   @Roles(RoleEnum.User, RoleEnum.Doctor, RoleEnum.Admin)
   createPreference(
     @Body() createPreference: any,
+    @Param('doctorId', ParseIntPipe) doctorId: number,
   ): Promise<any | HttpException> {
-    return this.meetingService.createPreference(createPreference);
+    return this.meetingService.createPreference(createPreference, doctorId);
   }
 
   @Patch('pay/:id/:startDatetime')

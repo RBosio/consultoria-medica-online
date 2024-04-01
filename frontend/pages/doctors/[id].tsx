@@ -28,6 +28,7 @@ import { IoTimeSharp } from "react-icons/io5";
 import { CiDiscount1 } from "react-icons/ci";
 import Button from "@/components/button";
 import { useRouter } from "next/router";
+import moment from "moment";
 
 export default function Doctor(props: any) {
   const theme = useTheme();
@@ -38,6 +39,7 @@ export default function Doctor(props: any) {
   const [preferenceId, setPreferenceId] = useState<string>();
   const [mp, setMP] = useState<any>();
   const [paid, setPaid] = useState<boolean>(false);
+  const [detail, setDetail] = useState<any>();
 
   useEffect(() => {
     const initMP = async () => {
@@ -70,7 +72,8 @@ export default function Doctor(props: any) {
             }
           );
 
-          setPaid(true);
+          await showDetail(selected);
+          localStorage.removeItem("selectedDate");
           router.push("/doctors/" + router.query.id);
         }
       };
@@ -80,6 +83,19 @@ export default function Doctor(props: any) {
       console.log(error);
     }
   }, []);
+
+  const showDetail = async (selectedDate: string) => {
+    const meeting = await axios.get(
+      `${process.env.NEXT_PUBLIC_API_URL}/meeting/${props.auth.id}/${selectedDate}`,
+      {
+        withCredentials: true,
+        headers: { Authorization: `Bearer ${props.auth.token}` },
+      }
+    );
+    setDetail(meeting.data);
+
+    setPaid(true);
+  };
 
   const handleDateChange = (
     event: React.MouseEvent<HTMLElement>,
@@ -363,7 +379,32 @@ export default function Doctor(props: any) {
               </div>
             </div>
           ) : (
-            <p>falopa</p>
+            <div className="bg-white p-4 w-full flex flex-col justify-center items-center">
+              <h2 className="text-primary text-3xl font-semibold text-center">
+                Operación realizada con éxito
+              </h2>
+              <h3>
+                Su reunión fue programada para el día{" "}
+                {moment(detail.startDatetime).format("LLL")}
+              </h3>
+              <div className="flex justify-center mt-4">
+                <Button
+                  onClick={() =>
+                    router.push(
+                      `/meetings/${btoa(
+                        props.auth.id +
+                          "." +
+                          moment(detail.startDatetime).format(
+                            "YYYY-MM-DDTHH:mm:ss"
+                          )
+                      )}`
+                    )
+                  }
+                >
+                  Ir a la reunión
+                </Button>
+              </div>
+            </div>
           )}
         </div>
         <Dialog

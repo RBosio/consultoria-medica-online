@@ -19,7 +19,7 @@ export class Meeting {
     @Column()
     doctorId: number
     
-    @Column({default: 'Pendiente'})
+    @Column({default: 'Pagada'})
     status: string
     
     @Column({nullable: true})

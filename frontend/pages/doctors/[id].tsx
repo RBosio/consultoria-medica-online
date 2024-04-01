@@ -37,6 +37,7 @@ export default function Doctor(props: any) {
   const [meetingError, setMeetingError] = useState(false);
   const [preferenceId, setPreferenceId] = useState<string>();
   const [mp, setMP] = useState<any>();
+  const [paid, setPaid] = useState<boolean>(false);
 
   useEffect(() => {
     const initMP = async () => {
@@ -48,6 +49,36 @@ export default function Doctor(props: any) {
     initMP().then((res) => {
       res.initMercadoPago("TEST-42764678-3204-404e-8181-56af419d0dcc");
     });
+
+    try {
+      const payment = async () => {
+        const selected = localStorage.getItem("selectedDate");
+        if (
+          router.query.preference_id &&
+          router.query.status === "approved" &&
+          selected
+        ) {
+          await axios.post(
+            `${process.env.NEXT_PUBLIC_API_URL}/meeting`,
+            {
+              startDatetime: selected,
+              doctorId: router.query.id,
+            },
+            {
+              withCredentials: true,
+              headers: { Authorization: `Bearer ${props.auth.token}` },
+            }
+          );
+
+          setPaid(true);
+          router.push("/doctors/" + router.query.id);
+        }
+      };
+
+      payment();
+    } catch (error) {
+      console.log(error);
+    }
   }, []);
 
   const handleDateChange = (
@@ -55,6 +86,7 @@ export default function Doctor(props: any) {
     newDate: any
   ) => {
     setSelectedDate(newDate);
+    localStorage.setItem("selectedDate", newDate);
   };
 
   const getFormattedSelectedDate = () => {
@@ -70,7 +102,7 @@ export default function Doctor(props: any) {
   const onConfirmClick = async () => {
     try {
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/meeting/create-preference`,
+        `${process.env.NEXT_PUBLIC_API_URL}/meeting/create-preference/${router.query.id}`,
         {
           startDatetime: selectedDate,
           doctorId: router.query.id,
@@ -84,18 +116,6 @@ export default function Doctor(props: any) {
 
       const { id } = response.data;
       setPreferenceId(id);
-
-      await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/meeting`,
-        {
-          startDatetime: selectedDate,
-          doctorId: router.query.id,
-        },
-        {
-          withCredentials: true,
-          headers: { Authorization: `Bearer ${props.auth.token}` },
-        }
-      );
     } catch (error) {
       setMeetingError(true);
     }
@@ -227,118 +247,124 @@ export default function Doctor(props: any) {
               <GoDotFill color={theme.palette.primary.main} />
             </Divider>
           </div>
-          <div className="flex flex-col bg-white p-4 gap-2 shadow-md grow xl:rounded-md relative">
-            <div className="w-full h-32 flex items-center justify-center bg-primary absolute right-0 top-0 xl:w-56 xl:h-56 xl:rounded-tr-md">
-              <span className="hidden xl:block absolute bottom-0 w-0 h-0 border-x-solid border-x-transparent border-x-[7rem] border-b-[3rem] border-b-solid border-b-white" />
-              <div className="flex flex-col text-white w-full h-full py-2">
-                <div className="flex items-center gap-1 px-2 pb-1 rounded-tr-md border-b-[1px] border-white">
-                  <IoIosPricetag />
-                  <h2>CONSULTA</h2>
-                </div>
-                <div className="flex flex-col gap-1 grow items-center justify-center xl:mb-5">
-                  {Boolean(getDiscount()) ? (
-                    <div className="flex gap-1 items-center">
-                      <p className={`text-lg text-primary_light line-through`}>
-                        {pesos.format(props.doctor.priceMeeting)}
-                      </p>
-                      <Chip
-                        className="mx-1 border-white text-white"
-                        size="small"
-                        variant="outlined"
-                        icon={<CiDiscount1 size={20} color="#ffffff" />}
-                        label={`${Math.floor(
-                          Number(getDiscount().discount) * 100
-                        )}% (${getDiscount().name})`}
-                      />
-                    </div>
-                  ) : null}
-                  <p className={`text-3xl ${robotoBold.className}`}>
-                    {getDiscount()
-                      ? pesos.format(
-                          props.doctor.priceMeeting *
-                            (1 - Number(getDiscount().discount))
-                        )
-                      : pesos.format(props.doctor.priceMeeting)}
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div className="mt-[7.7rem] flex gap-2 items-center mb-2 xl:mt-0">
-              <IoTimeSharp size={20} color={theme.palette.primary.main} />
-              <h2 className={`text-primary text-2xl ${robotoBold.className}`}>
-                Solicitar Turno
-              </h2>
-            </div>
-            <div className="flex flex-col">
-              <div className="flex flex-col gap-4">
-                {props.doctorAvailability.map((da: any) => {
-                  let [day, date] = da.formattedDate.split(", ");
-                  day = day.charAt(0).toUpperCase() + day.slice(1);
-                  return (
-                    <div key={da.date}>
-                      <h2 className={`text-primary text-lg mb-1`}>
-                        <span className="font-bold">{day}</span>, {date}
-                      </h2>
-                      {da.schedule.filter((avSch: any) => avSch.available)
-                        .length > 0 ? (
-                        <ToggleButtonGroup
-                          className="flex-wrap"
-                          exclusive
-                          onChange={handleDateChange}
-                          value={selectedDate}
-                          size="small"
-                          aria-label="Small sizes"
+          {!paid ? (
+            <div className="flex flex-col bg-white p-4 gap-2 shadow-md grow xl:rounded-md relative">
+              <div className="w-full h-32 flex items-center justify-center bg-primary absolute right-0 top-0 xl:w-56 xl:h-56 xl:rounded-tr-md">
+                <span className="hidden xl:block absolute bottom-0 w-0 h-0 border-x-solid border-x-transparent border-x-[7rem] border-b-[3rem] border-b-solid border-b-white" />
+                <div className="flex flex-col text-white w-full h-full py-2">
+                  <div className="flex items-center gap-1 px-2 pb-1 rounded-tr-md border-b-[1px] border-white">
+                    <IoIosPricetag />
+                    <h2>CONSULTA</h2>
+                  </div>
+                  <div className="flex flex-col gap-1 grow items-center justify-center xl:mb-5">
+                    {Boolean(getDiscount()) ? (
+                      <div className="flex gap-1 items-center">
+                        <p
+                          className={`text-lg text-primary_light line-through`}
                         >
-                          {da.schedule
-                            .filter((avSch: any) => avSch.available)
-                            .map((sch: any) => (
-                              <ToggleButton
-                                sx={{
-                                  "&.MuiToggleButton-root , &.MuiToggleButton-root.Mui-disabled, &.MuiToggleButton-root.MuiToggleButtonGroup-grouped":
-                                    {
-                                      border: `1px solid ${theme.palette.primary.light}`,
-                                      transition: "background .2s ease",
-                                    },
-                                  "&:hover, &.MuiToggleButton-root.Mui-selected:hover":
-                                    {
-                                      background: theme.palette.primary.light,
-                                    },
-                                  "&.Mui-disabled": {
-                                    background: "#F7F7F7",
-                                  },
-                                  "&.Mui-selected": {
-                                    background: theme.palette.primary.main,
-                                    color: "#ffffff",
-                                    fontWeight: "bold",
-                                  },
-                                }}
-                                value={`${da.date}T${sch.time}:00`}
-                                key={`${da.date}T${sch.time}:00`}
-                              >
-                                {sch.time}
-                              </ToggleButton>
-                            ))}
-                        </ToggleButtonGroup>
-                      ) : (
-                        <span className="text-red-600">
-                          No hay horarios disponibles
-                        </span>
-                      )}
-                    </div>
-                  );
-                })}
+                          {pesos.format(props.doctor.priceMeeting)}
+                        </p>
+                        <Chip
+                          className="mx-1 border-white text-white"
+                          size="small"
+                          variant="outlined"
+                          icon={<CiDiscount1 size={20} color="#ffffff" />}
+                          label={`${Math.floor(
+                            Number(getDiscount().discount) * 100
+                          )}% (${getDiscount().name})`}
+                        />
+                      </div>
+                    ) : null}
+                    <p className={`text-3xl ${robotoBold.className}`}>
+                      {getDiscount()
+                        ? pesos.format(
+                            props.doctor.priceMeeting *
+                              (1 - Number(getDiscount().discount))
+                          )
+                        : pesos.format(props.doctor.priceMeeting)}
+                    </p>
+                  </div>
+                </div>
               </div>
-              <div className="my-6 flex justify-center items-center xl:-0">
-                <Button
-                  onClick={() => setConfirmTurn(true)}
-                  disabled={!Boolean(selectedDate)}
-                  className="w-40"
-                >
-                  Aceptar
-                </Button>
+              <div className="mt-[7.7rem] flex gap-2 items-center mb-2 xl:mt-0">
+                <IoTimeSharp size={20} color={theme.palette.primary.main} />
+                <h2 className={`text-primary text-2xl ${robotoBold.className}`}>
+                  Solicitar Turno
+                </h2>
+              </div>
+              <div className="flex flex-col">
+                <div className="flex flex-col gap-4">
+                  {props.doctorAvailability.map((da: any) => {
+                    let [day, date] = da.formattedDate.split(", ");
+                    day = day.charAt(0).toUpperCase() + day.slice(1);
+                    return (
+                      <div key={da.date}>
+                        <h2 className={`text-primary text-lg mb-1`}>
+                          <span className="font-bold">{day}</span>, {date}
+                        </h2>
+                        {da.schedule.filter((avSch: any) => avSch.available)
+                          .length > 0 ? (
+                          <ToggleButtonGroup
+                            className="flex-wrap"
+                            exclusive
+                            onChange={handleDateChange}
+                            value={selectedDate}
+                            size="small"
+                            aria-label="Small sizes"
+                          >
+                            {da.schedule
+                              .filter((avSch: any) => avSch.available)
+                              .map((sch: any) => (
+                                <ToggleButton
+                                  sx={{
+                                    "&.MuiToggleButton-root , &.MuiToggleButton-root.Mui-disabled, &.MuiToggleButton-root.MuiToggleButtonGroup-grouped":
+                                      {
+                                        border: `1px solid ${theme.palette.primary.light}`,
+                                        transition: "background .2s ease",
+                                      },
+                                    "&:hover, &.MuiToggleButton-root.Mui-selected:hover":
+                                      {
+                                        background: theme.palette.primary.light,
+                                      },
+                                    "&.Mui-disabled": {
+                                      background: "#F7F7F7",
+                                    },
+                                    "&.Mui-selected": {
+                                      background: theme.palette.primary.main,
+                                      color: "#ffffff",
+                                      fontWeight: "bold",
+                                    },
+                                  }}
+                                  value={`${da.date}T${sch.time}:00`}
+                                  key={`${da.date}T${sch.time}:00`}
+                                >
+                                  {sch.time}
+                                </ToggleButton>
+                              ))}
+                          </ToggleButtonGroup>
+                        ) : (
+                          <span className="text-red-600">
+                            No hay horarios disponibles
+                          </span>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+                <div className="my-6 flex justify-center items-center xl:-0">
+                  <Button
+                    onClick={() => setConfirmTurn(true)}
+                    disabled={!Boolean(selectedDate)}
+                    className="w-40"
+                  >
+                    Aceptar
+                  </Button>
+                </div>
               </div>
             </div>
-          </div>
+          ) : (
+            <p>falopa</p>
+          )}
         </div>
         <Dialog
           open={confirmTurn}
@@ -366,7 +392,10 @@ export default function Doctor(props: any) {
             <Button
               color="error"
               variant="text"
-              onClick={() => setConfirmTurn(false)}
+              onClick={() => {
+                setConfirmTurn(false);
+                setPreferenceId(undefined);
+              }}
             >
               Cancelar
             </Button>
@@ -376,7 +405,9 @@ export default function Doctor(props: any) {
               </Button>
             )}
             {mp?.Wallet && preferenceId && (
-              <mp.Wallet initialization={{ preferenceId }} />
+              <mp.Wallet
+                initialization={{ preferenceId, redirectMode: "modal" }}
+              />
             )}
           </DialogActions>
         </Dialog>

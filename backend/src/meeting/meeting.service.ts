@@ -309,10 +309,11 @@ export class MeetingService {
     };
   }
 
-  async createPreference(pref: any) {
+  async createPreference(pref: any, doctorId: number) {
     const client = new MercadoPagoConfig({
       accessToken: this.configService.get<string>('MP_ACCESS_TOKEN'),
     });
+    const doctor = await this.doctorService.findOne(doctorId);
 
     const body = {
       items: [
@@ -322,14 +323,14 @@ export class MeetingService {
             pref.startDatetime,
           ).format('LL')} a las ${moment(pref.startDatetime).format(
             'LT',
-          )} con el Dr. Bilardo`,
+          )} con el Dr. ${doctor.user.surname}, ${doctor.user.name}`,
           quantity: 1,
           currency_id: 'ARS',
           unit_price: pref.price,
         },
       ],
       back_urls: {
-        success: 'http://localhost:4200/payment/success',
+        success: `http://localhost:4200/doctors/${doctorId}`,
         failure: 'http://localhost:4200/payment/failure',
         pending: 'http://localhost:4200/payment/pending',
       },

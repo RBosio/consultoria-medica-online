@@ -144,6 +144,7 @@ const Profile: React.FC<ProfileProps> = (props) => {
           setChanged(true);
         } else {
           setError(true);
+          setMessage("Las contraseñas deben ser iguales!");
         }
       } catch (error: any) {
         console.error(error);
@@ -270,6 +271,12 @@ const Profile: React.FC<ProfileProps> = (props) => {
   };
 
   const handleClickHealthInsurance = async () => {
+    if (!file || !healthInsurance) {
+      setMessage("Debes seleccionar una obra social y un archivo!");
+      setError(true);
+      return;
+    }
+
     await axios.patch(
       `${process.env.NEXT_PUBLIC_API_URL}/user/healthInsurance/${props.auth.id}`,
       {
@@ -421,7 +428,7 @@ const Profile: React.FC<ProfileProps> = (props) => {
             onClose={() => setError(false)}
           >
             <Alert elevation={6} variant="filled" severity="error">
-              Las contraseñas deben ser iguales!
+              {message}
             </Alert>
           </Snackbar>
         </section>

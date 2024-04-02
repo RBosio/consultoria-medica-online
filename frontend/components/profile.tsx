@@ -67,6 +67,8 @@ const Profile: React.FC<ProfileProps> = (props) => {
   const [message, setMessage] = useState<string>("");
   const [confirmVerification, setConfirmVerification] =
     useState<boolean>(false);
+  const [confirmHealthInsurance, setConfirmHealthInsurance] =
+    useState<boolean>(false);
 
   function showDni() {
     let dni = user.dni;
@@ -156,9 +158,12 @@ const Profile: React.FC<ProfileProps> = (props) => {
     if (confirm) {
       await changePass.submitForm();
       setConfirm(false);
-    } else {
+    } else if (confirmVerification) {
       handleClickVerification();
       setConfirmVerification(false);
+    } else if (confirmHealthInsurance) {
+      handleClickHealthInsurance();
+      setConfirmHealthInsurance(false);
     }
   };
 
@@ -373,130 +378,8 @@ const Profile: React.FC<ProfileProps> = (props) => {
               </div>
             </div>
           </div>
-          <Dialog
-            open={confirm || confirmVerification}
-            onClose={() => {
-              setConfirm(false);
-              setConfirmVerification(false);
-            }}
-            aria-labelledby="alert-dialog-title"
-            aria-describedby="alert-dialog-description"
-          >
-            <DialogTitle id="alert-dialog-title">
-              {confirm ? "Confirmar cambio" : "Confirmar solicitud"}
-            </DialogTitle>
-            <DialogContent>
-              <DialogContentText id="alert-dialog-description">
-                {confirm
-                  ? "¿Estás seguro que deseas cambiar la contraseña?"
-                  : "Estás seguro que deseas solicitar la verificación de la obra social?"}
-              </DialogContentText>
-            </DialogContent>
-            <DialogActions>
-              <Button
-                color="error"
-                variant="text"
-                onClick={() => {
-                  setConfirm(false);
-                  setConfirmVerification(false);
-                }}
-              >
-                Cancelar
-              </Button>
-              <Button onClick={onConfirmClick} autoFocus>
-                Confirmar
-              </Button>
-            </DialogActions>
-          </Dialog>
-          <Snackbar
-            open={updated || success}
-            anchorOrigin={{ vertical: "top", horizontal: "center" }}
-            autoHideDuration={4000}
-            onClose={() => {
-              setUpdated(false);
-              setSuccess(false);
-            }}
-          >
-            <Alert elevation={6} variant="filled" severity="success">
-              {message}
-            </Alert>
-          </Snackbar>
-          <Snackbar
-            open={error}
-            anchorOrigin={{ vertical: "top", horizontal: "center" }}
-            autoHideDuration={4000}
-            onClose={() => setError(false)}
-          >
-            <Alert elevation={6} variant="filled" severity="error">
-              {message}
-            </Alert>
-          </Snackbar>
         </section>
         <section className="bg-white p-12 rounded-lg shadow-lg w-full">
-          <div className="">
-            <h2 className="text-primary text-xl text-center">Contraseña</h2>
-            <div className="flex flex-col">
-              <div className="flex justify-center items-center p-2">
-                <FaKey className="text-primary mr-2" />
-                <div className="border border-gray-200 w-1/2 md:px-2">
-                  <p className="text-center">**********</p>
-                </div>
-                <FaEdit
-                  className="text-primary ml-2 text-xl hover:cursor-pointer hover:opacity-70"
-                  onClick={() => (changed ? "" : setChange(true))}
-                />
-              </div>
-              {change ? (
-                <div className="p-4">
-                  <h2 className="text-primary text-sm">Cambiar contraseña</h2>
-                  <form
-                    className="flex flex-col justify-center items-center gap-2 mt-2"
-                    onSubmit={changePass.handleSubmit}
-                  >
-                    <Input
-                      className="w-full"
-                      type="password"
-                      name="newPassword"
-                      onChange={changePass.handleChange}
-                      onBlur={changePass.handleBlur}
-                      value={changePass.values.newPassword}
-                      label="Nueva contraseña"
-                      error={Boolean(
-                        changePass.touched.newPassword &&
-                          changePass.errors.newPassword
-                      )}
-                      helperText={
-                        changePass.errors.newPassword &&
-                        changePass.touched.newPassword &&
-                        changePass.errors.newPassword
-                      }
-                    />
-                    <Input
-                      className="w-full"
-                      type="password"
-                      name="repeatPassword"
-                      onChange={changePass.handleChange}
-                      onBlur={changePass.handleBlur}
-                      value={changePass.values.repeatPassword}
-                      label="Repita la contraseña"
-                      error={Boolean(
-                        changePass.touched.repeatPassword &&
-                          changePass.errors.repeatPassword
-                      )}
-                      helperText={
-                        changePass.errors.repeatPassword &&
-                        changePass.touched.repeatPassword &&
-                        changePass.errors.repeatPassword
-                      }
-                    />
-                    <Button onClick={() => setConfirm(true)}>Aceptar</Button>
-                  </form>
-                </div>
-              ) : (
-                ""
-              )}
-            </div>
-          </div>
           <div className="flex justify-between">
             <div>
               <h4 className="text-primary text-3xl mt-2 font-bold">
@@ -569,7 +452,9 @@ const Profile: React.FC<ProfileProps> = (props) => {
                 />
                 <Button
                   startIcon={<FaCheck />}
-                  onClick={handleClickHealthInsurance}
+                  onClick={() => {
+                    setConfirmHealthInsurance(true);
+                  }}
                 >
                   Agregar
                 </Button>
@@ -591,7 +476,141 @@ const Profile: React.FC<ProfileProps> = (props) => {
               )}
             </div>
           </div>
+          <div>
+            <h2 className="text-primary text-xl text-center">Contraseña</h2>
+            <div className="flex flex-col">
+              <div className="flex justify-center items-center p-2">
+                <FaKey className="text-primary mr-2" />
+                <div className="border border-gray-200 w-1/2 md:px-2">
+                  <p className="text-center">**********</p>
+                </div>
+                <FaEdit
+                  className="text-primary ml-2 text-xl hover:cursor-pointer hover:opacity-70"
+                  onClick={() => (changed ? "" : setChange(true))}
+                />
+              </div>
+              {change ? (
+                <div className="p-4">
+                  <h2 className="text-primary text-sm">Cambiar contraseña</h2>
+                  <form
+                    className="flex flex-col justify-center items-center gap-2 mt-2"
+                    onSubmit={changePass.handleSubmit}
+                  >
+                    <Input
+                      className="w-full"
+                      type="password"
+                      name="newPassword"
+                      onChange={changePass.handleChange}
+                      onBlur={changePass.handleBlur}
+                      value={changePass.values.newPassword}
+                      label="Nueva contraseña"
+                      error={Boolean(
+                        changePass.touched.newPassword &&
+                          changePass.errors.newPassword
+                      )}
+                      helperText={
+                        changePass.errors.newPassword &&
+                        changePass.touched.newPassword &&
+                        changePass.errors.newPassword
+                      }
+                    />
+                    <Input
+                      className="w-full"
+                      type="password"
+                      name="repeatPassword"
+                      onChange={changePass.handleChange}
+                      onBlur={changePass.handleBlur}
+                      value={changePass.values.repeatPassword}
+                      label="Repita la contraseña"
+                      error={Boolean(
+                        changePass.touched.repeatPassword &&
+                          changePass.errors.repeatPassword
+                      )}
+                      helperText={
+                        changePass.errors.repeatPassword &&
+                        changePass.touched.repeatPassword &&
+                        changePass.errors.repeatPassword
+                      }
+                    />
+                    <Button onClick={() => setConfirm(true)}>Aceptar</Button>
+                  </form>
+                </div>
+              ) : (
+                ""
+              )}
+            </div>
+          </div>
         </section>
+        <Dialog
+          open={confirm || confirmVerification || confirmHealthInsurance}
+          onClose={() => {
+            setConfirm(false);
+            setConfirmVerification(false);
+            setConfirmHealthInsurance(false);
+          }}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <DialogTitle id="alert-dialog-title">
+            {confirm
+              ? "Confirmar cambio"
+              : confirmVerification
+              ? "Confirmar solicitud"
+              : confirmHealthInsurance
+              ? "Confirmar solicitud"
+              : ""}
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+              {confirm
+                ? "¿Estás seguro que deseas cambiar la contraseña?"
+                : confirmVerification
+                ? "Estás seguro que deseas solicitar la verificación de la obra social?"
+                : confirmHealthInsurance
+                ? "Estás seguro que deseas agregar la obra social?"
+                : ""}
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button
+              color="error"
+              variant="text"
+              onClick={() => {
+                setConfirm(false);
+                setConfirmVerification(false);
+                setConfirmHealthInsurance(false);
+              }}
+            >
+              Cancelar
+            </Button>
+            <Button onClick={onConfirmClick} autoFocus>
+              Confirmar
+            </Button>
+          </DialogActions>
+        </Dialog>
+        <Snackbar
+          open={updated || success}
+          anchorOrigin={{ vertical: "top", horizontal: "center" }}
+          autoHideDuration={4000}
+          onClose={() => {
+            setUpdated(false);
+            setSuccess(false);
+          }}
+        >
+          <Alert elevation={6} variant="filled" severity="success">
+            {message}
+          </Alert>
+        </Snackbar>
+        <Snackbar
+          open={error}
+          anchorOrigin={{ vertical: "top", horizontal: "center" }}
+          autoHideDuration={4000}
+          onClose={() => setError(false)}
+        >
+          <Alert elevation={6} variant="filled" severity="error">
+            {message}
+          </Alert>
+        </Snackbar>
       </div>
     )
   );

@@ -110,7 +110,7 @@ export class UserController {
       }),
     }),
   )
-  @Post('healthInsurance')
+  @Post(':dni/healthInsurance')
   uploadHealthInsurance(@Req() request: Request) {
     const { body } = request;
 

@@ -13,6 +13,7 @@ import {
   FaEnvelope,
   FaKey,
   FaMars,
+  FaPaperclip,
   FaPhone,
   FaSuitcaseMedical,
   FaUser,
@@ -59,6 +60,8 @@ const Profile: React.FC<ProfileProps> = (props) => {
     HealthInsuranceResponseDto[]
   >([]);
   const [healthInsurance, setHealthInsurance] = useState<number>(-1);
+  const [file, setFile] = useState<any>();
+  const [type, setType] = useState<string>("");
 
   const [success, setSuccess] = useState<boolean>(false);
   const [message, setMessage] = useState<string>("");
@@ -81,6 +84,35 @@ const Profile: React.FC<ProfileProps> = (props) => {
 
     return dni;
   }
+
+  function handleChangeFile($e: any) {
+    if ($e.target.files && $e.target.files[0]) {
+      setFile($e.target.files[0]);
+      setType($e.target.files[0].type);
+    }
+  }
+
+  const uploadFile = async () => {
+    if (
+      file &&
+      (type.includes("jpg") ||
+        type.includes("jpeg") ||
+        type.includes("png") ||
+        type.includes("pdf"))
+    ) {
+      const fd = new FormData();
+      fd.append("file", file);
+
+      await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/user/${user.dni}/healthInsurance`,
+        fd,
+        {
+          withCredentials: true,
+          headers: { Authorization: `Bearer ${props.auth.token}` },
+        }
+      );
+    }
+  };
 
   const changePass = useFormik({
     initialValues: {
@@ -249,12 +281,16 @@ const Profile: React.FC<ProfileProps> = (props) => {
       }
     );
 
+    await uploadFile();
+
     setMessage("Obra social agregada con éxito!");
     setSuccess(true);
 
     setHealthInsurance(-1);
+    setFile("");
+    setType("");
 
-    router.push("/profile");
+    // router.push("/profile");
   };
 
   return (
@@ -277,7 +313,7 @@ const Profile: React.FC<ProfileProps> = (props) => {
                 type="file"
                 id="file"
                 className="hidden"
-                onChange={handleChange}
+                onChange={handleChangeFile}
               />
             </div>
             <div className="w-full">
@@ -491,34 +527,61 @@ const Profile: React.FC<ProfileProps> = (props) => {
                 })}
               </div>
             </div>
-            <div className="flex items-center gap-4 w-2/3">
-              <div className="w-full">
-                <Autocomplete
-                  onChange={(event, newValue: any) => {
-                    setHealthInsurance(newValue?.id);
-                  }}
-                  disablePortal
-                  noOptionsText="Especialidad no encontrada"
-                  options={healthInsurances.map((hi: any) => ({
-                    id: hi.id,
-                    label: hi.name,
-                  }))}
-                  renderInput={(params: any) => (
-                    <Input
-                      onChange={() => {}}
-                      name="healthInsuranceId"
-                      {...params}
-                      label="Obra social"
-                    />
-                  )}
+            <div className="w-2/3">
+              <div className="flex items-center gap-4 my-4">
+                <div className="w-full">
+                  <Autocomplete
+                    onChange={(event, newValue: any) => {
+                      setHealthInsurance(newValue?.id);
+                    }}
+                    disablePortal
+                    noOptionsText="Especialidad no encontrada"
+                    options={healthInsurances.map((hi: any) => ({
+                      id: hi.id,
+                      label: hi.name,
+                    }))}
+                    renderInput={(params: any) => (
+                      <Input
+                        onChange={() => {}}
+                        name="healthInsuranceId"
+                        {...params}
+                        label="Obra social"
+                      />
+                    )}
+                  />
+                </div>
+                <input
+                  type="file"
+                  id="file"
+                  className="hidden"
+                  onChange={handleChange}
                 />
+                <FaPaperclip
+                  className="text-primary text-xl hover:cursor-pointer hover:opacity-70"
+                  onClick={handleClickFile}
+                />
+                <Button
+                  startIcon={<FaCheck />}
+                  onClick={handleClickHealthInsurance}
+                >
+                  Agregar
+                </Button>
               </div>
-              <Button
-                startIcon={<FaCheck />}
-                onClick={handleClickHealthInsurance}
-              >
-                Agregar
-              </Button>
+              {file && (
+                <div
+                  className={`w-full py-1 px-2 bg-primary rounded-md text-white flex justify-between items-center overflow-x-hidden h-8 ${
+                    file.name.length > 60 ? "overflow-y-scroll" : ""
+                  }`}
+                >
+                  <div className={`${robotoBold.className}`}>{file.name}</div>
+                  <FaXmark
+                    className="hover:cursor-pointer hover:opacity-70"
+                    onClick={() => {
+                      setFile("");
+                    }}
+                  />
+                </div>
+              )}
             </div>
           </div>
         </section>

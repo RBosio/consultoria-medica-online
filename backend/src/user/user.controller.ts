@@ -55,6 +55,15 @@ export class UserController {
     return this.userService.findOneByDni(dni);
   }
 
+  @Patch('healthInsurance/:id')
+  @Roles(RoleEnum.User, RoleEnum.Doctor, RoleEnum.Admin)
+  addHealthInsurance(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() data: { healthInsuranceId: number },
+  ) {
+    return this.userService.addHealthInsurance(id, data.healthInsuranceId);
+  }
+
   @Patch(':id')
   @Roles(RoleEnum.User, RoleEnum.Doctor, RoleEnum.Admin)
   updateUser(

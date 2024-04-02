@@ -8,7 +8,7 @@ INSERT INTO
         cuit,
         birthday,
         gender,
-        cityZipCode
+        city
     )
 VALUES
     (
@@ -20,7 +20,7 @@ VALUES
         '1122334455',
         '1990-05-15',
         0,
-        '2000'
+        82084
     ),
     (
         'Maria',
@@ -31,7 +31,7 @@ VALUES
         '5544332211',
         '1985-08-20',
         1,
-        '2000'
+        82084
     ),
     (
         'Carlos',
@@ -42,7 +42,7 @@ VALUES
         '9988776655',
         '1982-03-10',
         0,
-        '2000'
+        82084
     ),
     (
         'Laura',
@@ -53,7 +53,7 @@ VALUES
         '3344556677',
         '1995-11-25',
         1,
-        '2000'
+        82084
     ),
     (
         'Pedro',
@@ -64,7 +64,7 @@ VALUES
         '1122334455',
         '1988-07-08',
         0,
-        '2000'
+        82084
     ),
     (
         'Ana',
@@ -75,7 +75,7 @@ VALUES
         '9988776655',
         '1992-01-30',
         1,
-        '2000'
+        82084
     ),
     (
         'Gabriel',
@@ -86,7 +86,7 @@ VALUES
         '3344556677',
         '1980-09-18',
         0,
-        '2000'
+        82084
     ),
     (
         'Sofia',
@@ -97,7 +97,7 @@ VALUES
         '1122334455',
         '1993-04-05',
         1,
-        '2000'
+        82084
     ),
     (
         'Daniel',
@@ -108,7 +108,7 @@ VALUES
         '9988776655',
         '1987-12-12',
         0,
-        '2000'
+        82084
     ),
     (
         'Elena',
@@ -119,7 +119,7 @@ VALUES
         '3344556677',
         '1996-06-22',
         1,
-        '2000'
+        82084
     ),
     (
         'Alejandro',
@@ -130,7 +130,7 @@ VALUES
         '1122334455',
         '1983-02-14',
         0,
-        '2000'
+        82084
     ),
     (
         'Luisa',
@@ -141,7 +141,7 @@ VALUES
         '9988776655',
         '1994-10-03',
         1,
-        '2000'
+        82084
     ),
     (
         'Roberto',
@@ -152,7 +152,7 @@ VALUES
         '3344556677',
         '1986-08-07',
         0,
-        '2000'
+        82084
     ),
     (
         'Carmen',
@@ -163,7 +163,7 @@ VALUES
         '1122334455',
         '1991-03-28',
         1,
-        '2000'
+        82084
     ),
     (
         'Javier',
@@ -174,7 +174,7 @@ VALUES
         '9988776655',
         '1984-05-11',
         0,
-        '2000'
+        82084
     ),
     (
         'Silvia',
@@ -185,7 +185,7 @@ VALUES
         '3344556677',
         '1997-09-14',
         1,
-        '2000'
+        82084
     ),
     (
         'Miguel',
@@ -196,7 +196,7 @@ VALUES
         '1122334455',
         '1989-12-09',
         0,
-        '2000'
+        82084
     ),
     (
         'Beatriz',
@@ -207,7 +207,7 @@ VALUES
         '9988776655',
         '1998-04-02',
         1,
-        '2000'
+        82084
     ),
     (
         'Felipe',
@@ -218,7 +218,7 @@ VALUES
         '3344556677',
         '1981-06-17',
         0,
-        '2000'
+        82084
     ),
     (
         'Monica',
@@ -229,7 +229,7 @@ VALUES
         '1122334455',
         '1990-11-23',
         0,
-        '2000'
+        82084
     );
 
 INSERT INTO
@@ -249,13 +249,26 @@ INSERT INTO
 VALUES
     (
         'dsamdp-dsad-dsadf.pdf',
+        '20-38233911-1',
+        'dmsadpo-dmsapod-dsda.pdf',
+        30,
+        3000,
+        1,
+        '1998-04-08',
+        2,
+        1,
+        "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Saepe possimus ad ea nisi iusto temporibus cum, voluptatibus fugiat magnam maiores consequatur, architecto harum dignissimos deleniti eius, quisquam natus minus quas. Lorem ipsum dolor sit amet consectetur adipisicing elit. Vel aspernatur repellendus, eos, cupiditate consectetur eum modi laboriosam vero officia quibusdam earum tenetur omnis similique autem ab facilis aut. Laborum, voluptatum. Lorem ipsum dolor sit amet consectetur adipisicing elit. Repudiandae, deleniti deserunt iste corporis possimus, eos facere quis quidem, consequuntur sapiente quae! Quidem repellendus ab nemo praesentium. Sequi modi quis et!",
+        "St. Exupery 240"
+    ),
+    (
+        'dsamdp-dsad-dsadf.pdf',
         '80-594823013',
         'dmsadpo-dmsapod-dsda.pdf',
         60,
         140,
         1,
         '2009-09-18',
-        3,
+        4,
         1,
         "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Saepe possimus ad ea nisi iusto temporibus cum, voluptatibus fugiat magnam maiores consequatur, architecto harum dignissimos deleniti eius, quisquam natus minus quas. Lorem ipsum dolor sit amet consectetur adipisicing elit. Vel aspernatur repellendus, eos, cupiditate consectetur eum modi laboriosam vero officia quibusdam earum tenetur omnis similique autem ab facilis aut. Laborum, voluptatum. Lorem ipsum dolor sit amet consectetur adipisicing elit. Repudiandae, deleniti deserunt iste corporis possimus, eos facere quis quidem, consequuntur sapiente quae! Quidem repellendus ab nemo praesentium. Sequi modi quis et!",
         "St. Exupery 240"
@@ -268,7 +281,7 @@ VALUES
         110,
         1,
         '2009-09-18',
-        4,
+        5,
         2,
         "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Saepe possimus ad ea nisi iusto temporibus cum, voluptatibus fugiat magnam maiores consequatur, architecto harum dignissimos deleniti eius, quisquam natus minus quas. Lorem ipsum dolor sit amet consectetur adipisicing elit. Vel aspernatur repellendus, eos, cupiditate consectetur eum modi laboriosam vero officia quibusdam earum tenetur omnis similique autem ab facilis aut. Laborum, voluptatum. Lorem ipsum dolor sit amet consectetur adipisicing elit. Repudiandae, deleniti deserunt iste corporis possimus, eos facere quis quidem, consequuntur sapiente quae! Quidem repellendus ab nemo praesentium. Sequi modi quis et!",
         "St. Exupery 240"
@@ -281,7 +294,7 @@ VALUES
         60,
         1,
         '2009-09-18',
-        5,
+        6,
         2,
         "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Saepe possimus ad ea nisi iusto temporibus cum, voluptatibus fugiat magnam maiores consequatur, architecto harum dignissimos deleniti eius, quisquam natus minus quas. Lorem ipsum dolor sit amet consectetur adipisicing elit. Vel aspernatur repellendus, eos, cupiditate consectetur eum modi laboriosam vero officia quibusdam earum tenetur omnis similique autem ab facilis aut. Laborum, voluptatum. Lorem ipsum dolor sit amet consectetur adipisicing elit. Repudiandae, deleniti deserunt iste corporis possimus, eos facere quis quidem, consequuntur sapiente quae! Quidem repellendus ab nemo praesentium. Sequi modi quis et!",
         "St. Exupery 240"
@@ -294,7 +307,7 @@ VALUES
         80,
         1,
         '2009-09-18',
-        6,
+        7,
         2,
         "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Saepe possimus ad ea nisi iusto temporibus cum, voluptatibus fugiat magnam maiores consequatur, architecto harum dignissimos deleniti eius, quisquam natus minus quas. Lorem ipsum dolor sit amet consectetur adipisicing elit. Vel aspernatur repellendus, eos, cupiditate consectetur eum modi laboriosam vero officia quibusdam earum tenetur omnis similique autem ab facilis aut. Laborum, voluptatum. Lorem ipsum dolor sit amet consectetur adipisicing elit. Repudiandae, deleniti deserunt iste corporis possimus, eos facere quis quidem, consequuntur sapiente quae! Quidem repellendus ab nemo praesentium. Sequi modi quis et!",
         "St. Exupery 240"
@@ -307,7 +320,7 @@ VALUES
         80,
         1,
         '2009-09-18',
-        7,
+        8,
         2,
         "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Saepe possimus ad ea nisi iusto temporibus cum, voluptatibus fugiat magnam maiores consequatur, architecto harum dignissimos deleniti eius, quisquam natus minus quas. Lorem ipsum dolor sit amet consectetur adipisicing elit. Vel aspernatur repellendus, eos, cupiditate consectetur eum modi laboriosam vero officia quibusdam earum tenetur omnis similique autem ab facilis aut. Laborum, voluptatum. Lorem ipsum dolor sit amet consectetur adipisicing elit. Repudiandae, deleniti deserunt iste corporis possimus, eos facere quis quidem, consequuntur sapiente quae! Quidem repellendus ab nemo praesentium. Sequi modi quis et!",
         "St. Exupery 240"
@@ -320,7 +333,7 @@ VALUES
         140,
         1,
         '2011-03-05',
-        8,
+        9,
         1,
         "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Saepe possimus ad ea nisi iusto temporibus cum, voluptatibus fugiat magnam maiores consequatur, architecto harum dignissimos deleniti eius, quisquam natus minus quas. Lorem ipsum dolor sit amet consectetur adipisicing elit. Vel aspernatur repellendus, eos, cupiditate consectetur eum modi laboriosam vero officia quibusdam earum tenetur omnis similique autem ab facilis aut. Laborum, voluptatum. Lorem ipsum dolor sit amet consectetur adipisicing elit. Repudiandae, deleniti deserunt iste corporis possimus, eos facere quis quidem, consequuntur sapiente quae! Quidem repellendus ab nemo praesentium. Sequi modi quis et!",
         "St. Exupery 240"
@@ -333,7 +346,7 @@ VALUES
         170,
         1,
         '2017-10-12',
-        9,
+        10,
         2,
         "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Saepe possimus ad ea nisi iusto temporibus cum, voluptatibus fugiat magnam maiores consequatur, architecto harum dignissimos deleniti eius, quisquam natus minus quas. Lorem ipsum dolor sit amet consectetur adipisicing elit. Vel aspernatur repellendus, eos, cupiditate consectetur eum modi laboriosam vero officia quibusdam earum tenetur omnis similique autem ab facilis aut. Laborum, voluptatum. Lorem ipsum dolor sit amet consectetur adipisicing elit. Repudiandae, deleniti deserunt iste corporis possimus, eos facere quis quidem, consequuntur sapiente quae! Quidem repellendus ab nemo praesentium. Sequi modi quis et!",
         "St. Exupery 240"
@@ -346,7 +359,7 @@ VALUES
         95,
         1,
         '2019-06-22',
-        10,
+        11,
         1,
         "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Saepe possimus ad ea nisi iusto temporibus cum, voluptatibus fugiat magnam maiores consequatur, architecto harum dignissimos deleniti eius, quisquam natus minus quas. Lorem ipsum dolor sit amet consectetur adipisicing elit. Vel aspernatur repellendus, eos, cupiditate consectetur eum modi laboriosam vero officia quibusdam earum tenetur omnis similique autem ab facilis aut. Laborum, voluptatum. Lorem ipsum dolor sit amet consectetur adipisicing elit. Repudiandae, deleniti deserunt iste corporis possimus, eos facere quis quidem, consequuntur sapiente quae! Quidem repellendus ab nemo praesentium. Sequi modi quis et!",
         "St. Exupery 240"
@@ -359,7 +372,7 @@ VALUES
         125,
         1,
         '2018-01-14',
-        11,
+        12,
         2,
         "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Saepe possimus ad ea nisi iusto temporibus cum, voluptatibus fugiat magnam maiores consequatur, architecto harum dignissimos deleniti eius, quisquam natus minus quas. Lorem ipsum dolor sit amet consectetur adipisicing elit. Vel aspernatur repellendus, eos, cupiditate consectetur eum modi laboriosam vero officia quibusdam earum tenetur omnis similique autem ab facilis aut. Laborum, voluptatum. Lorem ipsum dolor sit amet consectetur adipisicing elit. Repudiandae, deleniti deserunt iste corporis possimus, eos facere quis quidem, consequuntur sapiente quae! Quidem repellendus ab nemo praesentium. Sequi modi quis et!",
         "St. Exupery 240"
@@ -372,7 +385,7 @@ VALUES
         155,
         1,
         '2013-05-03',
-        12,
+        13,
         2,
         "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Saepe possimus ad ea nisi iusto temporibus cum, voluptatibus fugiat magnam maiores consequatur, architecto harum dignissimos deleniti eius, quisquam natus minus quas. Lorem ipsum dolor sit amet consectetur adipisicing elit. Vel aspernatur repellendus, eos, cupiditate consectetur eum modi laboriosam vero officia quibusdam earum tenetur omnis similique autem ab facilis aut. Laborum, voluptatum. Lorem ipsum dolor sit amet consectetur adipisicing elit. Repudiandae, deleniti deserunt iste corporis possimus, eos facere quis quidem, consequuntur sapiente quae! Quidem repellendus ab nemo praesentium. Sequi modi quis et!",
         "St. Exupery 240"
@@ -385,7 +398,7 @@ VALUES
         100,
         1,
         '2012-11-28',
-        13,
+        14,
         1,
         "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Saepe possimus ad ea nisi iusto temporibus cum, voluptatibus fugiat magnam maiores consequatur, architecto harum dignissimos deleniti eius, quisquam natus minus quas. Lorem ipsum dolor sit amet consectetur adipisicing elit. Vel aspernatur repellendus, eos, cupiditate consectetur eum modi laboriosam vero officia quibusdam earum tenetur omnis similique autem ab facilis aut. Laborum, voluptatum. Lorem ipsum dolor sit amet consectetur adipisicing elit. Repudiandae, deleniti deserunt iste corporis possimus, eos facere quis quidem, consequuntur sapiente quae! Quidem repellendus ab nemo praesentium. Sequi modi quis et!",
         "St. Exupery 240"
@@ -398,7 +411,7 @@ VALUES
         130,
         1,
         '2014-07-17',
-        14,
+        15,
         2,
         "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Saepe possimus ad ea nisi iusto temporibus cum, voluptatibus fugiat magnam maiores consequatur, architecto harum dignissimos deleniti eius, quisquam natus minus quas. Lorem ipsum dolor sit amet consectetur adipisicing elit. Vel aspernatur repellendus, eos, cupiditate consectetur eum modi laboriosam vero officia quibusdam earum tenetur omnis similique autem ab facilis aut. Laborum, voluptatum. Lorem ipsum dolor sit amet consectetur adipisicing elit. Repudiandae, deleniti deserunt iste corporis possimus, eos facere quis quidem, consequuntur sapiente quae! Quidem repellendus ab nemo praesentium. Sequi modi quis et!",
         "St. Exupery 240"
@@ -411,7 +424,7 @@ VALUES
         160,
         1,
         '2016-02-09',
-        15,
+        16,
         1,
         "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Saepe possimus ad ea nisi iusto temporibus cum, voluptatibus fugiat magnam maiores consequatur, architecto harum dignissimos deleniti eius, quisquam natus minus quas. Lorem ipsum dolor sit amet consectetur adipisicing elit. Vel aspernatur repellendus, eos, cupiditate consectetur eum modi laboriosam vero officia quibusdam earum tenetur omnis similique autem ab facilis aut. Laborum, voluptatum. Lorem ipsum dolor sit amet consectetur adipisicing elit. Repudiandae, deleniti deserunt iste corporis possimus, eos facere quis quidem, consequuntur sapiente quae! Quidem repellendus ab nemo praesentium. Sequi modi quis et!",
         "St. Exupery 240"
@@ -424,7 +437,7 @@ VALUES
         110,
         1,
         '2010-06-04',
-        16,
+        17,
         2,
         "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Saepe possimus ad ea nisi iusto temporibus cum, voluptatibus fugiat magnam maiores consequatur, architecto harum dignissimos deleniti eius, quisquam natus minus quas. Lorem ipsum dolor sit amet consectetur adipisicing elit. Vel aspernatur repellendus, eos, cupiditate consectetur eum modi laboriosam vero officia quibusdam earum tenetur omnis similique autem ab facilis aut. Laborum, voluptatum. Lorem ipsum dolor sit amet consectetur adipisicing elit. Repudiandae, deleniti deserunt iste corporis possimus, eos facere quis quidem, consequuntur sapiente quae! Quidem repellendus ab nemo praesentium. Sequi modi quis et!",
         "St. Exupery 240"
@@ -437,7 +450,7 @@ VALUES
         140,
         1,
         '2011-12-21',
-        17,
+        18,
         1,
         "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Saepe possimus ad ea nisi iusto temporibus cum, voluptatibus fugiat magnam maiores consequatur, architecto harum dignissimos deleniti eius, quisquam natus minus quas. Lorem ipsum dolor sit amet consectetur adipisicing elit. Vel aspernatur repellendus, eos, cupiditate consectetur eum modi laboriosam vero officia quibusdam earum tenetur omnis similique autem ab facilis aut. Laborum, voluptatum. Lorem ipsum dolor sit amet consectetur adipisicing elit. Repudiandae, deleniti deserunt iste corporis possimus, eos facere quis quidem, consequuntur sapiente quae! Quidem repellendus ab nemo praesentium. Sequi modi quis et!",
         "St. Exupery 240"
@@ -450,7 +463,7 @@ VALUES
         170,
         1,
         '2015-08-08',
-        18,
+        19,
         2,
         "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Saepe possimus ad ea nisi iusto temporibus cum, voluptatibus fugiat magnam maiores consequatur, architecto harum dignissimos deleniti eius, quisquam natus minus quas. Lorem ipsum dolor sit amet consectetur adipisicing elit. Vel aspernatur repellendus, eos, cupiditate consectetur eum modi laboriosam vero officia quibusdam earum tenetur omnis similique autem ab facilis aut. Laborum, voluptatum. Lorem ipsum dolor sit amet consectetur adipisicing elit. Repudiandae, deleniti deserunt iste corporis possimus, eos facere quis quidem, consequuntur sapiente quae! Quidem repellendus ab nemo praesentium. Sequi modi quis et!",
         "St. Exupery 240"
@@ -463,8 +476,18 @@ VALUES
         95,
         1,
         '2017-03-30',
-        19,
+        20,
         1,
         "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Saepe possimus ad ea nisi iusto temporibus cum, voluptatibus fugiat magnam maiores consequatur, architecto harum dignissimos deleniti eius, quisquam natus minus quas. Lorem ipsum dolor sit amet consectetur adipisicing elit. Vel aspernatur repellendus, eos, cupiditate consectetur eum modi laboriosam vero officia quibusdam earum tenetur omnis similique autem ab facilis aut. Laborum, voluptatum. Lorem ipsum dolor sit amet consectetur adipisicing elit. Repudiandae, deleniti deserunt iste corporis possimus, eos facere quis quidem, consequuntur sapiente quae! Quidem repellendus ab nemo praesentium. Sequi modi quis et!",
         "St. Exupery 240"
     );
+
+INSERT INTO
+    doctor_specialities_speciality (
+        doctorId,
+        specialityId
+    )
+VALUES
+(2, 1),
+(2, 2),
+(3, 1);

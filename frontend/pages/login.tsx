@@ -2,7 +2,7 @@ import Layout from "@/components/layout";
 import { useFormik } from "formik";
 import Input from "@/components/input";
 import Button from "@/components/button";
-import { robotoBold } from '@/lib/fonts';
+import { robotoBold, roboto } from '@/lib/fonts';
 import { useTheme } from "@mui/material";
 import Image from "next/image";
 import Link from "next/link";
@@ -54,7 +54,7 @@ export default function Login(props: any) {
 
     return (
         <Layout auth={props.auth} renderNavbar={false} renderSidebar={false}>
-            <section className="h-full flex">
+            <section className={`h-full flex ${roboto.className}`}>
                 <div className="h-full grow flex flex-col items-center justify-center">
                     <Image src="/logo.png" width={300} height={300} alt="Logo HealthTech" />
                     <div className="px-12 w-full sm:px-0 sm:w-[25rem] lg:w-[30rem]">
@@ -101,7 +101,7 @@ export default function Login(props: any) {
                             <GoDotFill color={theme.palette.primary.main} />
                         </Divider>
                         <p className="text-center text-black">¿No estás registrado aún?
-                            <Link className={`font-bold cursor-pointer text-primary  hover:underline mx-1`} href="#">
+                            <Link className={`font-bold cursor-pointer text-primary  hover:underline mx-1`} href="/register">
                                 Crear una cuenta
                             </Link>
                         </p>

@@ -18,6 +18,7 @@ const config: Config = {
         "primary": PRIMARY_COLOR,
         "primary_light": PRIMARY_COLOR_LIGHT,
         "secondary": SECONDARY_COLOR,
+        "error": "#d32f2f",
       }
     },
   },

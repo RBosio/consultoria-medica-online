@@ -3,12 +3,6 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { Country } from './entities/country.entity';
-import { Province } from './entities/province.entity';
-import { City } from './entities/city.entity';
-import { CountryModule } from './country/country.module';
-import { ProvinceModule } from './province/province.module';
-import { CityModule } from './city/city.module';
 import { User } from './entities/user.entity';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
@@ -57,32 +51,12 @@ import { UserHealthInsurance } from './entities/userHealthInsurances.entity';
         username: configService.get('DB_USERNAME'),
         password: configService.get('DB_PASSWORD'),
         database: configService.get('DB_DATABASE'),
-        entities: [
-          Country,
-          Province,
-          City,
-          User,
-          Doctor,
-          Schedule,
-          Speciality,
-          Meeting,
-          MedicalRecord,
-          Comment,
-          File,
-          HealthInsurance,
-          Plan,
-          Benefit,
-          Notification,
-          UserHealthInsurance,
-        ],
+        entities: [User, Doctor, Schedule, Speciality, Meeting, MedicalRecord, Comment, File, HealthInsurance, Plan, Benefit, Notification, UserHealthInsurance],
         synchronize: configService.get('DB_SYNC'),
         dropSchema: configService.get('DB_DROP'),
       }),
       inject: [ConfigService],
     }),
-    CountryModule,
-    ProvinceModule,
-    CityModule,
     UserModule,
     AuthModule,
     DoctorModule,
@@ -102,31 +76,33 @@ import { UserHealthInsurance } from './entities/userHealthInsurances.entity';
 export class AppModule {
   constructor(
     private dataSource: DataSource,
-    private userService: UserService,
-  ) {
-    const queryRunner = this.dataSource.createQueryRunner();
-
-    const queries = readSqlFile('public/defaultData.sql');
-    queries.forEach((query, i) => {
-      if (i < 6) {
-        queryRunner.query(query);
-      }
-    });
-
-    setTimeout(() => {
-      this.userService.loadUsers().then(() => {
-        const doctorsQueries = readSqlFile('public/doctors.sql');
-        doctorsQueries.forEach((query, i) => {
-          queryRunner.query(query);
-        });
-        queries.forEach((query, i) => {
-          if (i >= 6) {
-            queryRunner.query(query);
-          }
-        });
-      });
-    }, 1000);
-  }
+    private userService: UserService
+    ) {
+      const queryRunner = this.dataSource.createQueryRunner()
+        
+      const queries = readSqlFile('public/defaultData.sql')
+      queries.forEach((query, i) => {
+        if(i < 3) {
+          queryRunner.query(query)
+        }
+      })
+    
+      setTimeout(() => {
+        this.userService.loadUsers()
+        .then(() => {
+          const doctorsQueries = readSqlFile('public/doctors.sql')
+          doctorsQueries.forEach((query, i) => {
+              queryRunner.query(query)
+          })
+          queries.forEach((query, i) => {
+            if(i >= 3) {
+              queryRunner.query(query)
+            }
+          })
+        })
+      }, 1000)
+      
+    }
 }
 
 const readSqlFile = (filepath: string): string[] => {

@@ -1,9 +1,7 @@
 import Layout from "@/components/layout";
 import { roboto } from "@/lib/fonts";
-import { useTheme } from "@mui/material";
 import withAuth from "@/lib/withAuth";
 import { Auth } from "../../shared/types";
-import { useRouter } from "next/router";
 import Profile from "@/components/profile";
 import axios from "axios";
 

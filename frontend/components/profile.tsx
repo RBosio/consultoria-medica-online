@@ -308,8 +308,8 @@ const Profile: React.FC<ProfileProps> = (props) => {
 
   return (
     user && (
-      <div className="my-12 flex justify-center w-full gap-4 mx-12">
-        <section className="bg-white p-16 rounded-lg shadow-lg w-1/3">
+      <div className="my-12 flex flex-col md:flex-row justify-center w-full gap-4 md:mx-12">
+        <section className="bg-white p-16 rounded-lg shadow-lg md:w-1/3">
           <div className="flex flex-col justify-center items-center gap-4">
             <div>
               <Avatar
@@ -380,8 +380,8 @@ const Profile: React.FC<ProfileProps> = (props) => {
             </div>
           </div>
         </section>
-        <section className="bg-white p-12 rounded-lg shadow-lg w-full">
-          <div className="flex justify-between">
+        <section className="bg-white p-12 rounded-lg shadow-lg md:w-full">
+          <div className="flex flex-col md:flex-row md:justify-between">
             <div>
               <h4 className="text-primary text-3xl mt-2 font-bold">
                 Obras sociales
@@ -389,7 +389,7 @@ const Profile: React.FC<ProfileProps> = (props) => {
               <div>
                 {user.healthInsurances.map((h: any, idx: number) => {
                   return (
-                    <div className="flexitems-center p-4" key={idx}>
+                    <div className="p-4" key={idx}>
                       {h.healthInsurance?.name ? (
                         <div className="flex items-center gap-4">
                           <FaChevronRight className="text-primary text-md size-6" />
@@ -418,47 +418,51 @@ const Profile: React.FC<ProfileProps> = (props) => {
                 })}
               </div>
             </div>
-            <div className="w-2/3">
-              <div className="flex items-center gap-4 my-4">
-                <div className="w-full">
-                  <Autocomplete
-                    onChange={(event, newValue: any) => {
-                      setHealthInsurance(newValue?.id);
-                    }}
-                    disablePortal
-                    noOptionsText="Especialidad no encontrada"
-                    options={healthInsurances.map((hi: any) => ({
-                      id: hi.id,
-                      label: hi.name,
-                    }))}
-                    renderInput={(params: any) => (
-                      <Input
-                        onChange={() => {}}
-                        name="healthInsuranceId"
-                        {...params}
-                        label="Obra social"
-                      />
-                    )}
+            <div className="md:w-2/3">
+              <div className="my-4 md:flex gap-4">
+                <div className="flex items-center gap-4 md:w-full">
+                  <div className="w-full">
+                    <Autocomplete
+                      onChange={(event, newValue: any) => {
+                        setHealthInsurance(newValue?.id);
+                      }}
+                      disablePortal
+                      noOptionsText="Especialidad no encontrada"
+                      options={healthInsurances.map((hi: any) => ({
+                        id: hi.id,
+                        label: hi.name,
+                      }))}
+                      renderInput={(params: any) => (
+                        <Input
+                          onChange={() => {}}
+                          name="healthInsuranceId"
+                          {...params}
+                          label="Obra social"
+                        />
+                      )}
+                    />
+                  </div>
+                  <input
+                    type="file"
+                    id="file"
+                    className="hidden"
+                    onChange={handleChange}
+                  />
+                  <FaPaperclip
+                    className="text-primary text-xl hover:cursor-pointer hover:opacity-70"
+                    onClick={handleClickFile}
                   />
                 </div>
-                <input
-                  type="file"
-                  id="file"
-                  className="hidden"
-                  onChange={handleChange}
-                />
-                <FaPaperclip
-                  className="text-primary text-xl hover:cursor-pointer hover:opacity-70"
-                  onClick={handleClickFile}
-                />
-                <Button
-                  startIcon={<FaCheck />}
-                  onClick={() => {
-                    setConfirmHealthInsurance(true);
-                  }}
-                >
-                  Agregar
-                </Button>
+                <div className="flex justify-center mt-2 md:block">
+                  <Button
+                    startIcon={<FaCheck />}
+                    onClick={() => {
+                      setConfirmHealthInsurance(true);
+                    }}
+                  >
+                    Agregar
+                  </Button>
+                </div>
               </div>
               {file && (
                 <div
@@ -482,7 +486,7 @@ const Profile: React.FC<ProfileProps> = (props) => {
             <div className="flex flex-col">
               <div className="flex justify-center items-center p-2">
                 <FaKey className="text-primary mr-2" />
-                <div className="border border-primary w-1/2 md:px-2 p-1">
+                <div className="border border-primary w-full md:w-1/2 md:px-2 p-1">
                   <p className="text-center">**********</p>
                 </div>
                 <FaEdit
@@ -496,7 +500,7 @@ const Profile: React.FC<ProfileProps> = (props) => {
                     Cambiar contraseña
                   </h4>
                   <form
-                    className="flex flex-col justify-center items-center gap-2 mt-2 w-1/2 mx-auto"
+                    className="flex flex-col justify-center items-center gap-2 mt-2 md:w-1/2 mx-auto"
                     onSubmit={changePass.handleSubmit}
                   >
                     <Input

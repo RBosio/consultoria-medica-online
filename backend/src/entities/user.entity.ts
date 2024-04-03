@@ -36,6 +36,9 @@ export class User {
   @Column({ default: false })
   city: number
 
+  @Column({ type: 'text', nullable: true })
+  address: string;
+
   @OneToMany(() => UserHealthInsurance, userHealthInsurance => userHealthInsurance.user)
   healthInsurances: UserHealthInsurance[]
 
@@ -56,9 +59,6 @@ export class User {
 
   @Column({ type: Date, default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
-
-  @Column({ type: 'text', nullable: true })
-  address: string;
 
   @OneToOne(() => Doctor, (doctor) => doctor.user)
   doctor: Doctor;

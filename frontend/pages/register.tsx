@@ -20,7 +20,7 @@ import { CiCircleCheck } from "react-icons/ci";
 export default function Register(props: any) {
 
     const [success, setSuccess] = useState(false);
-    const [fullName,setFullName] = useState("");
+    const [fullName, setFullName] = useState("");
 
     return (
         <Layout auth={props.auth} renderNavbar={false} renderSidebar={false}>
@@ -35,7 +35,7 @@ export default function Register(props: any) {
                 </div>
                 <div className="h-full grow flex flex-col items-center py-4 overflow-y-auto">
                     <Image src="/logo.png" width={300} height={300} alt="Logo HealthTech" />
-                    {success ? <RegisterSuccess fullName={fullName}/> : <RegisterForm setFullName={setFullName} setSuccess={setSuccess} />}
+                    {success ? <RegisterSuccess fullName={fullName} /> : <RegisterForm setFullName={setFullName} setSuccess={setSuccess} />}
                 </div>
             </section>
         </Layout >
@@ -76,6 +76,7 @@ const RegisterForm: React.FC<any> = (props) => {
             repeat_password: '',
             birthday: dayjs(),
             phone: '',
+            address: '',
             province: '',
             city: '',
             gender: '',
@@ -93,6 +94,7 @@ const RegisterForm: React.FC<any> = (props) => {
             city: Yup.number().required("Debes ingresar tu ciudad"),
             province: Yup.number().typeError("Debes ingresar tu provincia").required("Debes ingresar tu provincia"),
             gender: Yup.number().typeError("Debes ingresar tu Sexo").required("Debes ingresar tu Sexo"),
+            address: Yup.string().required('Debes ingresar la dirección de tu domicilio').min(1, 'La dirección debe tener al menos 1 carácter')
 
         }),
         onSubmit: async (values, { setSubmitting }) => {
@@ -102,11 +104,11 @@ const RegisterForm: React.FC<any> = (props) => {
                 registerReq = registerReq.data;
                 props.setFullName(`${registerForm.values.name} ${registerForm.values.surname}`);
                 props.setSuccess(true);
-            }   
+            }
             catch (error: any) {
                 if (error.response.status === 400) {
-                    if(error.response.data.message.includes("E-mail")) registerForm.errors.email = error.response.data.message;
-                    if(error.response.data.message.includes("DNI")) registerForm.errors.dni = error.response.data.message;
+                    if (error.response.data.message.includes("E-mail")) registerForm.errors.email = error.response.data.message;
+                    if (error.response.data.message.includes("DNI")) registerForm.errors.dni = error.response.data.message;
                 } else {
                     setFormError(true);
                 };
@@ -236,9 +238,9 @@ const RegisterForm: React.FC<any> = (props) => {
                         error={Boolean(registerForm.touched.phone && registerForm.errors.phone)}
                         helperText={registerForm.errors.phone && registerForm.touched.phone && registerForm.errors.phone}
                     />
-                    <div className="flex gap-6">
+                    <div className="flex flex-col md:flex-row gap-6">
                         <Autocomplete
-                            className="w-6/12"
+                            className="w-12/12 md:w-4/12"
                             onChange={(event, newValue: any) => {
                                 registerForm.setFieldValue('province', newValue ? newValue.id : "");
                             }}
@@ -255,7 +257,7 @@ const RegisterForm: React.FC<any> = (props) => {
                                 label="Provincia" />}
                         />
                         <Autocomplete
-                            className="w-6/12"
+                            className="w-12/12 md:w-4/12"
                             onChange={(event, newValue: any) => {
                                 registerForm.setFieldValue('city', newValue ? newValue.id : "");
                             }}
@@ -269,6 +271,17 @@ const RegisterForm: React.FC<any> = (props) => {
                                 onChange={registerForm.handleChange}
                                 onBlur={registerForm.handleBlur}
                                 name="city" {...params} label="Departamento" />}
+                        />
+                        <Input
+                        className="w-12/12 md:w-4/12"
+                            variant="outlined"
+                            name="address"
+                            onChange={registerForm.handleChange}
+                            onBlur={registerForm.handleBlur}
+                            value={registerForm.values.address}
+                            label="Dirección"
+                            error={Boolean(registerForm.touched.address && registerForm.errors.address)}
+                            helperText={registerForm.errors.address && registerForm.touched.address && registerForm.errors.address}
                         />
                     </div>
                 </div>

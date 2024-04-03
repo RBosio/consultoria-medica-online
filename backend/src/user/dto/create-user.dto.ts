@@ -24,6 +24,10 @@ export class createUserDto {
     dni: string;
 
     @IsDefined()
+    @Length(1)
+    address: string;
+
+    @IsDefined()
     @Matches(/^(20|23|24|27|30|33|34)\d{8}\d{1}$/gm)
     cuit: string;
 

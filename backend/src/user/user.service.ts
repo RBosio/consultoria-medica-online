@@ -175,6 +175,28 @@ export class UserService {
     return newUser;
   }
 
+  async addHealthInsurance(id: number, healthInsuranceId: number) {
+    const user = await this.userRepository.findOne({
+      where: {
+        id,
+      },
+    });
+    if (!user) {
+      throw new HttpException('Usuario no encontrado', HttpStatus.NOT_FOUND);
+    }
+
+    const healthInsurance = await this.healthInsuranceService.findOne(
+      healthInsuranceId,
+    );
+    const userHI = this.userHealthInsuranceRepository.create({
+      user,
+      healthInsurance,
+    });
+    await this.userHealthInsuranceRepository.save(userHI);
+
+    return 'health insurance added!';
+  }
+
   async update(id: number, user: updateUserDto) {
     const userFound = await this.userRepository.findOne({
       where: {

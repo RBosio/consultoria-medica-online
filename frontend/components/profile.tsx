@@ -6,11 +6,14 @@ import {
   FaCalendarDays,
   FaCertificate,
   FaCheck,
+  FaChevronRight,
   FaCircleCheck,
   FaCircleXmark,
+  FaCity,
   FaEnvelope,
   FaKey,
   FaMars,
+  FaPaperclip,
   FaPhone,
   FaSuitcaseMedical,
   FaUser,
@@ -26,6 +29,7 @@ import * as Yup from "yup";
 import Button from "@/components/button";
 import {
   Alert,
+  Autocomplete,
   Dialog,
   DialogActions,
   DialogContent,
@@ -35,9 +39,11 @@ import {
 } from "@mui/material";
 import { useRouter } from "next/router";
 import { Auth } from "../../shared/types";
+import { HealthInsuranceResponseDto } from "./dto/healthInsurance.dto";
 
 interface ProfileProps {
   auth: Auth;
+  healthInsurances: HealthInsuranceResponseDto[];
 }
 
 const Profile: React.FC<ProfileProps> = (props) => {
@@ -50,10 +56,18 @@ const Profile: React.FC<ProfileProps> = (props) => {
   const [error, setError] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [request, setRequest] = useState<boolean>(false);
+  const [healthInsurances, setHealthInsurances] = useState<
+    HealthInsuranceResponseDto[]
+  >([]);
+  const [healthInsurance, setHealthInsurance] = useState<number>(-1);
+  const [file, setFile] = useState<any>();
+  const [type, setType] = useState<string>("");
 
   const [success, setSuccess] = useState<boolean>(false);
   const [message, setMessage] = useState<string>("");
   const [confirmVerification, setConfirmVerification] =
+    useState<boolean>(false);
+  const [confirmHealthInsurance, setConfirmHealthInsurance] =
     useState<boolean>(false);
 
   function showDni() {
@@ -72,6 +86,35 @@ const Profile: React.FC<ProfileProps> = (props) => {
 
     return dni;
   }
+
+  function handleChangeFile($e: any) {
+    if ($e.target.files && $e.target.files[0]) {
+      setFile($e.target.files[0]);
+      setType($e.target.files[0].type);
+    }
+  }
+
+  const uploadFile = async () => {
+    if (
+      file &&
+      (type.includes("jpg") ||
+        type.includes("jpeg") ||
+        type.includes("png") ||
+        type.includes("pdf"))
+    ) {
+      const fd = new FormData();
+      fd.append("file", file);
+
+      await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/user/${user.dni}/healthInsurance`,
+        fd,
+        {
+          withCredentials: true,
+          headers: { Authorization: `Bearer ${props.auth.token}` },
+        }
+      );
+    }
+  };
 
   const changePass = useFormik({
     initialValues: {
@@ -101,8 +144,10 @@ const Profile: React.FC<ProfileProps> = (props) => {
           setMessage("Contraseña actualizada con éxito!");
           setSuccess(true);
           setChanged(true);
+          changePass.resetForm();
         } else {
           setError(true);
+          setMessage("Las contraseñas deben ser iguales!");
         }
       } catch (error: any) {
         console.error(error);
@@ -114,9 +159,12 @@ const Profile: React.FC<ProfileProps> = (props) => {
     if (confirm) {
       await changePass.submitForm();
       setConfirm(false);
-    } else {
+    } else if (confirmVerification) {
       handleClickVerification();
       setConfirmVerification(false);
+    } else if (confirmHealthInsurance) {
+      handleClickHealthInsurance();
+      setConfirmHealthInsurance(false);
     }
   };
 
@@ -159,7 +207,27 @@ const Profile: React.FC<ProfileProps> = (props) => {
         }
       );
 
-      setUser({ ...user.data });
+      setHealthInsurances(
+        props.healthInsurances.filter((hi: any) => {
+          return !user.data.healthInsurances
+            .map((h: any) => h.healthInsuranceId)
+            .includes(hi.id);
+        })
+      );
+
+      const department = await axios.get(
+        `https://apis.datos.gob.ar/georef/api/departamentos?id=${user.data.city}`
+      );
+
+      const data = department.data.departamentos[0];
+      const departmentName = data.nombre;
+      const provinceName = data.provincia.nombre;
+
+      setUser({
+        ...user.data,
+        department: departmentName,
+        province: provinceName,
+      });
     };
 
     fetchUser();
@@ -179,7 +247,7 @@ const Profile: React.FC<ProfileProps> = (props) => {
     };
 
     request();
-  }, []);
+  }, [healthInsurance]);
 
   const handleClickVerification = async () => {
     const user = await axios.get(
@@ -208,140 +276,231 @@ const Profile: React.FC<ProfileProps> = (props) => {
     router.push(router.pathname);
   };
 
+  const handleClickHealthInsurance = async () => {
+    if (!file || !healthInsurance) {
+      setMessage("Debes seleccionar una obra social y un archivo!");
+      setError(true);
+      return;
+    }
+
+    await axios.patch(
+      `${process.env.NEXT_PUBLIC_API_URL}/user/healthInsurance/${props.auth.id}`,
+      {
+        healthInsuranceId: healthInsurance,
+      },
+      {
+        withCredentials: true,
+        headers: { Authorization: `Bearer ${props.auth.token}` },
+      }
+    );
+
+    await uploadFile();
+
+    setMessage("Obra social agregada con éxito!");
+    setSuccess(true);
+
+    setHealthInsurance(-1);
+    setFile("");
+    setType("");
+
+    // router.push("/profile");
+  };
+
   return (
     user && (
-      <section className="bg-white mt-20 mx-auto p-4 w-full">
-        <div className="flex justify-center relative">
-          <Avatar
-            labelProps={{ className: "hidden" }}
-            name={user.name}
-            surname={user.surname}
-            className="absolute z-10 left-[calc(50%-65px)] bg-primary hover:cursor-pointer hover:opacity-70"
-            size={130}
-            icon={<FaUser size={60} />}
-            photo={user.image ? `${user.image}` : undefined}
-            onClick={handleClickFile}
-          />
-          <input
-            type="file"
-            id="file"
-            className="hidden"
-            onChange={handleChange}
-          />
-        </div>
-        <div className="flex justify-center relative">
-          <div className="mt-16">
-            <h2
-              className={`text-primary text-center ${robotoBold.className} text-3xl`}
-            >
-              {user.name} {user.surname}
-            </h2>
-          </div>
-        </div>
-        <div
-          className="bg-emerald-200 w-3/4 mt-1 mx-auto"
-          style={{ height: "1px" }}
-        ></div>
-        <div className="md:flex md:justify-center">
-          <div className="md:w-1/3">
-            <h2 className="text-primary text-xl text-center mt-2">
-              Datos personales
-            </h2>
-            <div className="flex flex-col items-center p-2">
-              <div className="flex items-center">
-                <FaEnvelope className="text-primary" />
-                <p className="mx-2">{user.email}</p>
-              </div>
-              <div className="flex items-center">
-                <FaPhone className="text-primary" />
-                <p className="mx-2">{user.phone}</p>
-              </div>
-              <div className="flex items-center">
-                <FaAddressCard className="text-primary" />
-                <p className="mx-2">{showDni()}</p>
-              </div>
-              <div className="flex items-center">
-                <FaCalendarDays className="text-primary" />
-                <p className="mx-2">
-                  {moment().diff(user.birthday, "years")} años
-                </p>
-              </div>
-              <div className="flex items-center">
-                {user.gender ? (
-                  <FaMars className="text-primary" />
-                ) : (
-                  <FaVenus className="text-primary" />
-                )}
+      <div className="my-12 flex flex-col md:flex-row justify-center w-full gap-4 md:mx-12">
+        <section className="bg-white p-16 rounded-lg shadow-lg md:w-1/3">
+          <div className="flex flex-col justify-center items-center gap-4">
+            <div>
+              <Avatar
+                labelProps={{ className: "hidden" }}
+                name={user.name}
+                surname={user.surname}
+                className="bg-primary hover:cursor-pointer hover:opacity-70"
+                size={200}
+                icon={<FaUser size={100} />}
+                photo={user.image ? `${user.image}` : undefined}
+                onClick={handleClickFile}
+              />
+              <input
+                type="file"
+                id="file"
+                className="hidden"
+                onChange={handleChangeFile}
+              />
+            </div>
+            <div className="w-full">
+              <div className="flex flex-col items-center p-2 w-full">
+                <h2 className={`text-primary ${robotoBold.className} text-3xl`}>
+                  {user.name} {user.surname}
+                </h2>
+                <div className="flex items-center">
+                  <FaEnvelope className="text-primary size-4" />
+                  <p className="mx-2 text-xl">{user.email}</p>
+                </div>
+                <div className="flex items-center">
+                  <FaCity className="text-primary size-4" />
+                  <p className="mx-2 text-xl">
+                    {user.department}, {user.province}
+                  </p>
+                </div>
+                <div className="flex items-center">
+                  <FaAddressCard className="text-primary size-4" />
+                  <p className="mx-2 text-xl">{showDni()}</p>
+                </div>
+                <div className="flex items-center">
+                  <FaPhone className="text-primary size-4" />
+                  <p className="mx-2 text-xl">{user.phone}</p>
+                </div>
+                <div className="flex items-center">
+                  <FaCalendarDays className="text-primary size-4" />
+                  <p className="mx-2 text-xl">
+                    {moment().diff(user.birthday, "years")} años
+                  </p>
+                </div>
+                <div className="flex items-center">
+                  {user.gender ? (
+                    <FaMars className="text-primary size-4" />
+                  ) : (
+                    <FaVenus className="text-primary size-4" />
+                  )}
 
-                <p className="mx-2">{user.gender ? "Hombre" : "Mujer"}</p>
-              </div>
-              <div className="w-full">
-                {/* {user.validateHealthInsurance ? (
+                  <p className="mx-2 text-xl">
+                    {user.gender ? "Hombre" : "Mujer"}
+                  </p>
+                </div>
+                <div className="w-full">
+                  {/* {user.validateHealthInsurance ? (
                   <FaCheck className="text-xl text-green-600" />
                   ) : (
                     <FaXmark className="text-xl text-red-600" />
                   )} */}
+                </div>
               </div>
             </div>
           </div>
-          <div className="md:w-1/3">
-            <h4 className="text-primary text-xl text-center mt-2">
-              Obras sociales
-            </h4>
+        </section>
+        <section className="bg-white p-12 rounded-lg shadow-lg md:w-full">
+          <div className="flex flex-col md:flex-row md:justify-between">
             <div>
-              {user.healthInsurances.map((h: any, idx: number) => {
-                return (
-                  <div
-                    className="flex justify-center items-center gap-2"
-                    key={idx}
-                  >
-                    {h.healthInsurance?.name ? (
-                      <>
-                        <div className="mx-2">{h.healthInsurance.name}</div>
-                        {h.verified ? (
-                          <FaCircleCheck className="text-green-600 text-lg" />
-                        ) : (
-                          <>
-                            <FaCircleXmark className="text-red-600 text-lg" />
-                            {!request ? (
-                              <FaCertificate
-                                className="text-primary text-lg hover:cursor-pointer hover:opacity-70"
-                                onClick={() => {
-                                  setConfirmVerification(true);
-                                }}
-                              />
-                            ) : (
-                              ""
-                            )}
-                          </>
-                        )}
-                      </>
-                    ) : (
-                      ""
-                    )}
+              <h4 className="text-primary text-3xl mt-2 font-bold">
+                Obras sociales
+              </h4>
+              <div>
+                {user.healthInsurances.map((h: any, idx: number) => {
+                  return (
+                    <div className="p-4" key={idx}>
+                      {h.healthInsurance?.name ? (
+                        <div className="flex items-center gap-4">
+                          <FaChevronRight className="text-primary text-md size-6" />
+                          <p className="text-xl">{h.healthInsurance.name}</p>
+                          {h.verified ? (
+                            <FaCircleCheck className="text-green-600 text-lg size-6" />
+                          ) : (
+                            <div className="flex items-center gap-2">
+                              <FaCircleXmark className="text-red-600 text-lg size-6" />
+                              {!request && (
+                                <FaCertificate
+                                  className="text-primary text-lg hover:cursor-pointer hover:opacity-70 size-6"
+                                  onClick={() => {
+                                    setConfirmVerification(true);
+                                  }}
+                                />
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        ""
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+            <div className="md:w-2/3">
+              <div className="my-4 md:flex gap-4">
+                <div className="flex items-center gap-4 md:w-full">
+                  <div className="w-full">
+                    <Autocomplete
+                      onChange={(event, newValue: any) => {
+                        setHealthInsurance(newValue?.id);
+                      }}
+                      disablePortal
+                      noOptionsText="Especialidad no encontrada"
+                      options={healthInsurances.map((hi: any) => ({
+                        id: hi.id,
+                        label: hi.name,
+                      }))}
+                      renderInput={(params: any) => (
+                        <Input
+                          onChange={() => {}}
+                          name="healthInsuranceId"
+                          {...params}
+                          label="Obra social"
+                        />
+                      )}
+                    />
                   </div>
-                );
-              })}
+                  <input
+                    type="file"
+                    id="file"
+                    className="hidden"
+                    onChange={handleChange}
+                  />
+                  <FaPaperclip
+                    className="text-primary text-xl hover:cursor-pointer hover:opacity-70"
+                    onClick={handleClickFile}
+                  />
+                </div>
+                <div className="flex justify-center mt-2 md:block">
+                  <Button
+                    startIcon={<FaCheck />}
+                    onClick={() => {
+                      setConfirmHealthInsurance(true);
+                    }}
+                  >
+                    Agregar
+                  </Button>
+                </div>
+              </div>
+              {file && (
+                <div
+                  className={`w-full py-1 px-2 bg-primary rounded-md text-white flex justify-between items-center overflow-x-hidden h-8 ${
+                    file.name.length > 60 ? "overflow-y-scroll" : ""
+                  }`}
+                >
+                  <div className={`${robotoBold.className}`}>{file.name}</div>
+                  <FaXmark
+                    className="hover:cursor-pointer hover:opacity-70"
+                    onClick={() => {
+                      setFile("");
+                    }}
+                  />
+                </div>
+              )}
             </div>
           </div>
-          <div className="md:w-1/3">
-            <h2 className="text-primary text-xl text-center mt-2">Seguridad</h2>
+          <div className="mt-12">
+            <h4 className="text-primary text-3xl mt-2 font-bold">Contraseña</h4>
             <div className="flex flex-col">
               <div className="flex justify-center items-center p-2">
                 <FaKey className="text-primary mr-2" />
-                <div className="border border-gray-200 w-1/2 md:px-2">
+                <div className="border border-primary w-full md:w-1/2 md:px-2 p-1">
                   <p className="text-center">**********</p>
                 </div>
                 <FaEdit
                   className="text-primary ml-2 text-xl hover:cursor-pointer hover:opacity-70"
-                  onClick={() => (changed ? "" : setChange(true))}
+                  onClick={() => setChange(true)}
                 />
               </div>
               {change ? (
-                <div className="p-4">
-                  <h2 className="text-primary text-sm">Cambiar contraseña</h2>
+                <div className="mt-12">
+                  <h4 className="text-primary text-3xl mt-2 font-bold">
+                    Cambiar contraseña
+                  </h4>
                   <form
-                    className="flex flex-col justify-center items-center gap-2 mt-2"
+                    className="flex flex-col justify-center items-center gap-2 mt-2 md:w-1/2 mx-auto"
                     onSubmit={changePass.handleSubmit}
                   >
                     <Input
@@ -388,24 +547,35 @@ const Profile: React.FC<ProfileProps> = (props) => {
               )}
             </div>
           </div>
-        </div>
+        </section>
         <Dialog
-          open={confirm || confirmVerification}
+          open={confirm || confirmVerification || confirmHealthInsurance}
           onClose={() => {
             setConfirm(false);
             setConfirmVerification(false);
+            setConfirmHealthInsurance(false);
           }}
           aria-labelledby="alert-dialog-title"
           aria-describedby="alert-dialog-description"
         >
           <DialogTitle id="alert-dialog-title">
-            {confirm ? "Confirmar cambio" : "Confirmar solicitud"}
+            {confirm
+              ? "Confirmar cambio"
+              : confirmVerification
+              ? "Confirmar solicitud"
+              : confirmHealthInsurance
+              ? "Confirmar solicitud"
+              : ""}
           </DialogTitle>
           <DialogContent>
             <DialogContentText id="alert-dialog-description">
               {confirm
                 ? "¿Estás seguro que deseas cambiar la contraseña?"
-                : "Estás seguro que deseas solicitar la verificación de la obra social?"}
+                : confirmVerification
+                ? "Estás seguro que deseas solicitar la verificación de la obra social?"
+                : confirmHealthInsurance
+                ? "Estás seguro que deseas agregar la obra social?"
+                : ""}
             </DialogContentText>
           </DialogContent>
           <DialogActions>
@@ -415,6 +585,7 @@ const Profile: React.FC<ProfileProps> = (props) => {
               onClick={() => {
                 setConfirm(false);
                 setConfirmVerification(false);
+                setConfirmHealthInsurance(false);
               }}
             >
               Cancelar
@@ -444,10 +615,10 @@ const Profile: React.FC<ProfileProps> = (props) => {
           onClose={() => setError(false)}
         >
           <Alert elevation={6} variant="filled" severity="error">
-            Las contraseñas deben ser iguales!
+            {message}
           </Alert>
         </Snackbar>
-      </section>
+      </div>
     )
   );
 };

@@ -251,7 +251,7 @@ export default function Config(props: ConfigProps) {
 
   const handleClickHealthInsurance = async () => {
     await axios.patch(
-      `${process.env.NEXT_PUBLIC_API_URL}/user/${props.doctor.user.id}`,
+      `${process.env.NEXT_PUBLIC_API_URL}/user/healthInsurance/${props.doctor.user.id}`,
       {
         healthInsurance,
       },

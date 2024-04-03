@@ -160,7 +160,6 @@ export default function Doctor(props: any) {
   return (
     <Layout auth={props.auth}>
       <section className="flex overflow-y-auto xl:p-8">
-        I
         <div className="flex flex-col xl:flex-row xl:gap-6 xl:mt-[3rem]">
           <div className="bg-white shrink-0 relative xl:rounded-md xl:shadow-md xl:w-4/12">
             <Avatar

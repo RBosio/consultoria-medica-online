@@ -17,6 +17,7 @@ import MercadoPagoConfig, { Preference } from 'mercadopago';
 import { ConfigService } from '@nestjs/config';
 import { v4 as uuid } from 'uuid';
 import * as moment from 'moment';
+import { PreferenceRequest } from 'mercadopago/dist/clients/preference/commonTypes';
 
 export interface RequestT extends Request {
   user: {
@@ -315,7 +316,7 @@ export class MeetingService {
     });
     const doctor = await this.doctorService.findOne(doctorId);
 
-    const body = {
+    const body: PreferenceRequest = {
       items: [
         {
           id: uuid(),
@@ -335,6 +336,9 @@ export class MeetingService {
         pending: `http://localhost:4200/doctors/${doctorId}`,
       },
       auto_return: 'approved',
+      payment_methods: {
+        installments: 1,
+      },
     };
 
     const preference = new Preference(client);

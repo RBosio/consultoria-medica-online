@@ -384,7 +384,7 @@ export default function Doctor(props: any) {
             <Message
               title="Operación realizada con éxito"
               message={[
-                "Su reunión fue programada para el día",
+                "Su reunión fue programada para el día ",
                 <span className="text-primary font-bold">
                   {moment(detail.startDatetime).format("LLLL")}
                 </span>,

@@ -331,8 +331,8 @@ export class MeetingService {
       ],
       back_urls: {
         success: `http://localhost:4200/doctors/${doctorId}`,
-        failure: 'http://localhost:4200/payment/failure',
-        pending: 'http://localhost:4200/payment/pending',
+        failure: `http://localhost:4200/doctors/${doctorId}`,
+        pending: `http://localhost:4200/doctors/${doctorId}`,
       },
       auto_return: 'approved',
     };

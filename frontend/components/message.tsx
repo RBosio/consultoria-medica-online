@@ -29,11 +29,17 @@ const Message: React.FC<MessageProps> = (props) => {
           )}
         </div>
         <div className="flex justify-center flex-col items-center p-6 gap-4 text-center">
-          <h2 className="text-primary text-3xl font-semibold text-center">
+          <h2
+            className={`${
+              props.error ? "text-red-600" : "text-primary"
+            } text-3xl font-semibold text-center`}
+          >
             {props.title}
           </h2>
           <h3 className="text-lg">{props.message}</h3>
-          <Button onClick={() => router.push(props.route)}>
+          <Button
+            onClick={() => router.push(props.route)}
+          >
             {props.buttonText}
           </Button>
         </div>

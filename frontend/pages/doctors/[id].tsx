@@ -25,7 +25,7 @@ import { GoDotFill } from "react-icons/go";
 import { FaPhone, FaSuitcaseMedical, FaLocationDot } from "react-icons/fa6";
 import { IoIosPricetag, IoMdMail } from "react-icons/io";
 import { IoTimeSharp } from "react-icons/io5";
-import { CiDiscount1 } from "react-icons/ci";
+import { CiCircleCheck, CiDiscount1 } from "react-icons/ci";
 import Button from "@/components/button";
 import { useRouter } from "next/router";
 import moment from "moment";
@@ -160,7 +160,6 @@ export default function Doctor(props: any) {
   return (
     <Layout auth={props.auth}>
       <section className="flex overflow-y-auto xl:p-8">
-        I
         <div className="flex flex-col xl:flex-row xl:gap-6 xl:mt-[3rem]">
           <div className="bg-white shrink-0 relative xl:rounded-md xl:shadow-md xl:w-4/12">
             <Avatar
@@ -379,30 +378,37 @@ export default function Doctor(props: any) {
               </div>
             </div>
           ) : (
-            <div className="bg-white p-4 w-full flex flex-col justify-center items-center">
-              <h2 className="text-primary text-3xl font-semibold text-center">
-                Operación realizada con éxito
-              </h2>
-              <h3>
-                Su reunión fue programada para el día{" "}
-                {moment(detail.startDatetime).format("LLL")}
-              </h3>
-              <div className="flex justify-center mt-4">
-                <Button
-                  onClick={() =>
-                    router.push(
-                      `/meetings/${btoa(
-                        props.auth.id +
-                          "." +
-                          moment(detail.startDatetime).format(
-                            "YYYY-MM-DDTHH:mm:ss"
-                          )
-                      )}`
-                    )
-                  }
-                >
-                  Ir a la reunión
-                </Button>
+            <div className="w-full h-full flex justify-center items-center bg-white">
+              <div className="w-11/12 sm:w-9/12 lg:w-6/12 shadow-lg">
+                <div className="bg-primary w-full flex justify-center p-2">
+                  <CiCircleCheck color="#ffffff" size={100} />
+                </div>
+                <div className="flex justify-center flex-col items-center p-6 gap-4 text-center">
+                  <h2 className="text-primary text-3xl font-semibold text-center">
+                    Operación realizada con éxito
+                  </h2>
+                  <h3>
+                    Su reunión fue programada para el día{" "}
+                    <span className="text-primary font-bold">
+                      {moment(detail.startDatetime).format("LLLL")}
+                    </span>
+                  </h3>
+                  <Button
+                    onClick={() =>
+                      router.push(
+                        `/meetings/${btoa(
+                          props.auth.id +
+                            "." +
+                            moment(detail.startDatetime).format(
+                              "YYYY-MM-DDTHH:mm:ss"
+                            )
+                        )}`
+                      )
+                    }
+                  >
+                    Ir a la reunión
+                  </Button>
+                </div>
               </div>
             </div>
           )}

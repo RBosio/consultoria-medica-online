@@ -18,7 +18,7 @@ export class UserService {
     @InjectRepository(UserHealthInsurance)
     private userHealthInsuranceRepository: Repository<UserHealthInsurance>,
     private healthInsuranceService: HealthInsuranceService,
-  ) { }
+  ) {}
 
   async findAll(): Promise<User[]> {
     const usersFound = await this.userRepository.find({
@@ -124,34 +124,39 @@ export class UserService {
       throw new HttpException('Usuario no encontrado', HttpStatus.NOT_FOUND);
     }
 
-    userFound.password = ''
+    userFound.password = '';
 
     return userFound;
   }
 
   async create(user: createUserDto) {
-
     const userFoundDni = await this.userRepository.findOne({
       where: {
-        dni: user.dni
-      }
-    })
+        dni: user.dni,
+      },
+    });
     if (userFoundDni) {
-      throw new HttpException('El DNI ya ha sido registrado', HttpStatus.BAD_REQUEST)
+      throw new HttpException(
+        'El DNI ya ha sido registrado',
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
     const userFoundEmail = await this.userRepository.findOne({
       where: {
-        email: user.email
-      }
-    })
+        email: user.email,
+      },
+    });
     if (userFoundEmail) {
-      throw new HttpException('El E-mail ya ha sido registrado', HttpStatus.BAD_REQUEST)
+      throw new HttpException(
+        'El E-mail ya ha sido registrado',
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
-    let newUser = this.userRepository.create(user)
+    let newUser = this.userRepository.create(user);
 
-    newUser = await this.userRepository.save(newUser)
+    newUser = await this.userRepository.save(newUser);
 
     //TODO: REVISAR LA LÓGICA DE ABAJO SI SE PUEDE HACER EN OTROS ENDPOINTS SEPARADOS (Health Insurances)
 
@@ -289,12 +294,11 @@ export class UserService {
       surname: 'User',
       password: '123456',
       phone: '33-333333',
-      cuit: "20-33429120-1",
-      birthday: new Date("1993-04-01"),
+      cuit: '20-33429120-1',
+      birthday: new Date('1993-04-01'),
       gender: false,
       city: 82084,
-    }
-    )
+    });
 
     await this.create({
       dni: '38233911',
@@ -303,12 +307,11 @@ export class UserService {
       surname: 'Doctor',
       password: '123456',
       phone: '44-444444',
-      cuit: "20-38233911-1",
-      birthday: new Date("1998-08-14"),
+      cuit: '20-38233911-1',
+      birthday: new Date('1998-08-14'),
       gender: true,
       city: 82084,
-    }
-    )
+    });
 
     await this.create({
       dni: '34266592',
@@ -317,11 +320,10 @@ export class UserService {
       surname: 'Admin',
       password: '123456',
       phone: '55-555555',
-      cuit: "20-33429120-1",
-      birthday: new Date("1993-04-01"),
+      cuit: '20-33429120-1',
+      birthday: new Date('1993-04-01'),
       gender: true,
       city: 82084,
-    }
-    )
+    });
   }
 }

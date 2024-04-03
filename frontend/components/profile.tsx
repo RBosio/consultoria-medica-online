@@ -144,6 +144,7 @@ const Profile: React.FC<ProfileProps> = (props) => {
           setMessage("Contraseña actualizada con éxito!");
           setSuccess(true);
           setChanged(true);
+          changePass.resetForm();
         } else {
           setError(true);
           setMessage("Las contraseñas deben ser iguales!");
@@ -476,24 +477,26 @@ const Profile: React.FC<ProfileProps> = (props) => {
               )}
             </div>
           </div>
-          <div>
-            <h2 className="text-primary text-xl text-center">Contraseña</h2>
+          <div className="mt-12">
+            <h4 className="text-primary text-3xl mt-2 font-bold">Contraseña</h4>
             <div className="flex flex-col">
               <div className="flex justify-center items-center p-2">
                 <FaKey className="text-primary mr-2" />
-                <div className="border border-gray-200 w-1/2 md:px-2">
+                <div className="border border-primary w-1/2 md:px-2 p-1">
                   <p className="text-center">**********</p>
                 </div>
                 <FaEdit
                   className="text-primary ml-2 text-xl hover:cursor-pointer hover:opacity-70"
-                  onClick={() => (changed ? "" : setChange(true))}
+                  onClick={() => setChange(true)}
                 />
               </div>
               {change ? (
-                <div className="p-4">
-                  <h2 className="text-primary text-sm">Cambiar contraseña</h2>
+                <div className="mt-12">
+                  <h4 className="text-primary text-3xl mt-2 font-bold">
+                    Cambiar contraseña
+                  </h4>
                   <form
-                    className="flex flex-col justify-center items-center gap-2 mt-2"
+                    className="flex flex-col justify-center items-center gap-2 mt-2 w-1/2 mx-auto"
                     onSubmit={changePass.handleSubmit}
                   >
                     <Input

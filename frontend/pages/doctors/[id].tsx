@@ -76,6 +76,12 @@ export default function Doctor(props: any) {
           await showDetail(selected);
           localStorage.removeItem("selectedDate");
           router.push("/doctors/" + router.query.id);
+        } else if (
+          router.query.preference_id &&
+          router.query.status === "rejected" &&
+          selected
+        ) {
+          setPaid(true);
         }
       };
 
@@ -380,7 +386,7 @@ export default function Doctor(props: any) {
                 </div>
               </div>
             </div>
-          ) : (
+          ) : detail ? (
             <Message
               title="Operación realizada con éxito"
               message={[
@@ -389,12 +395,27 @@ export default function Doctor(props: any) {
                   {moment(detail.startDatetime).format("LLLL")}
                 </span>,
               ]}
-              route={`/meetings/${btoa(
-                props.auth.id +
-                  "." +
-                  moment(detail.startDatetime).format("YYYY-MM-DDTHH:mm:ss")
-              )}`}
               buttonText="Ir a la reunión"
+              handleClick={() =>
+                router.push(
+                  `/meetings/${btoa(
+                    props.auth.id +
+                      "." +
+                      moment(detail.startDatetime).format("YYYY-MM-DDTHH:mm:ss")
+                  )}`
+                )
+              }
+            />
+          ) : (
+            <Message
+              title="Ha ocurrido un error"
+              message={"Su reunión no ha podido ser programada"}
+              buttonText="Regresar"
+              error={true}
+              handleClick={() => {
+                setPaid(false);
+                router.push("/doctors/" + router.query.id);
+              }}
             />
           )}
         </div>

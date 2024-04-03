@@ -6,9 +6,9 @@ import { CiCircleAlert, CiCircleCheck } from "react-icons/ci";
 export interface MessageProps {
   title: string;
   message: any;
-  route: string;
   buttonText: string;
   error?: boolean;
+  handleClick: any;
 }
 
 const Message: React.FC<MessageProps> = (props) => {
@@ -37,11 +37,7 @@ const Message: React.FC<MessageProps> = (props) => {
             {props.title}
           </h2>
           <h3 className="text-lg">{props.message}</h3>
-          <Button
-            onClick={() => router.push(props.route)}
-          >
-            {props.buttonText}
-          </Button>
+          <Button onClick={props.handleClick}>{props.buttonText}</Button>
         </div>
       </div>
     </div>

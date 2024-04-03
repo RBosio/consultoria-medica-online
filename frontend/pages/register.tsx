@@ -67,9 +67,9 @@ const RegisterSuccess: React.FC<any> = (props) => {
         "Bienvenido ",
         <span className="text-primary font-bold">{props.fullName}</span>,
       ]}
-      route="/login"
       title="Tu cuenta ha sido creada con éxito"
       buttonText="Acceder"
+      handleClick={() => router.push("/login")}
     />
   );
 };

@@ -29,6 +29,7 @@ import { CiCircleCheck, CiDiscount1 } from "react-icons/ci";
 import Button from "@/components/button";
 import { useRouter } from "next/router";
 import moment from "moment";
+import Message from "@/components/message";
 
 export default function Doctor(props: any) {
   const theme = useTheme();
@@ -238,7 +239,9 @@ export default function Doctor(props: any) {
                       </div>
                       <div className="flex gap-2 text-primary items-center font-bold">
                         <FaLocationDot size={15} />
-                        <p className="text-secondary">{props.doctor.officeAddress}</p>
+                        <p className="text-secondary">
+                          {props.doctor.officeAddress}
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -378,39 +381,21 @@ export default function Doctor(props: any) {
               </div>
             </div>
           ) : (
-            <div className="w-full h-full flex justify-center items-center bg-white">
-              <div className="w-11/12 sm:w-9/12 lg:w-6/12 shadow-lg">
-                <div className="bg-primary w-full flex justify-center p-2">
-                  <CiCircleCheck color="#ffffff" size={100} />
-                </div>
-                <div className="flex justify-center flex-col items-center p-6 gap-4 text-center">
-                  <h2 className="text-primary text-3xl font-semibold text-center">
-                    Operación realizada con éxito
-                  </h2>
-                  <h3>
-                    Su reunión fue programada para el día{" "}
-                    <span className="text-primary font-bold">
-                      {moment(detail.startDatetime).format("LLLL")}
-                    </span>
-                  </h3>
-                  <Button
-                    onClick={() =>
-                      router.push(
-                        `/meetings/${btoa(
-                          props.auth.id +
-                            "." +
-                            moment(detail.startDatetime).format(
-                              "YYYY-MM-DDTHH:mm:ss"
-                            )
-                        )}`
-                      )
-                    }
-                  >
-                    Ir a la reunión
-                  </Button>
-                </div>
-              </div>
-            </div>
+            <Message
+              title="Operación realizada con éxito"
+              message={[
+                "Su reunión fue programada para el día",
+                <span className="text-primary font-bold">
+                  {moment(detail.startDatetime).format("LLLL")}
+                </span>,
+              ]}
+              route={`/meetings/${btoa(
+                props.auth.id +
+                  "." +
+                  moment(detail.startDatetime).format("YYYY-MM-DDTHH:mm:ss")
+              )}`}
+              buttonText="Ir a la reunión"
+            />
           )}
         </div>
         <Dialog

@@ -48,7 +48,7 @@ export class Doctor {
   description: string;
 
   @Column({ type: 'text', nullable: true })
-  address: string;
+  officeAddress: string;
 
   @Column()
   employmentDate: Date;

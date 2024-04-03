@@ -432,7 +432,7 @@ export default function Home(props: Speciality) {
                                     <p className="text-primary text-lg">
                                       Dirección:
                                     </p>
-                                    {user.doctor?.address}
+                                    {user.doctor?.officeAddress}
                                   </div>
                                   <div className="flex items-center gap-2">
                                     <p className="text-primary text-lg">

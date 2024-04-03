@@ -57,6 +57,9 @@ export class User {
   @Column({ type: Date, default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
 
+  @Column({ type: 'text', nullable: true })
+  address: string;
+
   @OneToOne(() => Doctor, (doctor) => doctor.user)
   doctor: Doctor;
 

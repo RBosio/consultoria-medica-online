@@ -24,7 +24,7 @@ export class createDoctorDto {
     
     @IsDefined()
     @Length(1)
-    address: string
+    officeAddress: string
 
     @IsDefined()
     planId: number

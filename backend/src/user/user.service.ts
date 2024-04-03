@@ -111,8 +111,6 @@ export class UserService {
       throw new HttpException('Usuario no encontrado', HttpStatus.NOT_FOUND);
     }
 
-    userFound.password = ''
-
     return userFound;
   }
 

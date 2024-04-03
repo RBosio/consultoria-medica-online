@@ -244,7 +244,7 @@ INSERT INTO
         userId,
         planId,
         description,
-        address
+        officeAddress
     )
 VALUES
     (

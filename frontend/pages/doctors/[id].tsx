@@ -239,7 +239,7 @@ export default function Doctor(props: any) {
                       </div>
                       <div className="flex gap-2 text-primary items-center font-bold">
                         <FaLocationDot size={15} />
-                        <p className="text-secondary">{props.doctor.address}</p>
+                        <p className="text-secondary">{props.doctor.officeAddress}</p>
                       </div>
                     </div>
                   </div>

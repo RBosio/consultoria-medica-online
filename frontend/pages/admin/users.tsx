@@ -45,8 +45,6 @@ interface Speciality {
 }
 
 export default function Home(props: Speciality) {
-  const router = useRouter();
-
   const [error, setError] = useState<boolean>(false);
   const [success, setSuccess] = useState<boolean>(false);
   const [message, setMessage] = useState<string>("");
@@ -56,6 +54,7 @@ export default function Home(props: Speciality) {
   const [users, setUsers] = useState<any[]>([]);
   const [page, setPage] = useState<any>();
   const [o, setO] = useState(false);
+  const [verify, setVerify] = useState<boolean>(false);
 
   useEffect(() => {
     setPage(1);
@@ -77,6 +76,16 @@ export default function Home(props: Speciality) {
   };
 
   const onConfirmClick = async () => {
+    if (confirm) {
+      handleHealthInsurance();
+    }
+    if (verify) {
+      const doctorId = Number(localStorage.getItem("doctorId"));
+      handleVerification(doctorId);
+    }
+  };
+
+  const handleHealthInsurance = async () => {
     const healthInsuranceId = Number(localStorage.getItem("healthInsuranceId"));
     const userHIId = Number(localStorage.getItem("userHIId"));
 
@@ -106,6 +115,27 @@ export default function Home(props: Speciality) {
 
     setO(false);
     setConfirm(false);
+  };
+
+  const handleVerification = async (doctorId: number) => {
+    await axios.patch(
+      `${process.env.NEXT_PUBLIC_API_URL}/doctor/verify/${doctorId}`,
+      {},
+      {
+        withCredentials: true,
+        headers: { Authorization: `Bearer ${props.auth.token}` },
+      }
+    );
+
+    setSuccess(true);
+    setMessage("Doctor verificado con éxito");
+
+    const user = users.filter((u) => u.doctor?.id === doctorId)[0];
+    user.doctor.verified = true;
+    setUsers(props.users.map((u) => (u.doctor?.id === doctorId ? user : u)));
+
+    setO(false);
+    setVerify(false);
   };
 
   return (
@@ -262,16 +292,16 @@ export default function Home(props: Speciality) {
                             align="center"
                             sx={{ padding: "1.2rem", fontSize: "1.2rem" }}
                           >
-                            <div
-                              className="flex justify-center items-center gap-4 text-primary p-2 hover:cursor-pointer"
-                              onClick={() => {
-                                setUser(row);
-                                setO(true);
+                            <div className="flex justify-center">
+                              <FaCircleInfo
+                                className="text-primary hover:cursor-pointer size-4"
+                                onClick={() => {
+                                  setUser(row);
+                                  setO(true);
 
-                                setInfo(true);
-                              }}
-                            >
-                              <FaCircleInfo />
+                                  setInfo(true);
+                                }}
+                              />
                             </div>
                           </TableCell>
                         </TableRow>
@@ -437,7 +467,24 @@ export default function Home(props: Speciality) {
                                     {user.doctor?.verified ? (
                                       <FaCheck className="text-green-400" />
                                     ) : (
-                                      <FaXmark className="text-red-400" />
+                                      user.doctor.id && (
+                                        <>
+                                          <FaXmark className="text-red-400" />
+                                          <Button
+                                            onClick={() => {
+                                              localStorage.setItem(
+                                                "doctorId",
+                                                Number(
+                                                  user.doctor?.id
+                                                ).toString()
+                                              );
+                                              setVerify(true);
+                                            }}
+                                          >
+                                            Verificar
+                                          </Button>
+                                        </>
+                                      )
                                     )}
                                   </div>
                                   <div className="flex items-center gap-2">
@@ -484,19 +531,24 @@ export default function Home(props: Speciality) {
           </div>
         </div>
         <Dialog
-          open={confirm}
+          open={confirm || verify}
           onClose={() => {
             setConfirm(false);
+            setVerify(false);
           }}
           aria-labelledby="alert-dialog-title"
           aria-describedby="alert-dialog-description"
         >
           <DialogTitle id="alert-dialog-title" className="text-center">
-            {confirm ? "Validar obra social" : ""}
+            {confirm ? "Validar obra social" : verify ? "Validar doctor" : ""}
           </DialogTitle>
           <DialogContent>
             <DialogContentText id="alert-dialog-description">
-              {confirm ? "¿Desea validar la obra social?" : ""}
+              {confirm
+                ? "¿Desea validar la obra social?"
+                : verify
+                ? "¿Desea verificar al doctor?"
+                : ""}
             </DialogContentText>
           </DialogContent>
           <DialogActions>
@@ -505,6 +557,7 @@ export default function Home(props: Speciality) {
               variant="text"
               onClick={() => {
                 setConfirm(false);
+                setVerify(false);
               }}
             >
               Cancelar

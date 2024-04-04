@@ -158,7 +158,7 @@ export default function Config(props: ConfigProps) {
       durationMeeting: duration,
       priceMeeting: props.doctor.priceMeeting,
       phone: props.doctor.user.phone,
-      address: props.doctor.address,
+      officeAddress: props.doctor.officeAddress,
     },
     onSubmit: async (values, { setSubmitting }) => {
       if (values.priceMeeting.toString().length > 0) {
@@ -251,7 +251,7 @@ export default function Config(props: ConfigProps) {
 
   const handleClickHealthInsurance = async () => {
     await axios.patch(
-      `${process.env.NEXT_PUBLIC_API_URL}/user/${props.doctor.user.id}`,
+      `${process.env.NEXT_PUBLIC_API_URL}/user/healthInsurance/${props.doctor.user.id}`,
       {
         healthInsurance,
       },
@@ -461,7 +461,7 @@ export default function Config(props: ConfigProps) {
                       <div className="flex gap-2 text-primary items-center font-bold">
                         <FaLocationDot size={15} />
                         <p className="text-secondary">
-                          {props.doctor.address ? props.doctor.address : "-"}
+                          {props.doctor.officeAddress ? props.doctor.officeAddress : "-"}
                         </p>
                       </div>
                       <Button
@@ -817,10 +817,10 @@ export default function Config(props: ConfigProps) {
                           </h4>
                           <Input
                             type="text"
-                            name="address"
+                            name="officeAddress"
                             onChange={updateForm.handleChange}
                             onBlur={updateForm.handleBlur}
-                            value={updateForm.values.address}
+                            value={updateForm.values.officeAddress}
                             className="md:w-1/2"
                           />
                         </div>

@@ -1,23 +1,11 @@
-import {
-  BeforeInsert,
-  BeforeUpdate,
-  Column,
-  Entity,
-  ManyToMany,
-  ManyToOne,
-  OneToMany,
-  OneToOne,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
-import { City } from './city.entity';
-import { hash, compare } from 'bcryptjs';
-import { Doctor } from './doctor.entity';
-import { Meeting } from './meeting.entity';
-import { HealthInsurance } from './health-insurance.entity';
-import { Comment } from './comment.entity';
-import { Notification } from './notification.entity';
-import { UserHealthInsurance } from './userHealthInsurances.entity';
-import { doc } from 'prettier';
+import { BeforeInsert, BeforeUpdate, Column, Entity, ManyToMany, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm'
+import { hash, compare } from 'bcryptjs'
+import { Doctor } from './doctor.entity'
+import { Meeting } from './meeting.entity'
+import { HealthInsurance } from './health-insurance.entity'
+import { Comment } from './comment.entity'
+import { Notification } from './notification.entity'
+import { UserHealthInsurance } from './userHealthInsurances.entity'
 
 @Entity()
 export class User {
@@ -44,6 +32,15 @@ export class User {
 
   @Column({ nullable: true })
   phone: string;
+  
+  @Column({ default: false })
+  city: number
+
+  @Column({ type: 'text', nullable: true })
+  address: string;
+
+  @OneToMany(() => UserHealthInsurance, userHealthInsurance => userHealthInsurance.user)
+  healthInsurances: UserHealthInsurance[]
 
   @Column()
   birthday: Date;
@@ -62,15 +59,6 @@ export class User {
 
   @Column({ type: Date, default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
-
-  @ManyToOne(() => City, (city) => city.users)
-  city: City;
-
-  @OneToMany(
-    () => UserHealthInsurance,
-    (userHealthInsurance) => userHealthInsurance.user,
-  )
-  healthInsurances: UserHealthInsurance[];
 
   @OneToOne(() => Doctor, (doctor) => doctor.user)
   doctor: Doctor;

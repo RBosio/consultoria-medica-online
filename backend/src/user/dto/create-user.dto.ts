@@ -1,19 +1,50 @@
 import { createDoctorDto } from "src/doctor/dto/create-doctor.dto"
 import { HealthInsurance } from "src/entities/health-insurance.entity"
+import { IsEmail, IsDefined, Length, Matches, IsDateString, IsIn, IsInt } from "class-validator"
 
 export class createUserDto {
-    name: string
-    surname: string
-    email: string
-    password: string
-    dni: string
-    cuit: string
-    phone?: string
-    birthday: Date
-    admin?: boolean
-    gender: boolean
-    zipCode: string
-    healthInsurances?: HealthInsurance[]
-    his: number[]
-    doctor?: createDoctorDto
+    @IsDefined()
+    @Length(1)
+    name: string;
+
+    @IsDefined()
+    @Length(1)
+    surname: string;
+
+    @IsDefined()
+    @IsEmail()
+    email: string;
+
+    @IsDefined()
+    @Length(8)
+    password: string;
+
+    @IsDefined()
+    @Matches(/^[\d]{1,3}\.?[\d]{3,3}\.?[\d]{3,3}$/)
+    dni: string;
+
+    @IsDefined()
+    @Length(1)
+    address: string;
+
+    @IsDefined()
+    @Matches(/^(20|23|24|27|30|33|34)\d{8}\d{1}$/gm)
+    cuit: string;
+
+    @IsDefined()
+    @Matches(/^(?:(?:00)?549?)?0?(?:11|[2368]\d)(?:(?=\d{0,2}15)\d{2})??\d{8}$/)
+    phone: string;
+
+    @IsDefined()
+    @IsDateString()
+    birthday: Date;
+
+    @IsDefined()
+    @IsIn([0,1])
+    gender: boolean;
+    
+    @IsDefined()
+    @IsInt()
+    city: number;
+
 }

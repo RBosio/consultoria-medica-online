@@ -17,6 +17,7 @@ import MercadoPagoConfig, { Preference } from 'mercadopago';
 import { ConfigService } from '@nestjs/config';
 import { v4 as uuid } from 'uuid';
 import * as moment from 'moment';
+import { PreferenceRequest } from 'mercadopago/dist/clients/preference/commonTypes';
 
 export interface RequestT extends Request {
   user: {
@@ -309,12 +310,13 @@ export class MeetingService {
     };
   }
 
-  async createPreference(pref: any) {
+  async createPreference(pref: any, doctorId: number) {
     const client = new MercadoPagoConfig({
       accessToken: this.configService.get<string>('MP_ACCESS_TOKEN'),
     });
+    const doctor = await this.doctorService.findOne(doctorId);
 
-    const body = {
+    const body: PreferenceRequest = {
       items: [
         {
           id: uuid(),
@@ -322,18 +324,21 @@ export class MeetingService {
             pref.startDatetime,
           ).format('LL')} a las ${moment(pref.startDatetime).format(
             'LT',
-          )} con el Dr. Bilardo`,
+          )} con el Dr. ${doctor.user.surname}, ${doctor.user.name}`,
           quantity: 1,
           currency_id: 'ARS',
           unit_price: pref.price,
         },
       ],
       back_urls: {
-        success: 'http://localhost:4200/payment/success',
-        failure: 'http://localhost:4200/payment/failure',
-        pending: 'http://localhost:4200/payment/pending',
+        success: `http://localhost:4200/doctors/${doctorId}`,
+        failure: `http://localhost:4200/doctors/${doctorId}`,
+        pending: `http://localhost:4200/doctors/${doctorId}`,
       },
       auto_return: 'approved',
+      payment_methods: {
+        installments: 1,
+      },
     };
 
     const preference = new Preference(client);

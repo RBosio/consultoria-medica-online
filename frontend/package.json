@@ -9,12 +9,16 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@emotion/react": "^11.11.3",
+    "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.0",
     "@mercadopago/sdk-react": "^0.0.18",
     "@mui/material": "^5.15.3",
+    "@mui/material": "^5.15.14",
+    "@mui/styled-engine-sc": "^6.0.0-alpha.18",
+    "@mui/x-date-pickers": "^6.19.8",
     "@zoom/videosdk": "^1.10.5",
     "axios": "^1.6.5",
+    "dayjs": "^1.11.10",
     "formik": "^2.4.5",
     "hamburger-react": "^2.5.0",
     "i": "^0.3.7",
@@ -27,6 +31,7 @@
     "react-burger-menu": "^3.0.9",
     "react-dom": "^18",
     "react-icons": "^4.12.0",
+    "styled-components": "^6.1.8",
     "yup": "^1.3.3"
   },
   "devDependencies": {

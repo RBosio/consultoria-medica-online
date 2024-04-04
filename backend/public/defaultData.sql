@@ -1,23 +1,4 @@
 INSERT INTO
-    country (name)
-VALUES
-    ('Argentina'),
-    ('Brasil');
-
-INSERT INTO
-    province (name, countryId)
-VALUES
-    ('Santa Fe', 1),
-    ('Buenos Aires', 1);
-
-INSERT INTO
-    city (zipCode, name, provinceId)
-VALUES
-    ('1000', 'Buenos Aires', 2),
-    ('2000', 'Rosario', 1),
-    ('3000', 'Santa Fe', 1);
-
-INSERT INTO
     speciality (name)
 VALUES
     ('Psicologia'),
@@ -114,3 +95,5 @@ VALUES
         "Comentario 2",
         2
     );
+
+UPDATE user SET admin = 1 WHERE id = 3;

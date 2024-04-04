@@ -80,10 +80,10 @@ const DoctorCard: React.FC<MeetingResponseDto> = (props) => {
               )
               })}</div>
           </div>
-          {props.doctor.address ? (
+          {props.doctor.officeAddress ? (
             <div className="flex items-center">
               <FaLocationDot className="text-primary" />
-              <p className="text-sm sm:text-base px-1 sm:px-2">{props.doctor.address}</p>
+              <p className="text-sm sm:text-base px-1 sm:px-2">{props.doctor.officeAddress}</p>
             </div>
           ) : (
             ""

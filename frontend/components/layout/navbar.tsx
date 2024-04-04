@@ -3,15 +3,12 @@ import Avatar from "../avatar";
 import { Auth } from "../../../shared/types";
 import {
   Badge,
-  Box,
   Divider,
   IconButton,
   ListItemIcon,
   Menu,
   MenuItem,
-  Modal,
   Tooltip,
-  Typography,
 } from "@mui/material";
 import { useTheme } from "@mui/material";
 import { GrLogout } from "react-icons/gr";
@@ -19,8 +16,6 @@ import { IoPersonSharp } from "react-icons/io5";
 import Link from "next/link";
 import { Sling as Hamburger } from "hamburger-react";
 import Image from "next/image";
-import Profile from "../profile";
-import Fade from "@mui/material/Fade";
 import {
   FaAngleRight,
   FaBell,
@@ -48,7 +43,6 @@ const Navbar: React.FC<NavbarProps> = (props) => {
   const [notifyPosition, setNotifyPosition] = useState<null | HTMLElement>(
     null
   );
-  const [o, setO] = useState(false);
   const [openN, setOpenN] = useState(false);
   const [notifications, setNotifications] = useState<NotificationResponseDto[]>(
     []
@@ -125,17 +119,22 @@ const Navbar: React.FC<NavbarProps> = (props) => {
   };
 
   return (
-    <section className={`p-4 bg-white w-full shrink-0 h-20 shadow-md flex items-center justify-between ${props.leftElement ? "" : "md:justify-end"} z-10`}>
+    <section
+      className={`p-4 bg-white w-full shrink-0 h-20 shadow-md flex items-center justify-between ${
+        props.leftElement ? "" : "md:justify-end"
+      } z-10`}
+    >
       {props.leftElement}
-      {props.renderSidebar && <div className="md:hidden">
-        <Hamburger
-          size={28}
-          color={theme.palette.primary.main}
-          toggled={props.sidebarOpened}
-          toggle={() => props.setSidebarOpened(!props.sidebarOpened)}
-        />
-      </div>
-      }
+      {props.renderSidebar && (
+        <div className="md:hidden">
+          <Hamburger
+            size={28}
+            color={theme.palette.primary.main}
+            toggled={props.sidebarOpened}
+            toggle={() => props.setSidebarOpened(!props.sidebarOpened)}
+          />
+        </div>
+      )}
       <Image
         className="md:hidden"
         src="/logo.png"
@@ -277,8 +276,9 @@ const Navbar: React.FC<NavbarProps> = (props) => {
         </Menu>
         <Tooltip placement="bottom" title="Perfil">
           <IconButton
-            className={`rounded-md hover:bg-primary_light ${menuPosition ? "bg-primary" : ""
-              }`}
+            className={`rounded-md hover:bg-primary_light ${
+              menuPosition ? "bg-primary" : ""
+            }`}
             onClick={handleClick}
             size="small"
           >
@@ -308,12 +308,14 @@ const Navbar: React.FC<NavbarProps> = (props) => {
           transformOrigin={{ horizontal: "right", vertical: "top" }}
           anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
         >
-          <MenuItem sx={{ color: "#ffffff" }} onClick={() => setO(true)}>
-            <ListItemIcon>
-              <IoPersonSharp color="#ffffff" />
-            </ListItemIcon>
-            Perfil
-          </MenuItem>
+          <Link href="/profile">
+            <MenuItem sx={{ color: "#ffffff" }}>
+              <ListItemIcon>
+                <IoPersonSharp color="#ffffff" />
+              </ListItemIcon>
+              Perfil
+            </MenuItem>
+          </Link>
           <Divider sx={{ margin: "0.5em 0" }} color="#ffffff" />
           <Link href="/logout">
             <MenuItem sx={{ color: "#ffffff" }} onClick={handleClose}>
@@ -325,45 +327,6 @@ const Navbar: React.FC<NavbarProps> = (props) => {
           </Link>
         </Menu>
       </div>
-      <Modal
-        open={o}
-        onClose={() => setO(false)}
-        aria-labelledby="modal-modal-title"
-        aria-describedby="modal-modal-description"
-      >
-        <Fade in={o}>
-          <Box
-            sx={{
-              position: "absolute" as "absolute",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              width: 800,
-              bgcolor: "background.paper",
-
-              boxShadow: 24,
-              p: 4,
-            }}
-          >
-            <Typography
-              id="modal-modal-title"
-              variant="h6"
-              component="h2"
-              className="text-center text-primary text-2xl"
-            >
-              Perfil de usuario
-            </Typography>
-            <Typography
-              id="modal-modal-description"
-              component={"span"}
-              variant={"body2"}
-              sx={{ mt: 2 }}
-            >
-              <Profile auth={props.auth} />
-            </Typography>
-          </Box>
-        </Fade>
-      </Modal>
     </section>
   );
 };

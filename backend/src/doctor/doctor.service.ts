@@ -9,6 +9,7 @@ import * as Moment from 'moment';
 import { extendMoment } from 'moment-range';
 import { SpecialityService } from 'src/speciality/speciality.service';
 import { PlanService } from 'src/plan/plan.service';
+import { createDoctorDto } from './dto/create-doctor.dto';
 
 @Injectable()
 export class DoctorService {
@@ -19,10 +20,23 @@ export class DoctorService {
     private planService: PlanService,
   ) {}
 
-  async findAll(query: getDoctorsDto) {
-    const { name, avgRate, seniority, specialityId, orderBy, page, perPage } =
-      query;
-    const moment = extendMoment(Moment);
+    async create(userIdToAssociate: number, doctor: createDoctorDto) {
+            
+        const user = await this.userService.findOne(userIdToAssociate);
+        if (!user) throw new HttpException('Usuario no encontrado', HttpStatus.NOT_FOUND);
+
+        const newDoctor = await this.doctorRepository.create(doctor)
+        
+        newDoctor.user = user;
+
+        await this.doctorRepository.save(newDoctor)
+        
+        return newDoctor;
+    }
+
+    async findAll(query: getDoctorsDto) {
+        const { name, avgRate, seniority, specialityId, orderBy, page, perPage } = query
+        const moment = extendMoment(Moment)
 
     let doctorsFound = [];
 

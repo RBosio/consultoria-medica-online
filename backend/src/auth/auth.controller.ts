@@ -26,8 +26,7 @@ export class AuthController {
 
     @Post('signup')
     signup(@Body() user: createUserDto): Promise<User | HttpException> {
-        const { doctor } = user
-        return this.userService.create(user, doctor)
+        return this.userService.create(user)
     }
 
     @Get('session')

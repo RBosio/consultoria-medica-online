@@ -11,6 +11,7 @@ import { diskStorage } from 'multer';
 import { v4 as uuidv4 } from 'uuid';
 import { Request } from 'express';
 import { getDoctorsDto } from './dto/get-doctors.dto';
+import { createDoctorDto } from './dto/create-doctor.dto';
 
 @Controller('doctor')
 @UseGuards(AuthGuard, RolesGuard)
@@ -100,5 +101,11 @@ export class DoctorController {
         const { body } = request
 
         return this.doctorService.uploadTitle(id, body.url)
+    }
+
+    @Post('signup')
+    @UseGuards(AuthGuard)
+    signup(@Req() req, @Body() doctor: createDoctorDto) {
+        return this.doctorService.create(req.user.id, doctor)
     }
 }

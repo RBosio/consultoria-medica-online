@@ -408,6 +408,24 @@ export default function Home(props: Speciality) {
                                       );
                                     }
                                   })}
+                                  {user.doctor?.registration && (
+                                    <Link
+                                      target="_blank"
+                                      href={`http://localhost:3000/uploads/doctor/registration/${user.doctor.registration}`}
+                                      className="flex justify-center gap-2 underline text-sm"
+                                    >
+                                      Matrícula
+                                    </Link>
+                                  )}
+                                  {user.doctor?.title && (
+                                    <Link
+                                      target="_blank"
+                                      href={`http://localhost:3000/uploads/doctor/title/${user.doctor.title}`}
+                                      className="flex justify-center gap-2 underline text-sm"
+                                    >
+                                      Título
+                                    </Link>
+                                  )}
                                 </div>
                               </div>
                               {user?.doctor && (

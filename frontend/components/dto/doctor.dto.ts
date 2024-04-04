@@ -16,4 +16,6 @@ export interface DoctorResponseDto {
     verifiedSince: Date
     plan: PlanResponseDto
     planSince: Date
+    registration: string
+    title: string
 }

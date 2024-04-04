@@ -75,7 +75,6 @@ export class DoctorController {
             }
         )
     )
-
     @Post(':id/registration')
     uploadRegistration(@Param('id') id: number, @Req() request: Request) {
         const { body } = request

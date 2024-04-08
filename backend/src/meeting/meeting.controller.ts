@@ -68,6 +68,14 @@ export class MeetingController {
     return this.meetingService.lastPayment(userId);
   }
 
+  @Get('lastMeeting/:id')
+  @Roles(RoleEnum.User, RoleEnum.Doctor, RoleEnum.Admin)
+  getLastMeeting(
+    @Param('id') id: number,
+  ): Promise<Meeting | HttpException> {
+    return this.meetingService.findLastMeeting(id);
+  }
+
   @Get(':id/:startDatetime')
   @Roles(RoleEnum.User, RoleEnum.Doctor, RoleEnum.Admin)
   getMeeting(

@@ -1,6 +1,6 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Between, In, IsNull, Repository } from 'typeorm';
+import { Between, In, IsNull, MoreThan, Repository } from 'typeorm';
 import { updateMeetingDto } from './dto/update-meeting.dto';
 import { Meeting } from 'src/entities/meeting.entity';
 import { createMeetingDto } from './dto/create-meeting.dto';
@@ -146,6 +146,26 @@ export class MeetingService {
       },
       relations: ['doctor'],
     });
+  }
+
+  async findLastMeeting(userId: number) {
+    const meetingFound = await this.meetingRepository.findOne({
+      where: {
+        userId,
+        status: 'Pagada',
+        startDatetime: MoreThan(new Date()),
+      },
+      relations: {
+        doctor: {
+          user: true,
+        },
+      },
+      order: {
+        startDatetime: 'ASC',
+      },
+    });
+
+    return meetingFound;
   }
 
   async findOne(userId: number, startDatetime: Date) {

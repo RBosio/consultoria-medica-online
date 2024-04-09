@@ -22,14 +22,14 @@ import {
 import Rate from "@/components/rate";
 import { useTheme } from "@mui/material";
 import { GoDotFill } from "react-icons/go";
-import { FaPhone, FaSuitcaseMedical, FaLocationDot } from "react-icons/fa6";
-import { IoIosPricetag, IoMdMail } from "react-icons/io";
+import { IoIosPricetag } from "react-icons/io";
 import { IoTimeSharp } from "react-icons/io5";
-import { CiCircleCheck, CiDiscount1 } from "react-icons/ci";
+import { CiDiscount1 } from "react-icons/ci";
 import Button from "@/components/button";
 import { useRouter } from "next/router";
 import moment from "moment";
 import Message from "@/components/message";
+import { pesos } from "@/lib/formatCurrency";
 
 export default function Doctor(props: any) {
   const theme = useTheme();
@@ -158,11 +158,6 @@ export default function Doctor(props: any) {
 
     return foundHealthInsurance[0] ?? null;
   };
-
-  const pesos = new Intl.NumberFormat("es-AR", {
-    style: "currency",
-    currency: "ARS",
-  });
 
   return (
     <Layout auth={props.auth}>

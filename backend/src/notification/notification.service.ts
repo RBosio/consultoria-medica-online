@@ -17,8 +17,8 @@ export class NotificationService {
     private healthInsuranceService: HealthInsuranceService,
   ) {}
 
-  findAllByUser(id: number): Promise<Notification[]> {
-    return this.notificationRepository.find({
+  async findAllByUser(id: number): Promise<Notification[]> {
+    let notifications = await this.notificationRepository.find({
       where: {
         userReceive: {
           id,
@@ -33,10 +33,17 @@ export class NotificationService {
         created_at: 'desc',
       },
     });
+
+    notifications = notifications.map((n) => {
+      delete n.userSend.password;
+      return n;
+    });
+
+    return notifications;
   }
 
-  findOneByUser(id: number): Promise<Notification> {
-    return this.notificationRepository.findOne({
+  async findOneByUser(id: number): Promise<Notification> {
+    const notification = await this.notificationRepository.findOne({
       where: {
         userSend: {
           id,
@@ -44,6 +51,10 @@ export class NotificationService {
         type: 'verification',
       },
     });
+
+    delete notification.userSend.password;
+
+    return notification;
   }
 
   async create(
@@ -101,6 +112,7 @@ export class NotificationService {
 
     notificationsFound.map((n) => {
       n.readed = true;
+      delete n.userReceive.password;
     });
 
     return this.notificationRepository.save(notificationsFound);

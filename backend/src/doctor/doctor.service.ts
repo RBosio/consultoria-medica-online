@@ -97,6 +97,11 @@ export class DoctorService {
       );
     }
 
+    doctorsFound = doctorsFound.map((doctor) => {
+      delete doctor.user.password;
+      return doctor;
+    });
+
     let paginatedItems = this.paginate(doctorsFound, page, perPage);
 
     if (orderBy) paginatedItems = this.order(paginatedItems, orderBy);
@@ -105,7 +110,7 @@ export class DoctorService {
   }
 
   async findAllPremium() {
-    const doctorsFound = await this.doctorRepository.find({
+    let doctorsFound = await this.doctorRepository.find({
       where: {
         plan: {
           id: 2,
@@ -120,6 +125,11 @@ export class DoctorService {
           },
         },
       },
+    });
+
+    doctorsFound = doctorsFound.map((doctor) => {
+      delete doctor.user.password;
+      return doctor;
     });
 
     return this.randomDoctors(doctorsFound, 3);
@@ -232,6 +242,8 @@ export class DoctorService {
       throw new HttpException('Medico no encontrado', HttpStatus.NOT_FOUND);
     }
 
+    delete doctorFound.user.password;
+
     return doctorFound;
   }
 
@@ -252,6 +264,8 @@ export class DoctorService {
         plan: true,
       },
     });
+
+    delete doctorFound?.user?.password;
 
     return doctorFound;
   }

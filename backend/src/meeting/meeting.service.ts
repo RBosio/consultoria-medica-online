@@ -77,6 +77,12 @@ export class MeetingService {
       );
     }
 
+    meetingsFound = meetingsFound.map((meeting) => {
+      delete meeting.user.password;
+      delete meeting.doctor.user.password;
+      return meeting;
+    });
+
     return meetingsFound;
   }
 
@@ -114,17 +120,31 @@ export class MeetingService {
       );
     }
 
+    meetingsFound = meetingsFound.map((meeting) => {
+      delete meeting.user.password;
+      delete meeting.doctor.user.password;
+      return meeting;
+    });
+
     return meetingsFound;
   }
 
   async findByUser(userId: number): Promise<Meeting[]> {
-    return this.meetingRepository.find({
+    let meetingsFound = await this.meetingRepository.find({
       where: {
         userId,
         status: In(['Pagada', 'Finalizada', 'Cancelada']),
       },
       relations: ['user', 'doctor', 'medicalRecord'],
     });
+
+    meetingsFound = meetingsFound.map((meeting) => {
+      delete meeting.user.password;
+      delete meeting.doctor.user.password;
+      return meeting;
+    });
+
+    return meetingsFound;
   }
 
   async findByDoctor(doctorId: number): Promise<Meeting[]> {
@@ -191,6 +211,9 @@ export class MeetingService {
       },
     });
 
+    delete meetingFound.user.password;
+    delete meetingFound.doctor.user.password;
+
     return meetingFound;
   }
 
@@ -221,6 +244,9 @@ export class MeetingService {
       throw new HttpException('Reunion no encontrada', HttpStatus.NOT_FOUND);
     }
 
+    delete meetingFound.user.password;
+    delete meetingFound.doctor.user.password;
+
     return meetingFound;
   }
 
@@ -241,7 +267,7 @@ export class MeetingService {
   }
 
   async lastPayment(userId: number) {
-    return this.meetingRepository.findOne({
+    const meetingFound = await this.meetingRepository.findOne({
       where: {
         user: {
           id: userId,
@@ -251,6 +277,10 @@ export class MeetingService {
         created_at: 'DESC',
       },
     });
+
+    delete meetingFound.user.password;
+
+    return meetingFound;
   }
 
   async create(

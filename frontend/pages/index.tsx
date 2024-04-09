@@ -67,7 +67,7 @@ export default function Home(props: any) {
             {props.auth.surname}, {props.auth.name}!
           </span>
         </h1>
-        <div className="flex justify-between items-center bg-white w-5/6 mx-auto p-4 rounded-3xl shadow-lg">
+        <div className="flex flex-col md:flex-row justify-between items-center bg-white w-5/6 mx-auto p-4 rounded-3xl shadow-lg gap-4 md:gap-0">
           {props.lastMeeting?.startDatetime ? (
             <>
               <div>
@@ -123,24 +123,24 @@ export default function Home(props: any) {
             </h2>
           )}
         </div>
-        <div className="flex justify-between items-center gap-4 w-5/6 mx-auto mt-4">
-          <div className="bg-gray-100 w-2/3 p-4 rounded-3xl shadow-lg">
+        <div className="flex flex-col md:flex-row justify-between items-center gap-4 w-5/6 mx-auto mt-4">
+          <div className="bg-gray-100 w-full md:w-2/3 p-4 rounded-3xl shadow-lg">
             {props.auth.role === "user" || props.auth.role === "admin" ? (
               <>
                 <h2 className="text-3xl text-center text-zinc-600">
                   Descubra nuestros profesionales recomendados
                 </h2>
-                <div className="flex justify-center items-center gap-8 bg-white">
+                <div className="flex flex-col md:flex-row justify-center items-center gap-8 bg-white">
                   {props.doctors.map((doctor: DoctorResponseDto) => (
                     <div
                       key={doctor.id}
-                      className="mt-[11rem] xl:mt-20 relative w-1/2"
+                      className="mt-[5rem] md:mt-[11rem] xl:mt-20 relative w-1/2"
                     >
                       <Avatar
                         labelProps={{ className: "hidden xl:hidden" }}
                         name={doctor.user.name}
                         surname={doctor.user.surname}
-                        rootClassName="absolute top-[2rem] xl:top-[-4rem] left-1/2 translate-x-[-50%]"
+                        rootClassName="absolute top-[-4rem] md:top-[2rem] xl:top-[-4rem] left-1/2 translate-x-[-50%]"
                         className="bg-primary"
                         size={130}
                         icon={<FaUserDoctor size={60} />}
@@ -242,7 +242,7 @@ export default function Home(props: any) {
               </>
             )}
           </div>
-          <div className="flex flex-col items-center gap-4 bg-white w-1/3 p-4 rounded-3xl shadow-lg min-h-[200px]">
+          <div className="flex flex-col items-center gap-4 bg-white w-full md:w-1/3 p-4 rounded-3xl shadow-lg min-h-[200px]">
             {props.auth.role === "user" &&
               (props.lastMeeting?.user?.healthInsurances.length === 0 ? (
                 <>

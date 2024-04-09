@@ -27,6 +27,7 @@ import { PiGearSix } from "react-icons/pi";
 import { PlanResponseDto } from "@/components/dto/plan.dto";
 import { BenefitResponseDto } from "@/components/dto/benefit.dto";
 import { MdOutlineAdminPanelSettings } from "react-icons/md";
+import { pesos } from "@/lib/formatCurrency";
 
 export default function Home(props: any) {
   const router = useRouter();
@@ -44,11 +45,6 @@ export default function Home(props: any) {
       }
     );
   };
-
-  const pesos = new Intl.NumberFormat("es-AR", {
-    style: "currency",
-    currency: "ARS",
-  });
 
   useEffect(() => {
     if (props.doctor) {

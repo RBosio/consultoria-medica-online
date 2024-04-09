@@ -50,6 +50,7 @@ import { HealthInsuranceResponseDto } from "@/components/dto/healthInsurance.dto
 import Link from "next/link";
 import { NotificationResponseDto } from "@/components/dto/notification.dto";
 import moment from "moment";
+import { pesos } from "@/lib/formatCurrency";
 
 interface ConfigProps {
   user: UserResponseDto;
@@ -190,7 +191,6 @@ export default function Config(props: ConfigProps) {
       router.push(`/config`);
     },
   });
-
 
   console.log(props.doctor);
 
@@ -425,7 +425,7 @@ export default function Config(props: ConfigProps) {
                         <FaMoneyBill1Wave size={15} />
                         <p className="text-secondary">
                           {props.doctor.priceMeeting
-                            ? `$${props.doctor.priceMeeting}`
+                            ? `${pesos.format(props.doctor.priceMeeting)}`
                             : "-"}
                         </p>
                       </div>
@@ -471,8 +471,9 @@ export default function Config(props: ConfigProps) {
           </div>
           <div className="overflow-hidden w-full md:min-w-[70%]">
             <div
-              className={`flex flex-col md:flex-row md:flex-nowrap items-center transition-all ease-in duration-500 ${modify ? "-translate-x-full" : ""
-                } gap-4`}
+              className={`flex flex-col md:flex-row md:flex-nowrap items-center transition-all ease-in duration-500 ${
+                modify ? "-translate-x-full" : ""
+              } gap-4`}
             >
               <div className="bg-white sm:w-1/4 md:min-w-[99%] h-full rounded-md shadow-md p-4 flex flex-col justify-center">
                 <div className="flex flex-col justify-center items-center xl:flex-row xl:justify-between xl:items-start gap-2 md:gap-8">
@@ -491,7 +492,7 @@ export default function Config(props: ConfigProps) {
                         <h4 className="text-primary text-lg flex justify-center items-center gap-2">
                           <FaMoneyBill1Wave /> Precio
                         </h4>
-                        <p>{props.doctor.priceMeeting} AR$</p>
+                        <p>{pesos.format(props.doctor.priceMeeting)}</p>
                       </div>
                     </div>
                   </div>
@@ -574,8 +575,8 @@ export default function Config(props: ConfigProps) {
                       <p>
                         {props.doctor.plan
                           ? `Miembro desde ${moment(
-                            props.doctor.planSince
-                          ).format("LL")}`
+                              props.doctor.planSince
+                            ).format("LL")}`
                           : "Actualmente se encuentra sin plan, solicite uno para comenzar a trabajar"}
                       </p>
                     </div>
@@ -900,32 +901,32 @@ export default function Config(props: ConfigProps) {
               {confirmSchedule
                 ? "Rango horario"
                 : confirmUpdate
-                  ? "Datos personales"
-                  : confirmVerification
-                    ? "Verificacion de cuenta"
-                    : confirmVerificationHI
-                      ? "Verificacion de obra social"
-                      : confirmCancelPlan
-                        ? "Cancelar plan"
-                        : confirmHealthInsurance
-                          ? "Confirmar obra social"
-                          : ""}
+                ? "Datos personales"
+                : confirmVerification
+                ? "Verificacion de cuenta"
+                : confirmVerificationHI
+                ? "Verificacion de obra social"
+                : confirmCancelPlan
+                ? "Cancelar plan"
+                : confirmHealthInsurance
+                ? "Confirmar obra social"
+                : ""}
             </DialogTitle>
             <DialogContent>
               <DialogContentText id="alert-dialog-description">
                 {confirmSchedule
                   ? "¿Desea agregar el rango horario?"
                   : confirmUpdate
-                    ? "¿Desea actualizar los datos?"
-                    : confirmVerification
-                      ? "¿Desea solicitar la verificacion de la cuenta?"
-                      : confirmVerificationHI
-                        ? "¿Desea solicitar la verificacion de la obra social?"
-                        : confirmCancelPlan
-                          ? "¿Desea cancelar su plan actual?"
-                          : confirmHealthInsurance
-                            ? "¿Desea agregar la obra social?"
-                            : ""}
+                  ? "¿Desea actualizar los datos?"
+                  : confirmVerification
+                  ? "¿Desea solicitar la verificacion de la cuenta?"
+                  : confirmVerificationHI
+                  ? "¿Desea solicitar la verificacion de la obra social?"
+                  : confirmCancelPlan
+                  ? "¿Desea cancelar su plan actual?"
+                  : confirmHealthInsurance
+                  ? "¿Desea agregar la obra social?"
+                  : ""}
               </DialogContentText>
             </DialogContent>
             <DialogActions>

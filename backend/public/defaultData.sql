@@ -97,3 +97,6 @@ VALUES
     );
 
 UPDATE user SET admin = 1 WHERE id = 3;
+
+INSERT INTO benefit (name) VALUES ('Visibilidad normal'), ('Mayor llegada a los usuarios'), ('Visibilidad muy alta');
+INSERT INTO plan_benefits_benefit VALUES (1, 1), (1, 2), (2, 2), (2, 3);

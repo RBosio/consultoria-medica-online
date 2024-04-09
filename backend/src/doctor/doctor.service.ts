@@ -20,23 +20,24 @@ export class DoctorService {
     private planService: PlanService,
   ) {}
 
-    async create(userIdToAssociate: number, doctor: createDoctorDto) {
-            
-        const user = await this.userService.findOne(userIdToAssociate);
-        if (!user) throw new HttpException('Usuario no encontrado', HttpStatus.NOT_FOUND);
+  async create(userIdToAssociate: number, doctor: createDoctorDto) {
+    const user = await this.userService.findOne(userIdToAssociate);
+    if (!user)
+      throw new HttpException('Usuario no encontrado', HttpStatus.NOT_FOUND);
 
-        const newDoctor = await this.doctorRepository.create(doctor)
-        
-        newDoctor.user = user;
+    const newDoctor = await this.doctorRepository.create(doctor);
 
-        await this.doctorRepository.save(newDoctor)
-        
-        return newDoctor;
-    }
+    newDoctor.user = user;
 
-    async findAll(query: getDoctorsDto) {
-        const { name, avgRate, seniority, specialityId, orderBy, page, perPage } = query
-        const moment = extendMoment(Moment)
+    await this.doctorRepository.save(newDoctor);
+
+    return newDoctor;
+  }
+
+  async findAll(query: getDoctorsDto) {
+    const { name, avgRate, seniority, specialityId, orderBy, page, perPage } =
+      query;
+    const moment = extendMoment(Moment);
 
     let doctorsFound = [];
 
@@ -101,6 +102,48 @@ export class DoctorService {
     if (orderBy) paginatedItems = this.order(paginatedItems, orderBy);
 
     return paginatedItems;
+  }
+
+  async findAllPremium() {
+    const doctorsFound = await this.doctorRepository.find({
+      where: {
+        plan: {
+          id: 2,
+        },
+        verified: true,
+      },
+      relations: {
+        specialities: true,
+        user: {
+          healthInsurances: {
+            healthInsurance: true,
+          },
+        },
+      },
+    });
+
+    return this.randomDoctors(doctorsFound, 3);
+  }
+
+  randomDoctors(doctors: Doctor[], max: number) {
+    if (max > doctors.length)
+      throw new HttpException(
+        'Maximo mayor a la cantidad de doctores',
+        HttpStatus.BAD_REQUEST,
+      );
+    const set = new Set();
+    const d = [];
+
+    for (let i = 0; i < max; ) {
+      const randomIndex = Math.floor(Math.random() * doctors.length);
+      if (!set.has(randomIndex)) {
+        set.add(randomIndex);
+        d.push(doctors[randomIndex]);
+        i++;
+      }
+    }
+
+    return d;
   }
 
   paginate(items, page = 1, perPage = 10) {

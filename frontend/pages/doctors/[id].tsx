@@ -220,37 +220,6 @@ export default function Doctor(props: any) {
                       {props.doctor.description}
                     </p>
                   </div>
-                  <div className="flex flex-col gap-2">
-                    <h2 className="text-primary text-xl">Datos de Contacto</h2>
-                    <div className="flex flex-col gap-2">
-                      <div className="flex gap-2 text-primary items-center font-bold">
-                        <IoMdMail size={15} />
-                        <p className="text-secondary">
-                          {props.doctor.user.email}
-                        </p>
-                      </div>
-                      <div className="flex gap-2 text-primary items-center font-bold">
-                        <FaPhone size={15} />
-                        <p className="text-secondary">
-                          {props.doctor.user.phone}
-                        </p>
-                      </div>
-                      <div className="flex gap-2 text-primary items-center font-bold">
-                        <FaSuitcaseMedical size={15} />
-                        <p className="text-secondary">
-                          {props.doctor.user.healthInsurances
-                            .map((hi: any) => hi.name)
-                            .join(" | ")}
-                        </p>
-                      </div>
-                      <div className="flex gap-2 text-primary items-center font-bold">
-                        <FaLocationDot size={15} />
-                        <p className="text-secondary">
-                          {props.doctor.officeAddress}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
                 </div>
               </div>
             </div>

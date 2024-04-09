@@ -10,9 +10,7 @@ import {
   FaCircleCheck,
   FaCircleUp,
   FaCircleXmark,
-  FaLocationDot,
   FaMoneyBill1Wave,
-  FaPhone,
   FaPlus,
   FaStopwatch,
   FaSuitcaseMedical,
@@ -44,7 +42,7 @@ import { DoctorResponseDto } from "@/components/dto/doctor.dto";
 import Rate from "@/components/rate";
 import { GoDotFill } from "react-icons/go";
 import { IoMdMail } from "react-icons/io";
-import { FaCheckCircle, FaEdit } from "react-icons/fa";
+import { FaEdit } from "react-icons/fa";
 import { ScheduleResponseDto } from "@/components/dto/schedule.dto";
 import Input from "@/components/input";
 import { useFormik } from "formik";
@@ -158,7 +156,6 @@ export default function Config(props: ConfigProps) {
       durationMeeting: duration,
       priceMeeting: props.doctor.priceMeeting,
       phone: props.doctor.user.phone,
-      officeAddress: props.doctor.officeAddress,
     },
     onSubmit: async (values, { setSubmitting }) => {
       if (values.priceMeeting.toString().length > 0) {
@@ -193,6 +190,9 @@ export default function Config(props: ConfigProps) {
       router.push(`/config`);
     },
   });
+
+
+  console.log(props.doctor);
 
   const addScheduleForm = useFormik({
     initialValues: {
@@ -420,21 +420,20 @@ export default function Config(props: ConfigProps) {
                     <p className="text-justify">{props.doctor.description}</p>
                   </div>
                   <div className="flex flex-col gap-2">
-                    <h2 className="text-primary text-xl text-center">
-                      Datos de Contacto
-                    </h2>
                     <div className="flex flex-col gap-2 items-center">
                       <div className="flex gap-2 text-primary items-center font-bold">
-                        <IoMdMail size={15} />
+                        <FaMoneyBill1Wave size={15} />
                         <p className="text-secondary">
-                          {props.doctor.user.email}
+                          {props.doctor.priceMeeting
+                            ? `$${props.doctor.priceMeeting}`
+                            : "-"}
                         </p>
                       </div>
                       <div className="flex gap-2 text-primary items-center font-bold">
-                        <FaPhone size={15} />
+                        <FaStopwatch size={15} />
                         <p className="text-secondary">
-                          {props.doctor.user.phone
-                            ? props.doctor.user.phone
+                          {props.doctor.durationMeeting
+                            ? `${props.doctor.durationMeeting} minutos`
                             : "-"}
                         </p>
                       </div>
@@ -458,12 +457,6 @@ export default function Config(props: ConfigProps) {
                           })}
                         </div>
                       </div>
-                      <div className="flex gap-2 text-primary items-center font-bold">
-                        <FaLocationDot size={15} />
-                        <p className="text-secondary">
-                          {props.doctor.officeAddress ? props.doctor.officeAddress : "-"}
-                        </p>
-                      </div>
                       <Button
                         startIcon={<FaEdit />}
                         onClick={() => setModify(!modify)}
@@ -478,9 +471,8 @@ export default function Config(props: ConfigProps) {
           </div>
           <div className="overflow-hidden w-full md:min-w-[70%]">
             <div
-              className={`flex flex-col md:flex-row md:flex-nowrap items-center transition-all ease-in duration-500 ${
-                modify ? "-translate-x-full" : ""
-              } gap-4`}
+              className={`flex flex-col md:flex-row md:flex-nowrap items-center transition-all ease-in duration-500 ${modify ? "-translate-x-full" : ""
+                } gap-4`}
             >
               <div className="bg-white sm:w-1/4 md:min-w-[99%] h-full rounded-md shadow-md p-4 flex flex-col justify-center">
                 <div className="flex flex-col justify-center items-center xl:flex-row xl:justify-between xl:items-start gap-2 md:gap-8">
@@ -582,8 +574,8 @@ export default function Config(props: ConfigProps) {
                       <p>
                         {props.doctor.plan
                           ? `Miembro desde ${moment(
-                              props.doctor.planSince
-                            ).format("LL")}`
+                            props.doctor.planSince
+                          ).format("LL")}`
                           : "Actualmente se encuentra sin plan, solicite uno para comenzar a trabajar"}
                       </p>
                     </div>
@@ -753,10 +745,10 @@ export default function Config(props: ConfigProps) {
                     setConfirmUpdate(true);
                   }}
                 >
-                  <div className="flex flex-col md:flex-row md:justify-between md:items-start md:gap-8">
+                  <div className="flex justify-center">
                     <div className="md:w-1/3 p-4">
                       <h3 className="text-primary text-xl text-center">
-                        Reunion
+                        Reunión
                       </h3>
                       <div className="flex justify-between items-center">
                         <div>
@@ -789,40 +781,6 @@ export default function Config(props: ConfigProps) {
                               value={updateForm.values.priceMeeting}
                             />
                           </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="md:h-[144px] md:w-1 md:border-l-2 md:border-primary"></div>
-                    <div className="p-4 md:w-2/3">
-                      <h3 className="text-primary text-xl text-center">
-                        Datos personales
-                      </h3>
-                      <div className="flex flex-col justify-center items-center md:flex-row gap-4 md:gap-0 md:justify-between md:items-center mt-[12px]">
-                        <div className="flex flex-col w-full md:items-center">
-                          <h4 className="text-primary text-xl flex items-center gap-2">
-                            <FaPhone /> Telefono
-                          </h4>
-                          <Input
-                            type="text"
-                            name="phone"
-                            onChange={updateForm.handleChange}
-                            onBlur={updateForm.handleBlur}
-                            value={updateForm.values.phone}
-                            className="md:w-1/2"
-                          />
-                        </div>
-                        <div className="flex flex-col w-full md:items-center">
-                          <h4 className="text-primary text-xl flex items-center gap-2">
-                            <FaLocationDot /> Direccion de consultorio
-                          </h4>
-                          <Input
-                            type="text"
-                            name="officeAddress"
-                            onChange={updateForm.handleChange}
-                            onBlur={updateForm.handleBlur}
-                            value={updateForm.values.officeAddress}
-                            className="md:w-1/2"
-                          />
                         </div>
                       </div>
                     </div>
@@ -942,32 +900,32 @@ export default function Config(props: ConfigProps) {
               {confirmSchedule
                 ? "Rango horario"
                 : confirmUpdate
-                ? "Datos personales"
-                : confirmVerification
-                ? "Verificacion de cuenta"
-                : confirmVerificationHI
-                ? "Verificacion de obra social"
-                : confirmCancelPlan
-                ? "Cancelar plan"
-                : confirmHealthInsurance
-                ? "Confirmar obra social"
-                : ""}
+                  ? "Datos personales"
+                  : confirmVerification
+                    ? "Verificacion de cuenta"
+                    : confirmVerificationHI
+                      ? "Verificacion de obra social"
+                      : confirmCancelPlan
+                        ? "Cancelar plan"
+                        : confirmHealthInsurance
+                          ? "Confirmar obra social"
+                          : ""}
             </DialogTitle>
             <DialogContent>
               <DialogContentText id="alert-dialog-description">
                 {confirmSchedule
                   ? "¿Desea agregar el rango horario?"
                   : confirmUpdate
-                  ? "¿Desea actualizar los datos?"
-                  : confirmVerification
-                  ? "¿Desea solicitar la verificacion de la cuenta?"
-                  : confirmVerificationHI
-                  ? "¿Desea solicitar la verificacion de la obra social?"
-                  : confirmCancelPlan
-                  ? "¿Desea cancelar su plan actual?"
-                  : confirmHealthInsurance
-                  ? "¿Desea agregar la obra social?"
-                  : ""}
+                    ? "¿Desea actualizar los datos?"
+                    : confirmVerification
+                      ? "¿Desea solicitar la verificacion de la cuenta?"
+                      : confirmVerificationHI
+                        ? "¿Desea solicitar la verificacion de la obra social?"
+                        : confirmCancelPlan
+                          ? "¿Desea cancelar su plan actual?"
+                          : confirmHealthInsurance
+                            ? "¿Desea agregar la obra social?"
+                            : ""}
               </DialogContentText>
             </DialogContent>
             <DialogActions>

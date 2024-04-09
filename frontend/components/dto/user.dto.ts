@@ -4,6 +4,7 @@ import { UserHealthInsuranceResponseDto } from "./userHealthInsurance.dto"
 export interface UserResponseDto {
     id: number
     dni: string
+    address: string
     name: string
     surname: string
     email: string

@@ -123,7 +123,7 @@ export default function Home(props: any) {
             </h2>
           )}
         </div>
-        <div className="flex flex-col md:flex-row justify-between items-center gap-4 w-5/6 mx-auto mt-4">
+        <div className="flex flex-col md:flex-row justify-between items-center gap-4 w-5/6 mx-auto mt-4 mb-4">
           <div className="bg-gray-100 w-full md:w-2/3 p-4 rounded-3xl shadow-lg">
             {props.auth.role === "user" || props.auth.role === "admin" ? (
               <>
@@ -198,7 +198,7 @@ export default function Home(props: any) {
                 <h2 className="text-3xl text-center text-zinc-600 mb-4">
                   ¿Desea actualizar su plan?
                 </h2>
-                <div className="flex justify-center items-center gap-8">
+                <div className="flex flex-col md:flex-row justify-center items-center gap-8">
                   {plans.map((p: PlanResponseDto) => (
                     <div
                       key={p.id}
@@ -270,8 +270,8 @@ export default function Home(props: any) {
                   )}
                   {props.notifications.map((n: any) => {
                     return (
-                      <div className="text-black">
-                        <div key={n.id} className="p-2">
+                      <div key={n.id} className="text-black">
+                        <div className="p-2">
                           <div className="flex justify-between items-center">
                             <div>
                               <div className="flex items-center gap-2">
@@ -359,8 +359,8 @@ export default function Home(props: any) {
                   )}
                   {props.notifications.map((n: any) => {
                     return (
-                      <div className="text-black">
-                        <div key={n.id} className="p-2">
+                      <div key={n.id} className="text-black">
+                        <div className="p-2">
                           <div className="flex justify-between items-center">
                             <div>
                               <div className="flex items-center gap-2">

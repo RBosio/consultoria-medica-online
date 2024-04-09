@@ -112,7 +112,7 @@ export default function Home(props: any) {
               </Button>
             </>
           ) : (
-            <h2 className="mx-auto text-xl flex items-center gap-4 text-zinc-600">
+            <h2 className="mx-auto text-xl flex flex-col md:flex-row items-center gap-4 text-zinc-600">
               Actualmente no tiene reuniones pendientes{" "}
               <Button
                 onClick={() => router.push("/doctors")}

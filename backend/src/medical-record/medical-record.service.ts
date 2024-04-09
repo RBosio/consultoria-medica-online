@@ -98,7 +98,6 @@ export class MedicalRecordService {
     );
 
     meetingFound.medicalRecordDatetime = medicalRecord.datetime;
-    console.log(meetingFound.userId, meetingFound.startDatetime);
 
     await this.meetingService.update(
       meetingFound.userId,

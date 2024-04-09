@@ -159,6 +159,9 @@ export class MeetingService {
         doctor: {
           user: true,
         },
+        user: {
+          healthInsurances: true,
+        },
       },
       order: {
         startDatetime: 'ASC',

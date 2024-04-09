@@ -191,9 +191,9 @@ const Navbar: React.FC<NavbarProps> = (props) => {
               <div className="max-h-80 overflow-y-scroll mt-16">
                 {notifications.map((n) => {
                   return (
-                    <MenuItem sx={{ color: "#ffffff" }}>
+                    <MenuItem key={n.id} sx={{ color: "#ffffff" }}>
                       <div className="text-black">
-                        <div key={n.id} className="p-2">
+                        <div className="p-2">
                           <div className="flex justify-between items-center">
                             <div
                               className={`w-2 h-2 rounded-full m-2 ${

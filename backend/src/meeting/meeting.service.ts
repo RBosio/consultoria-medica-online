@@ -1,6 +1,6 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Between, In, IsNull, Repository } from 'typeorm';
+import { Between, In, IsNull, MoreThan, Repository } from 'typeorm';
 import { updateMeetingDto } from './dto/update-meeting.dto';
 import { Meeting } from 'src/entities/meeting.entity';
 import { createMeetingDto } from './dto/create-meeting.dto';
@@ -77,6 +77,12 @@ export class MeetingService {
       );
     }
 
+    meetingsFound = meetingsFound.map((meeting) => {
+      delete meeting.user.password;
+      delete meeting.doctor.user.password;
+      return meeting;
+    });
+
     return meetingsFound;
   }
 
@@ -114,17 +120,31 @@ export class MeetingService {
       );
     }
 
+    meetingsFound = meetingsFound.map((meeting) => {
+      delete meeting.user.password;
+      delete meeting.doctor.user.password;
+      return meeting;
+    });
+
     return meetingsFound;
   }
 
   async findByUser(userId: number): Promise<Meeting[]> {
-    return this.meetingRepository.find({
+    let meetingsFound = await this.meetingRepository.find({
       where: {
         userId,
         status: In(['Pagada', 'Finalizada', 'Cancelada']),
       },
       relations: ['user', 'doctor', 'medicalRecord'],
     });
+
+    meetingsFound = meetingsFound.map((meeting) => {
+      delete meeting.user.password;
+      delete meeting.doctor.user.password;
+      return meeting;
+    });
+
+    return meetingsFound;
   }
 
   async findByDoctor(doctorId: number): Promise<Meeting[]> {
@@ -146,6 +166,55 @@ export class MeetingService {
       },
       relations: ['doctor'],
     });
+  }
+
+  async findLastMeeting(userId: number, role: string = 'user') {
+    if (role === 'doctor') {
+      const meetingFound = await this.meetingRepository.findOne({
+        where: {
+          doctorId: userId,
+          status: 'Pagada',
+          startDatetime: MoreThan(new Date()),
+        },
+        relations: {
+          user: {
+            healthInsurances: true,
+          },
+          doctor: {
+            user: true,
+          },
+        },
+        order: {
+          startDatetime: 'ASC',
+        },
+      });
+
+      return meetingFound;
+    }
+
+    const meetingFound = await this.meetingRepository.findOne({
+      where: {
+        userId,
+        status: 'Pagada',
+        startDatetime: MoreThan(new Date()),
+      },
+      relations: {
+        doctor: {
+          user: true,
+        },
+        user: {
+          healthInsurances: true,
+        },
+      },
+      order: {
+        startDatetime: 'ASC',
+      },
+    });
+
+    delete meetingFound.user.password;
+    delete meetingFound.doctor.user.password;
+
+    return meetingFound;
   }
 
   async findOne(userId: number, startDatetime: Date) {
@@ -175,6 +244,9 @@ export class MeetingService {
       throw new HttpException('Reunion no encontrada', HttpStatus.NOT_FOUND);
     }
 
+    delete meetingFound.user.password;
+    delete meetingFound.doctor.user.password;
+
     return meetingFound;
   }
 
@@ -195,7 +267,7 @@ export class MeetingService {
   }
 
   async lastPayment(userId: number) {
-    return this.meetingRepository.findOne({
+    const meetingFound = await this.meetingRepository.findOne({
       where: {
         user: {
           id: userId,
@@ -205,6 +277,10 @@ export class MeetingService {
         created_at: 'DESC',
       },
     });
+
+    delete meetingFound.user.password;
+
+    return meetingFound;
   }
 
   async create(

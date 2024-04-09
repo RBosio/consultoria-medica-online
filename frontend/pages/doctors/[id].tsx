@@ -22,14 +22,14 @@ import {
 import Rate from "@/components/rate";
 import { useTheme } from "@mui/material";
 import { GoDotFill } from "react-icons/go";
-import { FaPhone, FaSuitcaseMedical, FaLocationDot } from "react-icons/fa6";
-import { IoIosPricetag, IoMdMail } from "react-icons/io";
+import { IoIosPricetag } from "react-icons/io";
 import { IoTimeSharp } from "react-icons/io5";
-import { CiCircleCheck, CiDiscount1 } from "react-icons/ci";
+import { CiDiscount1 } from "react-icons/ci";
 import Button from "@/components/button";
 import { useRouter } from "next/router";
 import moment from "moment";
 import Message from "@/components/message";
+import { pesos } from "@/lib/formatCurrency";
 
 export default function Doctor(props: any) {
   const theme = useTheme();
@@ -159,11 +159,6 @@ export default function Doctor(props: any) {
     return foundHealthInsurance[0] ?? null;
   };
 
-  const pesos = new Intl.NumberFormat("es-AR", {
-    style: "currency",
-    currency: "ARS",
-  });
-
   return (
     <Layout auth={props.auth}>
       <section className="flex overflow-y-auto xl:p-8">
@@ -219,37 +214,6 @@ export default function Doctor(props: any) {
                     <p className="line-clamp-[10]">
                       {props.doctor.description}
                     </p>
-                  </div>
-                  <div className="flex flex-col gap-2">
-                    <h2 className="text-primary text-xl">Datos de Contacto</h2>
-                    <div className="flex flex-col gap-2">
-                      <div className="flex gap-2 text-primary items-center font-bold">
-                        <IoMdMail size={15} />
-                        <p className="text-secondary">
-                          {props.doctor.user.email}
-                        </p>
-                      </div>
-                      <div className="flex gap-2 text-primary items-center font-bold">
-                        <FaPhone size={15} />
-                        <p className="text-secondary">
-                          {props.doctor.user.phone}
-                        </p>
-                      </div>
-                      <div className="flex gap-2 text-primary items-center font-bold">
-                        <FaSuitcaseMedical size={15} />
-                        <p className="text-secondary">
-                          {props.doctor.user.healthInsurances
-                            .map((hi: any) => hi.name)
-                            .join(" | ")}
-                        </p>
-                      </div>
-                      <div className="flex gap-2 text-primary items-center font-bold">
-                        <FaLocationDot size={15} />
-                        <p className="text-secondary">
-                          {props.doctor.officeAddress}
-                        </p>
-                      </div>
-                    </div>
                   </div>
                 </div>
               </div>

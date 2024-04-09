@@ -44,6 +44,11 @@ export class CommentService {
             relations: ['meeting', 'user', 'files']
         })
 
+        comments.map(comment => {
+            delete comment.user.password
+            return comment
+        })
+
         return comments
     }
 

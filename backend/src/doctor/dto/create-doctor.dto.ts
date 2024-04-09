@@ -23,10 +23,6 @@ export class createDoctorDto {
     description: string
     
     @IsDefined()
-    @Length(1)
-    officeAddress: string
-
-    @IsDefined()
     planId: number
 
     @IsDefined()

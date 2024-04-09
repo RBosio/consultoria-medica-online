@@ -368,13 +368,17 @@ export default function Home(props: Speciality) {
                                   {user.email}
                                 </div>
                                 <div className="flex items-center gap-2">
+                                  <p className="text-primary text-lg">Dirección:</p>{" "}
+                                  {user.address || '-'}
+                                </div>
+                                <div className="flex items-center gap-2">
                                   <p className="text-primary text-lg">
                                     Teléfono:
                                   </p>{" "}
-                                  {user.phone || "-"}
+                                  {user.phone || '-'}
                                 </div>
                                 <div className="flex items-center gap-2">
-                                  <p className="text-primary text-lg">Dni:</p>{" "}
+                                  <p className="text-primary text-lg">DNI:</p>{" "}
                                   {user.dni}
                                 </div>
                                 <div className="flex items-center gap-2">
@@ -492,12 +496,6 @@ export default function Home(props: Speciality) {
                                       Duración de la reunión:
                                     </p>
                                     {user.doctor?.durationMeeting} min
-                                  </div>
-                                  <div className="flex items-center gap-2">
-                                    <p className="text-primary text-lg">
-                                      Dirección:
-                                    </p>
-                                    {user.doctor?.officeAddress}
                                   </div>
                                   <div className="flex items-center gap-2">
                                     <p className="text-primary text-lg">

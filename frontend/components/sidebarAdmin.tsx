@@ -65,7 +65,7 @@ const SidebarAdmin: React.FC<SidebarAdminProps> = (props) => {
         w-full md:w-60
         bg-white
         shadow-lg md:static
-        md:ml-12 mt-4 md:mt-0 rounded-lg`}
+        mt-4 md:mt-0 rounded-lg`}
     >
       <div className="flex flex-col h-[calc(100%-5rem)] items-center md:justify-between">
         <Avatar

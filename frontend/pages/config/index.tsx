@@ -10,9 +10,7 @@ import {
   FaCircleCheck,
   FaCircleUp,
   FaCircleXmark,
-  FaLocationDot,
   FaMoneyBill1Wave,
-  FaPhone,
   FaPlus,
   FaStopwatch,
   FaSuitcaseMedical,
@@ -44,7 +42,7 @@ import { DoctorResponseDto } from "@/components/dto/doctor.dto";
 import Rate from "@/components/rate";
 import { GoDotFill } from "react-icons/go";
 import { IoMdMail } from "react-icons/io";
-import { FaCheckCircle, FaEdit } from "react-icons/fa";
+import { FaEdit } from "react-icons/fa";
 import { ScheduleResponseDto } from "@/components/dto/schedule.dto";
 import Input from "@/components/input";
 import { useFormik } from "formik";
@@ -52,6 +50,7 @@ import { HealthInsuranceResponseDto } from "@/components/dto/healthInsurance.dto
 import Link from "next/link";
 import { NotificationResponseDto } from "@/components/dto/notification.dto";
 import moment from "moment";
+import { pesos } from "@/lib/formatCurrency";
 
 interface ConfigProps {
   user: UserResponseDto;
@@ -158,7 +157,6 @@ export default function Config(props: ConfigProps) {
       durationMeeting: duration,
       priceMeeting: props.doctor.priceMeeting,
       phone: props.doctor.user.phone,
-      officeAddress: props.doctor.officeAddress,
     },
     onSubmit: async (values, { setSubmitting }) => {
       if (values.priceMeeting.toString().length > 0) {
@@ -420,21 +418,20 @@ export default function Config(props: ConfigProps) {
                     <p className="text-justify">{props.doctor.description}</p>
                   </div>
                   <div className="flex flex-col gap-2">
-                    <h2 className="text-primary text-xl text-center">
-                      Datos de Contacto
-                    </h2>
                     <div className="flex flex-col gap-2 items-center">
                       <div className="flex gap-2 text-primary items-center font-bold">
-                        <IoMdMail size={15} />
+                        <FaMoneyBill1Wave size={15} />
                         <p className="text-secondary">
-                          {props.doctor.user.email}
+                          {props.doctor.priceMeeting
+                            ? `${pesos.format(props.doctor.priceMeeting)}`
+                            : "-"}
                         </p>
                       </div>
                       <div className="flex gap-2 text-primary items-center font-bold">
-                        <FaPhone size={15} />
+                        <FaStopwatch size={15} />
                         <p className="text-secondary">
-                          {props.doctor.user.phone
-                            ? props.doctor.user.phone
+                          {props.doctor.durationMeeting
+                            ? `${props.doctor.durationMeeting} minutos`
                             : "-"}
                         </p>
                       </div>
@@ -457,12 +454,6 @@ export default function Config(props: ConfigProps) {
                             );
                           })}
                         </div>
-                      </div>
-                      <div className="flex gap-2 text-primary items-center font-bold">
-                        <FaLocationDot size={15} />
-                        <p className="text-secondary">
-                          {props.doctor.officeAddress ? props.doctor.officeAddress : "-"}
-                        </p>
                       </div>
                       <Button
                         startIcon={<FaEdit />}
@@ -499,7 +490,7 @@ export default function Config(props: ConfigProps) {
                         <h4 className="text-primary text-lg flex justify-center items-center gap-2">
                           <FaMoneyBill1Wave /> Precio
                         </h4>
-                        <p>{props.doctor.priceMeeting} AR$</p>
+                        <p>{pesos.format(props.doctor.priceMeeting)}</p>
                       </div>
                     </div>
                   </div>
@@ -753,10 +744,10 @@ export default function Config(props: ConfigProps) {
                     setConfirmUpdate(true);
                   }}
                 >
-                  <div className="flex flex-col md:flex-row md:justify-between md:items-start md:gap-8">
+                  <div className="flex justify-center">
                     <div className="md:w-1/3 p-4">
                       <h3 className="text-primary text-xl text-center">
-                        Reunion
+                        Reunión
                       </h3>
                       <div className="flex justify-between items-center">
                         <div>
@@ -789,40 +780,6 @@ export default function Config(props: ConfigProps) {
                               value={updateForm.values.priceMeeting}
                             />
                           </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="md:h-[144px] md:w-1 md:border-l-2 md:border-primary"></div>
-                    <div className="p-4 md:w-2/3">
-                      <h3 className="text-primary text-xl text-center">
-                        Datos personales
-                      </h3>
-                      <div className="flex flex-col justify-center items-center md:flex-row gap-4 md:gap-0 md:justify-between md:items-center mt-[12px]">
-                        <div className="flex flex-col w-full md:items-center">
-                          <h4 className="text-primary text-xl flex items-center gap-2">
-                            <FaPhone /> Telefono
-                          </h4>
-                          <Input
-                            type="text"
-                            name="phone"
-                            onChange={updateForm.handleChange}
-                            onBlur={updateForm.handleBlur}
-                            value={updateForm.values.phone}
-                            className="md:w-1/2"
-                          />
-                        </div>
-                        <div className="flex flex-col w-full md:items-center">
-                          <h4 className="text-primary text-xl flex items-center gap-2">
-                            <FaLocationDot /> Direccion de consultorio
-                          </h4>
-                          <Input
-                            type="text"
-                            name="officeAddress"
-                            onChange={updateForm.handleChange}
-                            onBlur={updateForm.handleBlur}
-                            value={updateForm.values.officeAddress}
-                            className="md:w-1/2"
-                          />
                         </div>
                       </div>
                     </div>

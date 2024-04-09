@@ -26,6 +26,7 @@ import { NotificationResponseDto } from "@/components/dto/notification.dto";
 import { PiGearSix } from "react-icons/pi";
 import { PlanResponseDto } from "@/components/dto/plan.dto";
 import { BenefitResponseDto } from "@/components/dto/benefit.dto";
+import { MdOutlineAdminPanelSettings } from "react-icons/md";
 
 export default function Home(props: any) {
   const router = useRouter();
@@ -124,7 +125,7 @@ export default function Home(props: any) {
         </div>
         <div className="flex justify-between items-center gap-4 w-5/6 mx-auto mt-4">
           <div className="bg-gray-100 w-2/3 p-4 rounded-3xl shadow-lg">
-            {props.auth.role === "user" ? (
+            {props.auth.role === "user" || props.auth.role === "admin" ? (
               <>
                 <h2 className="text-3xl text-center text-zinc-600">
                   Descubra nuestros profesionales recomendados
@@ -420,6 +421,17 @@ export default function Home(props: any) {
                   })}
                 </div>
               ))}
+            {props.auth.role === "admin" && (
+              <>
+                <h2 className="text-3xl text-center text-zinc-600">
+                  Panel administración
+                </h2>
+                <MdOutlineAdminPanelSettings className="text-primary text-9xl" />
+                <Button onClick={() => router.push("/admin")}>
+                  Ir al panel
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </section>

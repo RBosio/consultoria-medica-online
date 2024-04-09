@@ -5,7 +5,6 @@ import { createMedicalRecordDto } from './dto/create-medical-record.dto';
 import { updateMedicalRecordDto } from './dto/update-medical-record.dto';
 import { MedicalRecord } from 'src/entities/medical-record.entity';
 import { MeetingService } from 'src/meeting/meeting.service';
-import { Meeting } from 'src/entities/meeting.entity';
 import { UserService } from 'src/user/user.service';
 import { File } from 'src/entities/file.entity';
 
@@ -16,7 +15,6 @@ export class MedicalRecordService {
     private medicalRecordRepository: Repository<MedicalRecord>,
     @InjectRepository(File) private fileRepository: Repository<File>,
     private meetingService: MeetingService,
-    private userService: UserService,
   ) {}
 
   findAll(): Promise<MedicalRecord[]> {

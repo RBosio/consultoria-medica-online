@@ -192,8 +192,6 @@ export default function Config(props: ConfigProps) {
     },
   });
 
-  console.log(props.doctor);
-
   const addScheduleForm = useFormik({
     initialValues: {
       day: 0,

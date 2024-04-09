@@ -72,8 +72,9 @@ export class MeetingController {
   @Roles(RoleEnum.User, RoleEnum.Doctor, RoleEnum.Admin)
   getLastMeeting(
     @Param('id') id: number,
+    @Req() req: any,
   ): Promise<Meeting | HttpException> {
-    return this.meetingService.findLastMeeting(id);
+    return this.meetingService.findLastMeeting(id, req.user.role);
   }
 
   @Get(':id/:startDatetime')

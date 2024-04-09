@@ -148,7 +148,30 @@ export class MeetingService {
     });
   }
 
-  async findLastMeeting(userId: number) {
+  async findLastMeeting(userId: number, role: string = 'user') {
+    if (role === 'doctor') {
+      const meetingFound = await this.meetingRepository.findOne({
+        where: {
+          doctorId: userId,
+          status: 'Pagada',
+          startDatetime: MoreThan(new Date()),
+        },
+        relations: {
+          user: {
+            healthInsurances: true,
+          },
+          doctor: {
+            user: true,
+          },
+        },
+        order: {
+          startDatetime: 'ASC',
+        },
+      });
+
+      return meetingFound;
+    }
+
     const meetingFound = await this.meetingRepository.findOne({
       where: {
         userId,

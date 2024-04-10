@@ -284,13 +284,16 @@ export class UserService {
   }
 
   async uploadHealthInsurance(
-    id: number,
-    healthInsuranceId: number,
+    dni: string,
+    name: string,
     url: string,
+    healthInsuranceId: number,
   ) {
     const hi = await this.userHealthInsuranceRepository.findOne({
       where: {
-        userId: id,
+        user: {
+          dni,
+        },
         healthInsuranceId,
       },
     });
@@ -302,8 +305,9 @@ export class UserService {
     }
 
     hi.file_url = url;
+    hi.file_name = name;
 
-    this.userHealthInsuranceRepository.save(hi);
+    await this.userHealthInsuranceRepository.save(hi);
   }
 
   async loadUsers() {

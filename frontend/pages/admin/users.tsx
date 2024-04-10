@@ -437,7 +437,7 @@ export default function Home(props: Speciality) {
                                           key={idx}
                                           target="_blank"
                                           href={`http://localhost:3000/uploads/user/healthInsurances/${hi.file_url}`}
-                                          className="flex justify-center gap-2 underline text-sm"
+                                          className="flex justify-center gap-2 text-sm text-cyan-600 hover:underline"
                                         >
                                           {hi.file_name}
                                         </Link>
@@ -448,7 +448,7 @@ export default function Home(props: Speciality) {
                                     <Link
                                       target="_blank"
                                       href={`http://localhost:3000/uploads/doctor/registration/${user.doctor.registration}`}
-                                      className="flex justify-center gap-2 underline text-sm"
+                                      className="flex justify-center gap-2 text-sm text-cyan-600 hover:underline"
                                     >
                                       Matrícula
                                     </Link>
@@ -457,7 +457,7 @@ export default function Home(props: Speciality) {
                                     <Link
                                       target="_blank"
                                       href={`http://localhost:3000/uploads/doctor/title/${user.doctor.title}`}
-                                      className="flex justify-center gap-2 underline text-sm"
+                                      className="flex justify-center gap-2 text-sm text-cyan-600 hover:underline"
                                     >
                                       Título
                                     </Link>

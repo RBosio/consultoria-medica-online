@@ -101,6 +101,7 @@ export default function ProfileView(props: any) {
     ) {
       const fd = new FormData();
       fd.append("file", file);
+      fd.append("healthInsuranceId", healthInsurance.toString());
 
       await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/user/${user.dni}/healthInsurance`,

@@ -52,7 +52,9 @@ export class NotificationService {
       },
     });
 
-    delete notification.userSend.password;
+    if (notification) {
+      delete notification.userSend.password;
+    }
 
     return notification;
   }
@@ -112,7 +114,7 @@ export class NotificationService {
 
     notificationsFound.map((n) => {
       n.readed = true;
-      delete n.userReceive.password;
+      delete n?.userReceive?.password;
     });
 
     return this.notificationRepository.save(notificationsFound);

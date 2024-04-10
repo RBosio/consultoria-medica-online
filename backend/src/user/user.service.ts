@@ -5,8 +5,6 @@ import { createUserDto } from './dto/create-user.dto';
 import { updateUserDto } from './dto/update-user.dto';
 import { User } from 'src/entities/user.entity';
 import { Doctor } from 'src/entities/doctor.entity';
-import { createDoctorDto } from 'src/doctor/dto/create-doctor.dto';
-import { Speciality } from 'src/entities/speciality.entity';
 import { HealthInsuranceService } from 'src/health-insurance/health-insurance.service';
 import { UserHealthInsurance } from 'src/entities/userHealthInsurances.entity';
 

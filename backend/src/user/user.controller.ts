@@ -59,9 +59,9 @@ export class UserController {
   @Roles(RoleEnum.User, RoleEnum.Doctor, RoleEnum.Admin)
   addHealthInsurance(
     @Param('id', ParseIntPipe) id: number,
-    @Body() data: { healthInsuranceId: number },
+    @Body() { healthInsuranceId }: { healthInsuranceId: number },
   ) {
-    return this.userService.addHealthInsurance(id, data.healthInsuranceId);
+    return this.userService.addHealthInsurance(id, healthInsuranceId);
   }
 
   @Patch(':id')

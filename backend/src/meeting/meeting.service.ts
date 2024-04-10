@@ -278,7 +278,9 @@ export class MeetingService {
       },
     });
 
-    delete meetingFound.user.password;
+    if (meetingFound) {
+      delete meetingFound.user.password;
+    }
 
     return meetingFound;
   }

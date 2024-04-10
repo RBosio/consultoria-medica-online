@@ -41,10 +41,9 @@ import { Auth } from "../../shared/types";
 import { HealthInsuranceResponseDto } from "../components/dto/healthInsurance.dto";
 import withAuth from "@/lib/withAuth";
 import Layout from "@/components/layout";
-import { roboto } from '@/lib/fonts';
+import { roboto } from "@/lib/fonts";
 
 export default function ProfileView(props: any) {
-
   const router = useRouter();
 
   const [change, setChange] = useState(false);
@@ -66,6 +65,7 @@ export default function ProfileView(props: any) {
     useState<boolean>(false);
   const [confirmHealthInsurance, setConfirmHealthInsurance] =
     useState<boolean>(false);
+  const [healthInsuranceVerify, setHealthInsuranceVerify] = useState<number>();
 
   function showDni() {
     let dni = user.dni;
@@ -101,6 +101,7 @@ export default function ProfileView(props: any) {
     ) {
       const fd = new FormData();
       fd.append("file", file);
+      fd.append("healthInsuranceId", healthInsurance.toString());
 
       await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/user/${user.dni}/healthInsurance`,
@@ -253,12 +254,14 @@ export default function ProfileView(props: any) {
         headers: { Authorization: `Bearer ${props.auth.token}` },
       }
     );
+
     await axios.post(
       `${process.env.NEXT_PUBLIC_API_URL}/notification`,
       {
         userIdSend: props.auth.id,
         userIdReceive: user.data.id,
-        type: "health",
+        type: "verification hi",
+        healthInsuranceId: healthInsuranceVerify,
       },
       {
         withCredentials: true,
@@ -302,7 +305,6 @@ export default function ProfileView(props: any) {
     // router.push("/profile");
   };
 
-
   return (
     <Layout auth={props.auth}>
       <section className={`flex ${roboto.className}`}>
@@ -330,7 +332,9 @@ export default function ProfileView(props: any) {
                 </div>
                 <div className="w-full">
                   <div className="flex flex-col items-center p-2 w-full">
-                    <h2 className={`text-primary ${robotoBold.className} text-3xl`}>
+                    <h2
+                      className={`text-primary ${robotoBold.className} text-3xl`}
+                    >
                       {user.name} {user.surname}
                     </h2>
                     <div className="flex items-center">
@@ -392,7 +396,9 @@ export default function ProfileView(props: any) {
                           {h.healthInsurance?.name ? (
                             <div className="flex items-center gap-4">
                               <FaChevronRight className="text-primary text-md size-6" />
-                              <p className="text-xl">{h.healthInsurance.name}</p>
+                              <p className="text-xl">
+                                {h.healthInsurance.name}
+                              </p>
                               {h.verified ? (
                                 <FaCircleCheck className="text-green-600 text-lg size-6" />
                               ) : (
@@ -402,6 +408,9 @@ export default function ProfileView(props: any) {
                                     <FaCertificate
                                       className="text-primary text-lg hover:cursor-pointer hover:opacity-70 size-6"
                                       onClick={() => {
+                                        setHealthInsuranceVerify(
+                                          h.healthInsurance.id
+                                        );
                                         setConfirmVerification(true);
                                       }}
                                     />
@@ -433,7 +442,7 @@ export default function ProfileView(props: any) {
                           }))}
                           renderInput={(params: any) => (
                             <Input
-                              onChange={() => { }}
+                              onChange={() => {}}
                               name="healthInsuranceId"
                               {...params}
                               label="Obra social"
@@ -465,10 +474,13 @@ export default function ProfileView(props: any) {
                   </div>
                   {file && (
                     <div
-                      className={`w-full py-1 px-2 bg-primary rounded-md text-white flex justify-between items-center overflow-x-hidden h-8 ${file.name.length > 60 ? "overflow-y-scroll" : ""
-                        }`}
+                      className={`w-full py-1 px-2 bg-primary rounded-md text-white flex justify-between items-center overflow-x-hidden h-8 ${
+                        file.name.length > 60 ? "overflow-y-scroll" : ""
+                      }`}
                     >
-                      <div className={`${robotoBold.className}`}>{file.name}</div>
+                      <div className={`${robotoBold.className}`}>
+                        {file.name}
+                      </div>
                       <FaXmark
                         className="hover:cursor-pointer hover:opacity-70"
                         onClick={() => {
@@ -480,7 +492,9 @@ export default function ProfileView(props: any) {
                 </div>
               </div>
               <div className="mt-12">
-                <h4 className="text-primary text-3xl mt-2 font-bold">Contraseña</h4>
+                <h4 className="text-primary text-3xl mt-2 font-bold">
+                  Contraseña
+                </h4>
                 <div className="flex flex-col">
                   <div className="flex justify-center items-center p-2">
                     <FaKey className="text-primary mr-2" />
@@ -511,7 +525,7 @@ export default function ProfileView(props: any) {
                           label="Nueva contraseña"
                           error={Boolean(
                             changePass.touched.newPassword &&
-                            changePass.errors.newPassword
+                              changePass.errors.newPassword
                           )}
                           helperText={
                             changePass.errors.newPassword &&
@@ -529,7 +543,7 @@ export default function ProfileView(props: any) {
                           label="Repita la contraseña"
                           error={Boolean(
                             changePass.touched.repeatPassword &&
-                            changePass.errors.repeatPassword
+                              changePass.errors.repeatPassword
                           )}
                           helperText={
                             changePass.errors.repeatPassword &&
@@ -537,7 +551,9 @@ export default function ProfileView(props: any) {
                             changePass.errors.repeatPassword
                           }
                         />
-                        <Button onClick={() => setConfirm(true)}>Aceptar</Button>
+                        <Button onClick={() => setConfirm(true)}>
+                          Aceptar
+                        </Button>
                       </form>
                     </div>
                   ) : (
@@ -560,20 +576,20 @@ export default function ProfileView(props: any) {
                 {confirm
                   ? "Confirmar cambio"
                   : confirmVerification
-                    ? "Confirmar solicitud"
-                    : confirmHealthInsurance
-                      ? "Confirmar solicitud"
-                      : ""}
+                  ? "Confirmar solicitud"
+                  : confirmHealthInsurance
+                  ? "Confirmar solicitud"
+                  : ""}
               </DialogTitle>
               <DialogContent>
                 <DialogContentText id="alert-dialog-description">
                   {confirm
                     ? "¿Estás seguro que deseas cambiar la contraseña?"
                     : confirmVerification
-                      ? "Estás seguro que deseas solicitar la verificación de la obra social?"
-                      : confirmHealthInsurance
-                        ? "Estás seguro que deseas agregar la obra social?"
-                        : ""}
+                    ? "Estás seguro que deseas solicitar la verificación de la obra social?"
+                    : confirmHealthInsurance
+                    ? "Estás seguro que deseas agregar la obra social?"
+                    : ""}
                 </DialogContentText>
               </DialogContent>
               <DialogActions>

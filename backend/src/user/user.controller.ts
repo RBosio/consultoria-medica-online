@@ -59,9 +59,9 @@ export class UserController {
   @Roles(RoleEnum.User, RoleEnum.Doctor, RoleEnum.Admin)
   addHealthInsurance(
     @Param('id', ParseIntPipe) id: number,
-    @Body() data: { healthInsuranceId: number },
+    @Body() { healthInsuranceId }: { healthInsuranceId: number },
   ) {
-    return this.userService.addHealthInsurance(id, data.healthInsuranceId);
+    return this.userService.addHealthInsurance(id, healthInsuranceId);
   }
 
   @Patch(':id')
@@ -105,19 +105,22 @@ export class UserController {
         filename: (req, file, cb) => {
           req.body.url =
             uuidv4() + '.' + file.originalname.split('.').slice(-1);
+          req.body.name = file.originalname;
+
           cb(null, req.body.url);
         },
       }),
     }),
   )
   @Post(':dni/healthInsurance')
-  uploadHealthInsurance(@Req() request: Request) {
+  uploadHealthInsurance(@Param('dni') dni: string, @Req() request: Request) {
     const { body } = request;
 
     return this.userService.uploadHealthInsurance(
-      body.id,
-      body.healthInsuranceId,
+      dni,
+      body.name,
       body.url,
+      Number(body.healthInsuranceId),
     );
   }
 }

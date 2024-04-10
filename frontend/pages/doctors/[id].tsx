@@ -92,16 +92,20 @@ export default function Doctor(props: any) {
   }, []);
 
   const showDetail = async (selectedDate: string) => {
-    const meeting = await axios.get(
-      `${process.env.NEXT_PUBLIC_API_URL}/meeting/${props.auth.id}/${selectedDate}`,
-      {
-        withCredentials: true,
-        headers: { Authorization: `Bearer ${props.auth.token}` },
-      }
-    );
-    setDetail(meeting.data);
+    try {
+      const meeting = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/meeting/${props.auth.id}/${selectedDate}`,
+        {
+          withCredentials: true,
+          headers: { Authorization: `Bearer ${props.auth.token}` },
+        }
+      );
+      setDetail(meeting.data);
 
-    setPaid(true);
+      setPaid(true);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const handleDateChange = (

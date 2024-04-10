@@ -380,7 +380,9 @@ export default function Config(props: ConfigProps) {
                     <h2 className="text-primary text-xl text-center">
                       Descripción
                     </h2>
-                    <p className="text-justify">{props.doctor.description}</p>
+                    <p className="text-justify line-clamp-[8]">
+                      {props.doctor.description}
+                    </p>
                   </div>
                   <div className="flex flex-col gap-2">
                     <div className="flex flex-col gap-2 items-center">
@@ -420,12 +422,14 @@ export default function Config(props: ConfigProps) {
                           })}
                         </div>
                       </div>
-                      <Button
-                        startIcon={<FaEdit />}
-                        onClick={() => setModify(!modify)}
-                      >
-                        Modificar
-                      </Button>
+                      <div className="hidden md:block">
+                        <Button
+                          startIcon={<FaEdit />}
+                          onClick={() => setModify(!modify)}
+                        >
+                          Modificar
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -714,7 +718,7 @@ export default function Config(props: ConfigProps) {
                       <h3 className="text-primary text-xl text-center">
                         Reunión
                       </h3>
-                      <div className="flex justify-between items-center">
+                      <div className="flex flex-col md:flex-row gap-4 md:gap-0 mt-4 md:mt-0 justify-between items-center">
                         <div>
                           <h4 className="text-primary text-lg flex justify-center items-center gap-2">
                             <FaStopwatch /> Duracion

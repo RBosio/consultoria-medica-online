@@ -29,11 +29,9 @@ import {
   DialogContentText,
   DialogTitle,
   Divider,
-  IconButton,
   MenuItem,
   Select,
   Snackbar,
-  Tooltip,
   useTheme,
 } from "@mui/material";
 import { UserResponseDto } from "@/components/dto/user.dto";
@@ -41,7 +39,6 @@ import { useRouter } from "next/router";
 import { DoctorResponseDto } from "@/components/dto/doctor.dto";
 import Rate from "@/components/rate";
 import { GoDotFill } from "react-icons/go";
-import { IoMdMail } from "react-icons/io";
 import { FaEdit } from "react-icons/fa";
 import { ScheduleResponseDto } from "@/components/dto/schedule.dto";
 import Input from "@/components/input";
@@ -130,7 +127,6 @@ export default function Config(props: ConfigProps) {
   ]);
   const [minutesTo, setMinutesTo] = useState<string[]>([]);
   const [healthInsurance, setHealthInsurance] = useState<number>(0);
-  const [healthInsuranceVerify, setHealthInsuranceVerify] = useState<number>(0);
   const [duration, setDuration] = useState<number>(
     props.doctor.durationMeeting
   );
@@ -251,7 +247,7 @@ export default function Config(props: ConfigProps) {
     await axios.patch(
       `${process.env.NEXT_PUBLIC_API_URL}/user/healthInsurance/${props.doctor.user.id}`,
       {
-        healthInsurance,
+        healthInsuranceId: healthInsurance,
       },
       {
         withCredentials: true,
@@ -275,13 +271,10 @@ export default function Config(props: ConfigProps) {
     } else if (confirmVerification) {
       handleClickVerification();
       setConfirmVerification(false);
-    } else if (confirmVerificationHI) {
-      handleClickVerificationHI();
-      setConfirmVerificationHI(false);
     } else if (confirmCancelPlan) {
       handleClickCancelPlan();
       setConfirmCancelPlan(false);
-    } else {
+    } else if (confirmHealthInsurance) {
       handleClickHealthInsurance();
       setConfirmHealthInsurance(false);
     }
@@ -302,35 +295,6 @@ export default function Config(props: ConfigProps) {
         userIdSend: props.auth.id,
         userIdReceive: user.data.id,
         type: "verification",
-      },
-      {
-        withCredentials: true,
-        headers: { Authorization: `Bearer ${props.auth.token}` },
-      }
-    );
-
-    setMessage("Solicitud realizada con éxito!");
-    setSuccess(true);
-
-    router.push("/config");
-  };
-
-  const handleClickVerificationHI = async () => {
-    const user = await axios.get(
-      `${process.env.NEXT_PUBLIC_API_URL}/user/admin`,
-      {
-        withCredentials: true,
-        headers: { Authorization: `Bearer ${props.auth.token}` },
-      }
-    );
-
-    await axios.post(
-      `${process.env.NEXT_PUBLIC_API_URL}/notification`,
-      {
-        userIdSend: props.auth.id,
-        userIdReceive: user.data.id,
-        type: "verification hi",
-        healthInsuranceId: healthInsuranceVerify,
       },
       {
         withCredentials: true,
@@ -415,7 +379,9 @@ export default function Config(props: ConfigProps) {
                     <h2 className="text-primary text-xl text-center">
                       Descripción
                     </h2>
-                    <p className="text-justify">{props.doctor.description}</p>
+                    <p className="text-justify line-clamp-[8]">
+                      {props.doctor.description}
+                    </p>
                   </div>
                   <div className="flex flex-col gap-2">
                     <div className="flex flex-col gap-2 items-center">
@@ -455,12 +421,14 @@ export default function Config(props: ConfigProps) {
                           })}
                         </div>
                       </div>
-                      <Button
-                        startIcon={<FaEdit />}
-                        onClick={() => setModify(!modify)}
-                      >
-                        Modificar
-                      </Button>
+                      <div className="hidden md:block">
+                        <Button
+                          startIcon={<FaEdit />}
+                          onClick={() => setModify(!modify)}
+                        >
+                          Modificar
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -749,7 +717,7 @@ export default function Config(props: ConfigProps) {
                       <h3 className="text-primary text-xl text-center">
                         Reunión
                       </h3>
-                      <div className="flex justify-between items-center">
+                      <div className="flex flex-col md:flex-row gap-4 md:gap-0 mt-4 md:mt-0 justify-between items-center">
                         <div>
                           <h4 className="text-primary text-lg flex justify-center items-center gap-2">
                             <FaStopwatch /> Duracion
@@ -788,90 +756,6 @@ export default function Config(props: ConfigProps) {
                     <Button type="submit">Guardar cambios</Button>
                   </div>
                 </form>
-                <Divider
-                  variant="middle"
-                  sx={{
-                    "&": {
-                      width: "90%",
-                    },
-                    "&::before, &::after": {
-                      borderTop: `thin solid ${theme.palette.primary.main}`,
-                    },
-                  }}
-                  className="mx-auto my-4"
-                >
-                  <GoDotFill color={theme.palette.primary.main} />
-                </Divider>
-                <h3 className="text-primary text-xl text-center">
-                  Obras sociales
-                </h3>
-                <div className="md:flex md:justify-between md:items-center p-4">
-                  <div className="md:w-1/3">
-                    <Select
-                      className="w-full md:w-2/3 mr-2"
-                      onChange={($e: any) =>
-                        setHealthInsurance($e.target.value)
-                      }
-                    >
-                      {props.healthInsurances
-                        .filter(
-                          (hi) =>
-                            !props.doctor.user.healthInsurances
-                              .map((hi) => hi.healthInsurance.id)
-                              .includes(hi.id)
-                        )
-                        .map((hi: HealthInsuranceResponseDto) => (
-                          <MenuItem key={hi.id} value={hi.id}>
-                            {hi.name}
-                          </MenuItem>
-                        ))}
-                    </Select>
-                    <Button
-                      className="mt-4 md:mt-0"
-                      onClick={() => setConfirmHealthInsurance(true)}
-                    >
-                      Agregar
-                    </Button>
-                  </div>
-                  <div className="w-full md:w-2/3 flex justify-center flex-wrap gap-2 mt-8 md:mt-0">
-                    {props.doctor.user.healthInsurances.map((hi) => {
-                      return (
-                        <div
-                          key={hi.healthInsurance.id}
-                          className="flex items-center gap-2 p-1 bg-primary text-white rounded-md"
-                        >
-                          {hi.verified ? (
-                            <>
-                              <Tooltip title="Verificado">
-                                <IconButton className="text-white text-md">
-                                  <FaCircleCheck />
-                                </IconButton>
-                              </Tooltip>
-                            </>
-                          ) : (
-                            <>
-                              <Tooltip
-                                title="Verificar"
-                                onClick={() => {
-                                  setHealthInsuranceVerify(
-                                    hi.healthInsurance.id
-                                  );
-                                  setConfirmVerificationHI(true);
-                                }}
-                              >
-                                <IconButton className="text-white text-md">
-                                  <FaCircleXmark />
-                                </IconButton>
-                              </Tooltip>
-                            </>
-                          )}
-
-                          <p className="pr-2">{hi.healthInsurance.name}</p>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
               </div>
             </div>
           </div>
@@ -880,7 +764,6 @@ export default function Config(props: ConfigProps) {
               confirmSchedule ||
               confirmUpdate ||
               confirmVerification ||
-              confirmVerificationHI ||
               confirmCancelPlan ||
               confirmHealthInsurance
             }
@@ -888,7 +771,6 @@ export default function Config(props: ConfigProps) {
               setConfirmSchedule(false);
               setConfirmUpdate(false);
               setConfirmVerification(false);
-              setConfirmVerificationHI(false);
               setConfirmCancelPlan(false);
               setConfirmHealthInsurance(false);
             }}
@@ -935,7 +817,6 @@ export default function Config(props: ConfigProps) {
                   setConfirmSchedule(false);
                   setConfirmUpdate(false);
                   setConfirmVerification(false);
-                  setConfirmVerificationHI(false);
                   setConfirmCancelPlan(false);
                   setConfirmHealthInsurance(false);
                 }}

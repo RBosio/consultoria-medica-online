@@ -15,7 +15,6 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import DatePicker from "@/components/dateInput";
 import dayjs, { Dayjs } from "dayjs";
-import { CiCircleCheck } from "react-icons/ci";
 import Message from "@/components/message";
 
 export default function Register(props: any) {

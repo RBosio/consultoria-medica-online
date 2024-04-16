@@ -211,8 +211,8 @@ export class MeetingService {
       },
     });
 
-    delete meetingFound.user.password;
-    delete meetingFound.doctor.user.password;
+    delete meetingFound?.user.password;
+    delete meetingFound?.doctor.user.password;
 
     return meetingFound;
   }
@@ -278,7 +278,9 @@ export class MeetingService {
       },
     });
 
-    delete meetingFound.user.password;
+    if (meetingFound) {
+      delete meetingFound.user.password;
+    }
 
     return meetingFound;
   }
@@ -348,10 +350,9 @@ export class MeetingService {
     }
 
     const newMeeting = this.meetingRepository.create(meeting);
-    newMeeting.userId = req.user.id;
 
     newMeeting.doctor = await this.doctorService.findOne(meeting.doctorId);
-    newMeeting.user = await this.userService.findOne(meeting.userId);
+    newMeeting.user = await this.userService.findOne(req.user.id);
     newMeeting.tpc = uuidv4();
 
     return this.meetingRepository.save(newMeeting);

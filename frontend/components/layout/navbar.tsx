@@ -141,6 +141,7 @@ const Navbar: React.FC<NavbarProps> = (props) => {
         width={180}
         height={180}
         alt="Logo HealthTech"
+        onClick={() => router.push("/")}
       />
       <div className="flex items-center justify-center relative">
         <Tooltip placement="bottom" title="Notificaciones">
@@ -222,7 +223,13 @@ const Navbar: React.FC<NavbarProps> = (props) => {
                                       </span>
                                     </>
                                   ) : n.type === "verification hi" ? (
-                                    `El doctor ${n.userSend.surname}, ${n.userSend.name} solicitó verificación de la obra social ${n.healthInsurance.name}`
+                                    `El ${
+                                      n.userSend.doctor ? "doctor" : "usuario"
+                                    } ${n.userSend.surname}, ${
+                                      n.userSend.name
+                                    } solicitó verificación de la obra social ${
+                                      n.healthInsurance.name
+                                    }`
                                   ) : (
                                     ""
                                   )}
@@ -251,6 +258,8 @@ const Navbar: React.FC<NavbarProps> = (props) => {
                                             n.meeting.startDatetime
                                           ).format("YYYY-MM-DDTHH:mm:ss")
                                       )}`
+                                    : n.type === "verification hi"
+                                    ? `/admin/users`
                                     : ""
                                 }
                                 onClick={() => {
@@ -274,7 +283,7 @@ const Navbar: React.FC<NavbarProps> = (props) => {
             )}
           </div>
         </Menu>
-        <Tooltip placement="bottom" title="Perfil">
+        <Tooltip className="hidden md:block" placement="bottom" title="Perfil">
           <IconButton
             className={`rounded-md hover:bg-primary_light ${
               menuPosition ? "bg-primary" : ""

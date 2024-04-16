@@ -5,8 +5,6 @@ import { createUserDto } from './dto/create-user.dto';
 import { updateUserDto } from './dto/update-user.dto';
 import { User } from 'src/entities/user.entity';
 import { Doctor } from 'src/entities/doctor.entity';
-import { createDoctorDto } from 'src/doctor/dto/create-doctor.dto';
-import { Speciality } from 'src/entities/speciality.entity';
 import { HealthInsuranceService } from 'src/health-insurance/health-insurance.service';
 import { UserHealthInsurance } from 'src/entities/userHealthInsurances.entity';
 
@@ -286,13 +284,16 @@ export class UserService {
   }
 
   async uploadHealthInsurance(
-    id: number,
-    healthInsuranceId: number,
+    dni: string,
+    name: string,
     url: string,
+    healthInsuranceId: number,
   ) {
     const hi = await this.userHealthInsuranceRepository.findOne({
       where: {
-        userId: id,
+        user: {
+          dni,
+        },
         healthInsuranceId,
       },
     });
@@ -304,8 +305,9 @@ export class UserService {
     }
 
     hi.file_url = url;
+    hi.file_name = name;
 
-    this.userHealthInsuranceRepository.save(hi);
+    await this.userHealthInsuranceRepository.save(hi);
   }
 
   async loadUsers() {

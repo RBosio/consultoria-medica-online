@@ -8,17 +8,15 @@ import {
   FaCalendarDays,
   FaChevronRight,
   FaCircleExclamation,
-  FaGear,
   FaRightLong,
   FaUserDoctor,
 } from "react-icons/fa6";
 import moment from "moment";
 import axios from "axios";
 import { useRouter } from "next/router";
-import { Chip, Divider, useTheme } from "@mui/material";
+import { Chip, Divider, Rating, useTheme } from "@mui/material";
 import Rate from "@/components/rate";
 import { GoDotFill } from "react-icons/go";
-import { IoMdMail } from "react-icons/io";
 import { DoctorResponseDto } from "@/components/dto/doctor.dto";
 import Avatar from "@/components/avatar";
 import Link from "next/link";
@@ -28,12 +26,15 @@ import { PlanResponseDto } from "@/components/dto/plan.dto";
 import { BenefitResponseDto } from "@/components/dto/benefit.dto";
 import { MdOutlineAdminPanelSettings } from "react-icons/md";
 import { pesos } from "@/lib/formatCurrency";
+import { styled } from "@mui/material/styles";
 
 export default function Home(props: any) {
   const router = useRouter();
   const theme = useTheme();
 
   const [plans, setPlans] = React.useState<PlanResponseDto[]>([]);
+  const [rate, setRate] = React.useState<boolean>(false);
+  const [stars, setStars] = React.useState<number>(5);
 
   const markAsRead = async (id: number) => {
     await axios.patch(
@@ -52,11 +53,69 @@ export default function Home(props: any) {
         props.plans.filter((plan: any) => plan.id > props.doctor.planId)
       );
     }
+
+    if (localStorage.getItem("startDatetime")) {
+      setRate(true);
+    }
+
+    return () => {
+      localStorage.removeItem("startDatetime");
+    };
   }, []);
+
+  const rateMeeting = async () => {
+    const startDatetime = localStorage.getItem("startDatetime");
+    if (startDatetime) {
+      await axios.patch(
+        `${process.env.NEXT_PUBLIC_API_URL}/meeting/${props.auth.id}/${startDatetime}`,
+        {
+          rate: stars,
+        },
+        {
+          withCredentials: true,
+          headers: { Authorization: `Bearer ${props.auth.token}` },
+        }
+      );
+
+      setRate(false);
+      localStorage.removeItem("startDatetime");
+    }
+  };
+
+  const StyledRating = styled(Rating)({
+    "& .MuiRating-iconFilled": {
+      color: "#ff6d75",
+    },
+    "& .MuiRating-iconHover": {
+      color: "#ff3d47",
+    },
+  });
 
   return (
     <Layout auth={props.auth}>
       <section>
+        {rate &&
+          (props.auth.role === "user" || props.auth.role === "admin") && (
+            <>
+              <div className="w-full h-full bg-gray-600 absolute z-30 opacity-40"></div>
+              <div className="absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 bg-white z-40 shadow-2xl">
+                <div className="flex flex-col justify-center items-center gap-4 p-4">
+                  <h1 className="text-2xl text-primary">
+                    Calificar la videollamada
+                  </h1>
+                  <div className="flex gap-5">
+                    <Rating
+                      name="customized-10"
+                      defaultValue={5}
+                      max={5}
+                      onClick={(e: any) => setStars(Number(e.target.value))}
+                    />
+                  </div>
+                  <Button onClick={rateMeeting}>Aceptar</Button>
+                </div>
+              </div>
+            </>
+          )}
         <h1 className="text-3xl p-4 text-zinc-600">
           ¡Hola de nuevo{" "}
           <span className="text-primary font-semibold">
@@ -89,19 +148,22 @@ export default function Home(props: any) {
                 </div>
               </div>
               <Button
-                onClick={() =>
-                  router.push(
-                    `meetings/${btoa(
-                      props.auth.role === "user"
-                        ? props.auth.id
-                        : props.lastMeeting?.user.id +
-                            "." +
-                            moment(props.lastMeeting?.startDatetime).format(
-                              "YYYY-MM-DDTHH:mm:ss"
-                            )
-                    )}`
-                  )
-                }
+                onClick={() => {
+                  const route = `meetings/${btoa(
+                    props.auth.role === "user"
+                      ? props.auth.id +
+                          "." +
+                          moment(props.lastMeeting?.startDatetime).format(
+                            "YYYY-MM-DDTHH:mm:ss"
+                          )
+                      : props.lastMeeting?.user.id +
+                          "." +
+                          moment(props.lastMeeting?.startDatetime).format(
+                            "YYYY-MM-DDTHH:mm:ss"
+                          )
+                  )}`;
+                  router.push(route);
+                }}
                 startIcon={<FaRightLong />}
               >
                 Ver reunión
@@ -110,12 +172,15 @@ export default function Home(props: any) {
           ) : (
             <h2 className="mx-auto text-xl flex flex-col md:flex-row items-center gap-4 text-zinc-600">
               Actualmente no tiene reuniones pendientes{" "}
-              <Button
-                onClick={() => router.push("/doctors")}
-                startIcon={<FaChevronRight />}
-              >
-                Solicite una
-              </Button>
+              {props.auth.role === "user" ||
+                (props.auth.role === "admin" && (
+                  <Button
+                    onClick={() => router.push("/doctors")}
+                    startIcon={<FaChevronRight />}
+                  >
+                    Solicite una
+                  </Button>
+                ))}
             </h2>
           )}
         </div>

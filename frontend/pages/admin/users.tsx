@@ -322,7 +322,6 @@ export default function Home(props: Speciality) {
                         top: "50%",
                         left: "50%",
                         transform: "translate(-50%, -50%)",
-                        width: 800,
                         bgcolor: "background.paper",
 
                         boxShadow: 24,
@@ -345,7 +344,7 @@ export default function Home(props: Speciality) {
                       >
                         {user && (
                           <div
-                            className={`mt-4 p-4 ${
+                            className={`mt-4 p-4 mx-auto ${
                               !user?.doctor && "flex flex-col items-center"
                             }`}
                           >
@@ -464,6 +463,59 @@ export default function Home(props: Speciality) {
                                   )}
                                 </div>
                               </div>
+                              <div
+                                className={`${
+                                  user.doctor && "ml-24"
+                                } hidden md:block`}
+                              >
+                                {user?.doctor && (
+                                  <div className="flex flex-col gap-2">
+                                    <div className="flex items-center gap-2">
+                                      <p className="text-primary text-lg">
+                                        Verificado:
+                                      </p>
+                                      {user.doctor?.verified ? (
+                                        <FaCheck className="text-green-400" />
+                                      ) : (
+                                        user.doctor.id && (
+                                          <>
+                                            <FaXmark className="text-red-400" />
+                                            <Button
+                                              onClick={() => {
+                                                localStorage.setItem(
+                                                  "doctorId",
+                                                  Number(
+                                                    user.doctor?.id
+                                                  ).toString()
+                                                );
+                                                setVerify(true);
+                                              }}
+                                            >
+                                              Verificar
+                                            </Button>
+                                          </>
+                                        )
+                                      )}
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                      <p className="text-primary text-lg">
+                                        Duración de la reunión:
+                                      </p>
+                                      {user.doctor?.durationMeeting} min
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                      <p className="text-primary text-lg">
+                                        Especialidades:{" "}
+                                      </p>
+                                      {user.doctor?.specialities
+                                        .map((s) => s.name)
+                                        .join(", ")}
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                            <div className="my-4 md:hidden">
                               {user?.doctor && (
                                 <div className="flex flex-col gap-2">
                                   <div className="flex items-center gap-2">
@@ -510,16 +562,18 @@ export default function Home(props: Speciality) {
                                 </div>
                               )}
                             </div>
-                            {user?.doctor && (
+                            {/* {user?.doctor && (
                               <div className="w-5/6 mx-auto mt-4">
                                 <div className="flex flex-col md:flex-row items-center md:items-start gap-2">
                                   <p className="text-primary text-lg">
                                     Descripcion:
                                   </p>{" "}
-                                  {user.doctor?.description}
+                                  <p className="line-clamp-6">
+                                    {user.doctor?.description}
+                                  </p>
                                 </div>
                               </div>
-                            )}
+                            )} */}
                           </div>
                         )}
                       </Typography>

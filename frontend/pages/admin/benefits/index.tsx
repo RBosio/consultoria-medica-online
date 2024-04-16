@@ -183,17 +183,27 @@ export default function Home(props: Benefit) {
   };
 
   const onConfirmClick = () => {
-    if (addBenefit.values.name.length > 0) {
-      addBenefit.handleSubmit();
-    } else if (cancel) {
+    if (confirm) {
+      if (addBenefit.values.name.length > 0) {
+        addBenefit.handleSubmit();
+      } else {
+        setError(true);
+        setMessage("El nombre es requerido!");
+        setConfirm(false);
+        return;
+      }
+    }
+
+    if (cancel) {
       deleteBenefit();
     } else if (editBenefit.values.name.length > 0) {
       editBenefit.handleSubmit();
-    } else {
-      setConfirm(false);
-      setAdd(false);
-      setEdit(false);
     }
+
+    setConfirm(false);
+    setAdd(false);
+    setEdit(false);
+    setO(false);
   };
 
   const showDetail = async (id: number) => {
@@ -359,7 +369,6 @@ export default function Home(props: Benefit) {
                       top: "50%",
                       left: "50%",
                       transform: "translate(-50%, -50%)",
-                      width: 800,
                       bgcolor: "background.paper",
 
                       boxShadow: 24,
@@ -425,7 +434,7 @@ export default function Home(props: Benefit) {
                             Agregar beneficio
                           </h4>
                           <form
-                            className="flex justify-center gap-4"
+                            className="flex flex-col md:flex-row justify-center gap-4"
                             onSubmit={addBenefit.handleSubmit}
                           >
                             <Input

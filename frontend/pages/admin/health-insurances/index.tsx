@@ -78,21 +78,18 @@ export default function Home(props: HealthInsurance) {
       if (
         values.discount === 0 ||
         values.discount === null ||
-        values.discount === undefined
+        values.discount === undefined ||
+        values.name === ""
       ) {
-        setConfirm(false);
-        setAdd(false);
-        setO(false);
-
         setMessage("Ingrese todos los campos!");
         setError(true);
+
+        setConfirm(false);
         return;
       } else if (values.discount < 0 || values.discount > 100) {
-        setConfirm(false);
-        setAdd(false);
-        setO(false);
-
         setMessage("El descuento debe ser entre 0 y 100!");
+
+        setConfirm(false);
         setError(true);
         return;
       }
@@ -143,21 +140,18 @@ export default function Home(props: HealthInsurance) {
       if (
         values.discount === 0 ||
         values.discount === null ||
-        values.discount === undefined
+        values.discount === undefined ||
+        values.name === ""
       ) {
-        setUpdate(false);
-        setEdit(false);
-        setO(false);
-
         setMessage("Ingrese todos los campos!");
         setError(true);
+
+        setUpdate(false);
         return;
       } else if (values.discount < 0 || values.discount > 100) {
-        setUpdate(false);
-        setEdit(false);
-        setO(false);
-
         setMessage("El descuento debe ser entre 0 y 100!");
+
+        setUpdate(false);
         setError(true);
         return;
       }
@@ -222,11 +216,11 @@ export default function Home(props: HealthInsurance) {
   };
 
   const onConfirmClick = () => {
-    if (addHealthInsurance.values.name.length > 0) {
+    if (add) {
       addHealthInsurance.handleSubmit();
     } else if (cancel) {
       deleteHealthInsurance();
-    } else if (editHealthInsurance.values.name.length > 0) {
+    } else if (update) {
       editHealthInsurance.handleSubmit();
     } else {
       setConfirm(false);
@@ -439,7 +433,6 @@ export default function Home(props: HealthInsurance) {
                       top: "50%",
                       left: "50%",
                       transform: "translate(-50%, -50%)",
-                      width: 800,
                       bgcolor: "background.paper",
 
                       boxShadow: 24,
@@ -466,7 +459,7 @@ export default function Home(props: HealthInsurance) {
                             Agregar obra social
                           </h4>
                           <form
-                            className="flex justify-center gap-4"
+                            className="flex flex-col md:flex-row justify-center gap-4"
                             onSubmit={addHealthInsurance.handleSubmit}
                           >
                             <Input
@@ -497,7 +490,7 @@ export default function Home(props: HealthInsurance) {
                             Editar obra social
                           </h4>
                           <form
-                            className="flex justify-center gap-4"
+                            className="flex flex-col md:flex-row justify-center gap-4"
                             onSubmit={editHealthInsurance.handleSubmit}
                           >
                             <Input

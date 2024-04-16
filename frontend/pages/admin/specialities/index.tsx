@@ -87,6 +87,14 @@ export default function Home(props: Speciality) {
       name: "",
     },
     onSubmit: async (values, { setSubmitting }) => {
+      if (!values.name) {
+        setError(true);
+        setMessage("El nombre es requerido");
+
+        setConfirm(false);
+        return;
+      }
+
       await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/speciality`,
         values,
@@ -125,6 +133,14 @@ export default function Home(props: Speciality) {
       name: "",
     },
     onSubmit: async (values, { setSubmitting }) => {
+      if (!values.name) {
+        setError(true);
+        setMessage("El nombre es requerido");
+
+        setUpdate(false);
+        return;
+      }
+
       await axios.patch(
         `${process.env.NEXT_PUBLIC_API_URL}/speciality/${values.id}`,
         { name: values.name },
@@ -181,11 +197,11 @@ export default function Home(props: Speciality) {
   };
 
   const onConfirmClick = () => {
-    if (addSpeciality.values.name.length > 0) {
+    if (add) {
       addSpeciality.handleSubmit();
     } else if (cancel) {
       deleteSpeciality();
-    } else if (editSpeciality.values.name.length > 0) {
+    } else if (edit) {
       editSpeciality.handleSubmit();
     } else {
       setConfirm(false);
@@ -361,7 +377,6 @@ export default function Home(props: Speciality) {
                       top: "50%",
                       left: "50%",
                       transform: "translate(-50%, -50%)",
-                      width: 800,
                       bgcolor: "background.paper",
 
                       boxShadow: 24,
@@ -388,7 +403,7 @@ export default function Home(props: Speciality) {
                             Agregar especialidad
                           </h4>
                           <form
-                            className="flex justify-center gap-4"
+                            className="flex flex-col md:flex-row justify-center gap-4"
                             onSubmit={addSpeciality.handleSubmit}
                           >
                             <Input
@@ -410,7 +425,7 @@ export default function Home(props: Speciality) {
                             Editar especialidad
                           </h4>
                           <form
-                            className="flex justify-center gap-4"
+                            className="flex flex-col md:flex-row justify-center gap-4"
                             onSubmit={editSpeciality.handleSubmit}
                           >
                             <Input

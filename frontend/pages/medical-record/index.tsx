@@ -31,6 +31,7 @@ import Button from "@/components/button";
 import { MeetingResponseDto } from "@/components/dto/meeting.dto";
 import { showDni } from "@/lib/dni";
 import { UserResponseDto } from "@/components/dto/user.dto";
+import Avatar from "@/components/avatar";
 
 interface MedicalRecordI {
   medicalRecords: MedicalRecordResponse[];
@@ -130,19 +131,21 @@ export default function MedicalRecord(props: MedicalRecordI) {
         >
           <div className="flex flex-col md:flex-row items-center">
             {props.user.image ? (
-              <img
-                src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/user/images/${props.user.image}`}
-                alt="Profile photo"
-                className="h-64 sm:h-56 object-cover w-full"
+              <Avatar
+                labelProps={{ className: "hidden" }}
+                name={props.user.name}
+                surname={props.user.surname}
+                className="bg-primary"
+                size={200}
+                icon={<FaUser size={100} />}
+                photo={props.user.image ? `${props.user.image}` : undefined}
               />
             ) : (
-              <>
-                <div className="w-44 bg-primary flex items-center justify-center p-12 rounded-full">
-                  <FaUser color="#ffffff" size={80} />
-                </div>
-              </>
+              <div className="w-44 bg-primary flex items-center justify-center p-12 rounded-full">
+                <FaUser color="#ffffff" size={80} />
+              </div>
             )}
-            <div className="flex flex-col items-center ml-4">
+            <div className="flex flex-col items-center mt-4 md:mt-0 md:ml-4">
               <h3 className="text-primary text-3xl">
                 {props.user.name} {props.user.surname}
               </h3>

@@ -141,6 +141,7 @@ const Navbar: React.FC<NavbarProps> = (props) => {
         width={180}
         height={180}
         alt="Logo HealthTech"
+        onClick={() => router.push("/")}
       />
       <div className="flex items-center justify-center relative">
         <Tooltip placement="bottom" title="Notificaciones">

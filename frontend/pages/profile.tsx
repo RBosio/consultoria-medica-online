@@ -135,6 +135,12 @@ export default function ProfileView(props: any) {
       repeatPassword: Yup.string().required("Debes re-ingresar tu contraseña"),
     }),
     onSubmit: async (values, { setSubmitting }) => {
+      if (values.newPassword.length < 8 || values.repeatPassword.length < 8) {
+        setError(true);
+        setMessage("La contraseña debe tener al menos 8 caracteres");
+        return;
+      }
+
       try {
         if (values.newPassword === values.repeatPassword) {
           await axios.patch(

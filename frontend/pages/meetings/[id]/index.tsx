@@ -254,11 +254,8 @@ export default function DetailMeeting(props: MeetingI) {
         ) : (
           ""
         )}
-        <main
-          className="flex flex-wrap sm:flex-nowrap justify-between gap-1 sm:gap-4 m-4"
-          style={{ height: "95%" }}
-        >
-          <section className="w-1/2 sm:w-1/4 h-5/12 sm:h-full">
+        <main className="flex flex-col md:flex-row flex-wrap sm:flex-nowrap justify-between gap-1 sm:gap-4 m-4">
+          <section className="mt-48 md:mt-0 w-full md:w-1/2 h-5/12 sm:h-full">
             {props.auth.role === "user" ? (
               <DoctorCard
                 startDatetime={props.meeting.startDatetime}
@@ -281,8 +278,8 @@ export default function DetailMeeting(props: MeetingI) {
               />
             )}
           </section>
-          <section className="w-[48%] sm:w-[35%] flex flex-col items-center sm:gap-4">
-            <section className="w-full h-2/3 bg-white rounded-lg flex flex-col items-center">
+          <section className="md:w-[48%] flex flex-col items-center sm:gap-4 mt-4 md:mt-0">
+            <section className="w-full bg-white rounded-lg flex flex-col items-center">
               <div className="w-full relative">
                 <div className="w-full h-full bg-black absolute opacity-30 rounded-t-lg"></div>
                 <img
@@ -401,31 +398,31 @@ export default function DetailMeeting(props: MeetingI) {
               openedChat ? setOpenedChat(false) : setOpenedChat(true)
             }
             aria-label="chat"
-            className="z-0 bg-secondary hover:bg-[#4F4F4F] absolute bottom-4 right-8 text-white sm:hidden"
+            className="z-0 bg-secondary hover:bg-[#4F4F4F] fixed bottom-4 right-8 text-white sm:hidden"
           >
             <BsFillChatLeftTextFill />
           </Fab>
           <div
             onClick={handleOnClose}
             id="container"
-            className={
+            className={`
+            ${
               openedChat
                 ? "fixed z-50 inset-0 backdrop-blur-sm bg-black bg-opacity-30"
-                : "w-[100%] sm:w-[37.5%] max-h-full bg-white rounded-lg mt-5 sm:mt-0 hidden  sm:inline "
+                : "w-[100%] sm:w-[40%] bg-white rounded-lg mt-5 sm:mt-0 hidden sm:inline "
             }
+              `}
           >
             <section
-              className={
+              className={`
+              ${
                 openedChat
-                  ? "flex flex-col h-5/6  bg-white"
-                  : "w-[100%] sm:w-[37.5%] max-h-full bg-white rounded-lg mt-5 sm:mt-0 hidden  sm:inline "
+                  ? "flex flex-col h-5/6 bg-white"
+                  : "w-[100%] sm:w-[40%] rounded-lg mt-5 sm:mt-0 hidden sm:inline"
               }
+              `}
             >
-              <div
-                className="overflow-y-scroll"
-                id="scroll"
-                style={{ height: "90%" }}
-              >
+              <div className="overflow-y-scroll h-[85%]" id="scroll">
                 {props.comments.map(
                   (comment: CommentResponseDto, idx: number) => {
                     return (
@@ -442,7 +439,7 @@ export default function DetailMeeting(props: MeetingI) {
                 )}
               </div>
               <form
-                className="flex justify-center items-center mx-2 my-8 text-primary"
+                className="flex justify-center items-center text-primary mx-auto my-4 w-5/6"
                 onSubmit={handleSubmit}
               >
                 {file ? (

@@ -57,7 +57,8 @@ export default function ProfileView(props: any) {
   >([]);
   const [healthInsurance, setHealthInsurance] = useState<number>(-1);
   const [file, setFile] = useState<any>();
-  const [type, setType] = useState<string>("");
+  const [imageFile, setImageFile] = useState<any>();
+  const [type, setType] = useState<any>("");
 
   const [success, setSuccess] = useState<boolean>(false);
   const [message, setMessage] = useState<string>("");
@@ -86,32 +87,42 @@ export default function ProfileView(props: any) {
 
   function handleChangeFile($e: any) {
     if ($e.target.files && $e.target.files[0]) {
-      setFile($e.target.files[0]);
+      setImageFile($e.target.files[0]);
       setType($e.target.files[0].type);
+      handleChange($e);
     }
   }
 
-  const uploadFile = async () => {
+  const handleChangeHI = ($e: any) => {
     if (
-      file &&
-      (type.includes("jpg") ||
-        type.includes("jpeg") ||
-        type.includes("png") ||
-        type.includes("pdf"))
+      $e.target.files &&
+      $e.target.files[0] &&
+      ($e.target.files[0].type.includes("jpg") ||
+        $e.target.files[0].type.includes("jpeg") ||
+        $e.target.files[0].type.includes("pdf") ||
+        $e.target.files[0].type.includes("png"))
     ) {
-      const fd = new FormData();
-      fd.append("file", file);
-      fd.append("healthInsuranceId", healthInsurance.toString());
-
-      await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/user/${user.dni}/healthInsurance`,
-        fd,
-        {
-          withCredentials: true,
-          headers: { Authorization: `Bearer ${props.auth.token}` },
-        }
-      );
+      setFile($e.target.files[0]);
+    } else {
+      setError(true);
+      setMessage("Debes seleccionar un archivo válido!");
+      setFile(null);
     }
+  };
+
+  const uploadFile = async () => {
+    const fd = new FormData();
+    fd.append("file", file);
+    fd.append("healthInsuranceId", healthInsurance.toString());
+
+    await axios.post(
+      `${process.env.NEXT_PUBLIC_API_URL}/user/${user.dni}/healthInsurance`,
+      fd,
+      {
+        withCredentials: true,
+        headers: { Authorization: `Bearer ${props.auth.token}` },
+      }
+    );
   };
 
   const changePass = useFormik({
@@ -165,9 +176,14 @@ export default function ProfileView(props: any) {
     }
   };
 
-  function handleClickFile() {
-    const file = document.getElementById("file");
-    file?.click();
+  function handleClickFile($e: any, hi?: boolean) {
+    if (hi) {
+      const file = document.getElementById("file2");
+      file?.click();
+    } else {
+      const file = document.getElementById("file");
+      file?.click();
+    }
   }
 
   async function handleChange($e: any) {
@@ -190,7 +206,22 @@ export default function ProfileView(props: any) {
         }
       );
 
+      const u = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/user/${user.dni}`,
+        {
+          withCredentials: true,
+          headers: { Authorization: `Bearer ${props.auth.token}` },
+        }
+      );
+
+      setSuccess(true);
+      setMessage("Imagen actualizada con éxito!");
+      setUser({ ...user, image: u.data.image });
+
       router.push(router.pathname);
+    } else {
+      setError(true);
+      setMessage("Debes seleccionar una imagen!");
     }
   }
 
@@ -299,10 +330,8 @@ export default function ProfileView(props: any) {
     setSuccess(true);
 
     setHealthInsurance(-1);
-    setFile("");
-    setType("");
-
-    // router.push("/profile");
+    setFile(null);
+    setType(null);
   };
 
   return (
@@ -452,13 +481,13 @@ export default function ProfileView(props: any) {
                       </div>
                       <input
                         type="file"
-                        id="file"
+                        id="file2"
                         className="hidden"
-                        onChange={handleChange}
+                        onChange={handleChangeHI}
                       />
                       <FaPaperclip
                         className="text-primary text-xl hover:cursor-pointer hover:opacity-70"
-                        onClick={handleClickFile}
+                        onClick={($e: any) => handleClickFile($e, true)}
                       />
                     </div>
                     <div className="flex justify-center mt-2 md:block">

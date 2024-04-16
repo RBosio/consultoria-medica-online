@@ -223,7 +223,13 @@ const Navbar: React.FC<NavbarProps> = (props) => {
                                       </span>
                                     </>
                                   ) : n.type === "verification hi" ? (
-                                    `El doctor ${n.userSend.surname}, ${n.userSend.name} solicitó verificación de la obra social ${n.healthInsurance.name}`
+                                    `El ${
+                                      n.userSend.doctor ? "doctor" : "usuario"
+                                    } ${n.userSend.surname}, ${
+                                      n.userSend.name
+                                    } solicitó verificación de la obra social ${
+                                      n.healthInsurance.name
+                                    }`
                                   ) : (
                                     ""
                                   )}
@@ -252,6 +258,8 @@ const Navbar: React.FC<NavbarProps> = (props) => {
                                             n.meeting.startDatetime
                                           ).format("YYYY-MM-DDTHH:mm:ss")
                                       )}`
+                                    : n.type === "verification hi"
+                                    ? `/admin/users`
                                     : ""
                                 }
                                 onClick={() => {

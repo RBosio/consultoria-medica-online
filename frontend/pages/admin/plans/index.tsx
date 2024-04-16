@@ -158,6 +158,22 @@ export default function Home(props: Plan) {
   };
 
   const onConfirmClick = () => {
+    if (
+      add &&
+      (addPlan.values.name.length === 0)
+    ) {
+      setError(true);
+      setMessage("Por favor, complete todos los campos!");
+
+      setConfirm(false);
+      return;
+    }
+    if (add && addPlan.values.price <= 0) {
+      setError(true);
+      setMessage("Por favor, ingrese un precio válido!");
+      setConfirm(false);
+      return;
+    }
     if (addPlan.values.name.length > 0) {
       addPlan.handleSubmit();
     } else if (cancel) {

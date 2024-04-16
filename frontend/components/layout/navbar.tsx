@@ -274,7 +274,7 @@ const Navbar: React.FC<NavbarProps> = (props) => {
             )}
           </div>
         </Menu>
-        <Tooltip placement="bottom" title="Perfil">
+        <Tooltip className="hidden md:block" placement="bottom" title="Perfil">
           <IconButton
             className={`rounded-md hover:bg-primary_light ${
               menuPosition ? "bg-primary" : ""

@@ -257,7 +257,11 @@ export default function DetailMeeting(props: MeetingI) {
           ""
         )}
         <main className="flex flex-col md:flex-row flex-wrap sm:flex-nowrap justify-between gap-1 sm:gap-4 m-4">
-          <section className="mt-48 md:mt-0 w-full md:w-1/2 h-5/12 sm:h-full">
+          <section
+            className={`${
+              cancel ? "mt-[22rem]" : "mt-48"
+            } md:mt-0 w-full md:w-1/2 h-5/12 sm:h-full`}
+          >
             {props.auth.role === "user" ? (
               <DoctorCard
                 startDatetime={props.meeting.startDatetime}
@@ -366,7 +370,7 @@ export default function DetailMeeting(props: MeetingI) {
               </div>
             </section>
             {cancel ? (
-              <section className="w-full h-1/3 bg-white rounded-lg">
+              <section className="mt-4 p-4 w-full md:h-1/3 bg-white rounded-lg">
                 <form
                   className="h-full flex flex-col justify-center items-center"
                   onSubmit={() => handleSubmit}

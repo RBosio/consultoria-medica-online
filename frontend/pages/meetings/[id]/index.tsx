@@ -186,10 +186,12 @@ export default function DetailMeeting(props: MeetingI) {
   }
 
   async function motiveHandleClick() {
-    const { id, startDatetime } = router.query;
+    let { id } = router.query;
+
+    const [t, startDatetime] = atob(String(id)).split(".");
 
     await axios.patch(
-      `${process.env.NEXT_PUBLIC_API_URL}/meeting/cancel/${id}/${startDatetime}`,
+      `${process.env.NEXT_PUBLIC_API_URL}/meeting/cancel/${t}/${startDatetime}`,
       { motive },
       {
         withCredentials: true,

@@ -2,7 +2,7 @@ import withAuth from "@/lib/withAuth";
 import { Auth } from "@/../shared/types";
 import axios from "axios";
 import Layout from "@/components/layout";
-import { Fab, useTheme } from "@mui/material";
+import { Box, Fab, Fade, Modal, Typography, useTheme } from "@mui/material";
 import { useRouter } from "next/router";
 import { MeetingResponseDto } from "@/components/dto/meeting.dto";
 import { SpecialityResponseDto } from "@/components/dto/speciality.dto";
@@ -222,24 +222,41 @@ export default function DetailMeeting(props: MeetingI) {
   return (
     <Layout auth={props.auth} className="flex flex-col justify-center relative">
       <>
-        {showMotive ? (
-          <>
-            <div className="w-full flex justify-end absolute top-2 right-2 z-50">
-              <FaXmark
-                className="text-primary text-3xl text-right m-4 hover:cursor-pointer border border-primary hover:bg-primary hover:text-white"
-                onClick={showMotiveHandleClick}
-              />
-            </div>
-            <div className="bg-black opacity-70 w-full h-full absolute z-20 flex justify-center items-center"></div>
-            <div className="w-full h-full absolute z-40 top-0 left-0 flex justify-center items-center">
-              <div className="w-1/4 h-1/4 bg-white rounded-lg">
-                <h4
-                  className={`${robotoBold.className} text-lg text-primary text-center mt-2`}
-                >
-                  Motivo de cancelacion
-                </h4>
+        <Modal
+          open={showMotive}
+          onClose={() => setShowMotive(false)}
+          aria-labelledby="modal-modal-title"
+          aria-describedby="modal-modal-description"
+        >
+          <Fade in={showMotive}>
+            <Box
+              sx={{
+                position: "absolute" as "absolute",
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+                bgcolor: "background.paper",
+
+                boxShadow: 24,
+                p: 4,
+              }}
+            >
+              <Typography
+                id="modal-modal-title"
+                variant="h6"
+                component="h2"
+                className="text-center text-primary text-2xl"
+              >
+                Motivo de cancelacion
+              </Typography>
+              <Typography
+                id="modal-modal-description"
+                component={"span"}
+                variant={"body2"}
+                sx={{ mt: 2 }}
+              >
                 <div className="w-[90%] h-[40%] m-auto">
-                  <p className="w-full h-full border border-primary my-2 p-2 rounded-lg overflow-y-scroll">
+                  <p className="w-full h-full my-2 p-2 rounded-lg overflow-y-scroll">
                     {motive ? motive : props.meeting.motive}
                   </p>
                   <div className="text-gray-500 text-xs mt-2 flex justify-end">
@@ -250,12 +267,10 @@ export default function DetailMeeting(props: MeetingI) {
                       : moment(new Date()).format("DD/MM/YYYY HH:mm")}
                   </div>
                 </div>
-              </div>
-            </div>
-          </>
-        ) : (
-          ""
-        )}
+              </Typography>
+            </Box>
+          </Fade>
+        </Modal>
         <main className="flex flex-col md:flex-row flex-wrap sm:flex-nowrap justify-between gap-1 sm:gap-4 m-4">
           <section
             className={`${

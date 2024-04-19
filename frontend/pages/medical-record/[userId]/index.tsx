@@ -26,7 +26,14 @@ import {
 } from "react-icons/fa6";
 import { useRouter } from "next/router";
 import Link from "next/link";
-import { Chip, MenuItem, Select, TextField } from "@mui/material";
+import {
+  Alert,
+  Chip,
+  MenuItem,
+  Select,
+  Snackbar,
+  TextField,
+} from "@mui/material";
 import Button from "@/components/button";
 import { MeetingResponseDto } from "@/components/dto/meeting.dto";
 import { showDni } from "@/lib/dni";
@@ -49,6 +56,9 @@ export default function MedicalRecord(props: MedicalRecordI) {
   const [datetime, setDatetime] = useState<any>();
   const [file, setFile] = useState<any>();
   const [files, setFiles] = useState<boolean>(false);
+  const [error, setError] = useState<boolean>(false);
+  const [message, setMessage] = useState<string>("");
+  const [success, setSuccess] = useState<boolean>(false);
 
   const handleClickAdd = async () => {
     if (detail && meeting) {
@@ -67,9 +77,15 @@ export default function MedicalRecord(props: MedicalRecordI) {
         }
       );
 
+      setSuccess(true);
+      setMessage("Se ha agregado el registro medico correctamente");
+
       setDetail("");
       setObservations("");
       router.push(`/medical-record/${router.query.userId}`);
+    } else {
+      setError(true);
+      setMessage("Por favor, complete el detalle y la reunión");
     }
   };
 
@@ -97,6 +113,12 @@ export default function MedicalRecord(props: MedicalRecordI) {
           },
         }
       );
+
+      setSuccess(true);
+      setMessage("Se ha agregado el archivo correctamente");
+    } else {
+      setError(true);
+      setMessage("Por favor, seleccione un archivo valido");
     }
 
     setFile(null);
@@ -301,6 +323,14 @@ export default function MedicalRecord(props: MedicalRecordI) {
                           onClick={() => {
                             setFile(null);
                             setFiles(true);
+
+                            setTimeout(() => {
+                              const div =
+                                document.querySelector(".overflow-y-auto");
+                              if (div) {
+                                div.scrollTop = 1200;
+                              }
+                            }, 240);
                           }}
                         />
                       }
@@ -402,9 +432,15 @@ export default function MedicalRecord(props: MedicalRecordI) {
           name="file"
           id="file"
           className="hidden"
-          onChange={($e) =>
-            $e.target.files ? setFile($e.target.files[0]) : ""
-          }
+          onChange={($e: any) => {
+            setFile($e?.target?.files[0]);
+            setTimeout(() => {
+              const div = document.querySelector(".overflow-y-auto");
+              if (div) {
+                div.scrollTop = 1200;
+              }
+            }, 240);
+          }}
         />
         <div className="flex justify-center md:justify-normal">
           {file ? (
@@ -432,7 +468,7 @@ export default function MedicalRecord(props: MedicalRecordI) {
             ""
           )}
         </div>
-        {files ? (
+        {files && (
           <div className="flex justify-center items-center gap-2 text-xl p-4">
             {props.medicalRecords.map((mr, idx) => {
               return (
@@ -465,9 +501,24 @@ export default function MedicalRecord(props: MedicalRecordI) {
               );
             })}
           </div>
-        ) : (
-          ""
         )}
+        <Snackbar
+          open={error || success}
+          anchorOrigin={{ vertical: "top", horizontal: "center" }}
+          autoHideDuration={4000}
+          onClose={() => {
+            setError(false);
+            setSuccess(false);
+          }}
+        >
+          <Alert
+            elevation={6}
+            variant="filled"
+            severity={error ? "error" : "success"}
+          >
+            {message}
+          </Alert>
+        </Snackbar>
       </section>
     </Layout>
   );

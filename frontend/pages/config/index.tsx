@@ -326,8 +326,8 @@ export default function Config(props: ConfigProps) {
 
   return (
     <Layout auth={props.auth}>
-      <section className="flex px-8">
-        <div className="w-full flex flex-col items-center lg:flex-row gap-6 mt-[3rem] relative md:max-h-[calc(100vh-10rem)]">
+      <section className="flex px-8 mt-8">
+        <div className="w-full flex flex-col items-center lg:flex-row gap-6 relative">
           <div className="rounded-md md:w-[calc(100%-15rem)] xl:shadow-md bg-white relative">
             <Avatar
               labelProps={{ className: "hidden" }}
@@ -435,7 +435,7 @@ export default function Config(props: ConfigProps) {
               </div>
             </div>
           </div>
-          <div className="overflow-hidden w-full md:min-w-[70%]">
+          <div className="overflow-hidden w-full md:min-w-[70%] py-4">
             <div
               className={`flex flex-col md:flex-row md:flex-nowrap items-center transition-all ease-in duration-500 ${
                 modify ? "-translate-x-full" : ""
@@ -474,8 +474,10 @@ export default function Config(props: ConfigProps) {
                             <FaCheck /> Verificado
                           </h3>
                           <p>
-                            desde{" "}
-                            {moment(props.doctor.verifiedSince).format("LL")}
+                            {props.doctor.verifiedSince &&
+                              `Verificado desde ${moment(
+                                props.doctor.verifiedSince
+                              ).format("LL")}`}
                           </p>
                         </div>
                       ) : (
@@ -540,7 +542,8 @@ export default function Config(props: ConfigProps) {
                       </p>
                       <p>
                         {props.doctor.plan
-                          ? `Miembro desde ${moment(
+                          ? props.doctor.planSince &&
+                            `Miembro desde ${moment(
                               props.doctor.planSince
                             ).format("LL")}`
                           : "Actualmente se encuentra sin plan, solicite uno para comenzar a trabajar"}
@@ -548,7 +551,7 @@ export default function Config(props: ConfigProps) {
                     </div>
                     {props.doctor.plan ? (
                       <ButtonGroup className="mt-4 md:mt-0">
-                        <Link href={"/plan"}>
+                        <Link href={"/"}>
                           <Button startIcon={<FaCircleUp />} color="info">
                             Actualizar
                           </Button>

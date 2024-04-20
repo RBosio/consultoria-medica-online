@@ -290,7 +290,7 @@ export default function Home(props: any) {
                         ))}
                       </ul>
                       <div className="my-4">
-                        <Button onClick={() => router.push("/plan/" + p.id)}>
+                        <Button onClick={() => router.push("/config/plan/" + p.id)}>
                           Actualizar plan
                         </Button>
                       </div>

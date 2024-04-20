@@ -1,6 +1,6 @@
 import Layout from "@/components/layout";
 import withAuth from "@/lib/withAuth";
-import { Auth } from "../../../shared/types";
+import { Auth } from "../../../../shared/types";
 import axios from "axios";
 import Button from "@/components/button";
 import { FaCartShopping, FaChevronRight } from "react-icons/fa6";

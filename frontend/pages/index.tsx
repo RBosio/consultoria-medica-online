@@ -172,15 +172,14 @@ export default function Home(props: any) {
           ) : (
             <h2 className="mx-auto text-xl flex flex-col md:flex-row items-center gap-4 text-zinc-600">
               Actualmente no tiene reuniones pendientes{" "}
-              {props.auth.role === "user" ||
-                (props.auth.role === "admin" && (
-                  <Button
-                    onClick={() => router.push("/doctors")}
-                    startIcon={<FaChevronRight />}
-                  >
-                    Solicite una
-                  </Button>
-                ))}
+              {(props.auth.role === "user" || props.auth.role === "admin") && (
+                <Button
+                  onClick={() => router.push("/doctors")}
+                  startIcon={<FaChevronRight />}
+                >
+                  Solicite una
+                </Button>
+              )}
             </h2>
           )}
         </div>

@@ -257,7 +257,9 @@ export default function Home(props: any) {
             ) : (
               <>
                 <h2 className="text-3xl text-center text-zinc-600 mb-4">
-                  ¿Desea actualizar su plan?
+                  {props.doctor.plan
+                    ? "¿Desea actualizar su plan?"
+                    : "Solicite un plan para comenzar a trabajar"}
                 </h2>
                 <div className="flex flex-col md:flex-row justify-center items-center gap-8">
                   {plans.map((p: PlanResponseDto) => (
@@ -290,7 +292,9 @@ export default function Home(props: any) {
                         ))}
                       </ul>
                       <div className="my-4">
-                        <Button onClick={() => router.push("/config/plan/" + p.id)}>
+                        <Button
+                          onClick={() => router.push("/config/plan/" + p.id)}
+                        >
                           Actualizar plan
                         </Button>
                       </div>

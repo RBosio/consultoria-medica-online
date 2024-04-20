@@ -437,14 +437,13 @@ export default function Config(props: ConfigProps) {
           </div>
           <div className="overflow-hidden w-full md:min-w-[70%] py-4">
             <div
-              className={`flex flex-col md:flex-row md:flex-nowrap items-center transition-all ease-in duration-500 ${modify ? "-translate-x-full" : ""
-                } gap-4`}
+              className={`flex flex-col md:flex-row md:flex-nowrap items-center transition-all ease-in duration-500 ${
+                modify ? "-translate-x-full" : ""
+              } gap-4`}
             >
               <div className="bg-white sm:w-1/4 md:min-w-[99%] h-full rounded-md shadow-md p-4 flex flex-col justify-center">
                 <div className="flex flex-col">
-                  <h3 className="text-primary text-xl text-center">
-                    Reunión
-                  </h3>
+                  <h3 className="text-primary text-xl text-center">Reunión</h3>
                   <div className="flex justify-center gap-12">
                     <div className="flex flex-col justify-center items-center">
                       <h4 className="text-primary text-lg flex justify-center items-center gap-2">
@@ -459,7 +458,6 @@ export default function Config(props: ConfigProps) {
                       <p>{pesos.format(props.doctor.priceMeeting)}</p>
                     </div>
                   </div>
-
                 </div>
                 <Divider
                   variant="middle"
@@ -518,7 +516,7 @@ export default function Config(props: ConfigProps) {
                         </Button>
                       </ButtonGroup>
                     ) : (
-                      <Link href={"/config/plan"}>
+                      <Link href={"/"}>
                         <Button
                           startIcon={<FaCircleUp />}
                           color="info"
@@ -732,32 +730,32 @@ export default function Config(props: ConfigProps) {
               {confirmSchedule
                 ? "Rango horario"
                 : confirmUpdate
-                  ? "Datos personales"
-                  : confirmVerification
-                    ? "Verificacion de cuenta"
-                    : confirmVerificationHI
-                      ? "Verificacion de obra social"
-                      : confirmCancelPlan
-                        ? "Cancelar plan"
-                        : confirmHealthInsurance
-                          ? "Confirmar obra social"
-                          : ""}
+                ? "Datos personales"
+                : confirmVerification
+                ? "Verificacion de cuenta"
+                : confirmVerificationHI
+                ? "Verificacion de obra social"
+                : confirmCancelPlan
+                ? "Cancelar plan"
+                : confirmHealthInsurance
+                ? "Confirmar obra social"
+                : ""}
             </DialogTitle>
             <DialogContent>
               <DialogContentText id="alert-dialog-description">
                 {confirmSchedule
                   ? "¿Desea agregar el rango horario?"
                   : confirmUpdate
-                    ? "¿Desea actualizar los datos?"
-                    : confirmVerification
-                      ? "¿Desea solicitar la verificacion de la cuenta?"
-                      : confirmVerificationHI
-                        ? "¿Desea solicitar la verificacion de la obra social?"
-                        : confirmCancelPlan
-                          ? "¿Desea cancelar su plan actual?"
-                          : confirmHealthInsurance
-                            ? "¿Desea agregar la obra social?"
-                            : ""}
+                  ? "¿Desea actualizar los datos?"
+                  : confirmVerification
+                  ? "¿Desea solicitar la verificacion de la cuenta?"
+                  : confirmVerificationHI
+                  ? "¿Desea solicitar la verificacion de la obra social?"
+                  : confirmCancelPlan
+                  ? "¿Desea cancelar su plan actual?"
+                  : confirmHealthInsurance
+                  ? "¿Desea agregar la obra social?"
+                  : ""}
               </DialogContentText>
             </DialogContent>
             <DialogActions>

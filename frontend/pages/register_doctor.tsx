@@ -9,7 +9,7 @@ export default function RegisterDoctor(props: any) {
     return (
         <Layout auth={props.auth}>
             <section className={``}>
-
+                
             </section>
         </Layout>
     );

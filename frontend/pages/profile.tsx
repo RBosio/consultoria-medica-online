@@ -402,17 +402,9 @@ export default function ProfileView(props: any) {
                       ) : (
                         <FaVenus className="text-primary size-4" />
                       )}
-
                       <p className="mx-2 text-xl">
                         {user.gender ? "Hombre" : "Mujer"}
                       </p>
-                    </div>
-                    <div className="w-full">
-                      {/* {user.validateHealthInsurance ? (
-                  <FaCheck className="text-xl text-green-600" />
-                  ) : (
-                    <FaXmark className="text-xl text-red-600" />
-                  )} */}
                     </div>
                   </div>
                 </div>
@@ -477,7 +469,7 @@ export default function ProfileView(props: any) {
                           }))}
                           renderInput={(params: any) => (
                             <Input
-                              onChange={() => {}}
+                              onChange={() => { }}
                               name="healthInsuranceId"
                               {...params}
                               label="Obra social"
@@ -509,9 +501,8 @@ export default function ProfileView(props: any) {
                   </div>
                   {file && (
                     <div
-                      className={`w-full py-1 px-2 bg-primary rounded-md text-white flex justify-between items-center overflow-x-hidden h-8 ${
-                        file.name.length > 60 ? "overflow-y-scroll" : ""
-                      }`}
+                      className={`w-full py-1 px-2 bg-primary rounded-md text-white flex justify-between items-center overflow-x-hidden h-8 ${file.name.length > 60 ? "overflow-y-scroll" : ""
+                        }`}
                     >
                       <div className={`${robotoBold.className}`}>
                         {file.name}
@@ -560,7 +551,7 @@ export default function ProfileView(props: any) {
                           label="Nueva contraseña"
                           error={Boolean(
                             changePass.touched.newPassword &&
-                              changePass.errors.newPassword
+                            changePass.errors.newPassword
                           )}
                           helperText={
                             changePass.errors.newPassword &&
@@ -578,7 +569,7 @@ export default function ProfileView(props: any) {
                           label="Repita la contraseña"
                           error={Boolean(
                             changePass.touched.repeatPassword &&
-                              changePass.errors.repeatPassword
+                            changePass.errors.repeatPassword
                           )}
                           helperText={
                             changePass.errors.repeatPassword &&
@@ -611,20 +602,20 @@ export default function ProfileView(props: any) {
                 {confirm
                   ? "Confirmar cambio"
                   : confirmVerification
-                  ? "Confirmar solicitud"
-                  : confirmHealthInsurance
-                  ? "Confirmar solicitud"
-                  : ""}
+                    ? "Confirmar solicitud"
+                    : confirmHealthInsurance
+                      ? "Confirmar solicitud"
+                      : ""}
               </DialogTitle>
               <DialogContent>
                 <DialogContentText id="alert-dialog-description">
                   {confirm
                     ? "¿Estás seguro que deseas cambiar la contraseña?"
                     : confirmVerification
-                    ? "Estás seguro que deseas solicitar la verificación de la obra social?"
-                    : confirmHealthInsurance
-                    ? "Estás seguro que deseas agregar la obra social?"
-                    : ""}
+                      ? "Estás seguro que deseas solicitar la verificación de la obra social?"
+                      : confirmHealthInsurance
+                        ? "Estás seguro que deseas agregar la obra social?"
+                        : ""}
                 </DialogContentText>
               </DialogContent>
               <DialogActions>

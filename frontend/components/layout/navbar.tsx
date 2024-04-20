@@ -12,6 +12,7 @@ import {
 } from "@mui/material";
 import { useTheme } from "@mui/material";
 import { GrLogout } from "react-icons/gr";
+import { FaUserDoctor } from "react-icons/fa6";
 import { IoPersonSharp } from "react-icons/io5";
 import Link from "next/link";
 import { Sling as Hamburger } from "hamburger-react";
@@ -62,6 +63,8 @@ const Navbar: React.FC<NavbarProps> = (props) => {
   const handleClickNotify = (event: React.MouseEvent<HTMLElement>) => {
     setNotifyPosition(event.currentTarget);
   };
+
+  console.log(props.auth);
 
   useEffect(() => {
     const func = async () => {
@@ -120,9 +123,8 @@ const Navbar: React.FC<NavbarProps> = (props) => {
 
   return (
     <section
-      className={`p-4 bg-white w-full shrink-0 h-20 shadow-md flex items-center justify-between ${
-        props.leftElement ? "" : "md:justify-end"
-      } z-10`}
+      className={`p-4 bg-white w-full shrink-0 h-20 shadow-md flex items-center justify-between ${props.leftElement ? "" : "md:justify-end"
+        } z-10`}
     >
       {props.leftElement}
       {props.renderSidebar && (
@@ -197,9 +199,8 @@ const Navbar: React.FC<NavbarProps> = (props) => {
                         <div className="p-2">
                           <div className="flex justify-between items-center">
                             <div
-                              className={`w-2 h-2 rounded-full m-2 ${
-                                !n.readed ? "bg-primary" : ""
-                              }`}
+                              className={`w-2 h-2 rounded-full m-2 ${!n.readed ? "bg-primary" : ""
+                                }`}
                             ></div>
 
                             <div className="mr-2">
@@ -223,12 +224,9 @@ const Navbar: React.FC<NavbarProps> = (props) => {
                                       </span>
                                     </>
                                   ) : n.type === "verification hi" ? (
-                                    `El ${
-                                      n.userSend.doctor ? "doctor" : "usuario"
-                                    } ${n.userSend.surname}, ${
-                                      n.userSend.name
-                                    } solicitó verificación de la obra social ${
-                                      n.healthInsurance.name
+                                    `El ${n.userSend.doctor ? "doctor" : "usuario"
+                                    } ${n.userSend.surname}, ${n.userSend.name
+                                    } solicitó verificación de la obra social ${n.healthInsurance.name
                                     }`
                                   ) : (
                                     ""
@@ -252,15 +250,15 @@ const Navbar: React.FC<NavbarProps> = (props) => {
                                 href={
                                   n.type === "comment"
                                     ? `/meetings/${btoa(
-                                        n.meeting.userId +
-                                          "." +
-                                          moment(
-                                            n.meeting.startDatetime
-                                          ).format("YYYY-MM-DDTHH:mm:ss")
-                                      )}`
+                                      n.meeting.userId +
+                                      "." +
+                                      moment(
+                                        n.meeting.startDatetime
+                                      ).format("YYYY-MM-DDTHH:mm:ss")
+                                    )}`
                                     : n.type === "verification hi"
-                                    ? `/admin/users`
-                                    : ""
+                                      ? `/admin/users`
+                                      : ""
                                 }
                                 onClick={() => {
                                   markAsRead(n.id);
@@ -285,9 +283,8 @@ const Navbar: React.FC<NavbarProps> = (props) => {
         </Menu>
         <Tooltip className="hidden md:block" placement="bottom" title="Perfil">
           <IconButton
-            className={`rounded-md hover:bg-primary_light ${
-              menuPosition ? "bg-primary" : ""
-            }`}
+            className={`rounded-md hover:bg-primary_light ${menuPosition ? "bg-primary" : ""
+              }`}
             onClick={handleClick}
             size="small"
           >
@@ -326,6 +323,14 @@ const Navbar: React.FC<NavbarProps> = (props) => {
             </MenuItem>
           </Link>
           <Divider sx={{ margin: "0.5em 0" }} color="#ffffff" />
+          {props.auth.role === "user" && <Link href="/register_doctor">
+            <MenuItem sx={{ color: "#ffffff" }}>
+              <ListItemIcon>
+                <FaUserDoctor color="#ffffff" />
+              </ListItemIcon>
+              ¿Eres un profesional médico?
+            </MenuItem>
+          </Link>}
           <Link href="/logout">
             <MenuItem sx={{ color: "#ffffff" }} onClick={handleClose}>
               <ListItemIcon>

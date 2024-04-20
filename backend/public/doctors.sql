@@ -235,7 +235,6 @@ VALUES
 INSERT INTO
     doctor (
         registration,
-        cuil,
         title,
         durationMeeting,
         priceMeeting,
@@ -248,7 +247,6 @@ INSERT INTO
 VALUES
     (
         'dsamdp-dsad-dsadf.pdf',
-        '20-38233911-1',
         'dmsadpo-dmsapod-dsda.pdf',
         30,
         3000,
@@ -260,7 +258,6 @@ VALUES
     ),
     (
         'dsamdp-dsad-dsadf.pdf',
-        '80-594823013',
         'dmsadpo-dmsapod-dsda.pdf',
         60,
         140,
@@ -272,7 +269,6 @@ VALUES
     ),
     (
         'dsamdp-dsad-dsadf.pdf',
-        '80-940384432',
         'dmsadpo-dmsapod-dsda.pdf',
         40,
         110,
@@ -284,7 +280,6 @@ VALUES
     ),
     (
         'dsamdp-dsad-dsadf.pdf',
-        '80-554930291',
         'dmsadpo-dmsapod-dsda.pdf',
         30,
         60,
@@ -296,7 +291,6 @@ VALUES
     ),
     (
         'dsamdp-dsad-dsadf.pdf',
-        '80-950432343',
         'dmsadpo-dmsapod-dsda.pdf',
         30,
         80,
@@ -308,7 +302,6 @@ VALUES
     ),
     (
         'dsamdp-dsad-dsadf.pdf',
-        '80-554930214',
         'dmsadpo-dmsapod-dsda.pdf',
         20,
         80,
@@ -320,7 +313,6 @@ VALUES
     ),
     (
         'dsamdp-dsad-dsadf.pdf',
-        '90-554930123',
         'dmsadpo-dmsapod-dsda.pdf',
         45,
         140,
@@ -332,7 +324,6 @@ VALUES
     ),
     (
         'dsamdp-dsad-dsadf.pdf',
-        '10-112930459',
         'dmsadpo-dmsapod-dsda.pdf',
         40,
         170,
@@ -344,7 +335,6 @@ VALUES
     ),
     (
         'dsamdp-dsad-dsadf.pdf',
-        '11-345678901',
         'dmsadpo-dmsapod-dsda.pdf',
         30,
         95,
@@ -356,7 +346,6 @@ VALUES
     ),
     (
         'dsamdp-dsad-dsadf.pdf',
-        '12-345678901',
         'dmsadpo-dmsapod-dsda.pdf',
         45,
         125,
@@ -368,7 +357,6 @@ VALUES
     ),
     (
         'dsamdp-dsad-dsadf.pdf',
-        '13-345678901',
         'dmsadpo-dmsapod-dsda.pdf',
         40,
         155,
@@ -380,7 +368,6 @@ VALUES
     ),
     (
         'dsamdp-dsad-dsadf.pdf',
-        '14-345678901',
         'dmsadpo-dmsapod-dsda.pdf',
         30,
         100,
@@ -392,7 +379,6 @@ VALUES
     ),
     (
         'dsamdp-dsad-dsadf.pdf',
-        '15-345678901',
         'dmsadpo-dmsapod-dsda.pdf',
         45,
         130,
@@ -404,7 +390,6 @@ VALUES
     ),
     (
         'dsamdp-dsad-dsadf.pdf',
-        '16-345678901',
         'dmsadpo-dmsapod-dsda.pdf',
         40,
         160,
@@ -416,7 +401,6 @@ VALUES
     ),
     (
         'dsamdp-dsad-dsadf.pdf',
-        '17-345678901',
         'dmsadpo-dmsapod-dsda.pdf',
         30,
         110,
@@ -428,7 +412,6 @@ VALUES
     ),
     (
         'dsamdp-dsad-dsadf.pdf',
-        '18-345678901',
         'dmsadpo-dmsapod-dsda.pdf',
         45,
         140,
@@ -440,7 +423,6 @@ VALUES
     ),
     (
         'dsamdp-dsad-dsadf.pdf',
-        '19-345678901',
         'dmsadpo-dmsapod-dsda.pdf',
         40,
         170,
@@ -452,7 +434,6 @@ VALUES
     ),
     (
         'dsamdp-dsad-dsadf.pdf',
-        '20-345678901',
         'dmsadpo-dmsapod-dsda.pdf',
         30,
         95,

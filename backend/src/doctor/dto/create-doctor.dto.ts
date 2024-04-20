@@ -3,10 +3,6 @@ import { Speciality } from "src/entities/speciality.entity"
 
 export class createDoctorDto {
     @IsDefined()
-    @Matches(/^(20|23|24|27|30|33|34)\d{8}\d{1}$/gm)
-    cuil: string
-
-    @IsDefined()
     @IsIn([10,15,30,45,60])
     durationMeeting: number
     

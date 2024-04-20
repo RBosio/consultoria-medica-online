@@ -419,7 +419,7 @@ export default function DetailMeeting(props: MeetingI) {
               openedChat ? setOpenedChat(false) : setOpenedChat(true)
             }
             aria-label="chat"
-            className="z-0 bg-secondary hover:bg-[#4F4F4F] fixed bottom-4 right-8 text-white sm:hidden"
+            className="z-0 bg-secondary hover:bg-[#4F4F4F] fixed bottom-4 right-8 text-white md:hidden"
           >
             <BsFillChatLeftTextFill />
           </Fab>

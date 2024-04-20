@@ -323,14 +323,14 @@ const Navbar: React.FC<NavbarProps> = (props) => {
             </MenuItem>
           </Link>
           <Divider sx={{ margin: "0.5em 0" }} color="#ffffff" />
-          <Link href="/doctor_register">
+          {props.auth.role === "user" && <Link href="/register_doctor">
             <MenuItem sx={{ color: "#ffffff" }}>
               <ListItemIcon>
                 <FaUserDoctor color="#ffffff" />
               </ListItemIcon>
               ¿Eres un profesional médico?
             </MenuItem>
-          </Link>
+          </Link>}
           <Link href="/logout">
             <MenuItem sx={{ color: "#ffffff" }} onClick={handleClose}>
               <ListItemIcon>

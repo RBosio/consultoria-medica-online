@@ -343,15 +343,26 @@ export default function Doctor(props: any) {
                     );
                   })}
                 </div>
-                <div className="my-6 flex justify-center items-center xl:-0">
-                  <Button
-                    onClick={() => setConfirmTurn(true)}
-                    disabled={!Boolean(selectedDate)}
-                    className="w-40"
-                  >
-                    Aceptar
-                  </Button>
-                </div>
+                {props.doctorAvailability.length > 0 ? (
+                  <div className="my-6 flex justify-center items-center xl:-0">
+                    <Button
+                      onClick={() => setConfirmTurn(true)}
+                      disabled={!Boolean(selectedDate)}
+                      className="w-40"
+                    >
+                      Aceptar
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="flex flex-col justify-center items-center gap-2 mt-36">
+                    <span className="text-red-600 text-2xl">
+                      No hay horarios disponibles
+                    </span>
+                    <Button onClick={() => router.push("/doctors")}>
+                      Regresar
+                    </Button>
+                  </div>
+                )}
               </div>
             </div>
           ) : detail ? (

@@ -205,6 +205,8 @@ const Navbar: React.FC<NavbarProps> = (props) => {
                             )}`
                           : n.type === "verification hi"
                           ? `/admin/users`
+                          : n.type === "verificationHi"
+                          ? "/profile"
                           : ""
                       }
                       onClick={() => {
@@ -250,6 +252,8 @@ const Navbar: React.FC<NavbarProps> = (props) => {
                                       } solicitó verificación de la obra social ${
                                         n.healthInsurance.name
                                       }`
+                                    ) : n.type === "verificationHi" ? (
+                                      `El administrador ${n.userSend.surname}, ${n.userSend.name} acaba de realizar la verificación de la obra social ${n.healthInsurance.name}`
                                     ) : (
                                       ""
                                     )}

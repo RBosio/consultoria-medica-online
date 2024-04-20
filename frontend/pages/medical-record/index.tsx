@@ -304,6 +304,14 @@ export default function MedicalRecord(props: MedicalRecordI) {
                           onClick={() => {
                             setFile(null);
                             setFiles(true);
+
+                            setTimeout(() => {
+                              const div =
+                                document.querySelector(".overflow-y-auto");
+                              if (div) {
+                                div.scrollTop = 1200;
+                              }
+                            }, 240);
                           }}
                         />
                       }

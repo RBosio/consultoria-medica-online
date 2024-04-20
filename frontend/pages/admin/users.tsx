@@ -115,6 +115,20 @@ export default function Home(props: Speciality) {
 
     setO(false);
     setConfirm(false);
+
+    await axios.post(
+      `${process.env.NEXT_PUBLIC_API_URL}/notification`,
+      {
+        userIdSend: props.auth.id,
+        userIdReceive: userHIId,
+        type: "verificationHi",
+        healthInsuranceId: healthInsuranceId,
+      },
+      {
+        withCredentials: true,
+        headers: { Authorization: `Bearer ${props.auth.token}` },
+      }
+    );
   };
 
   const handleVerification = async (doctorId: number) => {

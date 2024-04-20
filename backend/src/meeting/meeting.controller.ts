@@ -22,7 +22,6 @@ import { Roles } from 'src/auth/roles.decorator';
 import { RoleEnum } from 'src/enums/role.enum';
 import { joinMeetingResponseDto } from './dto/join-meeting-response.dto';
 import { getMeetingsDto } from './dto/get-meetings.dto';
-import { Request } from 'express';
 
 @Controller('meeting')
 @UseGuards(AuthGuard, RolesGuard)

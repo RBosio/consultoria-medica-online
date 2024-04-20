@@ -421,16 +421,16 @@ export default function ProfileView(props: any) {
                       return (
                         <div className="p-4" key={idx}>
                           {h.healthInsurance?.name ? (
-                            <div className="flex items-center gap-4">
-                              <FaChevronRight className="text-primary text-md size-6" />
+                            <div className="flex items-center gap-2">
+                              <FaChevronRight className="text-primary text-md size-4" />
                               <p className="text-xl">
                                 {h.healthInsurance.name}
                               </p>
                               {h.verified ? (
-                                <FaCircleCheck className="text-green-600 text-lg size-6" />
+                                <FaCircleCheck className="text-green-600 text-lg size-4" />
                               ) : (
-                                <div className="flex items-center gap-2">
-                                  <FaCircleXmark className="text-red-600 text-lg size-6" />
+                                <div className="flex items-center gap-4">
+                                  <FaCircleXmark className="text-red-600 text-lg size-4" />
                                   {!request && (
                                     <FaCertificate
                                       className="text-primary text-lg hover:cursor-pointer hover:opacity-70 size-6"

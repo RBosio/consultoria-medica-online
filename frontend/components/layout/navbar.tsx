@@ -64,8 +64,6 @@ const Navbar: React.FC<NavbarProps> = (props) => {
     setNotifyPosition(event.currentTarget);
   };
 
-  console.log(props.auth);
-
   useEffect(() => {
     const func = async () => {
       const notifications = await axios.get(
@@ -123,8 +121,9 @@ const Navbar: React.FC<NavbarProps> = (props) => {
 
   return (
     <section
-      className={`p-4 bg-white w-full shrink-0 h-20 shadow-md flex items-center justify-between ${props.leftElement ? "" : "md:justify-end"
-        } z-10`}
+      className={`p-4 bg-white w-full shrink-0 h-20 shadow-md flex items-center justify-between ${
+        props.leftElement ? "" : "md:justify-end"
+      } z-10`}
     >
       {props.leftElement}
       {props.renderSidebar && (
@@ -194,85 +193,100 @@ const Navbar: React.FC<NavbarProps> = (props) => {
               <div className="max-h-80 overflow-y-scroll mt-16">
                 {notifications.map((n) => {
                   return (
-                    <MenuItem key={n.id} sx={{ color: "#ffffff" }}>
-                      <div className="text-black">
-                        <div className="p-2">
-                          <div className="flex justify-between items-center">
-                            <div
-                              className={`w-2 h-2 rounded-full m-2 ${!n.readed ? "bg-primary" : ""
+                    <Link
+                      key={n.id}
+                      href={
+                        n.type === "comment"
+                          ? `/meetings/${btoa(
+                              n.meeting.userId +
+                                "." +
+                                moment(n.meeting.startDatetime).format(
+                                  "YYYY-MM-DDTHH:mm:ss"
+                                )
+                            )}`
+                          : n.type === "verification hi"
+                          ? `/admin/users`
+                          : n.type === "verificationHi"
+                          ? "/profile"
+                          : n.type === "meeting"
+                          ? `/meetings/${btoa(
+                              n.meeting.userId +
+                                "." +
+                                moment(n.meeting.startDatetime).format(
+                                  "YYYY-MM-DDTHH:mm:ss"
+                                )
+                            )}`
+                          : ""
+                      }
+                      onClick={() => {
+                        markAsRead(n.id);
+                        setOpenN(!openN);
+                      }}
+                    >
+                      <MenuItem sx={{ color: "#ffffff" }}>
+                        <div className="text-black">
+                          <div className="p-2">
+                            <div className="flex justify-between items-center">
+                              <div
+                                className={`w-2 h-2 rounded-full m-2 ${
+                                  !n.readed ? "bg-primary" : ""
                                 }`}
-                            ></div>
+                              ></div>
 
-                            <div className="mr-2">
-                              <div className="flex items-center gap-2">
-                                <p className="p-2 text-lg">
-                                  {n.type === "verification" ? (
-                                    `El doctor ${n.userSend.surname}, ${n.userSend.name} solicitó verificación de su cuenta`
-                                  ) : n.type === "comment" ? (
-                                    <>
-                                      El{" "}
-                                      {props.auth.role === "user"
-                                        ? "doctor"
-                                        : "usuario"}{" "}
-                                      {n.userSend.surname}, {n.userSend.name}{" "}
-                                      realizó un comentario en la reunión del
-                                      día{" "}
-                                      <span>
-                                        {moment(n.meeting.startDatetime).format(
-                                          "LLL"
-                                        )}
-                                      </span>
-                                    </>
-                                  ) : n.type === "verification hi" ? (
-                                    `El ${n.userSend.doctor ? "doctor" : "usuario"
-                                    } ${n.userSend.surname}, ${n.userSend.name
-                                    } solicitó verificación de la obra social ${n.healthInsurance.name
-                                    }`
-                                  ) : (
-                                    ""
-                                  )}
+                              <div className="mr-2">
+                                <div className="flex items-center gap-2">
+                                  <p className="p-2 text-lg">
+                                    {n.type === "verification" ? (
+                                      `El doctor ${n.userSend.surname}, ${n.userSend.name} solicitó verificación de su cuenta`
+                                    ) : n.type === "comment" ? (
+                                      <>
+                                        El{" "}
+                                        {props.auth.role === "user"
+                                          ? "doctor"
+                                          : "usuario"}{" "}
+                                        {n.userSend.surname}, {n.userSend.name}{" "}
+                                        realizó un comentario en la reunión del
+                                        día{" "}
+                                        <span>
+                                          {moment(
+                                            n.meeting.startDatetime
+                                          ).format("LLL")}
+                                        </span>
+                                      </>
+                                    ) : n.type === "verification hi" ? (
+                                      `El ${
+                                        n.userSend.doctor ? "doctor" : "usuario"
+                                      } ${n.userSend.surname}, ${
+                                        n.userSend.name
+                                      } solicitó verificación de la obra social ${
+                                        n.healthInsurance.name
+                                      }`
+                                    ) : n.type === "verificationHi" ? (
+                                      `El administrador ${n.userSend.surname}, ${n.userSend.name} acaba de realizar la verificación de la obra social ${n.healthInsurance.name}`
+                                    ) : n.type === "meeting" ? (
+                                      `El usuario ${n.userSend.surname}, ${
+                                        n.userSend.name
+                                      } acaba de solicitar una reunión para el día ${moment(
+                                        n.meetingStartDatetime
+                                      ).format("LLL")}`
+                                    ) : (
+                                      ""
+                                    )}
+                                  </p>
+                                </div>
+                                <p className="text-sm text-right p-2 text-gray-400">
+                                  {moment(n.created_at).format("LLL")}
                                 </p>
                               </div>
-                              <p className="text-sm text-right p-2 text-gray-400">
-                                {moment(n.created_at).format("LLL")}
-                              </p>
-                            </div>
-                            <div className="min-w-12 flex justify-end gap-2 text-xl text-primary">
-                              {!n.readed ? (
-                                <FaEnvelope
-                                  className="hover:cursor-pointer hover:opacity-70"
-                                  onClick={() => markAsRead(n.id)}
-                                />
-                              ) : (
-                                <FaEnvelopeOpen />
-                              )}
-                              <Link
-                                href={
-                                  n.type === "comment"
-                                    ? `/meetings/${btoa(
-                                      n.meeting.userId +
-                                      "." +
-                                      moment(
-                                        n.meeting.startDatetime
-                                      ).format("YYYY-MM-DDTHH:mm:ss")
-                                    )}`
-                                    : n.type === "verification hi"
-                                      ? `/admin/users`
-                                      : ""
-                                }
-                                onClick={() => {
-                                  markAsRead(n.id);
-                                  setOpenN(!openN);
-                                }}
-                              >
+                              <div className="min-w-12 flex justify-end gap-2 text-xl text-primary">
                                 <FaAngleRight className="hover:opacity-70" />
-                              </Link>
+                              </div>
                             </div>
                           </div>
+                          <div className="w-[90%] border-b-2 border-primary h-2 m-auto"></div>
                         </div>
-                        <div className="w-[90%] border-b-2 border-primary h-2 m-auto"></div>
-                      </div>
-                    </MenuItem>
+                      </MenuItem>
+                    </Link>
                   );
                 })}
               </div>
@@ -283,8 +297,9 @@ const Navbar: React.FC<NavbarProps> = (props) => {
         </Menu>
         <Tooltip className="hidden md:block" placement="bottom" title="Perfil">
           <IconButton
-            className={`rounded-md hover:bg-primary_light ${menuPosition ? "bg-primary" : ""
-              }`}
+            className={`rounded-md hover:bg-primary_light ${
+              menuPosition ? "bg-primary" : ""
+            }`}
             onClick={handleClick}
             size="small"
           >
@@ -323,14 +338,16 @@ const Navbar: React.FC<NavbarProps> = (props) => {
             </MenuItem>
           </Link>
           <Divider sx={{ margin: "0.5em 0" }} color="#ffffff" />
-          {props.auth.role === "user" && <Link href="/register_doctor">
-            <MenuItem sx={{ color: "#ffffff" }}>
-              <ListItemIcon>
-                <FaUserDoctor color="#ffffff" />
-              </ListItemIcon>
-              ¿Eres un profesional médico?
-            </MenuItem>
-          </Link>}
+          {props.auth.role === "user" && (
+            <Link href="/register_doctor">
+              <MenuItem sx={{ color: "#ffffff" }}>
+                <ListItemIcon>
+                  <FaUserDoctor color="#ffffff" />
+                </ListItemIcon>
+                ¿Eres un profesional médico?
+              </MenuItem>
+            </Link>
+          )}
           <Link href="/logout">
             <MenuItem sx={{ color: "#ffffff" }} onClick={handleClose}>
               <ListItemIcon>

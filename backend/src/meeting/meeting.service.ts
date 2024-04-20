@@ -60,6 +60,10 @@ export class MeetingService {
         userId,
         status: In(['Pagada', 'Finalizada', 'Cancelada']),
       },
+      order: {
+        status: 'DESC',
+        startDatetime: 'ASC',
+      },
     });
 
     if (name) {
@@ -102,6 +106,10 @@ export class MeetingService {
       where: {
         doctorId: doctorFound.id,
         status: In(['Pagada', 'Finalizada', 'Cancelada']),
+      },
+      order: {
+        status: 'DESC',
+        startDatetime: 'ASC',
       },
     });
 

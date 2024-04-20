@@ -194,6 +194,7 @@ const Navbar: React.FC<NavbarProps> = (props) => {
                 {notifications.map((n) => {
                   return (
                     <Link
+                      key={n.id}
                       href={
                         n.type === "comment"
                           ? `/meetings/${btoa(
@@ -207,6 +208,14 @@ const Navbar: React.FC<NavbarProps> = (props) => {
                           ? `/admin/users`
                           : n.type === "verificationHi"
                           ? "/profile"
+                          : n.type === "meeting"
+                          ? `/meetings/${btoa(
+                              n.meeting.userId +
+                                "." +
+                                moment(n.meeting.startDatetime).format(
+                                  "YYYY-MM-DDTHH:mm:ss"
+                                )
+                            )}`
                           : ""
                       }
                       onClick={() => {
@@ -214,7 +223,7 @@ const Navbar: React.FC<NavbarProps> = (props) => {
                         setOpenN(!openN);
                       }}
                     >
-                      <MenuItem key={n.id} sx={{ color: "#ffffff" }}>
+                      <MenuItem sx={{ color: "#ffffff" }}>
                         <div className="text-black">
                           <div className="p-2">
                             <div className="flex justify-between items-center">
@@ -254,6 +263,12 @@ const Navbar: React.FC<NavbarProps> = (props) => {
                                       }`
                                     ) : n.type === "verificationHi" ? (
                                       `El administrador ${n.userSend.surname}, ${n.userSend.name} acaba de realizar la verificación de la obra social ${n.healthInsurance.name}`
+                                    ) : n.type === "meeting" ? (
+                                      `El usuario ${n.userSend.surname}, ${
+                                        n.userSend.name
+                                      } acaba de solicitar una reunión para el día ${moment(
+                                        n.meetingStartDatetime
+                                      ).format("LLL")}`
                                     ) : (
                                       ""
                                     )}

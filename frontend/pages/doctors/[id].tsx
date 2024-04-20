@@ -103,6 +103,21 @@ export default function Doctor(props: any) {
       setDetail(meeting.data);
 
       setPaid(true);
+
+      await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/notification`,
+        {
+          userIdSend: props.auth.id,
+          userIdReceive: props.doctor.user.id,
+          meetingUserId: props.auth.id,
+          meetingStartDatetime: selectedDate,
+          type: "meeting",
+        },
+        {
+          withCredentials: true,
+          headers: { Authorization: `Bearer ${props.auth.token}` },
+        }
+      );
     } catch (error) {
       console.log(error);
     }

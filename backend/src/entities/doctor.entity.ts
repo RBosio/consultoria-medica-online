@@ -23,9 +23,6 @@ export class Doctor {
   @Column({ nullable: true })
   registration: string;
 
-  @Column()
-  cuil: string;
-
   @Column({ nullable: true })
   title: string;
 

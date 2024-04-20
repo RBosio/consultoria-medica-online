@@ -69,6 +69,12 @@ const Sidebar: React.FC<SidebarProps> = (props) => {
     ],
     bottom: [
       {
+        name: "¿Eres un profesional médico?",
+        path: "/register_doctor",
+        icon: <FaUserDoctor />,
+        hide: props.auth.role !== "user",
+      },
+      {
         name: "Panel administración",
         path: "/admin",
         icon: <MdOutlineAdminPanelSettings />,

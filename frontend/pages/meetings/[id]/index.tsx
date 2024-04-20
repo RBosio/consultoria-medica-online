@@ -430,7 +430,7 @@ export default function DetailMeeting(props: MeetingI) {
             ${
               openedChat
                 ? "fixed z-50 inset-0 backdrop-blur-sm bg-black bg-opacity-30"
-                : "w-[100%] sm:w-[40%] bg-white rounded-lg mt-5 sm:mt-0 hidden sm:inline "
+                : "w-[100%] sm:w-[40%] bg-white rounded-lg mt-5 sm:mt-0 hidden md:inline "
             }
               `}
           >
@@ -439,7 +439,7 @@ export default function DetailMeeting(props: MeetingI) {
               ${
                 openedChat
                   ? "flex flex-col h-5/6 bg-white"
-                  : "w-[100%] sm:w-[40%] rounded-lg mt-5 sm:mt-0 hidden sm:inline"
+                  : "w-[100%] sm:w-[40%] rounded-lg mt-5 sm:mt-0 hidden md:inline"
               }
               `}
             >

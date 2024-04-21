@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Layout from "@/components/layout";
 import withAuth from "@/lib/withAuth";
 import { Auth } from "../../../shared/types";
@@ -147,6 +147,12 @@ export default function Config(props: ConfigProps) {
   const [confirmCancelPlan, setConfirmCancelPlan] = useState<boolean>(false);
   const [confirmHealthInsurance, setConfirmHealthInsurance] =
     useState<boolean>(false);
+
+  useEffect(() => {
+    addEventListener("resize", () => {
+      setModify(false);
+    });
+  }, []);
 
   const updateForm = useFormik({
     initialValues: {

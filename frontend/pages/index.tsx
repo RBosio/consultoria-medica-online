@@ -12,6 +12,7 @@ import {
   FaUserDoctor,
 } from "react-icons/fa6";
 import moment from "moment";
+import "moment/locale/es";
 import axios from "axios";
 import { useRouter } from "next/router";
 import { Chip, Divider, Rating, useTheme } from "@mui/material";
@@ -31,6 +32,10 @@ import { styled } from "@mui/material/styles";
 export default function Home(props: any) {
   const router = useRouter();
   const theme = useTheme();
+
+  useEffect(() => {
+    moment.locale("es");
+  }, []);
 
   const [plans, setPlans] = React.useState<PlanResponseDto[]>([]);
   const [rate, setRate] = React.useState<boolean>(false);
@@ -325,7 +330,7 @@ export default function Home(props: any) {
                   }`}
                 >
                   <h2 className="text-3xl text-center text-zinc-600">
-                    Ultimas notificaciones no leidas
+                    Ultimas notificaciones no leídas
                   </h2>
                   {props.notifications.length === 0 && (
                     <h2 className="text-primary text-center font-semibold mt-8">

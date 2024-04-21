@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Layout from "@/components/layout";
 import withAuth from "@/lib/withAuth";
 import { Auth } from "../../../shared/types";
@@ -47,6 +47,7 @@ import { HealthInsuranceResponseDto } from "@/components/dto/healthInsurance.dto
 import Link from "next/link";
 import { NotificationResponseDto } from "@/components/dto/notification.dto";
 import moment from "moment";
+import "moment/locale/es";
 import { pesos } from "@/lib/formatCurrency";
 
 interface ConfigProps {
@@ -60,6 +61,10 @@ interface ConfigProps {
 }
 
 export default function Config(props: ConfigProps) {
+  useEffect(() => {
+    moment.locale("es");
+  }, []);
+
   const theme = useTheme();
   const router = useRouter();
   const days = [
@@ -147,6 +152,12 @@ export default function Config(props: ConfigProps) {
   const [confirmCancelPlan, setConfirmCancelPlan] = useState<boolean>(false);
   const [confirmHealthInsurance, setConfirmHealthInsurance] =
     useState<boolean>(false);
+
+  useEffect(() => {
+    addEventListener("resize", () => {
+      setModify(false);
+    });
+  }, []);
 
   const updateForm = useFormik({
     initialValues: {
@@ -669,7 +680,7 @@ export default function Config(props: ConfigProps) {
                       <div className="flex flex-col md:flex-row gap-4 md:gap-0 mt-4 md:mt-0 justify-between items-center">
                         <div>
                           <h4 className="text-primary text-lg flex justify-center items-center gap-2">
-                            <FaStopwatch /> Duracion
+                            <FaStopwatch /> Duración
                           </h4>
                           <Select
                             className="w-full"

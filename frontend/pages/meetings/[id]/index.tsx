@@ -21,6 +21,7 @@ import {
 } from "react-icons/fa6";
 import { useEffect, useState } from "react";
 import moment from "moment";
+import "moment/locale/es";
 import { robotoBold } from "@/lib/fonts";
 import Button from "@/components/button";
 import UserCard from "@/components/userCard";
@@ -45,6 +46,10 @@ export default function DetailMeeting(props: MeetingI) {
   const [showMotive, setShowMotive] = useState<boolean>(false);
   const [cancel, setCancel] = useState<boolean>(false);
   const [openedChat, setOpenedChat] = useState(false);
+
+  useEffect(() => {
+    moment.locale("es");
+  }, []);
 
   const handleOnClose = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     const target = e.target as HTMLDivElement;

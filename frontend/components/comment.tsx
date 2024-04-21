@@ -1,16 +1,16 @@
-import { useTheme } from "@mui/material";
-import React from "react";
+import React, { useEffect } from "react";
 import { robotoBold } from "@/lib/fonts";
 import { FaUserDoctor } from "react-icons/fa6";
 import { CommentResponseDto } from "./dto/comment.dto";
 import moment from "moment";
+import "moment/locale/es";
 import axios from "axios";
-import { useRouter } from "next/router";
 import Link from "next/link";
 
 const Comment: React.FC<CommentResponseDto> = (props) => {
-  const theme = useTheme();
-  const router = useRouter();
+  useEffect(() => {
+    moment.locale("es");
+  }, []);
 
   async function handleClick(name: string, type: string) {
     await axios({

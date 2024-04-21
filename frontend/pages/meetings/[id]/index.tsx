@@ -21,6 +21,7 @@ import {
 } from "react-icons/fa6";
 import { useEffect, useState } from "react";
 import moment from "moment";
+import "moment/locale/es";
 import { robotoBold } from "@/lib/fonts";
 import Button from "@/components/button";
 import UserCard from "@/components/userCard";
@@ -45,6 +46,10 @@ export default function DetailMeeting(props: MeetingI) {
   const [showMotive, setShowMotive] = useState<boolean>(false);
   const [cancel, setCancel] = useState<boolean>(false);
   const [openedChat, setOpenedChat] = useState(false);
+
+  useEffect(() => {
+    moment.locale("es");
+  }, []);
 
   const handleOnClose = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     const target = e.target as HTMLDivElement;
@@ -419,7 +424,7 @@ export default function DetailMeeting(props: MeetingI) {
               openedChat ? setOpenedChat(false) : setOpenedChat(true)
             }
             aria-label="chat"
-            className="z-0 bg-secondary hover:bg-[#4F4F4F] fixed bottom-4 right-8 text-white sm:hidden"
+            className="z-0 bg-secondary hover:bg-[#4F4F4F] fixed bottom-4 right-8 text-white md:hidden"
           >
             <BsFillChatLeftTextFill />
           </Fab>
@@ -430,7 +435,7 @@ export default function DetailMeeting(props: MeetingI) {
             ${
               openedChat
                 ? "fixed z-50 inset-0 backdrop-blur-sm bg-black bg-opacity-30"
-                : "w-[100%] sm:w-[40%] bg-white rounded-lg mt-5 sm:mt-0 hidden sm:inline "
+                : "w-[100%] sm:w-[40%] bg-white rounded-lg mt-5 sm:mt-0 hidden md:inline "
             }
               `}
           >
@@ -439,7 +444,7 @@ export default function DetailMeeting(props: MeetingI) {
               ${
                 openedChat
                   ? "flex flex-col h-5/6 bg-white"
-                  : "w-[100%] sm:w-[40%] rounded-lg mt-5 sm:mt-0 hidden sm:inline"
+                  : "w-[100%] sm:w-[40%] rounded-lg mt-5 sm:mt-0 hidden md:inline"
               }
               `}
             >

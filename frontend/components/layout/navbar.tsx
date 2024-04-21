@@ -12,6 +12,7 @@ import {
 } from "@mui/material";
 import { useTheme } from "@mui/material";
 import { GrLogout } from "react-icons/gr";
+import { FaUserDoctor } from "react-icons/fa6";
 import { IoPersonSharp } from "react-icons/io5";
 import Link from "next/link";
 import { Sling as Hamburger } from "hamburger-react";
@@ -19,12 +20,11 @@ import Image from "next/image";
 import {
   FaAngleRight,
   FaBell,
-  FaEnvelope,
-  FaEnvelopeOpen,
 } from "react-icons/fa6";
 import axios from "axios";
 import { NotificationResponseDto } from "../dto/notification.dto";
 import moment from "moment";
+import "moment/locale/es";
 import { useRouter } from "next/router";
 
 interface NavbarProps {
@@ -38,6 +38,10 @@ interface NavbarProps {
 const Navbar: React.FC<NavbarProps> = (props) => {
   const theme = useTheme();
   const router = useRouter();
+
+  useEffect(() => {
+    moment.locale("es");
+  }, []);
 
   const [menuPosition, setMenuPosition] = useState<null | HTMLElement>(null);
   const [notifyPosition, setNotifyPosition] = useState<null | HTMLElement>(
@@ -192,89 +196,100 @@ const Navbar: React.FC<NavbarProps> = (props) => {
               <div className="max-h-80 overflow-y-scroll mt-16">
                 {notifications.map((n) => {
                   return (
-                    <MenuItem key={n.id} sx={{ color: "#ffffff" }}>
-                      <div className="text-black">
-                        <div className="p-2">
-                          <div className="flex justify-between items-center">
-                            <div
-                              className={`w-2 h-2 rounded-full m-2 ${
-                                !n.readed ? "bg-primary" : ""
-                              }`}
-                            ></div>
+                    <Link
+                      key={n.id}
+                      href={
+                        n.type === "comment"
+                          ? `/meetings/${btoa(
+                              n.meeting.userId +
+                                "." +
+                                moment(n.meeting.startDatetime).format(
+                                  "YYYY-MM-DDTHH:mm:ss"
+                                )
+                            )}`
+                          : n.type === "verification hi"
+                          ? `/admin/users`
+                          : n.type === "verificationHi"
+                          ? "/profile"
+                          : n.type === "meeting"
+                          ? `/meetings/${btoa(
+                              n.meeting.userId +
+                                "." +
+                                moment(n.meeting.startDatetime).format(
+                                  "YYYY-MM-DDTHH:mm:ss"
+                                )
+                            )}`
+                          : ""
+                      }
+                      onClick={() => {
+                        markAsRead(n.id);
+                        setOpenN(!openN);
+                      }}
+                    >
+                      <MenuItem sx={{ color: "#ffffff" }}>
+                        <div className="text-black">
+                          <div className="p-2">
+                            <div className="flex justify-between items-center">
+                              <div
+                                className={`w-2 h-2 rounded-full m-2 ${
+                                  !n.readed ? "bg-primary" : ""
+                                }`}
+                              ></div>
 
-                            <div className="mr-2">
-                              <div className="flex items-center gap-2">
-                                <p className="p-2 text-lg">
-                                  {n.type === "verification" ? (
-                                    `El doctor ${n.userSend.surname}, ${n.userSend.name} solicitó verificación de su cuenta`
-                                  ) : n.type === "comment" ? (
-                                    <>
-                                      El{" "}
-                                      {props.auth.role === "user"
-                                        ? "doctor"
-                                        : "usuario"}{" "}
-                                      {n.userSend.surname}, {n.userSend.name}{" "}
-                                      realizó un comentario en la reunión del
-                                      día{" "}
-                                      <span>
-                                        {moment(n.meeting.startDatetime).format(
-                                          "LLL"
-                                        )}
-                                      </span>
-                                    </>
-                                  ) : n.type === "verification hi" ? (
-                                    `El ${
-                                      n.userSend.doctor ? "doctor" : "usuario"
-                                    } ${n.userSend.surname}, ${
-                                      n.userSend.name
-                                    } solicitó verificación de la obra social ${
-                                      n.healthInsurance.name
-                                    }`
-                                  ) : (
-                                    ""
-                                  )}
+                              <div className="mr-2">
+                                <div className="flex items-center gap-2">
+                                  <p className="p-2 text-lg">
+                                    {n.type === "verification" ? (
+                                      `El doctor ${n.userSend.surname}, ${n.userSend.name} solicitó verificación de su cuenta`
+                                    ) : n.type === "comment" ? (
+                                      <>
+                                        El{" "}
+                                        {props.auth.role === "user"
+                                          ? "doctor"
+                                          : "usuario"}{" "}
+                                        {n.userSend.surname}, {n.userSend.name}{" "}
+                                        realizó un comentario en la reunión del
+                                        día{" "}
+                                        <span>
+                                          {moment(
+                                            n.meeting.startDatetime
+                                          ).format("LLL")}
+                                        </span>
+                                      </>
+                                    ) : n.type === "verification hi" ? (
+                                      `El ${
+                                        n.userSend.doctor ? "doctor" : "usuario"
+                                      } ${n.userSend.surname}, ${
+                                        n.userSend.name
+                                      } solicitó verificación de la obra social ${
+                                        n.healthInsurance.name
+                                      }`
+                                    ) : n.type === "verificationHi" ? (
+                                      `El administrador ${n.userSend.surname}, ${n.userSend.name} acaba de realizar la verificación de la obra social ${n.healthInsurance.name}`
+                                    ) : n.type === "meeting" ? (
+                                      `El usuario ${n.userSend.surname}, ${
+                                        n.userSend.name
+                                      } acaba de solicitar una reunión para el día ${moment(
+                                        n.meetingStartDatetime
+                                      ).format("LLL")}`
+                                    ) : (
+                                      ""
+                                    )}
+                                  </p>
+                                </div>
+                                <p className="text-sm text-right p-2 text-gray-400">
+                                  {moment(n.created_at).format("LLL")}
                                 </p>
                               </div>
-                              <p className="text-sm text-right p-2 text-gray-400">
-                                {moment(n.created_at).format("LLL")}
-                              </p>
-                            </div>
-                            <div className="min-w-12 flex justify-end gap-2 text-xl text-primary">
-                              {!n.readed ? (
-                                <FaEnvelope
-                                  className="hover:cursor-pointer hover:opacity-70"
-                                  onClick={() => markAsRead(n.id)}
-                                />
-                              ) : (
-                                <FaEnvelopeOpen />
-                              )}
-                              <Link
-                                href={
-                                  n.type === "comment"
-                                    ? `/meetings/${btoa(
-                                        n.meeting.userId +
-                                          "." +
-                                          moment(
-                                            n.meeting.startDatetime
-                                          ).format("YYYY-MM-DDTHH:mm:ss")
-                                      )}`
-                                    : n.type === "verification hi"
-                                    ? `/admin/users`
-                                    : ""
-                                }
-                                onClick={() => {
-                                  markAsRead(n.id);
-                                  setOpenN(!openN);
-                                }}
-                              >
+                              <div className="min-w-12 flex justify-end gap-2 text-xl text-primary">
                                 <FaAngleRight className="hover:opacity-70" />
-                              </Link>
+                              </div>
                             </div>
                           </div>
+                          <div className="w-[90%] border-b-2 border-primary h-2 m-auto"></div>
                         </div>
-                        <div className="w-[90%] border-b-2 border-primary h-2 m-auto"></div>
-                      </div>
-                    </MenuItem>
+                      </MenuItem>
+                    </Link>
                   );
                 })}
               </div>
@@ -326,6 +341,16 @@ const Navbar: React.FC<NavbarProps> = (props) => {
             </MenuItem>
           </Link>
           <Divider sx={{ margin: "0.5em 0" }} color="#ffffff" />
+          {props.auth.role === "user" && (
+            <Link href="/register_doctor">
+              <MenuItem sx={{ color: "#ffffff" }}>
+                <ListItemIcon>
+                  <FaUserDoctor color="#ffffff" />
+                </ListItemIcon>
+                ¿Eres un profesional médico?
+              </MenuItem>
+            </Link>
+          )}
           <Link href="/logout">
             <MenuItem sx={{ color: "#ffffff" }} onClick={handleClose}>
               <ListItemIcon>

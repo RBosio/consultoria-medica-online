@@ -26,7 +26,7 @@ export class NotificationController {
     }
     
     @Post()
-    @Roles(RoleEnum.User, RoleEnum.Doctor)
+    @Roles(RoleEnum.User, RoleEnum.Doctor, RoleEnum.Admin)
     createNotification(@Body() notification: createNotificationDto): Promise<Notification | HttpException> {
         return this.notificationService.create(notification)
     }

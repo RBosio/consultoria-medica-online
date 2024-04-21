@@ -1,5 +1,5 @@
 import { useTheme } from "@mui/material";
-import React from "react";
+import React, { useEffect } from "react";
 import { robotoBold } from "@/lib/fonts";
 import {
   FaAddressCard,
@@ -15,12 +15,17 @@ import {
 } from "react-icons/fa6";
 import { MeetingResponseDto } from "./dto/meeting.dto";
 import moment from "moment";
+import "moment/locale/es";
 import Button from "./button";
 import Link from "next/link";
 import { showDni } from "@/lib/dni";
 
 const UserCard: React.FC<MeetingResponseDto> = (props) => {
   const theme = useTheme();
+
+  useEffect(() => {
+    moment.locale("es");
+  }, []);
 
   return (
     <div className="bg-white rounded-md h-full flex flex-col relative w-full">
@@ -79,17 +84,19 @@ const UserCard: React.FC<MeetingResponseDto> = (props) => {
             <FaSuitcaseMedical className="text-primary" />
             {props.user.healthInsurances.map((h) => {
               return (
-                <p
-                  className="px-2 flex items-center gap-2"
-                  key={h.healthInsurance.id}
-                >
-                  {h.healthInsurance.name}{" "}
-                  {h.verified ? (
-                    <FaCircleCheck className="text-green-600 text-xl" />
-                  ) : (
-                    <FaCircleXmark className="text-red-600 text-xl" />
-                  )}
-                </p>
+                h.healthInsurance && (
+                  <p
+                    className="px-2 flex items-center gap-2"
+                    key={h.healthInsurance?.id}
+                  >
+                    {h.healthInsurance?.name}{" "}
+                    {h.verified ? (
+                      <FaCircleCheck className="text-green-600 text-xl" />
+                    ) : (
+                      <FaCircleXmark className="text-red-600 text-xl" />
+                    )}
+                  </p>
+                )
               );
             })}
           </div>

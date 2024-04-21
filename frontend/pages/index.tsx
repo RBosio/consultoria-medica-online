@@ -12,6 +12,7 @@ import {
   FaUserDoctor,
 } from "react-icons/fa6";
 import moment from "moment";
+import "moment/locale/es";
 import axios from "axios";
 import { useRouter } from "next/router";
 import { Chip, Divider, Rating, useTheme } from "@mui/material";
@@ -31,6 +32,10 @@ import { styled } from "@mui/material/styles";
 export default function Home(props: any) {
   const router = useRouter();
   const theme = useTheme();
+
+  useEffect(() => {
+    moment.locale("es");
+  }, []);
 
   const [plans, setPlans] = React.useState<PlanResponseDto[]>([]);
   const [rate, setRate] = React.useState<boolean>(false);
@@ -172,30 +177,29 @@ export default function Home(props: any) {
           ) : (
             <h2 className="mx-auto text-xl flex flex-col md:flex-row items-center gap-4 text-zinc-600">
               Actualmente no tiene reuniones pendientes{" "}
-              {props.auth.role === "user" ||
-                (props.auth.role === "admin" && (
-                  <Button
-                    onClick={() => router.push("/doctors")}
-                    startIcon={<FaChevronRight />}
-                  >
-                    Solicite una
-                  </Button>
-                ))}
+              {(props.auth.role === "user" || props.auth.role === "admin") && (
+                <Button
+                  onClick={() => router.push("/doctors")}
+                  startIcon={<FaChevronRight />}
+                >
+                  Solicite una
+                </Button>
+              )}
             </h2>
           )}
         </div>
-        <div className="flex flex-col md:flex-row justify-between items-center gap-4 w-5/6 mx-auto mt-4 mb-4">
-          <div className="bg-gray-100 w-full md:w-2/3 p-4 rounded-3xl shadow-lg">
+        <div className="flex flex-col lg:flex-row justify-between items-center gap-4 w-5/6 mx-auto mt-4 mb-4">
+          <div className="bg-gray-100 w-full lg:w-2/3 p-4 rounded-3xl shadow-lg">
             {props.auth.role === "user" || props.auth.role === "admin" ? (
               <>
                 <h2 className="text-3xl text-center text-zinc-600">
                   Descubra nuestros profesionales recomendados
                 </h2>
-                <div className="flex flex-col md:flex-row justify-center items-center gap-8 bg-white">
+                <div className="flex flex-col md:flex-row justify-center items-center gap-8 bg-white rounded-3xl">
                   {props.doctors.map((doctor: DoctorResponseDto) => (
                     <div
                       key={doctor.id}
-                      className="mt-[5rem] md:mt-[11rem] xl:mt-20 relative w-1/2"
+                      className="mt-[5rem] md:mt-0 xl:mt-20 relative w-1/2"
                     >
                       <Avatar
                         labelProps={{ className: "hidden xl:hidden" }}
@@ -209,7 +213,7 @@ export default function Home(props: any) {
                           doctor.user.image ? doctor.user.image : undefined
                         }
                       />
-                      <div className="flex flex-col items-center gap-3 mt-20">
+                      <div className="flex flex-col items-center gap-3 mt-20 md:mt-44 xl:mt-20">
                         <h2 className={`text-primary text-center text-3xl`}>
                           {doctor.user.name} {doctor.user.surname}
                         </h2>
@@ -257,7 +261,9 @@ export default function Home(props: any) {
             ) : (
               <>
                 <h2 className="text-3xl text-center text-zinc-600 mb-4">
-                  ¿Desea actualizar su plan?
+                  {props.doctor.plan
+                    ? "¿Desea actualizar su plan?"
+                    : "Solicite un plan para comenzar a trabajar"}
                 </h2>
                 <div className="flex flex-col md:flex-row justify-center items-center gap-8">
                   {plans.map((p: PlanResponseDto) => (
@@ -290,7 +296,9 @@ export default function Home(props: any) {
                         ))}
                       </ul>
                       <div className="my-4">
-                        <Button onClick={() => router.push("/plan/" + p.id)}>
+                        <Button
+                          onClick={() => router.push("/config/plan/" + p.id)}
+                        >
                           Actualizar plan
                         </Button>
                       </div>
@@ -303,7 +311,7 @@ export default function Home(props: any) {
               </>
             )}
           </div>
-          <div className="flex flex-col items-center gap-4 bg-white w-full md:w-1/3 p-4 rounded-3xl shadow-lg min-h-[200px]">
+          <div className="flex flex-col items-center gap-4 bg-white w-full lg:w-1/3 p-4 rounded-3xl shadow-lg min-h-[200px]">
             {props.auth.role === "user" &&
               (props.lastMeeting?.user?.healthInsurances.length === 0 ? (
                 <>
@@ -322,10 +330,10 @@ export default function Home(props: any) {
                   }`}
                 >
                   <h2 className="text-3xl text-center text-zinc-600">
-                    Ultimas notificaciones no leidas
+                    Ultimas notificaciones no leídas
                   </h2>
                   {props.notifications.length === 0 && (
-                    <h2 className="text-primary font-semibold mt-8">
+                    <h2 className="text-primary text-center font-semibold mt-8">
                       Actualmente no tiene notificaciones pendientes
                     </h2>
                   )}
@@ -356,6 +364,8 @@ export default function Home(props: any) {
                                     </>
                                   ) : n.type === "verification hi" ? (
                                     `El doctor ${n.userSend.surname}, ${n.userSend.name} solicitó verificación de la obra social ${n.healthInsurance.name}`
+                                  ) : n.type === "verificationHi" ? (
+                                    `El administrador ${n.userSend.surname}, ${n.userSend.name} acaba de realizar la verificación de la obra social ${n.healthInsurance.name}`
                                   ) : (
                                     ""
                                   )}
@@ -376,6 +386,8 @@ export default function Home(props: any) {
                                             n.meeting.startDatetime
                                           ).format("YYYY-MM-DDTHH:mm:ss")
                                       )}`
+                                    : n.type === "verificationHi"
+                                    ? "/profile"
                                     : ""
                                 }
                                 onClick={() => {
@@ -445,6 +457,14 @@ export default function Home(props: any) {
                                     </>
                                   ) : n.type === "verification hi" ? (
                                     `El doctor ${n.userSend.surname}, ${n.userSend.name} solicitó verificación de la obra social ${n.healthInsurance.name}`
+                                  ) : n.type === "verificationHi" ? (
+                                    `El administrador ${n.userSend.surname}, ${n.userSend.name} acaba de realizar la verificación de la obra social ${n.healthInsurance.name}`
+                                  ) : n.type === "meeting" ? (
+                                    `El usuario ${n.userSend.surname}, ${
+                                      n.userSend.name
+                                    } acaba de solicitar una reunión para el día ${moment(
+                                      n.meetingStartDatetime
+                                    ).format("LLL")}`
                                   ) : (
                                     ""
                                   )}
@@ -458,6 +478,16 @@ export default function Home(props: any) {
                               <Link
                                 href={
                                   n.type === "comment"
+                                    ? `/meetings/${btoa(
+                                        n.meeting.userId +
+                                          "." +
+                                          moment(
+                                            n.meeting.startDatetime
+                                          ).format("YYYY-MM-DDTHH:mm:ss")
+                                      )}`
+                                    : n.type === "verificationHi"
+                                    ? "/profile"
+                                    : n.type === "meeting"
                                     ? `/meetings/${btoa(
                                         n.meeting.userId +
                                           "." +

@@ -21,6 +21,7 @@ import {
 } from "react-icons/fa6";
 import { robotoBold } from "@/lib/fonts";
 import moment from "moment";
+import "moment/locale/es";
 import { FaEdit } from "react-icons/fa";
 import Input from "@/components/input";
 import { useFormik } from "formik";
@@ -67,6 +68,10 @@ export default function ProfileView(props: any) {
   const [confirmHealthInsurance, setConfirmHealthInsurance] =
     useState<boolean>(false);
   const [healthInsuranceVerify, setHealthInsuranceVerify] = useState<number>();
+
+  useEffect(() => {
+    moment.locale("es");
+  }, []);
 
   function showDni() {
     let dni = user.dni;
@@ -402,17 +407,9 @@ export default function ProfileView(props: any) {
                       ) : (
                         <FaVenus className="text-primary size-4" />
                       )}
-
                       <p className="mx-2 text-xl">
                         {user.gender ? "Hombre" : "Mujer"}
                       </p>
-                    </div>
-                    <div className="w-full">
-                      {/* {user.validateHealthInsurance ? (
-                  <FaCheck className="text-xl text-green-600" />
-                  ) : (
-                    <FaXmark className="text-xl text-red-600" />
-                  )} */}
                     </div>
                   </div>
                 </div>
@@ -429,16 +426,16 @@ export default function ProfileView(props: any) {
                       return (
                         <div className="p-4" key={idx}>
                           {h.healthInsurance?.name ? (
-                            <div className="flex items-center gap-4">
-                              <FaChevronRight className="text-primary text-md size-6" />
+                            <div className="flex items-center gap-2">
+                              <FaChevronRight className="text-primary text-md size-4" />
                               <p className="text-xl">
                                 {h.healthInsurance.name}
                               </p>
                               {h.verified ? (
-                                <FaCircleCheck className="text-green-600 text-lg size-6" />
+                                <FaCircleCheck className="text-green-600 text-lg size-4" />
                               ) : (
-                                <div className="flex items-center gap-2">
-                                  <FaCircleXmark className="text-red-600 text-lg size-6" />
+                                <div className="flex items-center gap-4">
+                                  <FaCircleXmark className="text-red-600 text-lg size-4" />
                                   {!request && (
                                     <FaCertificate
                                       className="text-primary text-lg hover:cursor-pointer hover:opacity-70 size-6"

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Layout from "@/components/layout";
 import withAuth from "@/lib/withAuth";
 import { Auth } from "../../../shared/types";
@@ -47,6 +47,7 @@ import { HealthInsuranceResponseDto } from "@/components/dto/healthInsurance.dto
 import Link from "next/link";
 import { NotificationResponseDto } from "@/components/dto/notification.dto";
 import moment from "moment";
+import "moment/locale/es";
 import { pesos } from "@/lib/formatCurrency";
 
 interface ConfigProps {
@@ -60,6 +61,10 @@ interface ConfigProps {
 }
 
 export default function Config(props: ConfigProps) {
+  useEffect(() => {
+    moment.locale("es");
+  }, []);
+
   const theme = useTheme();
   const router = useRouter();
   const days = [
@@ -148,6 +153,12 @@ export default function Config(props: ConfigProps) {
   const [confirmHealthInsurance, setConfirmHealthInsurance] =
     useState<boolean>(false);
 
+  useEffect(() => {
+    addEventListener("resize", () => {
+      setModify(false);
+    });
+  }, []);
+
   const updateForm = useFormik({
     initialValues: {
       durationMeeting: duration,
@@ -180,7 +191,7 @@ export default function Config(props: ConfigProps) {
         setMessage("Datos actualizados correctamente!");
         setSuccess(true);
       } else {
-        setMessage("Ingrese un valor al precio de la reunion");
+        setMessage("Ingrese un valor al precio de la reunión");
         setError(true);
       }
 
@@ -442,74 +453,20 @@ export default function Config(props: ConfigProps) {
               } gap-4`}
             >
               <div className="bg-white sm:w-1/4 md:min-w-[99%] h-full rounded-md shadow-md p-4 flex flex-col justify-center">
-                <div className="flex flex-col justify-center items-center xl:flex-row xl:justify-between xl:items-start gap-2 md:gap-8">
-                  <div className="w-1/3 p-2">
-                    <h3 className="text-primary text-xl text-center">
-                      Reunion
-                    </h3>
-                    <div className="xl:flex xl:justify-between xl:items-center">
-                      <div className="flex flex-col justify-center items-center">
-                        <h4 className="text-primary text-lg flex justify-center items-center gap-2">
-                          <FaStopwatch /> Duracion
-                        </h4>
-                        <p>{props.doctor.durationMeeting} min</p>
-                      </div>
-                      <div className="flex flex-col justify-center items-center">
-                        <h4 className="text-primary text-lg flex justify-center items-center gap-2">
-                          <FaMoneyBill1Wave /> Precio
-                        </h4>
-                        <p>{pesos.format(props.doctor.priceMeeting)}</p>
-                      </div>
+                <div className="flex flex-col">
+                  <h3 className="text-primary text-xl text-center">Reunión</h3>
+                  <div className="flex justify-center gap-12">
+                    <div className="flex flex-col justify-center items-center">
+                      <h4 className="text-primary text-lg flex justify-center items-center gap-2">
+                        <FaStopwatch /> Duración
+                      </h4>
+                      <p>{props.doctor.durationMeeting} min</p>
                     </div>
-                  </div>
-                  <div className="md:h-[112px] md:w-1 md:border-l-2 md:border-primary"></div>
-                  <div className="p-2 w-2/3">
-                    <h3 className="text-primary text-xl text-center">
-                      Verificacion
-                    </h3>
-                    <div className="flex flex-col p-2 md:flex-row justify-between items-center">
-                      {props.doctor.verified ? (
-                        <div>
-                          <h3 className="text-primary text-lg flex items-center gap-2">
-                            <FaCheck /> Verificado
-                          </h3>
-                          <p>
-                            {props.doctor.verifiedSince &&
-                              `Verificado desde ${moment(
-                                props.doctor.verifiedSince
-                              ).format("LL")}`}
-                          </p>
-                        </div>
-                      ) : (
-                        <div>
-                          <h3 className="text-primary text-lg flex items-center gap-2">
-                            <FaXmark /> No verificado
-                          </h3>
-                          <p>
-                            {props.notification
-                              ? "Solicitud en curso, aguarde a que un administrador revise su peticion"
-                              : "Solicite verificacion para comenzar a operar"}
-                          </p>
-                        </div>
-                      )}
-                      <Button
-                        className="min-w-60 ml-2"
-                        sx={{
-                          "&.MuiButton-contained": {
-                            background: "#06AC06",
-                            color: "#fff",
-                          },
-                        }}
-                        onClick={() => setConfirmVerification(true)}
-                        disabled={
-                          props.doctor.verified || props.notification
-                            ? true
-                            : false
-                        }
-                        startIcon={<FaCertificate />}
-                      >
-                        Solicitar verificacion
-                      </Button>
+                    <div className="flex flex-col justify-center items-center">
+                      <h4 className="text-primary text-lg flex justify-center items-center gap-2">
+                        <FaMoneyBill1Wave /> Precio
+                      </h4>
+                      <p>{pesos.format(props.doctor.priceMeeting)}</p>
                     </div>
                   </div>
                 </div>
@@ -570,7 +527,7 @@ export default function Config(props: ConfigProps) {
                         </Button>
                       </ButtonGroup>
                     ) : (
-                      <Link href={"/plan"}>
+                      <Link href={"/"}>
                         <Button
                           startIcon={<FaCircleUp />}
                           color="info"
@@ -723,7 +680,7 @@ export default function Config(props: ConfigProps) {
                       <div className="flex flex-col md:flex-row gap-4 md:gap-0 mt-4 md:mt-0 justify-between items-center">
                         <div>
                           <h4 className="text-primary text-lg flex justify-center items-center gap-2">
-                            <FaStopwatch /> Duracion
+                            <FaStopwatch /> Duración
                           </h4>
                           <Select
                             className="w-full"

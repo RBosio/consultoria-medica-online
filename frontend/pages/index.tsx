@@ -325,7 +325,7 @@ export default function Home(props: any) {
                   }`}
                 >
                   <h2 className="text-3xl text-center text-zinc-600">
-                    Ultimas notificaciones no leidas
+                    Ultimas notificaciones no leídas
                   </h2>
                   {props.notifications.length === 0 && (
                     <h2 className="text-primary text-center font-semibold mt-8">

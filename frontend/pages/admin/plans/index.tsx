@@ -359,6 +359,7 @@ export default function Home(props: Plan) {
                               />{" "}
                               <FaXmark
                                 onClick={() => {
+                                  setAdd(false);
                                   localStorage.setItem(
                                     "planId",
                                     row.id.toString()

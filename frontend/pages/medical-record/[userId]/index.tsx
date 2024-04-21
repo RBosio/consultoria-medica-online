@@ -210,7 +210,7 @@ export default function MedicalRecord(props: MedicalRecordI) {
               </div>
               <div className="mt-4 flex flex-col md:flex-row justify-between items-center">
                 <div className="flex items-center gap-2 md:w-1/2">
-                  <h5 className="text-primary text-xl">Reunion</h5>
+                  <h5 className="text-primary text-xl">Reunión</h5>
                   <Select
                     onChange={($e) => setMeeting($e.target.value)}
                     labelId="demo-simple-select-helper-label"
@@ -304,7 +304,7 @@ export default function MedicalRecord(props: MedicalRecordI) {
                       fontSize: "1.2rem",
                     }}
                   >
-                    Fecha de la reunion
+                    Fecha de la reunión
                   </TableCell>
                   <TableCell
                     align="center"

@@ -669,7 +669,7 @@ export default function Config(props: ConfigProps) {
                       <div className="flex flex-col md:flex-row gap-4 md:gap-0 mt-4 md:mt-0 justify-between items-center">
                         <div>
                           <h4 className="text-primary text-lg flex justify-center items-center gap-2">
-                            <FaStopwatch /> Duracion
+                            <FaStopwatch /> Duración
                           </h4>
                           <Select
                             className="w-full"

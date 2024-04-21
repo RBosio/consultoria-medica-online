@@ -47,6 +47,7 @@ import { HealthInsuranceResponseDto } from "@/components/dto/healthInsurance.dto
 import Link from "next/link";
 import { NotificationResponseDto } from "@/components/dto/notification.dto";
 import moment from "moment";
+import "moment/locale/es";
 import { pesos } from "@/lib/formatCurrency";
 
 interface ConfigProps {
@@ -60,6 +61,10 @@ interface ConfigProps {
 }
 
 export default function Config(props: ConfigProps) {
+  useEffect(() => {
+    moment.locale("es");
+  }, []);
+
   const theme = useTheme();
   const router = useRouter();
   const days = [

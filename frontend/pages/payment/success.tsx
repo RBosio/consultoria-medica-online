@@ -1,12 +1,16 @@
 import Layout from "@/components/layout";
 import withAuth from "@/lib/withAuth";
-import { useRouter } from "next/router";
 import { Auth } from "../../../shared/types";
 import axios from "axios";
 import moment from "moment";
+import "moment/locale/es";
+import { useEffect } from "react";
 
 export default function Success(props: any) {
-  const router = useRouter();
+  useEffect(() => {
+    moment.locale("es");
+  }, []);
+
   return (
     <Layout auth={props.auth} renderNavbar={false} renderSidebar={false}>
       <p>success!</p>

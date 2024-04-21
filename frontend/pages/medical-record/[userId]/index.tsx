@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Layout from "@/components/layout";
 import withAuth from "@/lib/withAuth";
 import { Auth } from "../../../../shared/types";
@@ -14,6 +14,7 @@ import { PRIMARY_COLOR } from "@/constants";
 import axios from "axios";
 import { MedicalRecordResponse } from "@/components/dto/medical-record.dto";
 import moment from "moment";
+import "moment/locale/es";
 import {
   FaAddressCard,
   FaChevronLeft,
@@ -59,6 +60,10 @@ export default function MedicalRecord(props: MedicalRecordI) {
   const [error, setError] = useState<boolean>(false);
   const [message, setMessage] = useState<string>("");
   const [success, setSuccess] = useState<boolean>(false);
+
+  useEffect(() => {
+    moment.locale("es");
+  }, []);
 
   const handleClickAdd = async () => {
     if (detail && meeting) {

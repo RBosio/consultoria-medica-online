@@ -20,12 +20,11 @@ import Image from "next/image";
 import {
   FaAngleRight,
   FaBell,
-  FaEnvelope,
-  FaEnvelopeOpen,
 } from "react-icons/fa6";
 import axios from "axios";
 import { NotificationResponseDto } from "../dto/notification.dto";
 import moment from "moment";
+import "moment/locale/es";
 import { useRouter } from "next/router";
 
 interface NavbarProps {
@@ -39,6 +38,10 @@ interface NavbarProps {
 const Navbar: React.FC<NavbarProps> = (props) => {
   const theme = useTheme();
   const router = useRouter();
+
+  useEffect(() => {
+    moment.locale("es");
+  }, []);
 
   const [menuPosition, setMenuPosition] = useState<null | HTMLElement>(null);
   const [notifyPosition, setNotifyPosition] = useState<null | HTMLElement>(

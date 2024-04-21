@@ -12,6 +12,7 @@ import {
   FaUserDoctor,
 } from "react-icons/fa6";
 import moment from "moment";
+import "moment/locale/es";
 import axios from "axios";
 import { useRouter } from "next/router";
 import { Chip, Divider, Rating, useTheme } from "@mui/material";
@@ -31,6 +32,10 @@ import { styled } from "@mui/material/styles";
 export default function Home(props: any) {
   const router = useRouter();
   const theme = useTheme();
+
+  useEffect(() => {
+    moment.locale("es");
+  }, []);
 
   const [plans, setPlans] = React.useState<PlanResponseDto[]>([]);
   const [rate, setRate] = React.useState<boolean>(false);

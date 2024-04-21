@@ -28,6 +28,7 @@ import { CiDiscount1 } from "react-icons/ci";
 import Button from "@/components/button";
 import { useRouter } from "next/router";
 import moment from "moment";
+import "moment/locale/es";
 import Message from "@/components/message";
 import { pesos } from "@/lib/formatCurrency";
 
@@ -41,6 +42,10 @@ export default function Doctor(props: any) {
   const [mp, setMP] = useState<any>();
   const [paid, setPaid] = useState<boolean>(false);
   const [detail, setDetail] = useState<any>();
+
+  useEffect(() => {
+    moment.locale("es");
+  }, []);
 
   useEffect(() => {
     const initMP = async () => {

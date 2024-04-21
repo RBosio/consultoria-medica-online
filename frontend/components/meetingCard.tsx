@@ -1,5 +1,5 @@
 import { Chip } from "@mui/material";
-import React from "react";
+import React, { useEffect } from "react";
 import { robotoBold } from "@/lib/fonts";
 import Button from "./button";
 import {
@@ -10,15 +10,18 @@ import {
 } from "react-icons/fa6";
 import { MeetingResponseDto } from "./dto/meeting.dto";
 import moment from "moment";
+import "moment/locale/es";
 import Link from "next/link";
 
 const MeetingCard: React.FC<MeetingResponseDto> = (props) => {
   const onConsultClick = () => {};
 
+  useEffect(() => {
+    moment.locale("es");
+  }, []);
+
   return (
-    <div
-      className="bg-white rounded-md min-w-[calc(50%-32px)] lg:min-w-[calc(25%-32px)] shadow-md h-100 sm:h-auto flex flex-col m-4 relative overflow-hidden"
-    >
+    <div className="bg-white rounded-md min-w-[calc(50%-32px)] lg:min-w-[calc(25%-32px)] shadow-md h-100 sm:h-auto flex flex-col m-4 relative overflow-hidden">
       {props.auth?.role === "user" ? (
         props.doctor.user.image ? (
           <img
@@ -32,11 +35,11 @@ const MeetingCard: React.FC<MeetingResponseDto> = (props) => {
           </div>
         )
       ) : props.user.image ? (
-          <img
-            src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/user/images/${props.user.image}`}
-            alt="Profile photo"
-            className="max-h-48 sm:h-56 object-cover object-center w-full"
-          />
+        <img
+          src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/user/images/${props.user.image}`}
+          alt="Profile photo"
+          className="max-h-48 sm:h-56 object-cover object-center w-full"
+        />
       ) : (
         <div className="w-full bg-primary flex items-center justify-center p-6">
           <FaUser color="#ffffff" size={80} />
@@ -83,7 +86,11 @@ const MeetingCard: React.FC<MeetingResponseDto> = (props) => {
           <p className="text-zinc-800 text-base">{props.status}</p>
         </div>
         <Link
-          href={`meetings/${btoa(props.user.id+'.'+moment(props.startDatetime).format("YYYY-MM-DDTHH:mm:ss"))}`}
+          href={`meetings/${btoa(
+            props.user.id +
+              "." +
+              moment(props.startDatetime).format("YYYY-MM-DDTHH:mm:ss")
+          )}`}
           className="my-3"
         >
           <Button

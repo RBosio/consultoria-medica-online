@@ -24,11 +24,13 @@ import {
   TableHead,
   TableRow,
   Typography,
+  useTheme,
 } from "@mui/material";
 import {
   FaChevronLeft,
   FaChevronRight,
   FaCircleInfo,
+  FaUserDoctor,
   FaXmark,
 } from "react-icons/fa6";
 import { FaCheck } from "react-icons/fa";
@@ -38,6 +40,7 @@ import { UserResponseDto } from "@/components/dto/user.dto";
 import { UserHealthInsuranceResponseDto } from "@/components/dto/userHealthInsurance.dto";
 import Link from "next/link";
 import Button from "@/components/button";
+import Input from "@/components/input";
 
 interface Speciality {
   auth: Auth;
@@ -52,13 +55,19 @@ export default function Home(props: Speciality) {
   const [user, setUser] = useState<UserResponseDto | null>();
   const [info, setInfo] = useState<boolean>(false);
   const [users, setUsers] = useState<any[]>([]);
+  const [usersFiltered, setUsersFiltered] = useState<any[]>([]);
   const [page, setPage] = useState<any>();
   const [o, setO] = useState(false);
   const [verify, setVerify] = useState<boolean>(false);
+  const [name, setName] = useState<string>("");
+
+  const theme = useTheme();
 
   useEffect(() => {
     setPage(1);
-    setUsers(props.users.filter((sp, idx) => idx >= 10 * 0 && idx < 10));
+    const filter = props.users.filter((sp, idx) => idx >= 10 * 0 && idx < 10);
+    setUsers(filter);
+    setUsersFiltered(filter);
   }, []);
 
   const pagination = (p: number, sp?: SpecialityResponseDto[]) => {
@@ -66,12 +75,14 @@ export default function Home(props: Speciality) {
       if (p === 0 || p === Math.ceil(props.users.length / 10) + 1) return;
 
       setPage(p);
-      setUsers(
+      setUsersFiltered(
         props.users.filter((sp, idx) => idx >= 10 * (p - 1) && idx < 10 * p)
       );
     } else {
       setPage(p);
-      setUsers(sp.filter((s, idx) => idx >= 10 * (p - 1) && idx < 10 * p));
+      setUsersFiltered(
+        sp.filter((s, idx) => idx >= 10 * (p - 1) && idx < 10 * p)
+      );
     }
   };
 
@@ -152,6 +163,13 @@ export default function Home(props: Speciality) {
     setVerify(false);
   };
 
+  const filterChange = (name: string) => {
+    setPage(1);
+    setUsersFiltered(
+      users.filter((u: UserResponseDto) => u.name.toLowerCase().includes(name))
+    );
+  };
+
   return (
     <Layout auth={props.auth}>
       <div id="scroller" className="flex justify-center">
@@ -165,6 +183,19 @@ export default function Home(props: Speciality) {
           </div>
           <div className="bg-white p-4 w-full h-full">
             <section className="w-full rounded-md flex flex-col items-center relative">
+              <Input
+                name="name"
+                value={name}
+                onChange={($e: any) => {
+                  setName($e.target.value.toLowerCase());
+                  filterChange($e.target.value.toLowerCase());
+                }}
+                startadornment={
+                  <FaUserDoctor color={theme.palette.primary.main} />
+                }
+                className="w-1/2"
+                label="Nombre"
+              />
               <div className="w-5/6">
                 {
                   <div className="flex justify-end items-center gap-2 text-primary py-4">
@@ -172,6 +203,7 @@ export default function Home(props: Speciality) {
                       className="text-2xl hover:cursor-pointer"
                       onClick={() => {
                         pagination(page - 1);
+                        setName("");
                       }}
                     />
 
@@ -179,6 +211,7 @@ export default function Home(props: Speciality) {
                       className="text-2xl hover:cursor-pointer"
                       onClick={() => {
                         pagination(page + 1);
+                        setName("");
                       }}
                     />
 
@@ -245,7 +278,7 @@ export default function Home(props: Speciality) {
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {users.map((row) => (
+                      {usersFiltered.map((row) => (
                         <TableRow
                           key={row.id}
                           sx={{

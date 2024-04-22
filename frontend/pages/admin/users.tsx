@@ -23,10 +23,14 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  ToggleButton,
+  ToggleButtonGroup,
   Typography,
   useTheme,
 } from "@mui/material";
 import {
+  FaArrowDownShortWide,
+  FaArrowUpWideShort,
   FaChevronLeft,
   FaChevronRight,
   FaCircleInfo,
@@ -170,6 +174,26 @@ export default function Home(props: Speciality) {
     );
   };
 
+  const [orderDirection, setOrderDirection] = useState("asc");
+  const handleOrderChange = (
+    event: React.MouseEvent<HTMLElement>,
+    nextOrderDirection: string
+  ) => {
+    if (nextOrderDirection !== null) {
+      setName("");
+      setUsersFiltered(
+        users.sort((a, b) => {
+          if (nextOrderDirection === "asc") {
+            return a.name.localeCompare(b.name);
+          } else {
+            return b.name.localeCompare(a.name);
+          }
+        })
+      );
+      setOrderDirection(nextOrderDirection);
+    }
+  };
+
   return (
     <Layout auth={props.auth}>
       <div id="scroller" className="flex justify-center">
@@ -183,19 +207,39 @@ export default function Home(props: Speciality) {
           </div>
           <div className="bg-white p-4 w-full h-full">
             <section className="w-full rounded-md flex flex-col items-center relative">
-              <Input
-                name="name"
-                value={name}
-                onChange={($e: any) => {
-                  setName($e.target.value.toLowerCase());
-                  filterChange($e.target.value.toLowerCase());
-                }}
-                startadornment={
-                  <FaUserDoctor color={theme.palette.primary.main} />
-                }
-                className="w-1/2"
-                label="Nombre"
-              />
+              <div className="flex justify-between items-center gap-4 w-5/6">
+                <Input
+                  name="name"
+                  value={name}
+                  onChange={($e: any) => {
+                    setName($e.target.value.toLowerCase());
+                    filterChange($e.target.value.toLowerCase());
+                  }}
+                  startadornment={
+                    <FaUserDoctor color={theme.palette.primary.main} />
+                  }
+                  className="w-1/2"
+                  label="Nombre"
+                />
+                <ToggleButtonGroup
+                  sx={{
+                    ".MuiButtonBase-root.MuiToggleButton-root.Mui-selected": {
+                      background: theme.palette.primary.light,
+                    },
+                  }}
+                  orientation="vertical"
+                  value={orderDirection}
+                  onChange={handleOrderChange}
+                  exclusive
+                >
+                  <ToggleButton value="asc" aria-label="asc">
+                    <FaArrowUpWideShort />
+                  </ToggleButton>
+                  <ToggleButton value="desc" aria-label="desc">
+                    <FaArrowDownShortWide />
+                  </ToggleButton>
+                </ToggleButtonGroup>
+              </div>
               <div className="w-5/6">
                 {
                   <div className="flex justify-end items-center gap-2 text-primary py-4">

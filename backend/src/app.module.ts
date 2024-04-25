@@ -33,6 +33,7 @@ import { BenefitModule } from './benefit/benefit.module';
 import { Notification } from './entities/notification.entity';
 import { NotificationModule } from './notification/notification.module';
 import { UserHealthInsurance } from './entities/userHealthInsurances.entity';
+import { NestjsFormDataModule } from 'nestjs-form-data';
 
 @Module({
   imports: [
@@ -57,6 +58,7 @@ import { UserHealthInsurance } from './entities/userHealthInsurances.entity';
       }),
       inject: [ConfigService],
     }),
+    NestjsFormDataModule,
     UserModule,
     AuthModule,
     DoctorModule,

@@ -10,7 +10,7 @@ export class createDoctorDto {
     title: any
 
     @IsDefined()
-    specialities: Speciality[]
+    specialitiesStr: string
 
     @IsDefined()
     @IsDateString()

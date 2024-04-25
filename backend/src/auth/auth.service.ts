@@ -22,7 +22,7 @@ export class AuthService {
             if (role === 'user') {
                 const doctor = await this.doctorService.findOneByUserId(userFound.id)
 
-                if (doctor) {
+                if (doctor && doctor.verified) {
                     role = 'doctor'
                 }
             }

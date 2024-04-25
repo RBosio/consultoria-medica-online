@@ -1,6 +1,6 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { MoreThan, Repository } from 'typeorm';
+import { In, MoreThan, Repository } from 'typeorm';
 import { updateDoctorDto } from './dto/update-doctor.dto';
 import { Doctor } from 'src/entities/doctor.entity';
 import { UserService } from 'src/user/user.service';
@@ -10,24 +10,76 @@ import { extendMoment } from 'moment-range';
 import { SpecialityService } from 'src/speciality/speciality.service';
 import { PlanService } from 'src/plan/plan.service';
 import { createDoctorDto } from './dto/create-doctor.dto';
+import { v4 as uuidv4 } from 'uuid';
+import * as fs from 'fs';
+import * as path from 'path';
+import { Speciality } from 'src/entities/speciality.entity';
 
 @Injectable()
 export class DoctorService {
   constructor(
     @InjectRepository(Doctor) private doctorRepository: Repository<Doctor>,
+    @InjectRepository(Speciality) private specialityRepository: Repository<Speciality>,
     private userService: UserService,
     private specialityService: SpecialityService,
     private planService: PlanService,
-  ) {}
+  ) { }
 
   async create(userIdToAssociate: number, doctor: createDoctorDto) {
     const user = await this.userService.findOne(userIdToAssociate);
     if (!user)
       throw new HttpException('Usuario no encontrado', HttpStatus.NOT_FOUND);
 
+    const doctorExists = await this.doctorRepository.findOne({where:{userId: userIdToAssociate}});
+    if(doctorExists) throw new HttpException("El usuario ya está registrado como médico", HttpStatus.BAD_REQUEST);
+
+    // Validar archivos
+    const eightMB = 1024 * 1024 * 8;
+
+    const validMimeTypes = [
+      'application/pdf',
+      'image/jpeg',
+      'image/jpg',
+      'image/png',
+    ];
+
+    if (!validMimeTypes.includes(doctor.registration.mimeType)) {
+      throw new HttpException(`El archivo de matrícula no posee un tipo válido. Permitidos: ${validMimeTypes}`, HttpStatus.NOT_FOUND);
+    };
+
+    if (doctor.registration.size > eightMB) {
+      throw new HttpException(`El archivo de matrícula debe tener un peso menor a 8MB`, HttpStatus.NOT_FOUND);
+
+    };
+    const registrationFilename = `${uuidv4()}.${doctor.registration.fileType.ext}`;
+
+
+    if (!validMimeTypes.includes(doctor.title.mimeType)) {
+      throw new HttpException(`El archivo de título no posee un tipo válido. Permitidos: ${validMimeTypes}`, HttpStatus.NOT_FOUND);
+    };
+
+    if (doctor.title.size > eightMB) {
+      throw new HttpException(`El archivo de título debe tener un peso menor a 8MB`, HttpStatus.NOT_FOUND);
+
+    };
+    const titleFilename = `${uuidv4()}.${doctor.title.fileType.ext}`;
+
+    const registrationPath = path.join(__dirname, '..', '..', 'public', 'uploads', 'doctor', 'registration', registrationFilename);
+    const titlePath = path.join(__dirname, '..', '..', 'public', 'uploads', 'doctor', 'title', titleFilename);
+
+    await fs.promises.writeFile(registrationPath, doctor.registration.buffer);
+    await fs.promises.writeFile(titlePath, doctor.title.buffer);
+
     const newDoctor = await this.doctorRepository.create(doctor);
 
+    const specialitiesIds = JSON.parse(doctor.specialitiesStr);
+    const specialities = await this.specialityRepository.findBy({id: In(specialitiesIds)});
+
     newDoctor.user = user;
+    newDoctor.registration = registrationFilename;
+    newDoctor.title = titleFilename;
+    newDoctor.specialities = specialities;
+    newDoctor.employmentDate = doctor.employmentDate;
 
     await this.doctorRepository.save(newDoctor);
 
@@ -144,7 +196,7 @@ export class DoctorService {
     const set = new Set();
     const d = [];
 
-    for (let i = 0; i < max; ) {
+    for (let i = 0; i < max;) {
       const randomIndex = Math.floor(Math.random() * doctors.length);
       if (!set.has(randomIndex)) {
         set.add(randomIndex);
@@ -352,33 +404,33 @@ export class DoctorService {
     return result;
   }
 
-  async uploadRegistration(id: number, url: string) {
-    const doctorFound = await this.doctorRepository.findOne({
-      where: {
-        id,
-      },
-      relations: ['user'],
-    });
-    if (!doctorFound) {
-      throw new HttpException('Medico no encontrado', HttpStatus.NOT_FOUND);
-    }
+  // async uploadRegistration(id: number, url: string) {
+  //   const doctorFound = await this.doctorRepository.findOne({
+  //     where: {
+  //       id,
+  //     },
+  //     relations: ['user'],
+  //   });
+  //   if (!doctorFound) {
+  //     throw new HttpException('Medico no encontrado', HttpStatus.NOT_FOUND);
+  //   }
 
-    doctorFound.registration = url;
-    return this.doctorRepository.save(doctorFound);
-  }
+  //   doctorFound.registration = url;
+  //   return this.doctorRepository.save(doctorFound);
+  // }
 
-  async uploadTitle(id: number, url: string) {
-    const doctorFound = await this.doctorRepository.findOne({
-      where: {
-        id,
-      },
-      relations: ['user'],
-    });
-    if (!doctorFound) {
-      throw new HttpException('Medico no encontrado', HttpStatus.NOT_FOUND);
-    }
+  // async uploadTitle(id: number, url: string) {
+  //   const doctorFound = await this.doctorRepository.findOne({
+  //     where: {
+  //       id,
+  //     },
+  //     relations: ['user'],
+  //   });
+  //   if (!doctorFound) {
+  //     throw new HttpException('Medico no encontrado', HttpStatus.NOT_FOUND);
+  //   }
 
-    doctorFound.title = url;
-    return this.doctorRepository.save(doctorFound);
-  }
+  //   doctorFound.title = url;
+  //   return this.doctorRepository.save(doctorFound);
+  // }
 }

@@ -17,10 +17,7 @@ import { IoPersonSharp } from "react-icons/io5";
 import Link from "next/link";
 import { Sling as Hamburger } from "hamburger-react";
 import Image from "next/image";
-import {
-  FaAngleRight,
-  FaBell,
-} from "react-icons/fa6";
+import { FaAngleRight, FaBell } from "react-icons/fa6";
 import axios from "axios";
 import { NotificationResponseDto } from "../dto/notification.dto";
 import moment from "moment";
@@ -211,6 +208,8 @@ const Navbar: React.FC<NavbarProps> = (props) => {
                           ? `/admin/users`
                           : n.type === "verificationHi"
                           ? "/profile"
+                          : n.type === "verificationDoc"
+                          ? "/profile"
                           : n.type === "meeting"
                           ? `/meetings/${btoa(
                               n.meeting.userId +
@@ -227,7 +226,7 @@ const Navbar: React.FC<NavbarProps> = (props) => {
                       }}
                     >
                       <MenuItem sx={{ color: "#ffffff" }}>
-                        <div className="text-black">
+                        <div className="text-black w-full">
                           <div className="p-2">
                             <div className="flex justify-between items-center">
                               <div
@@ -236,7 +235,7 @@ const Navbar: React.FC<NavbarProps> = (props) => {
                                 }`}
                               ></div>
 
-                              <div className="mr-2">
+                              <div className="mr-2 w-full">
                                 <div className="flex items-center gap-2">
                                   <p className="p-2 text-lg">
                                     {n.type === "verification" ? (
@@ -270,8 +269,11 @@ const Navbar: React.FC<NavbarProps> = (props) => {
                                       `El usuario ${n.userSend.surname}, ${
                                         n.userSend.name
                                       } acaba de solicitar una reunión para el día ${moment(
-                                        n.meetingStartDatetime
-                                      ).format("LLL")}`
+                                        n.meeting.startDatetime
+                                      ).format("LLL")}
+                                      `
+                                    ) : n.type === "verificationDoc" ? (
+                                      `El administrador ${n.userSend.surname}, ${n.userSend.name} acaba de realizar la verificación su cuenta`
                                     ) : (
                                       ""
                                     )}

@@ -165,6 +165,19 @@ export default function Home(props: Speciality) {
 
     setO(false);
     setVerify(false);
+
+    await axios.post(
+      `${process.env.NEXT_PUBLIC_API_URL}/notification`,
+      {
+        userIdSend: props.auth.id,
+        userIdReceive: user.id,
+        type: "verificationDoc",
+      },
+      {
+        withCredentials: true,
+        headers: { Authorization: `Bearer ${props.auth.token}` },
+      }
+    );
   };
 
   const filterChange = (name: string) => {

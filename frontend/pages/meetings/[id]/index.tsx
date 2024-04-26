@@ -49,6 +49,13 @@ export default function DetailMeeting(props: MeetingI) {
 
   useEffect(() => {
     moment.locale("es");
+    console.log(
+      Date.now() >
+        moment(props.meeting.startDatetime)
+          .subtract(10, "minutes")
+          .toDate()
+          .getTime()
+    );
   }, []);
 
   const handleOnClose = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
@@ -335,42 +342,54 @@ export default function DetailMeeting(props: MeetingI) {
 
               <div className="flex justify-end items-center w-full mb-2">
                 {props.auth.role === "user" ? (
-                  <>
-                    <Link href={`/meetings/${router.query.id}/videocall`}>
-                      <Button
-                        className="bg-green-600 hover:bg-green-800 mr-2"
-                        size="small"
-                        endIcon={<FaPlay />}
-                        disabled={
-                          props.meeting.status !== "Pendiente" &&
-                          props.meeting.status !== "Pagada"
-                        }
-                      >
-                        Unirse
-                      </Button>
-                    </Link>
-                  </>
+                  <Button
+                    className="bg-green-600 hover:bg-green-800 mr-2"
+                    size="small"
+                    endIcon={<FaPlay />}
+                    disabled={
+                      (props.meeting.status !== "Pendiente" &&
+                        props.meeting.status !== "Pagada") ||
+                      !(
+                        Date.now() >
+                        moment(props.meeting.startDatetime)
+                          .subtract(10, "minutes")
+                          .toDate()
+                          .getTime()
+                      )
+                    }
+                    onClick={() =>
+                      router.push(`/meetings/${router.query.id}/videocall`)
+                    }
+                  >
+                    Unirse
+                  </Button>
                 ) : (
-                  <>
-                    <Link href={`/meetings/${router.query.id}/videocall`}>
-                      <Button
-                        className="bg-green-600 hover:bg-green-800 mr-2"
-                        size="small"
-                        endIcon={<FaPlay />}
-                        disabled={
-                          props.meeting.status !== "Pendiente" &&
-                          props.meeting.status !== "Pagada"
-                        }
-                      >
-                        Iniciar reunion
-                      </Button>
-                    </Link>
-                  </>
+                  <Button
+                    className="bg-green-600 hover:bg-green-800 mr-2"
+                    size="small"
+                    endIcon={<FaPlay />}
+                    disabled={
+                      (props.meeting.status !== "Pendiente" &&
+                        props.meeting.status !== "Pagada") ||
+                      !(
+                        Date.now() >
+                        moment(props.meeting.startDatetime)
+                          .subtract(10, "minutes")
+                          .toDate()
+                          .getTime()
+                      )
+                    }
+                    onClick={() =>
+                      router.push(`/meetings/${router.query.id}/videocall`)
+                    }
+                  >
+                    Iniciar reunion
+                  </Button>
                 )}
                 {props.meeting.status === "Pendiente" ||
                 props.meeting.status === "Pagada" ? (
                   <Button
-                    className="mr-2"
+                    className="mr-2 hidden"
                     size="small"
                     sx={{
                       "&.MuiButton-contained": {

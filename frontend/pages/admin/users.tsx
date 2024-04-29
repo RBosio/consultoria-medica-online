@@ -14,6 +14,7 @@ import {
   DialogContentText,
   DialogTitle,
   Fade,
+  IconButton,
   Modal,
   Paper,
   Snackbar,
@@ -25,6 +26,7 @@ import {
   TableRow,
   ToggleButton,
   ToggleButtonGroup,
+  Tooltip,
   Typography,
   useTheme,
 } from "@mui/material";
@@ -396,7 +398,7 @@ export default function Home(props: Speciality) {
                             align="center"
                             sx={{ padding: "1.2rem", fontSize: "1.2rem" }}
                           >
-                            <div className="flex justify-center">
+                            <div className="flex justify-center items-center">
                               <FaCircleInfo
                                 className="text-primary hover:cursor-pointer size-4"
                                 onClick={() => {
@@ -406,6 +408,23 @@ export default function Home(props: Speciality) {
                                   setInfo(true);
                                 }}
                               />
+                              {row?.doctor ? (
+                                row?.doctor.verified ? (
+                                  <Tooltip title="Verificado">
+                                    <IconButton>
+                                      <FaCheck className="text-green-600 size-4" />
+                                    </IconButton>
+                                  </Tooltip>
+                                ) : (
+                                  <Tooltip title="No verificado">
+                                    <IconButton>
+                                      <FaXmark className="text-red-600 size-4" />
+                                    </IconButton>
+                                  </Tooltip>
+                                )
+                              ) : (
+                                ""
+                              )}
                             </div>
                           </TableCell>
                         </TableRow>

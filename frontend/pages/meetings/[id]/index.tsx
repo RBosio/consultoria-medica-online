@@ -298,6 +298,7 @@ export default function DetailMeeting(props: MeetingI) {
                 status={props.meeting.status}
                 motive={props.meeting.motive}
                 tpc={props.meeting.tpc}
+                price={props.meeting.price}
               />
             ) : (
               <UserCard
@@ -308,6 +309,7 @@ export default function DetailMeeting(props: MeetingI) {
                 status={props.meeting.status}
                 motive={props.meeting.motive}
                 tpc={props.meeting.tpc}
+                price={props.meeting.price}
               />
             )}
           </section>

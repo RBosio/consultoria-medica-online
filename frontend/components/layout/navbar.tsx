@@ -124,9 +124,8 @@ const Navbar: React.FC<NavbarProps> = (props) => {
 
   return (
     <section
-      className={`p-4 bg-white w-full shrink-0 h-20 shadow-md flex items-center justify-between ${
-        props.leftElement ? "" : "md:justify-end"
-      } z-10`}
+      className={`p-4 bg-white w-full shrink-0 h-20 shadow-md flex items-center justify-between ${props.leftElement ? "" : "md:justify-end"
+        } z-10`}
     >
       {props.leftElement}
       {props.renderSidebar && (
@@ -201,25 +200,25 @@ const Navbar: React.FC<NavbarProps> = (props) => {
                       href={
                         n.type === "comment"
                           ? `/meetings/${btoa(
-                              n.meeting.userId +
-                                "." +
-                                moment(n.meeting.startDatetime).format(
-                                  "YYYY-MM-DDTHH:mm:ss"
-                                )
-                            )}`
-                          : n.type === "verification hi"
-                          ? `/admin/users`
-                          : n.type === "verificationHi"
-                          ? "/profile"
-                          : n.type === "meeting"
-                          ? `/meetings/${btoa(
-                              n.meeting.userId +
-                                "." +
-                                moment(n.meeting.startDatetime).format(
-                                  "YYYY-MM-DDTHH:mm:ss"
-                                )
-                            )}`
-                          : ""
+                            n.meeting.userId +
+                            "." +
+                            moment(n.meeting.startDatetime).format(
+                              "YYYY-MM-DDTHH:mm:ss"
+                            )
+                          )}`
+                          : n.type === "verificationHiRequest"
+                            ? `/admin/users`
+                            : n.type === "verificationHi"
+                              ? "/profile"
+                              : n.type === "meeting"
+                                ? `/meetings/${btoa(
+                                  n.meeting.userId +
+                                  "." +
+                                  moment(n.meeting.startDatetime).format(
+                                    "YYYY-MM-DDTHH:mm:ss"
+                                  )
+                                )}`
+                                : ""
                       }
                       onClick={() => {
                         markAsRead(n.id);
@@ -231,9 +230,8 @@ const Navbar: React.FC<NavbarProps> = (props) => {
                           <div className="p-2">
                             <div className="flex justify-between items-center">
                               <div
-                                className={`w-2 h-2 rounded-full m-2 ${
-                                  !n.readed ? "bg-primary" : ""
-                                }`}
+                                className={`w-2 h-2 rounded-full m-2 ${!n.readed ? "bg-primary" : ""
+                                  }`}
                               ></div>
 
                               <div className="mr-2">
@@ -256,19 +254,19 @@ const Navbar: React.FC<NavbarProps> = (props) => {
                                           ).format("LLL")}
                                         </span>
                                       </>
-                                    ) : n.type === "verification hi" ? (
-                                      `El ${
-                                        n.userSend.doctor ? "doctor" : "usuario"
-                                      } ${n.userSend.surname}, ${
-                                        n.userSend.name
-                                      } solicitó verificación de la obra social ${
-                                        n.healthInsurance.name
+                                    ) : n.type === "verificationDoctorRequest" ? (
+                                      `El usuario ${n.userSend.name} ${n.userSend.surname} solicitó la verificación de su cuenta médica`
+                                    ) : n.type === "verificationDoctor" ? (
+                                      `El administrador ${n.userSend.name} ${n.userSend.surname} te ha verificado como médico con éxito`
+                                    ) : n.type === "verificationHiRequest" ? (
+                                      `El ${n.userSend.doctor ? "doctor" : "usuario"
+                                      } ${n.userSend.surname}, ${n.userSend.name
+                                      } solicitó verificación de la obra social ${n.healthInsurance.name
                                       }`
                                     ) : n.type === "verificationHi" ? (
                                       `El administrador ${n.userSend.surname}, ${n.userSend.name} acaba de realizar la verificación de la obra social ${n.healthInsurance.name}`
                                     ) : n.type === "meeting" ? (
-                                      `El usuario ${n.userSend.surname}, ${
-                                        n.userSend.name
+                                      `El usuario ${n.userSend.surname}, ${n.userSend.name
                                       } acaba de solicitar una reunión para el día ${moment(
                                         n.meetingStartDatetime
                                       ).format("LLL")}`
@@ -300,9 +298,8 @@ const Navbar: React.FC<NavbarProps> = (props) => {
         </Menu>
         <Tooltip className="hidden md:block" placement="bottom" title="Perfil">
           <IconButton
-            className={`rounded-md hover:bg-primary_light ${
-              menuPosition ? "bg-primary" : ""
-            }`}
+            className={`rounded-md hover:bg-primary_light ${menuPosition ? "bg-primary" : ""
+              }`}
             onClick={handleClick}
             size="small"
           >

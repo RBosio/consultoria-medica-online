@@ -27,7 +27,7 @@ export default function RegisterDoctor(props: any) {
                     {verifiedDoctor ? <Message
                         title="Tu solicitud ha sido enviada correctamente"
                         message={"Los administradores están revisando tu solicitud. Recibirás actualizaciones en breve! "}
-                    /> : <RegisterDoctorForm {...props} setVerifiedDoctor={setVerifiedDoctor}/>
+                    /> : <RegisterDoctorForm {...props} setVerifiedDoctor={setVerifiedDoctor} />
                     }
                 </div>
             </section>
@@ -63,10 +63,23 @@ const RegisterDoctorForm: React.FC<any> = (props) => {
                 formData.append('employmentDate', temp.employmentDate as any);
                 formData.append('specialitiesStr', JSON.stringify(temp.specialities) as any);
 
-                let registerDoctorReq = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/doctor/signup`, formData, {
+                await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/doctor/signup`, formData, {
                     withCredentials: true,
                     headers: { Authorization: `Bearer ${props.auth.token}`, "Content-Type": 'multipart/form-data' },
                 });
+
+                await axios.post(
+                    `${process.env.NEXT_PUBLIC_API_URL}/notification`,
+                    {
+                        userIdSend: props.auth.id,
+                        userIdReceive: props.admin.id,
+                        type: "verificationDoctorRequest",
+                    },
+                    {
+                        withCredentials: true,
+                        headers: { Authorization: `Bearer ${props.auth.token}` },
+                    }
+                );
 
                 props.setVerifiedDoctor(true);
 
@@ -272,11 +285,22 @@ export const getServerSideProps = withAuth(
 
         verifiedDoctor = verifiedDoctor.data;
 
+        let admin = await axios.get(
+            `${process.env.NEXT_PUBLIC_API_URL}/user/admin`,
+            {
+                withCredentials: true,
+                headers: { Authorization: `Bearer ${context.req.cookies.token}` },
+            }
+        );
+
+        admin = admin.data;
+
         return {
             props: {
                 auth,
                 specialities,
                 verifiedDoctor: Boolean(verifiedDoctor),
+                admin,
             },
         };
     },

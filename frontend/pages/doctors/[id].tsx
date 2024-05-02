@@ -66,11 +66,20 @@ export default function Doctor(props: any) {
           router.query.status === "approved" &&
           selected
         ) {
+          let price = null;
+          if (getDiscount()) {
+            price =
+              props.doctor.priceMeeting * (1 - Number(getDiscount().discount));
+          } else {
+            price = props.doctor.priceMeeting;
+          }
+
           await axios.post(
             `${process.env.NEXT_PUBLIC_API_URL}/meeting`,
             {
               startDatetime: selected,
               doctorId: router.query.id,
+              price,
             },
             {
               withCredentials: true,
@@ -148,12 +157,20 @@ export default function Doctor(props: any) {
 
   const onConfirmClick = async () => {
     try {
+      let price = null;
+      if (getDiscount()) {
+        price =
+          props.doctor.priceMeeting * (1 - Number(getDiscount().discount));
+      } else {
+        price = props.doctor.priceMeeting;
+      }
+
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/meeting/create-preference/${router.query.id}`,
         {
           startDatetime: selectedDate,
           doctorId: router.query.id,
-          price: props.doctor.priceMeeting,
+          price,
         },
         {
           withCredentials: true,

@@ -17,10 +17,7 @@ import { IoPersonSharp } from "react-icons/io5";
 import Link from "next/link";
 import { Sling as Hamburger } from "hamburger-react";
 import Image from "next/image";
-import {
-  FaAngleRight,
-  FaBell,
-} from "react-icons/fa6";
+import { FaAngleRight, FaBell } from "react-icons/fa6";
 import axios from "axios";
 import { NotificationResponseDto } from "../dto/notification.dto";
 import moment from "moment";
@@ -124,9 +121,8 @@ const Navbar: React.FC<NavbarProps> = (props) => {
 
   return (
     <section
-      className={`p-4 bg-white w-full shrink-0 h-20 shadow-md flex items-center justify-between ${
-        props.leftElement ? "" : "md:justify-end"
-      } z-10`}
+      className={`p-4 bg-white w-full shrink-0 h-20 shadow-md flex items-center justify-between ${props.leftElement ? "" : "md:justify-end"
+        } z-10`}
     >
       {props.leftElement}
       {props.renderSidebar && (
@@ -211,6 +207,8 @@ const Navbar: React.FC<NavbarProps> = (props) => {
                           ? `/admin/users`
                           : n.type === "verificationHi"
                           ? "/profile"
+                          : n.type === "verificationDoc"
+                          ? "/profile"
                           : n.type === "meeting"
                           ? `/meetings/${btoa(
                               n.meeting.userId +
@@ -227,16 +225,15 @@ const Navbar: React.FC<NavbarProps> = (props) => {
                       }}
                     >
                       <MenuItem sx={{ color: "#ffffff" }}>
-                        <div className="text-black">
+                        <div className="text-black w-full">
                           <div className="p-2">
                             <div className="flex justify-between items-center">
                               <div
-                                className={`w-2 h-2 rounded-full m-2 ${
-                                  !n.readed ? "bg-primary" : ""
-                                }`}
+                                className={`w-2 h-2 rounded-full m-2 ${!n.readed ? "bg-primary" : ""
+                                  }`}
                               ></div>
 
-                              <div className="mr-2">
+                              <div className="mr-2 w-full">
                                 <div className="flex items-center gap-2">
                                   <p className="p-2 text-lg">
                                     {n.type === "verification" ? (
@@ -256,22 +253,25 @@ const Navbar: React.FC<NavbarProps> = (props) => {
                                           ).format("LLL")}
                                         </span>
                                       </>
-                                    ) : n.type === "verification hi" ? (
-                                      `El ${
-                                        n.userSend.doctor ? "doctor" : "usuario"
-                                      } ${n.userSend.surname}, ${
-                                        n.userSend.name
-                                      } solicitó verificación de la obra social ${
-                                        n.healthInsurance.name
+                                    ) : n.type === "verificationDoctorRequest" ? (
+                                      `El usuario ${n.userSend.name} ${n.userSend.surname} solicitó la verificación de su cuenta médica`
+                                    ) : n.type === "verificationDoctor" ? (
+                                      `El administrador ${n.userSend.name} ${n.userSend.surname} te ha verificado como médico con éxito`
+                                    ) : n.type === "verificationHiRequest" ? (
+                                      `El ${n.userSend.doctor ? "doctor" : "usuario"
+                                      } ${n.userSend.surname}, ${n.userSend.name
+                                      } solicitó verificación de la obra social ${n.healthInsurance.name
                                       }`
                                     ) : n.type === "verificationHi" ? (
                                       `El administrador ${n.userSend.surname}, ${n.userSend.name} acaba de realizar la verificación de la obra social ${n.healthInsurance.name}`
                                     ) : n.type === "meeting" ? (
-                                      `El usuario ${n.userSend.surname}, ${
-                                        n.userSend.name
+                                      `El usuario ${n.userSend.surname}, ${n.userSend.name
                                       } acaba de solicitar una reunión para el día ${moment(
-                                        n.meetingStartDatetime
-                                      ).format("LLL")}`
+                                        n.meeting.startDatetime
+                                      ).format("LLL")}
+                                      `
+                                    ) : n.type === "verificationDoc" ? (
+                                      `El administrador ${n.userSend.surname}, ${n.userSend.name} acaba de realizar la verificación su cuenta`
                                     ) : (
                                       ""
                                     )}
@@ -300,9 +300,8 @@ const Navbar: React.FC<NavbarProps> = (props) => {
         </Menu>
         <Tooltip className="hidden md:block" placement="bottom" title="Perfil">
           <IconButton
-            className={`rounded-md hover:bg-primary_light ${
-              menuPosition ? "bg-primary" : ""
-            }`}
+            className={`rounded-md hover:bg-primary_light ${menuPosition ? "bg-primary" : ""
+              }`}
             onClick={handleClick}
             size="small"
           >

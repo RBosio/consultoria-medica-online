@@ -100,16 +100,16 @@ export default function Home(props: any) {
 
   return (
     <Layout auth={props.auth}>
-      <div className="w-[70%] p-4 flex justify-between gap-4">
-        <div className="w-[70%]">
-          <h2 className="text-3xl">
+      <div className="xl:w-[70%] p-4 flex flex-col xl:flex-row justify-between gap-4 mx-auto">
+        <div className="xl:w-[70%]">
+          <h2 className="text-3xl text-center xl:text-left">
             Reuniones de{" "}
             <span className="text-primary font-semibold">
               {props.lastMeetings[0].doctor.user.surname},{" "}
               {props.lastMeetings[0].doctor.user.name}
             </span>
           </h2>
-          <div className="flex justify-between items-center my-4">
+          <div className="flex flex-col xl:flex-row justify-between items-center my-4">
             <div>
               <h3 className="text-primary font-semibold">CBU / CVU</h3>
               <span>2301230210302130213</span>
@@ -258,23 +258,23 @@ export default function Home(props: any) {
           <h2 className="text-3xl font-semibold text-primary text-center">
             Facturación
           </h2>
-          <div>
+          <div className="flex flex-col items-center xl:items-start">
             <h3 className="text-2xl text-primary">Total Recaudado</h3>
             <p className="text-xl">{pesos.format(total)}</p>
           </div>
-          <div>
+          <div className="flex flex-col items-center xl:items-start">
             <h3 className="text-2xl text-primary">% de comisión</h3>
             <p className="text-xl">5%</p>
           </div>
-          <div>
+          <div className="flex flex-col items-center xl:items-start">
             <h3 className="text-2xl text-primary">Ganancia</h3>
             <p className="text-xl">{pesos.format(total * 0.05)}</p>
           </div>
-          <div>
+          <div className="flex flex-col items-center xl:items-start">
             <h3 className="text-2xl text-primary">Total a pagar</h3>
             <p className="text-xl">{pesos.format(total - total * 0.05)}</p>
           </div>
-          <div>
+          <div className="flex flex-col items-center xl:items-start">
             <h3 className="text-2xl text-primary">Estado</h3>
             <p className="text-xl">Pendiente de facturación</p>
             <p className="text-xl">Pagada</p>

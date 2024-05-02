@@ -9,9 +9,16 @@ import moment from "moment";
 import Link from "next/link";
 import { FaChevronLeft, FaChevronRight, FaCircleInfo } from "react-icons/fa6";
 import {
+  Alert,
   Autocomplete,
   Chip,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
   Paper,
+  Snackbar,
   Table,
   TableBody,
   TableCell,
@@ -48,6 +55,11 @@ export default function Home(props: any) {
   const [pages, setPages] = useState<number>(-1);
   const [page, setPage] = useState<number>(-1);
   const [total, setTotal] = useState<number>(0);
+  const [error, setError] = useState<boolean>(false);
+  const [success, setSuccess] = useState<boolean>(false);
+  const [confirm, setConfirm] = useState<boolean>(false);
+  const [message, setMessage] = useState<string>("");
+  const [pay, setPay] = useState<boolean>(false);
 
   const router = useRouter();
 
@@ -122,6 +134,15 @@ export default function Home(props: any) {
         headers: { Authorization: `Bearer ${props.auth.token}` },
       }
     );
+  };
+
+  const onConfirmClick = async () => {
+    await newBilling();
+
+    setMessage("Facturación confirmada con éxito");
+    setSuccess(true);
+    setConfirm(false);
+    setPay(true);
   };
 
   return (
@@ -356,11 +377,64 @@ export default function Home(props: any) {
           </div>
           <div className="flex flex-col items-center xl:items-start">
             <h3 className="text-2xl text-primary">Estado</h3>
-            <p className="text-xl">Pendiente de facturación</p>
-            <p className="text-xl">Pagada</p>
+            {pay ? (
+              <p className="text-xl">Pagada</p>
+            ) : (
+              <p className="text-xl">Pendiente de facturación</p>
+            )}
           </div>
-          <Button onClick={newBilling}>Pagar</Button>
+          <Button disabled={pay} onClick={() => setConfirm(true)}>
+            Pagar
+          </Button>
         </div>
+        <Dialog
+          open={confirm}
+          onClose={() => {
+            setConfirm(false);
+          }}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <DialogTitle id="alert-dialog-title" className="text-center">
+            {confirm ? "Facturación" : ""}
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+              {confirm ? "¿Desea confirmar la facturación?" : ""}
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button
+              color="error"
+              variant="text"
+              onClick={() => {
+                setConfirm(false);
+              }}
+            >
+              Cancelar
+            </Button>
+            <Button onClick={onConfirmClick} autoFocus>
+              Confirmar
+            </Button>
+          </DialogActions>
+        </Dialog>
+        <Snackbar
+          open={error || success}
+          anchorOrigin={{ vertical: "top", horizontal: "center" }}
+          autoHideDuration={4000}
+          onClose={() => {
+            setError(false);
+            setSuccess(false);
+          }}
+        >
+          <Alert
+            elevation={6}
+            variant="filled"
+            severity={error ? "error" : "success"}
+          >
+            {message}
+          </Alert>
+        </Snackbar>
       </div>
     </Layout>
   );

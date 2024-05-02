@@ -14,6 +14,7 @@ import { Schedule } from './schedule.entity';
 import { Speciality } from './speciality.entity';
 import { Meeting } from './meeting.entity';
 import { Plan } from './plan.entity';
+import { Billing } from './billing.entity';
 
 @Entity()
 export class Doctor {
@@ -64,6 +65,9 @@ export class Doctor {
 
   @OneToMany(() => Meeting, (meetings) => meetings.doctor)
   meetings: Meeting[];
+
+  @OneToMany(() => Billing, (billings) => billings.doctor)
+  billings: Billing[];
 
   @OneToMany(() => Schedule, (schedules) => schedules.doctor)
   schedules: Schedule[];

@@ -302,7 +302,7 @@ export default function ProfileView(props: any) {
       {
         userIdSend: props.auth.id,
         userIdReceive: user.data.id,
-        type: "verification hi",
+        type: "verificationHiRequest",
         healthInsuranceId: healthInsuranceVerify,
       },
       {

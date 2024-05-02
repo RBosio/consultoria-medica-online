@@ -21,10 +21,10 @@ export class Doctor {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ nullable: true })
+  @Column()
   registration: string;
 
-  @Column({ nullable: true })
+  @Column()
   title: string;
 
   @Column({ nullable: true })

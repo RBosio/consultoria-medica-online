@@ -7,7 +7,6 @@ import {
   Patch,
   HttpException,
   UseGuards,
-  UseInterceptors,
   Post,
   Req,
   Query,
@@ -19,12 +18,9 @@ import { AuthGuard } from 'src/auth/auth.guard';
 import { RolesGuard } from 'src/auth/roles.guard';
 import { Roles } from 'src/auth/roles.decorator';
 import { RoleEnum } from 'src/enums/role.enum';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { v4 as uuidv4 } from 'uuid';
-import { Request } from 'express';
 import { getDoctorsDto } from './dto/get-doctors.dto';
 import { createDoctorDto } from './dto/create-doctor.dto';
+import { FormDataRequest } from 'nestjs-form-data';
 
 @Controller('doctor')
 @UseGuards(AuthGuard, RolesGuard)
@@ -81,46 +77,47 @@ export class DoctorController {
     return this.doctorService.delete(id);
   }
 
-  @UseInterceptors(
-    FileInterceptor('file', {
-      storage: diskStorage({
-        destination: './public/uploads/doctor/registration',
-        filename: (req, file, cb) => {
-          req.body.url =
-            uuidv4() + '.' + file.originalname.split('.').slice(-1);
-          cb(null, req.body.url);
-        },
-      }),
-    }),
-  )
-  @Post(':id/registration')
-  uploadRegistration(@Param('id') id: number, @Req() request: Request) {
-    const { body } = request;
+  // @UseInterceptors(
+  //   FileInterceptor('file', {
+  //     storage: diskStorage({
+  //       destination: './public/uploads/doctor/registration',
+  //       filename: (req, file, cb) => {
+  //         req.body.url =
+  //           uuidv4() + '.' + file.originalname.split('.').slice(-1);
+  //         cb(null, req.body.url);
+  //       },
+  //     }),
+  //   }),
+  // )
+  // @Post(':id/registration')
+  // uploadRegistration(@Param('id') id: number, @Req() request: Request) {
+  //   const { body } = request;
 
-    return this.doctorService.uploadRegistration(id, body.url);
-  }
+  //   return this.doctorService.uploadRegistration(id, body.url);
+  // }
 
-  @UseInterceptors(
-    FileInterceptor('file', {
-      storage: diskStorage({
-        destination: './public/uploads/doctor/title',
-        filename: (req, file, cb) => {
-          req.body.url =
-            uuidv4() + '.' + file.originalname.split('.').slice(-1);
-          cb(null, req.body.url);
-        },
-      }),
-    }),
-  )
-  @Post(':id/title')
-  uploadTitle(@Param('id') id: number, @Req() request: Request) {
-    const { body } = request;
+  // @UseInterceptors(
+  //   FileInterceptor('file', {
+  //     storage: diskStorage({
+  //       destination: './public/uploads/doctor/title',
+  //       filename: (req, file, cb) => {
+  //         req.body.url =
+  //           uuidv4() + '.' + file.originalname.split('.').slice(-1);
+  //         cb(null, req.body.url);
+  //       },
+  //     }),
+  //   }),
+  // )
+  // @Post(':id/title')
+  // uploadTitle(@Param('id') id: number, @Req() request: Request) {
+  //   const { body } = request;
 
-    return this.doctorService.uploadTitle(id, body.url);
-  }
+  //   return this.doctorService.uploadTitle(id, body.url);
+  // }
 
   @Post('signup')
   @UseGuards(AuthGuard)
+  @FormDataRequest()
   signup(@Req() req, @Body() doctor: createDoctorDto) {
     return this.doctorService.create(req.user.id, doctor);
   }

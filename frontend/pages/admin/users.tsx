@@ -159,12 +159,25 @@ export default function Home(props: Speciality) {
       }
     );
 
+    await axios.post(
+      `${process.env.NEXT_PUBLIC_API_URL}/notification`,
+      {
+        userIdSend: props.auth.id,
+        userIdReceive: user?.id,
+        type: "verificationDoctor",
+      },
+      {
+        withCredentials: true,
+        headers: { Authorization: `Bearer ${props.auth.token}` },
+      }
+    );
+
     setSuccess(true);
     setMessage("Doctor verificado con éxito");
 
-    const user = users.filter((u) => u.doctor?.id === doctorId)[0];
-    user.doctor.verified = true;
-    setUsers(props.users.map((u) => (u.doctor?.id === doctorId ? user : u)));
+    const userAux = users.filter((u) => u.doctor?.id === doctorId)[0];
+    userAux.doctor.verified = true;
+    setUsers(props.users.map((u) => (u.doctor?.id === doctorId ? userAux : u)));
 
     setO(false);
     setVerify(false);
@@ -483,9 +496,8 @@ export default function Home(props: Speciality) {
                       >
                         {user && (
                           <div
-                            className={`mt-4 p-4 mx-auto ${
-                              !user?.doctor && "flex flex-col items-center"
-                            }`}
+                            className={`mt-4 p-4 mx-auto ${!user?.doctor && "flex flex-col items-center"
+                              }`}
                           >
                             <div className="flex flex-col md:flex-row gap-4 md:gap-0 justify-between">
                               <div className="flex flex-col gap-2">
@@ -532,11 +544,10 @@ export default function Home(props: Speciality) {
                                         key={idx}
                                       >
                                         <p
-                                          className={`${
-                                            hi.verified
-                                              ? "text-green-600"
-                                              : "text-red-600"
-                                          }
+                                          className={`${hi.verified
+                                            ? "text-green-600"
+                                            : "text-red-600"
+                                            }
                                   hover:cursor-pointer hover:underline`}
                                           onClick={() => {
                                             if (hi.verified) return;
@@ -603,9 +614,8 @@ export default function Home(props: Speciality) {
                                 </div>
                               </div>
                               <div
-                                className={`${
-                                  user.doctor && "ml-24"
-                                } hidden md:block`}
+                                className={`${user.doctor && "ml-24"
+                                  } hidden md:block`}
                               >
                                 {user?.doctor && (
                                   <div className="flex flex-col gap-2">
@@ -701,18 +711,6 @@ export default function Home(props: Speciality) {
                                 </div>
                               )}
                             </div>
-                            {/* {user?.doctor && (
-                              <div className="w-5/6 mx-auto mt-4">
-                                <div className="flex flex-col md:flex-row items-center md:items-start gap-2">
-                                  <p className="text-primary text-lg">
-                                    Descripcion:
-                                  </p>{" "}
-                                  <p className="line-clamp-6">
-                                    {user.doctor?.description}
-                                  </p>
-                                </div>
-                              </div>
-                            )} */}
                           </div>
                         )}
                       </Typography>
@@ -740,8 +738,8 @@ export default function Home(props: Speciality) {
               {confirm
                 ? "¿Desea validar la obra social?"
                 : verify
-                ? "¿Desea verificar al doctor?"
-                : ""}
+                  ? "¿Desea verificar al doctor?"
+                  : ""}
             </DialogContentText>
           </DialogContent>
           <DialogActions>

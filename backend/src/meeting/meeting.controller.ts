@@ -44,7 +44,7 @@ export class MeetingController {
   }
 
   @Get('doctor/:userId')
-  @Roles(RoleEnum.Doctor)
+  @Roles(RoleEnum.Doctor, RoleEnum.Admin)
   getMeetingsByDoctor(
     @Param('userId', ParseIntPipe) userId: number,
     @Query() query: getMeetingsDto,

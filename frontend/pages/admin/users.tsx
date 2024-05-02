@@ -14,6 +14,7 @@ import {
   DialogContentText,
   DialogTitle,
   Fade,
+  IconButton,
   Modal,
   Paper,
   Snackbar,
@@ -23,12 +24,19 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  ToggleButton,
+  ToggleButtonGroup,
+  Tooltip,
   Typography,
+  useTheme,
 } from "@mui/material";
 import {
+  FaArrowDownShortWide,
+  FaArrowUpWideShort,
   FaChevronLeft,
   FaChevronRight,
   FaCircleInfo,
+  FaUserDoctor,
   FaXmark,
 } from "react-icons/fa6";
 import { FaCheck } from "react-icons/fa";
@@ -38,6 +46,7 @@ import { UserResponseDto } from "@/components/dto/user.dto";
 import { UserHealthInsuranceResponseDto } from "@/components/dto/userHealthInsurance.dto";
 import Link from "next/link";
 import Button from "@/components/button";
+import Input from "@/components/input";
 
 interface Speciality {
   auth: Auth;
@@ -52,13 +61,20 @@ export default function Home(props: Speciality) {
   const [user, setUser] = useState<UserResponseDto | null>();
   const [info, setInfo] = useState<boolean>(false);
   const [users, setUsers] = useState<any[]>([]);
+  const [usersFiltered, setUsersFiltered] = useState<any[]>([]);
   const [page, setPage] = useState<any>();
   const [o, setO] = useState(false);
   const [verify, setVerify] = useState<boolean>(false);
+  const [name, setName] = useState<string>("");
+
+  const theme = useTheme();
+  const router = useRouter();
 
   useEffect(() => {
     setPage(1);
-    setUsers(props.users.filter((sp, idx) => idx >= 10 * 0 && idx < 10));
+    const filter = props.users.filter((sp, idx) => idx >= 10 * 0 && idx < 10);
+    setUsers(filter);
+    setUsersFiltered(filter);
   }, []);
 
   const pagination = (p: number, sp?: SpecialityResponseDto[]) => {
@@ -66,12 +82,14 @@ export default function Home(props: Speciality) {
       if (p === 0 || p === Math.ceil(props.users.length / 10) + 1) return;
 
       setPage(p);
-      setUsers(
+      setUsersFiltered(
         props.users.filter((sp, idx) => idx >= 10 * (p - 1) && idx < 10 * p)
       );
     } else {
       setPage(p);
-      setUsers(sp.filter((s, idx) => idx >= 10 * (p - 1) && idx < 10 * p));
+      setUsersFiltered(
+        sp.filter((s, idx) => idx >= 10 * (p - 1) && idx < 10 * p)
+      );
     }
   };
 
@@ -163,6 +181,46 @@ export default function Home(props: Speciality) {
 
     setO(false);
     setVerify(false);
+
+    await axios.post(
+      `${process.env.NEXT_PUBLIC_API_URL}/notification`,
+      {
+        userIdSend: props.auth.id,
+        userIdReceive: user.id,
+        type: "verificationDoc",
+      },
+      {
+        withCredentials: true,
+        headers: { Authorization: `Bearer ${props.auth.token}` },
+      }
+    );
+  };
+
+  const filterChange = (name: string) => {
+    setPage(1);
+    setUsersFiltered(
+      users.filter((u: UserResponseDto) => u.name.toLowerCase().includes(name))
+    );
+  };
+
+  const [orderDirection, setOrderDirection] = useState("asc");
+  const handleOrderChange = (
+    event: React.MouseEvent<HTMLElement>,
+    nextOrderDirection: string
+  ) => {
+    if (nextOrderDirection !== null) {
+      setName("");
+      setUsersFiltered(
+        users.sort((a, b) => {
+          if (nextOrderDirection === "asc") {
+            return a.name.localeCompare(b.name);
+          } else {
+            return b.name.localeCompare(a.name);
+          }
+        })
+      );
+      setOrderDirection(nextOrderDirection);
+    }
   };
 
   return (
@@ -178,6 +236,39 @@ export default function Home(props: Speciality) {
           </div>
           <div className="bg-white p-4 w-full h-full">
             <section className="w-full rounded-md flex flex-col items-center relative">
+              <div className="flex justify-between items-center gap-4 w-5/6">
+                <Input
+                  name="name"
+                  value={name}
+                  onChange={($e: any) => {
+                    setName($e.target.value.toLowerCase());
+                    filterChange($e.target.value.toLowerCase());
+                  }}
+                  startadornment={
+                    <FaUserDoctor color={theme.palette.primary.main} />
+                  }
+                  className="w-1/2"
+                  label="Nombre"
+                />
+                <ToggleButtonGroup
+                  sx={{
+                    ".MuiButtonBase-root.MuiToggleButton-root.Mui-selected": {
+                      background: theme.palette.primary.light,
+                    },
+                  }}
+                  orientation="vertical"
+                  value={orderDirection}
+                  onChange={handleOrderChange}
+                  exclusive
+                >
+                  <ToggleButton value="asc" aria-label="asc">
+                    <FaArrowUpWideShort />
+                  </ToggleButton>
+                  <ToggleButton value="desc" aria-label="desc">
+                    <FaArrowDownShortWide />
+                  </ToggleButton>
+                </ToggleButtonGroup>
+              </div>
               <div className="w-5/6">
                 {
                   <div className="flex justify-end items-center gap-2 text-primary py-4">
@@ -185,6 +276,7 @@ export default function Home(props: Speciality) {
                       className="text-2xl hover:cursor-pointer"
                       onClick={() => {
                         pagination(page - 1);
+                        setName("");
                       }}
                     />
 
@@ -192,6 +284,7 @@ export default function Home(props: Speciality) {
                       className="text-2xl hover:cursor-pointer"
                       onClick={() => {
                         pagination(page + 1);
+                        setName("");
                       }}
                     />
 
@@ -258,7 +351,7 @@ export default function Home(props: Speciality) {
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {users.map((row) => (
+                      {usersFiltered.map((row) => (
                         <TableRow
                           key={row.id}
                           sx={{
@@ -319,7 +412,7 @@ export default function Home(props: Speciality) {
                             align="center"
                             sx={{ padding: "1.2rem", fontSize: "1.2rem" }}
                           >
-                            <div className="flex justify-center">
+                            <div className="flex justify-center items-center">
                               <FaCircleInfo
                                 className="text-primary hover:cursor-pointer size-4"
                                 onClick={() => {
@@ -329,6 +422,38 @@ export default function Home(props: Speciality) {
                                   setInfo(true);
                                 }}
                               />
+                              {row?.doctor ? (
+                                <>
+                                  {row?.doctor.verified ? (
+                                    <Tooltip title="Verificado">
+                                      <IconButton>
+                                        <FaCheck className="text-green-600 size-4" />
+                                      </IconButton>
+                                    </Tooltip>
+                                  ) : (
+                                    <Tooltip title="No verificado">
+                                      <IconButton>
+                                        <FaXmark className="text-red-600 size-4" />
+                                      </IconButton>
+                                    </Tooltip>
+                                  )}
+                                  <Tooltip
+                                    title="Facturación"
+                                    onClick={() =>
+                                      router.push(`/admin/billing/${row.id}`)
+                                    }
+                                  >
+                                    <IconButton className="p-0">
+                                      <img
+                                        src="/billing.svg"
+                                        className="size-6"
+                                      />
+                                    </IconButton>
+                                  </Tooltip>
+                                </>
+                              ) : (
+                                ""
+                              )}
                             </div>
                           </TableCell>
                         </TableRow>

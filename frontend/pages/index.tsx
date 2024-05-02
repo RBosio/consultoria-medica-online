@@ -463,8 +463,10 @@ export default function Home(props: any) {
                                     `El usuario ${n.userSend.surname}, ${
                                       n.userSend.name
                                     } acaba de solicitar una reunión para el día ${moment(
-                                      n.meetingStartDatetime
+                                      n.meeting.startDatetime
                                     ).format("LLL")}`
+                                  ) : n.type === "verificationDoc" ? (
+                                    `El administrador ${n.userSend.surname}, ${n.userSend.name} acaba de realizar la verificación su cuenta`
                                   ) : (
                                     ""
                                   )}
@@ -495,6 +497,8 @@ export default function Home(props: any) {
                                             n.meeting.startDatetime
                                           ).format("YYYY-MM-DDTHH:mm:ss")
                                       )}`
+                                    : n.type === "verificationDoc"
+                                    ? "/profile"
                                     : ""
                                 }
                                 onClick={() => {
@@ -559,15 +563,21 @@ export const getServerSideProps = withAuth(
 
     lastMeeting = lastMeeting.data;
 
-    let doctors = await axios.get(
-      `${process.env.NEXT_PUBLIC_API_URL}/doctor/premium`,
-      {
-        withCredentials: true,
-        headers: { Authorization: `Bearer ${context.req.cookies.token}` },
-      }
-    );
+    let doctors;
 
-    doctors = doctors.data;
+    try {
+      doctors = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/doctor/premium`,
+        {
+          withCredentials: true,
+          headers: { Authorization: `Bearer ${context.req.cookies.token}` },
+        }
+      );
+
+      doctors = doctors.data;
+    } catch (error) {
+      doctors = [];
+    }
 
     const not = await axios.get(
       `${process.env.NEXT_PUBLIC_API_URL}/notification/${auth?.id}`,

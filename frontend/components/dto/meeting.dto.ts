@@ -10,6 +10,7 @@ export interface MeetingResponseDto {
   tpc: string;
   user: UserResponseDto;
   doctor: DoctorResponseDto;
+  price: number;
   specialities: SpecialityResponseDto[];
   motive?: string;
   cancelDate?: Date;

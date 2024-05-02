@@ -296,18 +296,7 @@ export default function Meeting(props: any) {
   };
 
   return (
-    <Layout
-      navbarLeftElement={
-        <Button
-          onClick={() => router.push("/")}
-          startIcon={<IoMdArrowRoundBack />}
-        >
-          Atrás
-        </Button>
-      }
-      renderSidebar={false}
-      auth={props.auth}
-    >
+    <Layout renderSidebar={false} auth={props.auth}>
       <div className="flex h-full ">
         <div className="w-full flex flex-col relative justify-center items-center xl:p-5">
           <div className="flex flex-col relative">

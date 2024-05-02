@@ -33,6 +33,8 @@ import { BenefitModule } from './benefit/benefit.module';
 import { Notification } from './entities/notification.entity';
 import { NotificationModule } from './notification/notification.module';
 import { UserHealthInsurance } from './entities/userHealthInsurances.entity';
+import { Billing } from './entities/billing.entity';
+import { BillingModule } from './billing/billing.module';
 import { NestjsFormDataModule } from 'nestjs-form-data';
 
 @Module({
@@ -52,7 +54,22 @@ import { NestjsFormDataModule } from 'nestjs-form-data';
         username: configService.get('DB_USERNAME'),
         password: configService.get('DB_PASSWORD'),
         database: configService.get('DB_DATABASE'),
-        entities: [User, Doctor, Schedule, Speciality, Meeting, MedicalRecord, Comment, File, HealthInsurance, Plan, Benefit, Notification, UserHealthInsurance],
+        entities: [
+          User,
+          Doctor,
+          Schedule,
+          Speciality,
+          Meeting,
+          MedicalRecord,
+          Comment,
+          File,
+          HealthInsurance,
+          Plan,
+          Benefit,
+          Notification,
+          UserHealthInsurance,
+          Billing,
+        ],
         synchronize: configService.get('DB_SYNC'),
         dropSchema: configService.get('DB_DROP'),
       }),
@@ -71,6 +88,7 @@ import { NestjsFormDataModule } from 'nestjs-form-data';
     PlanModule,
     BenefitModule,
     NotificationModule,
+    BillingModule,
   ],
   controllers: [AppController],
   providers: [AppService],
@@ -78,33 +96,31 @@ import { NestjsFormDataModule } from 'nestjs-form-data';
 export class AppModule {
   constructor(
     private dataSource: DataSource,
-    private userService: UserService
-    ) {
-      const queryRunner = this.dataSource.createQueryRunner()
-        
-      const queries = readSqlFile('public/defaultData.sql')
-      queries.forEach((query, i) => {
-        if(i < 3) {
-          queryRunner.query(query)
-        }
-      })
-    
-      setTimeout(() => {
-        this.userService.loadUsers()
-        .then(() => {
-          const doctorsQueries = readSqlFile('public/doctors.sql')
-          doctorsQueries.forEach((query, i) => {
-              queryRunner.query(query)
-          })
-          queries.forEach((query, i) => {
-            if(i >= 3) {
-              queryRunner.query(query)
-            }
-          })
-        })
-      }, 1000)
-      
-    }
+    private userService: UserService,
+  ) {
+    const queryRunner = this.dataSource.createQueryRunner();
+
+    const queries = readSqlFile('public/defaultData.sql');
+    queries.forEach((query, i) => {
+      if (i < 3) {
+        queryRunner.query(query);
+      }
+    });
+
+    setTimeout(() => {
+      this.userService.loadUsers().then(() => {
+        const doctorsQueries = readSqlFile('public/doctors.sql');
+        doctorsQueries.forEach((query, i) => {
+          queryRunner.query(query);
+        });
+        queries.forEach((query, i) => {
+          if (i >= 3) {
+            queryRunner.query(query);
+          }
+        });
+      });
+    }, 1000);
+  }
 }
 
 const readSqlFile = (filepath: string): string[] => {

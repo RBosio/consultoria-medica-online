@@ -412,11 +412,28 @@ export default function Home(props: Speciality) {
                               {row?.doctor ? (
                                 <>
                                   {row?.doctor.verified ? (
-                                    <Tooltip title="Verificado">
-                                      <IconButton>
-                                        <FaCheck className="text-green-600 size-4" />
-                                      </IconButton>
-                                    </Tooltip>
+                                    <>
+                                      <Tooltip title="Verificado">
+                                        <IconButton>
+                                          <FaCheck className="text-green-600 size-4" />
+                                        </IconButton>
+                                      </Tooltip>
+                                      <Tooltip
+                                        title="Facturación"
+                                        onClick={() =>
+                                          router.push(
+                                            `/admin/billing/${row.id}`
+                                          )
+                                        }
+                                      >
+                                        <IconButton className="p-0">
+                                          <img
+                                            src="/billing.svg"
+                                            className="size-6"
+                                          />
+                                        </IconButton>
+                                      </Tooltip>
+                                    </>
                                   ) : (
                                     <Tooltip title="No verificado">
                                       <IconButton>
@@ -424,19 +441,6 @@ export default function Home(props: Speciality) {
                                       </IconButton>
                                     </Tooltip>
                                   )}
-                                  <Tooltip
-                                    title="Facturación"
-                                    onClick={() =>
-                                      router.push(`/admin/billing/${row.id}`)
-                                    }
-                                  >
-                                    <IconButton className="p-0">
-                                      <img
-                                        src="/billing.svg"
-                                        className="size-6"
-                                      />
-                                    </IconButton>
-                                  </Tooltip>
                                 </>
                               ) : (
                                 ""

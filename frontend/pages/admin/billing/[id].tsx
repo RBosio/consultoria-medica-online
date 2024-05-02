@@ -43,6 +43,8 @@ export default function Home(props: any) {
   const [meetings, setMeetings] = useState<MeetingResponseDto[]>([]);
   const [pageMeetings, setPageMeetings] = useState<MeetingResponseDto[]>([]);
   const [month, setMonth] = useState<string>("");
+  const [years, setYears] = useState<number[]>([]);
+  const [year, setYear] = useState<number>(0);
   const [pages, setPages] = useState<number>(-1);
   const [page, setPage] = useState<number>(-1);
   const [total, setTotal] = useState<number>(0);
@@ -53,10 +55,19 @@ export default function Home(props: any) {
     const m: MeetingResponseDto[] = props.lastMeetings.filter(
       (meeting: MeetingResponseDto) => {
         return (
-          new Date().getMonth() === new Date(meeting.startDatetime).getMonth()
+          new Date().getMonth() ===
+            new Date(meeting.startDatetime).getMonth() &&
+          new Date().getFullYear() ===
+            new Date(meeting.startDatetime).getFullYear()
         );
       }
     );
+
+    setYears([
+      ...new Set(
+        m.map((meeting) => new Date(meeting.startDatetime).getFullYear())
+      ),
+    ]);
     setMeetings(m);
     setTotal(m.map((m) => +m.price).reduce((acum, value) => acum + value, 0));
 
@@ -67,7 +78,7 @@ export default function Home(props: any) {
 
     setMonth(Months[new Date().getMonth()]);
 
-    setPages(Math.ceil(props.lastMeetings.length / 5));
+    setPages(Math.ceil(m.length / 5));
   }, []);
 
   const paginated = (asc?: boolean) => {
@@ -98,6 +109,21 @@ export default function Home(props: any) {
     m.length === 0 ? setPages(1) : setPages(Math.ceil(m.length / 5));
   };
 
+  const newBilling = async () => {
+    await axios.post(
+      `${process.env.NEXT_PUBLIC_API_URL}/billing`,
+      {
+        month: 1,
+        year: 1,
+        doctorId: props.lastMeetings[0].doctor.id,
+      },
+      {
+        withCredentials: true,
+        headers: { Authorization: `Bearer ${props.auth.token}` },
+      }
+    );
+  };
+
   return (
     <Layout auth={props.auth}>
       <div className="xl:w-[70%] p-4 flex flex-col xl:flex-row justify-between gap-4 mx-auto">
@@ -120,42 +146,96 @@ export default function Home(props: any) {
             </div>
           </div>
           <h3 className="text-xl flex items-center gap-4">
-            <div className="w-1/2">
-              <Autocomplete
-                onChange={(event, newValue: any) => {
-                  if (newValue) {
-                    const { id } = newValue;
-                    const m: MeetingResponseDto[] = props.lastMeetings.filter(
-                      (meeting: MeetingResponseDto) => {
-                        return (
-                          id === new Date(meeting.startDatetime).getMonth()
-                        );
-                      }
-                    );
-                    setMeetings(m);
-                    reset(m);
-                    setMonth(Months[id]);
-                    setTotal(
-                      m
-                        .map((m) => +m.price)
-                        .reduce((acum, value) => acum + value, 0)
-                    );
-                  }
-                }}
-                disablePortal
-                options={Months.map((month: string, idx: number) => ({
-                  id: idx,
-                  label: month,
-                }))}
-                renderInput={(params: any) => (
-                  <Input
-                    onChange={() => {}}
-                    name="monthId"
-                    {...params}
-                    label="Mes"
-                  />
-                )}
-              />
+            <div className="flex gap-24 w-full">
+              <div className="w-1/2">
+                <Autocomplete
+                  onChange={(event, newValue: any) => {
+                    if (newValue) {
+                      const { label } = newValue;
+
+                      const m: MeetingResponseDto[] = meetings.filter(
+                        (meeting: MeetingResponseDto) => {
+                          return (
+                            +label ===
+                            new Date(meeting.startDatetime).getFullYear()
+                          );
+                        }
+                      );
+                      setMeetings(m);
+                      reset(m);
+                      setTotal(
+                        m
+                          .map((m) => +m.price)
+                          .reduce((acum, value) => acum + value, 0)
+                      );
+                      setMonth(Months[new Date().getMonth()]);
+                    }
+                  }}
+                  disablePortal
+                  options={years.map((year: number, idx: number) => ({
+                    id: idx,
+                    label: year.toString(),
+                  }))}
+                  renderInput={(params: any) => (
+                    <Input
+                      onChange={() => {}}
+                      name="year"
+                      {...params}
+                      label="Año"
+                    />
+                  )}
+                />
+              </div>
+              <div className="w-1/2">
+                <Autocomplete
+                  onChange={(event, newValue: any) => {
+                    if (newValue) {
+                      const { id } = newValue;
+                      const m: MeetingResponseDto[] = props.lastMeetings.filter(
+                        (meeting: MeetingResponseDto) => {
+                          return (
+                            id === new Date(meeting.startDatetime).getMonth()
+                          );
+                        }
+                      );
+                      setMeetings(m);
+                      reset(m);
+                      setMonth(Months[id]);
+                      setTotal(
+                        m
+                          .map((m) => +m.price)
+                          .reduce((acum, value) => acum + value, 0)
+                      );
+                    } else {
+                      setMeetings(
+                        props.lastMeetings.filter(
+                          (meeting: MeetingResponseDto) => {
+                            return (
+                              new Date().getMonth() ===
+                                new Date(meeting.startDatetime).getMonth() &&
+                              new Date().getFullYear() ===
+                                new Date(meeting.startDatetime).getFullYear()
+                            );
+                          }
+                        )
+                      );
+                    }
+                  }}
+                  disablePortal
+                  options={Months.map((month: string, idx: number) => ({
+                    id: idx,
+                    label: month,
+                  }))}
+                  renderInput={(params: any) => (
+                    <Input
+                      onChange={() => {}}
+                      name="monthId"
+                      {...params}
+                      label="Mes"
+                    />
+                  )}
+                />
+              </div>
             </div>
           </h3>
           <div>
@@ -279,7 +359,7 @@ export default function Home(props: any) {
             <p className="text-xl">Pendiente de facturación</p>
             <p className="text-xl">Pagada</p>
           </div>
-          <Button>Pagar</Button>
+          <Button onClick={newBilling}>Pagar</Button>
         </div>
       </div>
     </Layout>

@@ -46,7 +46,7 @@ export class MeetingService {
     userId: number,
     query: getMeetingsDto,
   ): Promise<Meeting[]> {
-    const { name, status } = query;
+    const { name, status, specialityId } = query;
 
     let meetingsFound = await this.meetingRepository.find({
       relations: {
@@ -79,6 +79,13 @@ export class MeetingService {
       meetingsFound = meetingsFound.filter(
         (meeting) => meeting.status === status,
       );
+    }
+
+    if (specialityId) {
+      meetingsFound = meetingsFound.filter((meeting) => {
+        const s = meeting.doctor.specialities.map((spe) => spe.id);
+        return s.includes(+specialityId);
+      });
     }
 
     meetingsFound = meetingsFound.map((meeting) => {

@@ -186,7 +186,7 @@ export default function Home(props: Speciality) {
       `${process.env.NEXT_PUBLIC_API_URL}/notification`,
       {
         userIdSend: props.auth.id,
-        userIdReceive: user.id,
+        userIdReceive: user!.id,
         type: "verificationDoc",
       },
       {

@@ -237,6 +237,7 @@ export default function Meetings(props: Meeting) {
                       specialities={meeting.doctor.specialities}
                       auth={props.auth}
                       tpc=""
+                      price={meeting.price}
                     />
                   );
                 }

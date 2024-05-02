@@ -35,6 +35,7 @@ import { NotificationModule } from './notification/notification.module';
 import { UserHealthInsurance } from './entities/userHealthInsurances.entity';
 import { Billing } from './entities/billing.entity';
 import { BillingModule } from './billing/billing.module';
+import { NestjsFormDataModule } from 'nestjs-form-data';
 
 @Module({
   imports: [
@@ -74,6 +75,7 @@ import { BillingModule } from './billing/billing.module';
       }),
       inject: [ConfigService],
     }),
+    NestjsFormDataModule,
     UserModule,
     AuthModule,
     DoctorModule,

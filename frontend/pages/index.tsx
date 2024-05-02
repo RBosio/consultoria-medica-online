@@ -362,7 +362,7 @@ export default function Home(props: any) {
                                         )}
                                       </span>
                                     </>
-                                  ) : n.type === "verification hi" ? (
+                                  ) : n.type === "verificationHiRequest" ? (
                                     `El doctor ${n.userSend.surname}, ${n.userSend.name} solicitó verificación de la obra social ${n.healthInsurance.name}`
                                   ) : n.type === "verificationHi" ? (
                                     `El administrador ${n.userSend.surname}, ${n.userSend.name} acaba de realizar la verificación de la obra social ${n.healthInsurance.name}`
@@ -455,7 +455,7 @@ export default function Home(props: any) {
                                         )}
                                       </span>
                                     </>
-                                  ) : n.type === "verification hi" ? (
+                                  ) : n.type === "verificationHiRequest" ? (
                                     `El doctor ${n.userSend.surname}, ${n.userSend.name} solicitó verificación de la obra social ${n.healthInsurance.name}`
                                   ) : n.type === "verificationHi" ? (
                                     `El administrador ${n.userSend.surname}, ${n.userSend.name} acaba de realizar la verificación de la obra social ${n.healthInsurance.name}`

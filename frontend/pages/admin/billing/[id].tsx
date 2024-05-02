@@ -50,8 +50,9 @@ export default function Home(props: any) {
   const [meetings, setMeetings] = useState<MeetingResponseDto[]>([]);
   const [pageMeetings, setPageMeetings] = useState<MeetingResponseDto[]>([]);
   const [month, setMonth] = useState<string>("");
+  const [monthDay, setMonthDay] = useState<number>(new Date().getMonth() + 1);
   const [years, setYears] = useState<number[]>([]);
-  const [year, setYear] = useState<number>(0);
+  const [year, setYear] = useState<number>(new Date().getFullYear());
   const [pages, setPages] = useState<number>(-1);
   const [page, setPage] = useState<number>(-1);
   const [total, setTotal] = useState<number>(0);
@@ -89,14 +90,35 @@ export default function Home(props: any) {
     }
 
     setMonth(Months[new Date().getMonth()]);
-
+    setMonthDay(new Date().getMonth() + 1);
+    setYear(new Date().getFullYear());
     setPages(Math.ceil(m.length / 5));
+
+    getBilling(m[0]);
   }, []);
+
+  const getBilling = async (m: MeetingResponseDto, month?: number) => {
+    if (!m) return;
+
+    let billing = await axios.get(
+      `${process.env.NEXT_PUBLIC_API_URL}/billing/${m.doctor.id}/${
+        month ? month : monthDay
+      }/${year}`,
+      {
+        withCredentials: true,
+        headers: { Authorization: `Bearer ${props.auth.token}` },
+      }
+    );
+    const b = billing.data;
+
+    if (b) {
+      setPay(true);
+    }
+  };
 
   const paginated = (asc?: boolean) => {
     if (asc) {
       setPage(page + 1);
-      console.log(meetings);
       setPageMeetings(
         meetings.filter((_, idx) => idx < (page + 1) * 5 && idx >= page * 5)
       );
@@ -125,8 +147,8 @@ export default function Home(props: any) {
     await axios.post(
       `${process.env.NEXT_PUBLIC_API_URL}/billing`,
       {
-        month: 1,
-        year: 1,
+        month: monthDay,
+        year,
         doctorId: props.lastMeetings[0].doctor.id,
       },
       {
@@ -172,6 +194,7 @@ export default function Home(props: any) {
                 <Autocomplete
                   onChange={(event, newValue: any) => {
                     if (newValue) {
+                      setPay(false);
                       const { label } = newValue;
 
                       const m: MeetingResponseDto[] = meetings.filter(
@@ -183,6 +206,7 @@ export default function Home(props: any) {
                         }
                       );
                       setMeetings(m);
+                      setYear(+label);
                       reset(m);
                       setTotal(
                         m
@@ -190,6 +214,8 @@ export default function Home(props: any) {
                           .reduce((acum, value) => acum + value, 0)
                       );
                       setMonth(Months[new Date().getMonth()]);
+                      setMonthDay(new Date().getMonth() + 1);
+                      getBilling(m[0]);
                     }
                   }}
                   disablePortal
@@ -211,6 +237,7 @@ export default function Home(props: any) {
                 <Autocomplete
                   onChange={(event, newValue: any) => {
                     if (newValue) {
+                      setPay(false);
                       const { id } = newValue;
                       const m: MeetingResponseDto[] = props.lastMeetings.filter(
                         (meeting: MeetingResponseDto) => {
@@ -222,11 +249,13 @@ export default function Home(props: any) {
                       setMeetings(m);
                       reset(m);
                       setMonth(Months[id]);
+                      setMonthDay(id + 1);
                       setTotal(
                         m
                           .map((m) => +m.price)
                           .reduce((acum, value) => acum + value, 0)
                       );
+                      getBilling(m[0], id + 1);
                     } else {
                       setMeetings(
                         props.lastMeetings.filter(

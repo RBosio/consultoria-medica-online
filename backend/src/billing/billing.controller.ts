@@ -1,4 +1,4 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { RolesGuard } from 'src/auth/roles.guard';
 import { BillingService } from './billing.service';
@@ -10,6 +10,16 @@ import { createBillingDto } from './dto/create-billing.dto';
 @UseGuards(AuthGuard, RolesGuard)
 export class BillingController {
   constructor(private billingService: BillingService) {}
+
+  @Get(':id/:month/:year')
+  @Roles(RoleEnum.Admin)
+  async getBilling(
+    @Param('id') id: string,
+    @Param('month') month: string,
+    @Param('year') year: string,
+  ) {
+    return this.billingService.getBilling(+month, +year, +id);
+  }
 
   @Post()
   @Roles(RoleEnum.Admin)

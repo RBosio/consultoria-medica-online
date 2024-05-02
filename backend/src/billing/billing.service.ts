@@ -12,6 +12,22 @@ export class BillingService {
     private doctorService: DoctorService,
   ) {}
 
+  async getBilling(month: number, year: number, doctorId: number) {
+    const billing = await this.billingRepository.findOne({
+      where: {
+        month,
+        year,
+        doctor: {
+          id: doctorId,
+        },
+      },
+    });
+
+    if (!billing) return;
+
+    return billing;
+  }
+
   async save(createBillingDto: createBillingDto) {
     const billing = this.billingRepository.create(createBillingDto);
 

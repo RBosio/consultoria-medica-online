@@ -351,13 +351,21 @@ export default function DetailMeeting(props: MeetingI) {
                     disabled={
                       (props.meeting.status !== "Pendiente" &&
                         props.meeting.status !== "Pagada") ||
-                      !(
+                      (!(
                         Date.now() >
                         moment(props.meeting.startDatetime)
                           .subtract(10, "minutes")
                           .toDate()
                           .getTime()
-                      )
+                      ) &&
+                        Date.now() <
+                          moment(props.meeting.startDatetime)
+                            .add(
+                              props.meeting.doctor.durationMeeting + 10,
+                              "minutes"
+                            )
+                            .toDate()
+                            .getTime())
                     }
                     onClick={() =>
                       router.push(`/meetings/${router.query.id}/videocall`)
@@ -373,13 +381,21 @@ export default function DetailMeeting(props: MeetingI) {
                     disabled={
                       (props.meeting.status !== "Pendiente" &&
                         props.meeting.status !== "Pagada") ||
-                      !(
+                      (!(
                         Date.now() >
                         moment(props.meeting.startDatetime)
                           .subtract(10, "minutes")
                           .toDate()
                           .getTime()
-                      )
+                      ) &&
+                        Date.now() <
+                          moment(props.meeting.startDatetime)
+                            .add(
+                              props.meeting.doctor.durationMeeting + 10,
+                              "minutes"
+                            )
+                            .toDate()
+                            .getTime())
                     }
                     onClick={() =>
                       router.push(`/meetings/${router.query.id}/videocall`)

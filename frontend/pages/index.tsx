@@ -406,7 +406,10 @@ export default function Home(props: any) {
                 </div>
               ))}
             {props.auth.role === "doctor" &&
-              (!props.doctor.durationMeeting || !props.doctor.priceMeeting ? (
+              (!props.doctor.durationMeeting ||
+              !props.doctor.priceMeeting ||
+              !props.doctor.cbu ||
+              !props.doctor.alias ? (
                 <>
                   <h2 className="text-3xl text-center text-zinc-600">
                     Termine de configurar su perfil

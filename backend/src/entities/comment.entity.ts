@@ -1,35 +1,47 @@
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryColumn, PrimaryGeneratedColumn } from 'typeorm'
-import { Meeting } from './meeting.entity'
-import { User } from './user.entity'
-import { File } from './file.entity'
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  OneToOne,
+  PrimaryColumn,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import { Meeting } from './meeting.entity';
+import { User } from './user.entity';
+import { File } from './file.entity';
 
 @Entity()
 export class Comment {
-    @PrimaryGeneratedColumn()
-    id: number
-    
-    @Column()
-    meetingUserId: number
+  @PrimaryGeneratedColumn()
+  id: number;
 
-    @Column({type: Date, default: () => 'CURRENT_TIMESTAMP'})
-    datetime: Date
+  @Column()
+  meetingUserId: number;
 
-    @Column()
-    meetingStartDatetime: Date
-    
-    @Column()
-    comment: string
-    
-    @Column()
-    userCommentId: number
+  @Column({ type: Date, default: () => 'CURRENT_TIMESTAMP' })
+  datetime: Date;
 
-    @OneToOne(() => File, file => file.comment)
-    files: File[]
-    
-    @ManyToOne(() => Meeting, meeting => meeting.comments, {nullable: false})
-    meeting: Meeting
+  @Column()
+  meetingStartDatetime: Date;
 
-    @ManyToOne(() => User, user => user.comments)
-    @JoinColumn({ name: 'userCommentId' })
-    user: User
+  @Column()
+  comment: string;
+
+  @Column()
+  userCommentId: number;
+
+  @OneToOne(() => File, (file) => file.comment)
+  files: File[];
+
+  @ManyToOne(() => Meeting, (meeting) => meeting.comments, {
+    nullable: false,
+    onUpdate: 'CASCADE',
+  })
+  meeting: Meeting;
+
+  @ManyToOne(() => User, (user) => user.comments)
+  @JoinColumn({ name: 'userCommentId' })
+  user: User;
 }

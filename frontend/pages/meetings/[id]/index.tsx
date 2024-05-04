@@ -2,7 +2,15 @@ import withAuth from "@/lib/withAuth";
 import { Auth } from "@/../shared/types";
 import axios from "axios";
 import Layout from "@/components/layout";
-import { Box, Fab, Fade, Modal, Typography, useTheme } from "@mui/material";
+import {
+  Autocomplete,
+  Box,
+  Fab,
+  Fade,
+  Modal,
+  Typography,
+  useTheme,
+} from "@mui/material";
 import { useRouter } from "next/router";
 import { MeetingResponseDto } from "@/components/dto/meeting.dto";
 import { SpecialityResponseDto } from "@/components/dto/speciality.dto";
@@ -14,6 +22,7 @@ import {
   FaCalendarDays,
   FaCheck,
   FaCircleInfo,
+  FaClock,
   FaPaperPlane,
   FaPaperclip,
   FaPlay,
@@ -26,7 +35,6 @@ import { robotoBold } from "@/lib/fonts";
 import Button from "@/components/button";
 import UserCard from "@/components/userCard";
 import DoctorCard from "@/components/doctorCard";
-import Link from "next/link";
 
 interface MeetingI {
   meeting: MeetingResponseDto;
@@ -49,13 +57,6 @@ export default function DetailMeeting(props: MeetingI) {
 
   useEffect(() => {
     moment.locale("es");
-    console.log(
-      Date.now() >
-        moment(props.meeting.startDatetime)
-          .subtract(10, "minutes")
-          .toDate()
-          .getTime()
-    );
   }, []);
 
   const handleOnClose = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
@@ -344,40 +345,55 @@ export default function DetailMeeting(props: MeetingI) {
 
               <div className="flex justify-end items-center w-full mb-2">
                 {props.auth.role === "user" ? (
-                  <Button
-                    className="bg-green-600 hover:bg-green-800 mr-2"
-                    size="small"
-                    endIcon={<FaPlay />}
-                    disabled={
-                      (props.meeting.status !== "Pendiente" &&
-                        props.meeting.status !== "Pagada") ||
-                      (!(
-                        Date.now() >
-                        moment(props.meeting.startDatetime)
-                          .subtract(10, "minutes")
-                          .toDate()
-                          .getTime()
-                      ) &&
-                        Date.now() <
+                  <div className="m-2">
+                    <Button
+                      className="bg-green-600 hover:bg-green-800 mr-2"
+                      size="small"
+                      startIcon={<FaPlay />}
+                      disabled={
+                        (props.meeting.status !== "Pendiente" &&
+                          props.meeting.status !== "Pagada") ||
+                        (!(
+                          Date.now() >
                           moment(props.meeting.startDatetime)
-                            .add(
-                              props.meeting.doctor.durationMeeting + 10,
-                              "minutes"
-                            )
+                            .subtract(10, "minutes")
                             .toDate()
-                            .getTime())
-                    }
-                    onClick={() =>
-                      router.push(`/meetings/${router.query.id}/videocall`)
-                    }
-                  >
-                    Unirse
-                  </Button>
+                            .getTime()
+                        ) &&
+                          Date.now() <
+                            moment(props.meeting.startDatetime)
+                              .add(
+                                props.meeting.doctor.durationMeeting + 10,
+                                "minutes"
+                              )
+                              .toDate()
+                              .getTime())
+                      }
+                      onClick={() =>
+                        router.push(`/meetings/${router.query.id}/videocall`)
+                      }
+                    >
+                      Unirse
+                    </Button>
+                    <Button
+                      size="small"
+                      startIcon={<FaClock />}
+                      onClick={() => {
+                        localStorage.setItem(
+                          "repr",
+                          JSON.stringify(props.meeting.startDatetime)
+                        );
+                        router.push(`/doctors/${props.meeting.doctor.id}`);
+                      }}
+                    >
+                      Reprogramar
+                    </Button>
+                  </div>
                 ) : (
                   <Button
                     className="bg-green-600 hover:bg-green-800 mr-2"
                     size="small"
-                    endIcon={<FaPlay />}
+                    startIcon={<FaPlay />}
                     disabled={
                       (props.meeting.status !== "Pendiente" &&
                         props.meeting.status !== "Pagada") ||
@@ -416,7 +432,7 @@ export default function DetailMeeting(props: MeetingI) {
                         fontWeight: "bold",
                       },
                     }}
-                    endIcon={<FaXmark />}
+                    startIcon={<FaXmark />}
                     onClick={() => setCancel(true)}
                   >
                     Cancelar
@@ -426,34 +442,6 @@ export default function DetailMeeting(props: MeetingI) {
                 )}
               </div>
             </section>
-            {cancel ? (
-              <section className="mt-4 p-4 w-full md:h-1/3 bg-white rounded-lg">
-                <form
-                  className="h-full flex flex-col justify-center items-center"
-                  onSubmit={() => handleSubmit}
-                >
-                  <Input
-                    id="outlined-multiline-static"
-                    label="Motivo"
-                    multiline
-                    rows={2}
-                    placeholder="Ingrese un motivo"
-                    className="w-[90%]"
-                    onChange={motiveHandleChange}
-                  />
-                  <Button
-                    className="mt-2"
-                    size="small"
-                    endIcon={<FaCheck />}
-                    onClick={motiveHandleClick}
-                  >
-                    Aceptar
-                  </Button>
-                </form>
-              </section>
-            ) : (
-              ""
-            )}
           </section>
           <Fab
             color="primary"

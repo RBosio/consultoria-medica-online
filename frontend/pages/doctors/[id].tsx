@@ -42,6 +42,9 @@ export default function Doctor(props: any) {
   const [mp, setMP] = useState<any>();
   const [paid, setPaid] = useState<boolean>(false);
   const [detail, setDetail] = useState<any>();
+  const [repr, setRepr] = useState<boolean>(false);
+  const [date, setDate] = useState<Date>();
+  const [message, setMessage] = useState<string>();
 
   useEffect(() => {
     moment.locale("es");
@@ -103,6 +106,8 @@ export default function Doctor(props: any) {
     } catch (error) {
       console.log(error);
     }
+    const date: Date = JSON.parse(localStorage.getItem("repr")!);
+    setDate(date);
   }, []);
 
   const showDetail = async (selectedDate: string) => {
@@ -156,32 +161,67 @@ export default function Doctor(props: any) {
   };
 
   const onConfirmClick = async () => {
-    try {
-      let price = null;
-      if (getDiscount()) {
-        price =
-          props.doctor.priceMeeting * (1 - Number(getDiscount().discount));
-      } else {
-        price = props.doctor.priceMeeting;
-      }
-
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/meeting/create-preference/${router.query.id}`,
-        {
-          startDatetime: selectedDate,
-          doctorId: router.query.id,
-          price,
-        },
-        {
-          withCredentials: true,
-          headers: { Authorization: `Bearer ${props.auth.token}` },
+    if (!repr) {
+      try {
+        let price = null;
+        if (getDiscount()) {
+          price =
+            props.doctor.priceMeeting * (1 - Number(getDiscount().discount));
+        } else {
+          price = props.doctor.priceMeeting;
         }
-      );
 
-      const { id } = response.data;
-      setPreferenceId(id);
-    } catch (error) {
-      setMeetingError(true);
+        const response = await axios.post(
+          `${process.env.NEXT_PUBLIC_API_URL}/meeting/create-preference/${router.query.id}`,
+          {
+            startDatetime: selectedDate,
+            doctorId: router.query.id,
+            price,
+          },
+          {
+            withCredentials: true,
+            headers: { Authorization: `Bearer ${props.auth.token}` },
+          }
+        );
+
+        const { id } = response.data;
+        setPreferenceId(id);
+      } catch (error) {
+        setMessage(
+          "Se ha producido un error al crear la reunión, inténtelo nuevamente más tarde"
+        );
+        setMeetingError(true);
+      }
+    } else {
+      try {
+        await axios.patch(
+          `${process.env.NEXT_PUBLIC_API_URL}/meeting/repr/${
+            props.auth.id
+          }/${moment(date).format("YYYY-MM-DDTHH:mm:ss")}`,
+          {
+            startDatetime: selectedDate,
+          },
+          {
+            withCredentials: true,
+            headers: { Authorization: `Bearer ${props.auth.token}` },
+          }
+        );
+
+        router.push(
+          `/meetings/${btoa(
+            props.auth.id +
+              "." +
+              moment(new Date(selectedDate)).format("YYYY-MM-DDTHH:mm:ss")
+          )}`
+        );
+      } catch (error: any) {
+        setMessage(error.response.data.message);
+        setMeetingError(true);
+      } finally {
+        localStorage.removeItem("repr");
+        setRepr(false);
+        setDate(undefined);
+      }
     }
   };
 
@@ -382,13 +422,23 @@ export default function Doctor(props: any) {
                 </div>
                 {props.doctorAvailability.length > 0 ? (
                   <div className="my-6 flex justify-center items-center xl:-0">
-                    <Button
-                      onClick={() => setConfirmTurn(true)}
-                      disabled={!Boolean(selectedDate)}
-                      className="w-40"
-                    >
-                      Aceptar
-                    </Button>
+                    {!date ? (
+                      <Button
+                        onClick={() => setConfirmTurn(true)}
+                        disabled={!Boolean(selectedDate)}
+                        className="w-40"
+                      >
+                        Aceptar
+                      </Button>
+                    ) : (
+                      <Button
+                        onClick={() => setRepr(true)}
+                        disabled={!Boolean(selectedDate)}
+                        className="w-40"
+                      >
+                        Reprogramar
+                      </Button>
+                    )}
                   </div>
                 ) : (
                   <div className="flex flex-col justify-center items-center gap-2 mt-36">
@@ -436,10 +486,11 @@ export default function Doctor(props: any) {
           )}
         </div>
         <Dialog
-          open={confirmTurn}
+          open={confirmTurn || repr}
           onClose={() => {
             setConfirmTurn(false);
             setPreferenceId(undefined);
+            setRepr(false);
           }}
           aria-labelledby="alert-dialog-title"
           aria-describedby="alert-dialog-description"
@@ -448,13 +499,23 @@ export default function Doctor(props: any) {
             className={`${robotoBold.className} text-primary`}
             id="alert-dialog-title"
           >
-            Confirmar turno
+            {confirmTurn
+              ? "Confirmar turno"
+              : repr
+              ? "Reprogramar reunión"
+              : ""}
           </DialogTitle>
           <DialogContent>
             <DialogContentText id="alert-dialog-description">
-              ¿Estás seguro que deseas sacar el turno para el{" "}
-              <b>{getFormattedSelectedDate().day}</b> a las{" "}
-              <b>{getFormattedSelectedDate().time}</b>?
+              {confirmTurn
+                ? `¿Estás seguro que deseas sacar el turno para el
+              <b>${getFormattedSelectedDate().day}</b> a las
+              <b>${getFormattedSelectedDate().time}</b>?`
+                : repr
+                ? `¿Estás seguro que deseas reprogramar la reunión del día ${moment(
+                    date
+                  ).format("LLLL")} al ${moment(selectedDate).format("LLLL")}?`
+                : ""}
             </DialogContentText>
           </DialogContent>
           <DialogActions>
@@ -464,6 +525,7 @@ export default function Doctor(props: any) {
               onClick={() => {
                 setConfirmTurn(false);
                 setPreferenceId(undefined);
+                setRepr(false);
               }}
             >
               Cancelar
@@ -487,8 +549,7 @@ export default function Doctor(props: any) {
           onClose={() => setMeetingError(false)}
         >
           <Alert elevation={6} variant="filled" severity="error">
-            Se ha producido un error al crear la reunión, inténtelo nuevamente
-            más tarde
+            {message}
           </Alert>
         </Snackbar>
       </section>

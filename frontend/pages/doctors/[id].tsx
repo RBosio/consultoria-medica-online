@@ -207,6 +207,21 @@ export default function Doctor(props: any) {
           }
         );
 
+        await axios.post(
+          `${process.env.NEXT_PUBLIC_API_URL}/notification`,
+          {
+            userIdSend: props.auth.id,
+            userIdReceive: props.doctor.user.id,
+            type: "rdatetime",
+            mStartDOld: moment(date).format("YYYY-MM-DDTHH:mm:ss"),
+            mStartDNew: selectedDate,
+          },
+          {
+            withCredentials: true,
+            headers: { Authorization: `Bearer ${props.auth.token}` },
+          }
+        );
+
         router.push(
           `/meetings/${btoa(
             props.auth.id +

@@ -255,7 +255,7 @@ export default function MedicalRecord(props: MedicalRecordI) {
               <FaChevronRight className="text-2xl" />
             </Link>
             <p className="text-md">
-              Pagina {router.query.page ? router.query.page : 1} - {props.pages}
+              Página {router.query.page ? router.query.page : 1} - {props.pages}
             </p>
           </div>
           <TableContainer component={Paper}>
@@ -270,7 +270,7 @@ export default function MedicalRecord(props: MedicalRecordI) {
                       fontSize: "1.2rem",
                     }}
                   >
-                    Medico
+                    Médico
                   </TableCell>
                   <TableCell
                     align="center"

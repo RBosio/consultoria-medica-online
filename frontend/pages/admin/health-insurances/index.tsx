@@ -310,7 +310,7 @@ export default function Home(props: HealthInsurance) {
                   />
 
                   <p className="text-md">
-                    Pagina {page ? page : 1} -{" "}
+                    Página {page ? page : 1} -{" "}
                     {Math.ceil(props.healthInsurances.length / 4)}
                   </p>
                 </div>

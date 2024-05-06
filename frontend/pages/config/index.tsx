@@ -5,17 +5,16 @@ import { Auth } from "../../../shared/types";
 import axios from "axios";
 import Avatar from "@/components/avatar";
 import {
-  FaCertificate,
-  FaCheck,
+  FaBuildingColumns,
   FaCircleCheck,
   FaCircleUp,
   FaCircleXmark,
   FaMoneyBill1Wave,
+  FaMoneyBillTransfer,
   FaPlus,
   FaStopwatch,
   FaSuitcaseMedical,
   FaUserDoctor,
-  FaXmark,
 } from "react-icons/fa6";
 import { robotoBold } from "@/lib/fonts";
 import Button from "@/components/button";
@@ -152,11 +151,13 @@ export default function Config(props: ConfigProps) {
   const [confirmCancelPlan, setConfirmCancelPlan] = useState<boolean>(false);
   const [confirmHealthInsurance, setConfirmHealthInsurance] =
     useState<boolean>(false);
+  const [description, setDescription] = useState<string>("");
 
   useEffect(() => {
     addEventListener("resize", () => {
       setModify(false);
     });
+    setDescription(props.doctor.description);
   }, []);
 
   const updateForm = useFormik({
@@ -164,6 +165,8 @@ export default function Config(props: ConfigProps) {
       durationMeeting: duration,
       priceMeeting: props.doctor.priceMeeting,
       phone: props.doctor.user.phone,
+      cbu: props.doctor.cbu,
+      alias: props.doctor.alias,
     },
     onSubmit: async (values, { setSubmitting }) => {
       if (values.priceMeeting.toString().length > 0) {
@@ -179,7 +182,7 @@ export default function Config(props: ConfigProps) {
 
         await axios.patch(
           `${process.env.NEXT_PUBLIC_API_URL}/doctor/${props.doctor.id}`,
-          values,
+          { ...values, description },
           {
             withCredentials: true,
             headers: { Authorization: `Bearer ${props.auth.token}` },
@@ -385,8 +388,8 @@ export default function Config(props: ConfigProps) {
                   <GoDotFill color={theme.palette.primary.main} />
                 </Divider>
 
-                <div className="w-full p-4 flex flex-col gap-6">
-                  <div className="flex flex-col gap-2">
+                <div className="w-full p-4 flex flex-col gap-4">
+                  <div className="flex flex-col gap-2 items-center">
                     <h2 className="text-primary text-xl text-center">
                       Descripción
                     </h2>
@@ -396,40 +399,60 @@ export default function Config(props: ConfigProps) {
                   </div>
                   <div className="flex flex-col gap-2">
                     <div className="flex flex-col gap-2 items-center">
-                      <div className="flex gap-2 text-primary items-center font-bold">
-                        <FaMoneyBill1Wave size={15} />
-                        <p className="text-secondary">
+                      <div className="flex flex-col items-center">
+                        <h4 className="flex gap-2 text-primary items-center font-bold">
+                          <FaBuildingColumns /> CBU / CVU
+                        </h4>
+                        <p>{props.doctor.cbu}</p>
+                      </div>
+                      <div className="flex flex-col items-center">
+                        <h4 className="flex gap-2 text-primary items-center font-bold">
+                          <FaMoneyBillTransfer /> Alias
+                        </h4>
+                        <p>{props.doctor.alias}</p>
+                      </div>
+                      <div className="flex flex-col items-center">
+                        <h4 className="flex gap-2 text-primary items-center font-bold">
+                          <FaMoneyBill1Wave size={15} /> Precio
+                        </h4>
+                        <p>
                           {props.doctor.priceMeeting
                             ? `${pesos.format(props.doctor.priceMeeting)}`
                             : "-"}
                         </p>
                       </div>
-                      <div className="flex gap-2 text-primary items-center font-bold">
-                        <FaStopwatch size={15} />
-                        <p className="text-secondary">
+                      <div className="flex flex-col items-center">
+                        <h4 className="flex gap-2 text-primary items-center font-bold">
+                          <FaStopwatch size={15} /> Duración
+                        </h4>
+                        <p>
                           {props.doctor.durationMeeting
                             ? `${props.doctor.durationMeeting} minutos`
                             : "-"}
                         </p>
                       </div>
-                      <div className="flex gap-2 items-center font-bold">
+                      <div className="flex gap-2 items-center">
                         <FaSuitcaseMedical className="text-primary" />
                         <div className="px-2">
-                          {props.doctor.user.healthInsurances.map((hi: any) => {
-                            return (
-                              <p
-                                key={hi.healthInsurance.id}
-                                className="flex items-center gap-2"
-                              >
-                                {hi.healthInsurance.name}{" "}
-                                {hi.verified ? (
-                                  <FaCircleCheck className="text-green-600 text-xl" />
-                                ) : (
-                                  <FaCircleXmark className="text-red-600 text-xl" />
-                                )}
-                              </p>
-                            );
-                          })}
+                          {props.doctor.user.healthInsurances.length > 0
+                            ? props.doctor.user.healthInsurances.map(
+                                (hi: any) => {
+                                  return (
+                                    <p
+                                      key={hi.healthInsurance.id}
+                                      className="flex items-center gap-2"
+                                    >
+                                      {hi.healthInsurance.name}{" "}
+                                      {hi.verified ? (
+                                        <FaCircleCheck className="text-green-600 text-xl" />
+                                      ) : (
+                                        <FaCircleXmark className="text-red-600 text-xl" />
+                                      )}
+                                    </p>
+                                  );
+                                }
+                              )
+                            : "-"}
                         </div>
                       </div>
                       <div className="hidden md:block">
@@ -673,7 +696,7 @@ export default function Config(props: ConfigProps) {
                   }}
                 >
                   <div className="flex justify-center">
-                    <div className="md:w-1/3 p-4">
+                    <div className="md:w-1/2 p-4">
                       <h3 className="text-primary text-xl text-center">
                         Reunión
                       </h3>
@@ -706,6 +729,49 @@ export default function Config(props: ConfigProps) {
                               onChange={updateForm.handleChange}
                               onBlur={updateForm.handleBlur}
                               value={updateForm.values.priceMeeting}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                      <div className="my-4">
+                        <h3 className="text-primary text-xl text-center">
+                          Descripción
+                        </h3>
+                        <textarea
+                          onChange={($e) => setDescription($e.target.value)}
+                          rows={4}
+                          className="border border-primary rounded-lg w-full resize-none focus:outline-none p-2"
+                          value={description}
+                        ></textarea>
+                      </div>
+                      <div className="flex flex-col md:flex-row gap-4 md:gap-0 mt-4 md:mt-0 justify-between items-center">
+                        <div>
+                          <h4 className="text-primary text-xl flex justify-center items-center gap-2">
+                            <FaBuildingColumns /> CBU / CVU
+                          </h4>
+                          <div className="flex items-center">
+                            <Input
+                              className="w-28"
+                              type="text"
+                              name="cbu"
+                              onChange={updateForm.handleChange}
+                              onBlur={updateForm.handleBlur}
+                              value={updateForm.values.cbu}
+                            />
+                          </div>
+                        </div>
+                        <div>
+                          <h4 className="text-primary text-xl flex justify-center items-center gap-2">
+                            <FaMoneyBillTransfer /> Alias
+                          </h4>
+                          <div className="flex items-center">
+                            <Input
+                              className="w-28"
+                              type="text"
+                              name="alias"
+                              onChange={updateForm.handleChange}
+                              onBlur={updateForm.handleBlur}
+                              value={updateForm.values.alias}
                             />
                           </div>
                         </div>

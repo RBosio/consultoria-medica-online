@@ -36,11 +36,6 @@ const SidebarAdmin: React.FC<SidebarAdminProps> = (props) => {
         icon: <FaUser />,
       },
       {
-        name: "Beneficios",
-        path: "/admin/benefits",
-        icon: <FaThumbsUp />,
-      },
-      {
         name: "Planes",
         path: "/admin/plans",
         icon: <FaHandshake />,

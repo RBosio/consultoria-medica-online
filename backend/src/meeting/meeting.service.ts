@@ -1,6 +1,13 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Between, In, IsNull, MoreThan, Repository } from 'typeorm';
+import {
+  Between,
+  FindOptionsWhere,
+  In,
+  IsNull,
+  MoreThan,
+  Repository,
+} from 'typeorm';
 import { updateMeetingDto } from './dto/update-meeting.dto';
 import { Meeting } from 'src/entities/meeting.entity';
 import { createMeetingDto } from './dto/create-meeting.dto';
@@ -46,7 +53,7 @@ export class MeetingService {
     userId: number,
     query: getMeetingsDto,
   ): Promise<Meeting[]> {
-    const { name, status } = query;
+    const { name, status, specialityId } = query;
 
     let meetingsFound = await this.meetingRepository.find({
       relations: {
@@ -79,6 +86,13 @@ export class MeetingService {
       meetingsFound = meetingsFound.filter(
         (meeting) => meeting.status === status,
       );
+    }
+
+    if (specialityId) {
+      meetingsFound = meetingsFound.filter((meeting) => {
+        const s = meeting.doctor.specialities.map((spe) => spe.id);
+        return s.includes(+specialityId);
+      });
     }
 
     meetingsFound = meetingsFound.map((meeting) => {
@@ -484,7 +498,7 @@ export class MeetingService {
     return updateMeeting;
   }
 
-  async cancel(userId: number, startDatetime: Date, meeting: updateMeetingDto) {
+  async repr(userId: number, startDatetime: Date, meeting: updateMeetingDto) {
     const meetingFound = await this.meetingRepository.findOne({
       where: {
         userId,
@@ -496,11 +510,22 @@ export class MeetingService {
       throw new HttpException('Reunion no encontrada', HttpStatus.NOT_FOUND);
     }
 
-    meetingFound.status = 'Cancelada';
-    meetingFound.motive = meeting.motive;
-    meetingFound.cancelDate = new Date();
+    if (meetingFound.repr) {
+      throw new HttpException(
+        'La reunion ya fue reprogramada',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
 
-    await this.meetingRepository.save(meetingFound);
+    meetingFound.repr = true;
+    meetingFound.startDatetime = meeting.startDatetime;
+
+    await this.meetingRepository.update(
+      { userId, startDatetime },
+      meetingFound,
+    );
+
+    // await this.meetingRepository.save(meetingFound);
 
     return meetingFound;
   }

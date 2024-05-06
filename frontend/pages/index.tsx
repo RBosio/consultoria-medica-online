@@ -406,7 +406,10 @@ export default function Home(props: any) {
                 </div>
               ))}
             {props.auth.role === "doctor" &&
-              (!props.doctor.durationMeeting || !props.doctor.priceMeeting ? (
+              (!props.doctor.durationMeeting ||
+              !props.doctor.priceMeeting ||
+              !props.doctor.cbu ||
+              !props.doctor.alias ? (
                 <>
                   <h2 className="text-3xl text-center text-zinc-600">
                     Termine de configurar su perfil
@@ -467,6 +470,14 @@ export default function Home(props: any) {
                                     ).format("LLL")}`
                                   ) : n.type === "verificationDoc" ? (
                                     `El administrador ${n.userSend.surname}, ${n.userSend.name} acaba de realizar la verificación su cuenta`
+                                  ) : n.type === "rdatetime" ? (
+                                    `El paciente ${n.userSend.surname}, ${
+                                      n.userSend.name
+                                    } acaba de realizar la modificación de la reunión del día ${moment(
+                                      n.mStartDOld
+                                    ).format("LLLL")} hs para el día ${moment(
+                                      n.mStartDNew
+                                    ).format("LLLL")} hs`
                                   ) : (
                                     ""
                                   )}
@@ -499,6 +510,14 @@ export default function Home(props: any) {
                                       )}`
                                     : n.type === "verificationDoc"
                                     ? "/profile"
+                                    : n.type === "rdatetime"
+                                    ? `/meetings/${btoa(
+                                        n.userIdSend +
+                                          "." +
+                                          moment(n.mStartDNew).format(
+                                            "YYYY-MM-DDTHH:mm:ss"
+                                          )
+                                      )}`
                                     : ""
                                 }
                                 onClick={() => {

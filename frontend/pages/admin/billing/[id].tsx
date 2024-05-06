@@ -92,7 +92,11 @@ export default function Home(props: any) {
     setMonth(Months[new Date().getMonth()]);
     setMonthDay(new Date().getMonth() + 1);
     setYear(new Date().getFullYear());
-    setPages(Math.ceil(m.length / 5));
+    if (m.length === 0) {
+      setPages(1);
+    } else {
+      setPages(Math.ceil(m.length / 5));
+    }
 
     getBilling(m[0]);
   }, []);
@@ -149,7 +153,7 @@ export default function Home(props: any) {
       {
         month: monthDay,
         year,
-        doctorId: props.lastMeetings[0].doctor.id,
+        doctorId: props.lastMeetings[0]?.doctor.id,
       },
       {
         withCredentials: true,
@@ -174,8 +178,8 @@ export default function Home(props: any) {
           <h2 className="text-3xl text-center xl:text-left">
             Reuniones de{" "}
             <span className="text-primary font-semibold">
-              {props.lastMeetings[0].doctor.user.surname},{" "}
-              {props.lastMeetings[0].doctor.user.name}
+              {props.lastMeetings[0]?.doctor.user.surname},{" "}
+              {props.lastMeetings[0]?.doctor.user.name}
             </span>
           </h2>
           <div className="flex flex-col xl:flex-row justify-between items-center my-4">

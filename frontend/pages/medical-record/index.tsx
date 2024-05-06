@@ -51,6 +51,7 @@ export default function MedicalRecord(props: MedicalRecordI) {
   const [datetime, setDatetime] = useState<any>();
   const [file, setFile] = useState<any>();
   const [files, setFiles] = useState<boolean>(false);
+  const [showFiles, setShowFiles] = useState<boolean>(false);
 
   useEffect(() => {
     moment.locale("es");
@@ -308,7 +309,12 @@ export default function MedicalRecord(props: MedicalRecordI) {
                           className="text-xl hover:cursor-pointer hover:opacity-70"
                           onClick={() => {
                             setFile(null);
-                            setFiles(true);
+                            setShowFiles(true);
+                            props.medicalRecords.forEach((mr) => {
+                              if (mr.files.length > 0) {
+                                setFiles(true);
+                              }
+                            });
 
                             setTimeout(() => {
                               const div =
@@ -448,42 +454,46 @@ export default function MedicalRecord(props: MedicalRecordI) {
             ""
           )}
         </div>
-        {files ? (
-          <div className="flex justify-center items-center gap-2 text-xl p-4">
-            {props.medicalRecords.map((mr, idx) => {
-              return (
-                <div key={idx}>
-                  {mr.files[0]?.type.includes("office") ? (
-                    <p
-                      className="text-primary mt-[2px] p-[2px] rounded-sm hover:cursor-pointer hover:opacity-70 underline"
-                      onClick={() =>
-                        handleClick(
-                          mr.files[0].url,
-                          mr.files[0].name,
-                          mr.files[0].type
-                        )
-                      }
-                    >
-                      {mr.files[0]?.name}
-                    </p>
-                  ) : (
-                    <Link
-                      className="flex items-center"
-                      target="_blank"
-                      href={`http://localhost:3000/uploads/medical-record/${mr.files[0]?.url}`}
-                    >
-                      <p className="text-primary mt-[2px] p-[2px] rounded-sm hover:cursor-pointer hover:opacity-70 underline">
+        {showFiles &&
+          (files ? (
+            <div className="flex justify-center items-center gap-2 text-xl p-4">
+              {props.medicalRecords.map((mr, idx) => {
+                return (
+                  <div key={idx}>
+                    {mr.files[0]?.type.includes("office") ? (
+                      <p
+                        className="text-primary mt-[2px] p-[2px] rounded-sm hover:cursor-pointer hover:opacity-70 underline"
+                        onClick={() =>
+                          handleClick(
+                            mr.files[0].url,
+                            mr.files[0].name,
+                            mr.files[0].type
+                          )
+                        }
+                      >
                         {mr.files[0]?.name}
                       </p>
-                    </Link>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        ) : (
-          ""
-        )}
+                    ) : (
+                      <Link
+                        className="flex items-center"
+                        target="_blank"
+                        href={`http://localhost:3000/uploads/medical-record/${mr.files[0]?.url}`}
+                      >
+                        <p className="text-primary mt-[2px] p-[2px] rounded-sm hover:cursor-pointer hover:opacity-70 underline">
+                          {mr.files[0]?.name}
+                        </p>
+                      </Link>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <p className="text-center text-primary font-semibold">
+              Actualmente no se encuentran archivos cargados en las historias
+              clínicas
+            </p>
+          ))}
       </section>
     </Layout>
   );

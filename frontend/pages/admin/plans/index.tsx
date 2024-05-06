@@ -36,6 +36,7 @@ import { PlanResponseDto } from "@/components/dto/plan.dto";
 import { robotoBold } from "@/lib/fonts";
 import { BenefitResponseDto } from "@/components/dto/benefit.dto";
 import { PRIMARY_COLOR } from "@/constants";
+import { FaEdit } from "react-icons/fa";
 
 interface Plan {
   auth: Auth;
@@ -55,34 +56,11 @@ export default function Home(props: Plan) {
   const [update, setUpdate] = useState<boolean>(false);
   const [cancel, setCancel] = useState<boolean>(false);
   const [plan, setPlan] = useState<any>();
+  const [planId, setPlanId] = useState<any>();
   const [planUpdate, setPlanUpdate] = useState<any>();
   const [addBenefits, setAddBenefits] = useState<any>();
   const [benefits, setBenefits] = useState<any>();
   const [checkeds, setCheckeds] = useState<number[]>([]);
-
-  const StyledTableCell = styled(TableCell)(() => ({
-    [`&.${tableCellClasses.head}`]: {
-      backgroundColor: theme.palette.primary.main,
-      color: theme.palette.common.white,
-      fontSize: 18,
-    },
-    [`&.${tableCellClasses.body}`]: {
-      color: theme.palette.common.white,
-      fontSize: 14,
-    },
-  }));
-
-  const StyledTableRow = styled(TableRow)(({ theme }) => ({
-    "&:nth-of-type(odd)": {
-      backgroundColor: theme.palette.secondary.main,
-    },
-    "&:nth-of-type(even)": {
-      backgroundColor: theme.palette.secondary.light,
-    },
-    "&:last-child td, &:last-child th": {
-      border: 0,
-    },
-  }));
 
   const addPlan = useFormik({
     initialValues: {
@@ -120,6 +98,25 @@ export default function Home(props: Plan) {
       price: 0,
     },
     onSubmit: async (values, { setSubmitting }) => {
+      values.id = planId;
+
+      if (!values.price || values.price <= 0) {
+        setMessage("El precio debe ser positivo");
+        setError(true);
+        setUpdate(false);
+        setEdit(false);
+
+        return;
+      }
+
+      if (!values.name || values.name.length === 0) {
+        setMessage("Ingrese el nombre del plan");
+        setError(true);
+        setUpdate(false);
+        setEdit(false);
+
+        return;
+      }
       await axios.patch(
         `${process.env.NEXT_PUBLIC_API_URL}/plan/${values.id}`,
         { name: values.name, price: values.price },
@@ -137,6 +134,7 @@ export default function Home(props: Plan) {
 
       setMessage("Plan editada correctamente!");
       setSuccess(true);
+
       router.push(`/admin/plans`);
     },
   });
@@ -158,10 +156,7 @@ export default function Home(props: Plan) {
   };
 
   const onConfirmClick = () => {
-    if (
-      add &&
-      (addPlan.values.name.length === 0)
-    ) {
+    if (add && addPlan.values.name.length === 0) {
       setError(true);
       setMessage("Por favor, complete todos los campos!");
 
@@ -178,12 +173,13 @@ export default function Home(props: Plan) {
       addPlan.handleSubmit();
     } else if (cancel) {
       deletePlan();
-    } else if (editPlan.values.name.length > 0) {
+    } else if (update) {
       editPlan.handleSubmit();
     } else {
       setConfirm(false);
       setAdd(false);
       setEdit(false);
+      setUpdate(false);
     }
   };
 
@@ -259,7 +255,7 @@ export default function Home(props: Plan) {
           <div className="bg-white p-4 w-full h-full">
             <section className="w-full rounded-md flex flex-col items-center relative">
               <div className="w-5/6">
-                <div className="flex justify-end">
+                <div className="flex justify-end gap-4">
                   <Button
                     startIcon={<FaPlus />}
                     onClick={() => {
@@ -356,6 +352,15 @@ export default function Home(props: Plan) {
                               <FaCircleInfo
                                 className="hover:cursor-pointer hover:opacity-70"
                                 onClick={() => showDetail(row.id)}
+                              />{" "}
+                              <FaEdit
+                                className="hover:cursor-pointer hover:opacity-70"
+                                onClick={() => {
+                                  setEdit(true);
+                                  setAdd(false);
+                                  setPlan(false);
+                                  setPlanId(row.id);
+                                }}
                               />{" "}
                               <FaXmark
                                 onClick={() => {

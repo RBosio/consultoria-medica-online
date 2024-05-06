@@ -261,7 +261,7 @@ VALUES
         'dmsadpo-dmsapod-dsda.pdf',
         60,
         140,
-        1,
+        0,
         '2009-09-18',
         4,
         1,
@@ -450,6 +450,6 @@ INSERT INTO
         specialityId
     )
 VALUES
-(2, 1),
+(1, 1),
 (2, 2),
 (3, 1);

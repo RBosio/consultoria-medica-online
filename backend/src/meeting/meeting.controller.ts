@@ -129,13 +129,13 @@ export class MeetingController {
     return this.meetingService.update(id, startDatetime, meeting);
   }
 
-  @Patch('cancel/:id/:startDatetime')
-  @Roles(RoleEnum.User, RoleEnum.Doctor, RoleEnum.Admin)
+  @Patch('repr/:id/:startDatetime')
+  @Roles(RoleEnum.User, RoleEnum.Admin)
   cancelMeeting(
     @Param('id') id: number,
     @Param('startDatetime') startDatetime: Date,
     @Body() meeting: updateMeetingDto,
   ) {
-    return this.meetingService.cancel(id, startDatetime, meeting);
+    return this.meetingService.repr(id, startDatetime, meeting);
   }
 }

@@ -13,4 +13,6 @@ export interface NotificationResponseDto {
   userSend: UserResponseDto;
   meeting: MeetingResponseDto;
   healthInsurance: HealthInsuranceResponseDto;
+  mStartDOld: Date;
+  mStartDNew: Date;
 }

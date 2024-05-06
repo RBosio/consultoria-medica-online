@@ -1,18 +1,22 @@
-import { IsDateString, IsDefined } from "class-validator"
-import { Speciality } from "src/entities/speciality.entity"
+import { IsDateString, IsDefined, IsOptional } from 'class-validator';
 
 export class createDoctorDto {
-    
-    @IsDefined()
-    registration: any
-   
-    @IsDefined()
-    title: any
+  @IsDefined()
+  registration: any;
 
-    @IsDefined()
-    specialitiesStr: string
+  @IsDefined()
+  title: any;
 
-    @IsDefined()
-    @IsDateString()
-    employmentDate: Date
+  @IsDefined()
+  specialitiesStr: string;
+
+  @IsDefined()
+  @IsDateString()
+  employmentDate: Date;
+
+  @IsOptional()
+  cbu?: string;
+
+  @IsOptional()
+  alias?: string;
 }

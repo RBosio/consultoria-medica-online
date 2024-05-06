@@ -57,6 +57,12 @@ export class Doctor {
   @Column({ nullable: true })
   planSince: Date;
 
+  @Column({ nullable: true })
+  cbu: string;
+
+  @Column({ nullable: true })
+  alias: string;
+
   seniority: number;
 
   @OneToOne(() => User, (user) => user.doctor, { nullable: false })

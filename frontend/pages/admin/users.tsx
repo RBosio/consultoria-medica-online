@@ -157,19 +157,6 @@ export default function Home(props: Speciality) {
       }
     );
 
-    await axios.post(
-      `${process.env.NEXT_PUBLIC_API_URL}/notification`,
-      {
-        userIdSend: props.auth.id,
-        userIdReceive: user?.id,
-        type: "verificationDoctor",
-      },
-      {
-        withCredentials: true,
-        headers: { Authorization: `Bearer ${props.auth.token}` },
-      }
-    );
-
     setSuccess(true);
     setMessage("Doctor verificado con éxito");
 

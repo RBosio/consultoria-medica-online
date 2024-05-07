@@ -521,15 +521,13 @@ export default function Doctor(props: any) {
           </DialogTitle>
           <DialogContent>
             <DialogContentText id="alert-dialog-description">
-              {confirmTurn
-                ? `¿Estás seguro que deseas sacar el turno para el
-              <b>${getFormattedSelectedDate().day}</b> a las
-              <b>${getFormattedSelectedDate().time}</b>?`
-                : repr
-                  ? `¿Estás seguro que deseas reprogramar la reunión del día ${moment(
-                    date
-                  ).format("LLLL")} al ${moment(selectedDate).format("LLLL")}?`
-                  : ""}
+              {confirmTurn ? <>¿Estás seguro que deseas sacar el turno para el
+                <b>{getFormattedSelectedDate().day}</b> a las
+                <b>{getFormattedSelectedDate().time}</b>?</>
+                : repr ? <>¿Estás seguro que deseas reprogramar la reunión del día {moment(
+                  date
+                ).format("LLLL")} al <b>{moment(selectedDate).format("LLLL")}</b>?</> : null
+              }
             </DialogContentText>
           </DialogContent>
           <DialogActions>

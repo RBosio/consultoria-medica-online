@@ -24,18 +24,15 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  ToggleButton,
-  ToggleButtonGroup,
   Tooltip,
   Typography,
   useTheme,
 } from "@mui/material";
 import {
-  FaArrowDownShortWide,
-  FaArrowUpWideShort,
   FaChevronLeft,
   FaChevronRight,
   FaCircleInfo,
+  FaSort,
   FaUserDoctor,
   FaXmark,
 } from "react-icons/fa6";
@@ -66,6 +63,7 @@ export default function Home(props: Speciality) {
   const [o, setO] = useState(false);
   const [verify, setVerify] = useState<boolean>(false);
   const [name, setName] = useState<string>("");
+  const [directionName, setDirectionName] = useState<string>("asc");
 
   const theme = useTheme();
   const router = useRouter();
@@ -73,7 +71,7 @@ export default function Home(props: Speciality) {
   useEffect(() => {
     setPage(1);
     const filter = props.users.filter((sp, idx) => idx >= 10 * 0 && idx < 10);
-    setUsers(filter);
+    setUsers(props.users);
     setUsersFiltered(filter);
   }, []);
 
@@ -199,27 +197,43 @@ export default function Home(props: Speciality) {
   const filterChange = (name: string) => {
     setPage(1);
     setUsersFiltered(
-      users.filter((u: UserResponseDto) => u.name.toLowerCase().includes(name))
+      users.filter((u: UserResponseDto) =>
+        u.name
+          .concat(" " + u.surname)
+          .toLowerCase()
+          .includes(name)
+      )
     );
   };
 
-  const [orderDirection, setOrderDirection] = useState("asc");
-  const handleOrderChange = (
-    event: React.MouseEvent<HTMLElement>,
-    nextOrderDirection: string
-  ) => {
-    if (nextOrderDirection !== null) {
-      setName("");
+  const handleOrderChange = (filter: string) => {
+    setName("");
+    if (filter === "name") {
       setUsersFiltered(
-        users.sort((a, b) => {
-          if (nextOrderDirection === "asc") {
+        usersFiltered.sort((a, b) => {
+          if (directionName === "asc") {
             return a.name.localeCompare(b.name);
           } else {
             return b.name.localeCompare(a.name);
           }
         })
       );
-      setOrderDirection(nextOrderDirection);
+    } else {
+      setUsersFiltered(
+        usersFiltered.sort((a, b) => {
+          if (directionName === "asc") {
+            return a.surname.localeCompare(b.surname);
+          } else {
+            return b.surname.localeCompare(a.surname);
+          }
+        })
+      );
+    }
+
+    if (directionName === "asc") {
+      setDirectionName("desc");
+    } else {
+      setDirectionName("asc");
     }
   };
 
@@ -248,26 +262,8 @@ export default function Home(props: Speciality) {
                     <FaUserDoctor color={theme.palette.primary.main} />
                   }
                   className="w-1/2"
-                  label="Nombre"
+                  label="Paciente"
                 />
-                <ToggleButtonGroup
-                  sx={{
-                    ".MuiButtonBase-root.MuiToggleButton-root.Mui-selected": {
-                      background: theme.palette.primary.light,
-                    },
-                  }}
-                  orientation="vertical"
-                  value={orderDirection}
-                  onChange={handleOrderChange}
-                  exclusive
-                >
-                  <ToggleButton value="asc" aria-label="asc">
-                    <FaArrowUpWideShort />
-                  </ToggleButton>
-                  <ToggleButton value="desc" aria-label="desc">
-                    <FaArrowDownShortWide />
-                  </ToggleButton>
-                </ToggleButtonGroup>
               </div>
               <div className="w-5/6">
                 {
@@ -306,7 +302,13 @@ export default function Home(props: Speciality) {
                             fontSize: "1.2rem",
                           }}
                         >
-                          Nombre
+                          <div className="flex items-center">
+                            <p className="w-3/4">Nombre</p>
+                            <FaSort
+                              className="hover:cursor-pointer"
+                              onClick={() => handleOrderChange("name")}
+                            />
+                          </div>
                         </TableCell>
                         <TableCell
                           align="center"
@@ -316,7 +318,13 @@ export default function Home(props: Speciality) {
                             fontSize: "1.2rem",
                           }}
                         >
-                          Apellido
+                          <div className="flex items-center">
+                            <p className="w-3/4">Apellido</p>
+                            <FaSort
+                              className="hover:cursor-pointer"
+                              onClick={() => handleOrderChange("surname")}
+                            />
+                          </div>
                         </TableCell>
                         <TableCell
                           align="center"

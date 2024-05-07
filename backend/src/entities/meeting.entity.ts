@@ -42,9 +42,6 @@ export class Meeting {
   @Column({ nullable: true })
   motive: string;
 
-  @Column({ nullable: true })
-  cancelDate: Date;
-
   @Column({ default: false })
   repr: boolean;
 

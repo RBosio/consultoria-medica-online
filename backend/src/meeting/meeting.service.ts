@@ -65,7 +65,7 @@ export class MeetingService {
       },
       where: {
         userId,
-        status: In(['Pagada', 'Finalizada', 'Cancelada']),
+        status: In(['Pagada', 'Finalizada']),
       },
       order: {
         status: 'DESC',
@@ -119,7 +119,7 @@ export class MeetingService {
       },
       where: {
         doctorId: doctorFound.id,
-        status: In(['Pagada', 'Finalizada', 'Cancelada']),
+        status: In(['Pagada', 'Finalizada']),
       },
       order: {
         status: 'DESC',
@@ -155,7 +155,7 @@ export class MeetingService {
     let meetingsFound = await this.meetingRepository.find({
       where: {
         userId,
-        status: In(['Pagada', 'Finalizada', 'Cancelada']),
+        status: In(['Pagada', 'Finalizada']),
       },
       relations: ['user', 'doctor', 'medicalRecord'],
     });
@@ -524,8 +524,6 @@ export class MeetingService {
       { userId, startDatetime },
       meetingFound,
     );
-
-    // await this.meetingRepository.save(meetingFound);
 
     return meetingFound;
   }

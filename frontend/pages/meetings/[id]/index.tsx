@@ -351,8 +351,7 @@ export default function DetailMeeting(props: MeetingI) {
                       size="small"
                       startIcon={<FaPlay />}
                       disabled={
-                        (props.meeting.status !== "Pendiente" &&
-                          props.meeting.status !== "Pagada") ||
+                        props.meeting.status !== "Pagada" ||
                         (!(
                           Date.now() >
                           moment(props.meeting.startDatetime)

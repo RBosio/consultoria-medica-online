@@ -7,6 +7,7 @@ import { DoctorModule } from 'src/doctor/doctor.module';
 import { SpecialityModule } from 'src/speciality/speciality.module';
 import { UserModule } from 'src/user/user.module';
 import { ConfigModule } from '@nestjs/config';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { ConfigModule } from '@nestjs/config';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    ScheduleModule.forRoot(),
   ],
   controllers: [MeetingController],
   providers: [MeetingService],

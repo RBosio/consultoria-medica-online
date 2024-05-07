@@ -1,13 +1,6 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import {
-  Between,
-  FindOptionsWhere,
-  In,
-  IsNull,
-  MoreThan,
-  Repository,
-} from 'typeorm';
+import { Between, In, IsNull, LessThan, MoreThan, Repository } from 'typeorm';
 import { updateMeetingDto } from './dto/update-meeting.dto';
 import { Meeting } from 'src/entities/meeting.entity';
 import { createMeetingDto } from './dto/create-meeting.dto';
@@ -25,6 +18,7 @@ import { ConfigService } from '@nestjs/config';
 import { v4 as uuid } from 'uuid';
 import * as moment from 'moment';
 import { PreferenceRequest } from 'mercadopago/dist/clients/preference/commonTypes';
+import { Cron } from '@nestjs/schedule';
 
 export interface RequestT extends Request {
   user: {
@@ -525,8 +519,28 @@ export class MeetingService {
       meetingFound,
     );
 
-    // await this.meetingRepository.save(meetingFound);
-
     return meetingFound;
+  }
+
+  @Cron('*/30 * * * *')
+  async validateMeeting() {
+    const meetings = await this.meetingRepository.find({
+      where: {
+        status: 'Pagada',
+        startDatetime: LessThan(
+          moment(new Date()).subtract(210, 'minutes').toDate(),
+        ),
+      },
+    });
+
+    if (meetings.length === 0) return;
+
+    const m = meetings.map((meeting) => {
+      meeting.status = 'Finalizada';
+
+      return meeting;
+    });
+
+    await this.meetingRepository.save(m);
   }
 }

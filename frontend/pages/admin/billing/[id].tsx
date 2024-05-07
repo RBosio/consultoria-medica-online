@@ -475,6 +475,15 @@ export default function Home(props: any) {
 
 export const getServerSideProps = withAuth(
   async (auth: Auth | null, context: any) => {
+    if (auth!.role !== "admin") {
+      return {
+        redirect: {
+          destination: "/",
+          permanent: false,
+        },
+      };
+    }
+
     let { id } = context.query;
 
     let lastMeetings = await axios.get(

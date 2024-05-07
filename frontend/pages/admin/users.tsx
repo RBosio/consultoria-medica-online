@@ -500,8 +500,9 @@ export default function Home(props: Speciality) {
                       >
                         {user && (
                           <div
-                            className={`mt-4 p-4 mx-auto ${!user?.doctor && "flex flex-col items-center"
-                              }`}
+                            className={`mt-4 p-4 mx-auto ${
+                              !user?.doctor && "flex flex-col items-center"
+                            }`}
                           >
                             <div className="flex flex-col md:flex-row gap-4 md:gap-0 justify-between">
                               <div className="flex flex-col gap-2">
@@ -548,10 +549,11 @@ export default function Home(props: Speciality) {
                                         key={idx}
                                       >
                                         <p
-                                          className={`${hi.verified
-                                            ? "text-green-600"
-                                            : "text-red-600"
-                                            }
+                                          className={`${
+                                            hi.verified
+                                              ? "text-green-600"
+                                              : "text-red-600"
+                                          }
                                   hover:cursor-pointer hover:underline`}
                                           onClick={() => {
                                             if (hi.verified) return;
@@ -618,8 +620,9 @@ export default function Home(props: Speciality) {
                                 </div>
                               </div>
                               <div
-                                className={`${user.doctor && "ml-24"
-                                  } hidden md:block`}
+                                className={`${
+                                  user.doctor && "ml-24"
+                                } hidden md:block`}
                               >
                                 {user?.doctor && (
                                   <div className="flex flex-col gap-2">
@@ -742,8 +745,8 @@ export default function Home(props: Speciality) {
               {confirm
                 ? "¿Desea validar la obra social?"
                 : verify
-                  ? "¿Desea verificar al doctor?"
-                  : ""}
+                ? "¿Desea verificar al doctor?"
+                : ""}
             </DialogContentText>
           </DialogContent>
           <DialogActions>
@@ -786,6 +789,15 @@ export default function Home(props: Speciality) {
 
 export const getServerSideProps = withAuth(
   async (auth: Auth | null, context: any) => {
+    if (auth!.role !== "admin") {
+      return {
+        redirect: {
+          destination: "/",
+          permanent: false,
+        },
+      };
+    }
+
     let users = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/user`, {
       withCredentials: true,
       headers: { Authorization: `Bearer ${context.req.cookies.token}` },

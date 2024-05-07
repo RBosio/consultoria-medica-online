@@ -574,6 +574,15 @@ export default function Doctor(props: any) {
 
 export const getServerSideProps = withAuth(
   async (auth: Auth | null, context: any) => {
+    if (auth!.role === "doctor") {
+      return {
+        redirect: {
+          destination: "/",
+          permanent: false,
+        },
+      };
+    }
+
     let { query } = context;
 
     try {

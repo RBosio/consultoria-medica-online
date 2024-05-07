@@ -14,6 +14,7 @@ export interface DoctorProps {
   id: number;
   rate: number;
   planId?: number;
+  seniority: number;
   specialities: any[];
 }
 
@@ -55,6 +56,9 @@ const Doctor: React.FC<DoctorProps> = (props) => {
         </div>
         <div className="shrink-0 flex flex-col items-center justify-between sm:h-full sm:items-center sm:justify-center gap-4">
           <Rate rate={props.rate} />
+          <p>
+            {props.seniority} años de experiencia
+          </p>
           <Button
             onClick={() => router.push(`${router.pathname}/${props.id}`)}
             size="medium"

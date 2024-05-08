@@ -179,6 +179,15 @@ export default function Home(props: Speciality) {
         headers: { Authorization: `Bearer ${props.auth.token}` },
       }
     );
+
+    await axios.patch(
+      `${process.env.NEXT_PUBLIC_API_URL}/user/clearHI/${user!.id}`,
+      {},
+      {
+        withCredentials: true,
+        headers: { Authorization: `Bearer ${props.auth.token}` },
+      }
+    );
   };
 
   const filterChange = (name: string) => {

@@ -78,6 +78,7 @@ export default function Doctors(props: any) {
                 rate={Number(doctor.avgRate)}
                 id={doctor.id}
                 photo={doctor.user.image}
+                seniority={doctor.seniority}
               />
             ))
           )}
@@ -339,6 +340,15 @@ const Filters: React.FC<FiltersProps> = (props) => {
 
 export const getServerSideProps = withAuth(
   async (auth: Auth | null, context: any) => {
+    if (auth!.role === "doctor") {
+      return {
+        redirect: {
+          destination: "/",
+          permanent: false,
+        },
+      };
+    }
+
     let { query } = context;
 
     try {

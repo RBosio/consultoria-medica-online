@@ -342,7 +342,7 @@ export default function Config(props: ConfigProps) {
     <Layout auth={props.auth}>
       <section className="flex px-8 mt-8">
         <div className="w-full flex flex-col items-center lg:flex-row gap-6 relative">
-          <div className="rounded-md md:w-[calc(100%-15rem)] xl:shadow-md bg-white relative">
+          <div className="rounded-md w-full md:w-[calc(100%-15rem)] xl:shadow-md bg-white relative">
             <Avatar
               labelProps={{ className: "hidden" }}
               name={props.doctor.user.name}
@@ -393,8 +393,13 @@ export default function Config(props: ConfigProps) {
                     <h2 className="text-primary text-xl text-center">
                       Descripción
                     </h2>
-                    <p className="text-justify line-clamp-[8]">
-                      {props.doctor.description}
+                    <p
+                      className={`text-justify line-clamp-[8] ${
+                        !props.doctor.description &&
+                        "text-red-400 font-semibold"
+                      }`}
+                    >
+                      {props.doctor.description || "No posee descripción"}
                     </p>
                   </div>
                   <div className="flex flex-col gap-2">
@@ -403,13 +408,13 @@ export default function Config(props: ConfigProps) {
                         <h4 className="flex gap-2 text-primary items-center font-bold">
                           <FaBuildingColumns /> CBU / CVU
                         </h4>
-                        <p>{props.doctor.cbu}</p>
+                        <p>{props.doctor.cbu || "-"}</p>
                       </div>
                       <div className="flex flex-col items-center">
                         <h4 className="flex gap-2 text-primary items-center font-bold">
                           <FaMoneyBillTransfer /> Alias
                         </h4>
-                        <p>{props.doctor.alias}</p>
+                        <p>{props.doctor.alias || "-"}</p>
                       </div>
                       <div className="flex flex-col items-center">
                         <h4 className="flex gap-2 text-primary items-center font-bold">
@@ -426,13 +431,13 @@ export default function Config(props: ConfigProps) {
                           <FaStopwatch size={15} /> Duración
                         </h4>
                         <p>
-                          {props.doctor.durationMeeting
-                            ? `${props.doctor.durationMeeting} minutos`
-                            : "-"}
+                          {props.doctor.durationMeeting + " duración" || "-"}
                         </p>
                       </div>
-                      <div className="flex gap-2 items-center">
-                        <FaSuitcaseMedical className="text-primary" />
+                      <div className="flex flex-col items-center">
+                        <h4 className="flex gap-2 text-primary items-center font-bold">
+                          <FaSuitcaseMedical size={15} /> Obras sociales
+                        </h4>
                         <div className="px-2">
                           {props.doctor.user.healthInsurances.length > 0
                             ? props.doctor.user.healthInsurances.map(
@@ -444,9 +449,9 @@ export default function Config(props: ConfigProps) {
                                     >
                                       {hi.healthInsurance.name}{" "}
                                       {hi.verified ? (
-                                        <FaCircleCheck className="text-green-600 text-xl" />
+                                        <FaCircleCheck className="text-green-600" />
                                       ) : (
-                                        <FaCircleXmark className="text-red-600 text-xl" />
+                                        <FaCircleXmark className="text-red-600" />
                                       )}
                                     </p>
                                   );
@@ -469,11 +474,11 @@ export default function Config(props: ConfigProps) {
               </div>
             </div>
           </div>
-          <div className="overflow-hidden w-full md:min-w-[70%] py-4">
+          <div className="overflow-hidden w-full md:min-w-[70%] pb-6">
             <div
               className={`flex flex-col md:flex-row md:flex-nowrap items-center transition-all ease-in duration-500 ${
                 modify ? "-translate-x-full" : ""
-              } gap-4`}
+              } gap-6`}
             >
               <div className="bg-white sm:w-1/4 md:min-w-[99%] h-full rounded-md shadow-md p-4 flex flex-col justify-center">
                 <div className="flex flex-col">

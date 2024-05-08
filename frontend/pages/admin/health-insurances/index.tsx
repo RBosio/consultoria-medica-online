@@ -590,6 +590,15 @@ export default function Home(props: HealthInsurance) {
 
 export const getServerSideProps = withAuth(
   async (auth: Auth | null, context: any) => {
+    if (auth!.role !== "admin") {
+      return {
+        redirect: {
+          destination: "/",
+          permanent: false,
+        },
+      };
+    }
+
     let healthInsurances = await axios.get(
       `${process.env.NEXT_PUBLIC_API_URL}/healthInsurance`,
       {

@@ -588,6 +588,15 @@ export default function Home(props: Plan) {
 
 export const getServerSideProps = withAuth(
   async (auth: Auth | null, context: any) => {
+    if (auth!.role !== "admin") {
+      return {
+        redirect: {
+          destination: "/",
+          permanent: false,
+        },
+      };
+    }
+
     let plans = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/plan`, {
       withCredentials: true,
       headers: { Authorization: `Bearer ${context.req.cookies.token}` },

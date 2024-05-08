@@ -515,6 +515,15 @@ export default function Home(props: Speciality) {
 
 export const getServerSideProps = withAuth(
   async (auth: Auth | null, context: any) => {
+    if (auth!.role !== "admin") {
+      return {
+        redirect: {
+          destination: "/",
+          permanent: false,
+        },
+      };
+    }
+
     let specialities = await axios.get(
       `${process.env.NEXT_PUBLIC_API_URL}/speciality`,
       {

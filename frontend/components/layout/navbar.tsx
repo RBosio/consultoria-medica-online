@@ -263,11 +263,6 @@ const Navbar: React.FC<NavbarProps> = (props) => {
                                           ).format("LLL")}
                                         </span>
                                       </>
-                                    ) : n.type ===
-                                      "verificationDoctorRequest" ? (
-                                      `El usuario ${n.userSend.name} ${n.userSend.surname} solicitó la verificación de su cuenta médica`
-                                    ) : n.type === "verificationDoctor" ? (
-                                      `El administrador ${n.userSend.name} ${n.userSend.surname} te ha verificado como médico con éxito`
                                     ) : n.type === "verificationHiRequest" ? (
                                       `El ${
                                         n.userSend.doctor ? "doctor" : "usuario"

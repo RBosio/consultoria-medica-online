@@ -257,7 +257,7 @@ export default function Doctor(props: any) {
   return (
     <Layout auth={props.auth}>
       <section className="flex overflow-y-auto xl:p-8">
-        <div className="flex flex-col xl:flex-row xl:gap-6 xl:mt-[3rem]">
+        <div className="flex flex-col xl:flex-row xl:gap-6 xl:mt-[3rem] w-full">
           <div className="bg-white shrink-0 relative xl:rounded-md xl:shadow-md xl:w-4/12">
             <Avatar
               labelProps={{ className: "hidden xl:hidden" }}
@@ -304,10 +304,15 @@ export default function Doctor(props: any) {
                   <GoDotFill color={theme.palette.primary.main} />
                 </Divider>
                 <div className="p-4 flex flex-col gap-6">
-                  <div className="flex flex-col gap-2">
+                  <div className="flex flex-col items-center gap-2">
                     <h2 className="text-primary text-xl">Descripción</h2>
-                    <p className="line-clamp-[10]">
-                      {props.doctor.description}
+                    <p
+                      className={`text-justify line-clamp-[8] ${
+                        !props.doctor.description &&
+                        "text-red-400 font-semibold"
+                      }`}
+                    >
+                      {props.doctor.description || "No posee descripción"}
                     </p>
                   </div>
                 </div>
@@ -571,6 +576,15 @@ export default function Doctor(props: any) {
 
 export const getServerSideProps = withAuth(
   async (auth: Auth | null, context: any) => {
+    if (auth!.role === "doctor") {
+      return {
+        redirect: {
+          destination: "/",
+          permanent: false,
+        },
+      };
+    }
+
     let { query } = context;
 
     try {

@@ -259,6 +259,20 @@ export class UserService {
     return this.userRepository.save(updateUser);
   }
 
+  async clearHI(id: number) {
+    const entities = await this.userHealthInsuranceRepository.find({
+      where: {
+        user: {
+          id,
+        },
+      },
+    });
+    
+    await this.userHealthInsuranceRepository.remove(entities);
+
+    return 'removed';
+  }
+
   async delete(dni: string) {
     const result = await this.userRepository.delete({ dni });
 

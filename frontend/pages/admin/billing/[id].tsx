@@ -30,6 +30,8 @@ import { PRIMARY_COLOR } from "@/constants";
 import { pesos } from "@/lib/formatCurrency";
 import Button from "@/components/button";
 import Input from "@/components/input";
+import DatePicker from "@/components/dateInput";
+import { Dayjs } from "dayjs";
 
 const Months = [
   "Enero",
@@ -185,119 +187,48 @@ export default function Home(props: any) {
           <div className="flex flex-col xl:flex-row justify-between items-center my-4">
             <div>
               <h3 className="text-primary font-semibold">CBU / CVU</h3>
-              <span>2301230210302130213</span>
+              <span>{props.lastMeetings[0]?.doctor.cbu || "-"}</span>
             </div>
             <div>
               <h3 className="text-primary font-semibold">Alias</h3>
-              <span>GATO.PERRO.LORO</span>
+              <span>{props.lastMeetings[0]?.doctor.alias || "-"}</span>
             </div>
           </div>
           <h3 className="text-xl flex items-center gap-4">
             <div className="flex gap-24 w-full">
-              <div className="w-1/2">
-                <Autocomplete
-                  onChange={(event, newValue: any) => {
-                    if (newValue) {
-                      setPay(false);
-                      const { label } = newValue;
+              <DatePicker
+                label="Fecha de las reuniones"
+                name="meetingsDate"
+                views={["year", "month"]}
+                onChange={(date: any) => {
+                  const m: MeetingResponseDto[] = props.lastMeetings.filter(
+                    (meeting: MeetingResponseDto) => {
+                      return (
+                        new Date(date.$d).getFullYear() ===
+                          new Date(meeting.startDatetime).getFullYear() &&
+                        new Date(date.$d).getMonth() ===
+                          new Date(meeting.startDatetime).getMonth()
+                      );
+                    }
+                  );
+                  setMeetings(m);
+                  setYear(new Date(date.$d).getFullYear());
 
-                      const m: MeetingResponseDto[] = meetings.filter(
-                        (meeting: MeetingResponseDto) => {
-                          return (
-                            +label ===
-                            new Date(meeting.startDatetime).getFullYear()
-                          );
-                        }
-                      );
-                      setMeetings(m);
-                      setYear(+label);
-                      reset(m);
-                      setTotal(
-                        m
-                          .map((m) => +m.price)
-                          .reduce((acum, value) => acum + value, 0)
-                      );
-                      setMonth(Months[new Date().getMonth()]);
-                      setMonthDay(new Date().getMonth() + 1);
-                      getBilling(m[0]);
-                    }
-                  }}
-                  disablePortal
-                  options={years.map((year: number, idx: number) => ({
-                    id: idx,
-                    label: year.toString(),
-                  }))}
-                  renderInput={(params: any) => (
-                    <Input
-                      onChange={() => {}}
-                      name="year"
-                      {...params}
-                      label="Año"
-                    />
-                  )}
-                />
-              </div>
-              <div className="w-1/2">
-                <Autocomplete
-                  onChange={(event, newValue: any) => {
-                    if (newValue) {
-                      setPay(false);
-                      const { id } = newValue;
-                      const m: MeetingResponseDto[] = props.lastMeetings.filter(
-                        (meeting: MeetingResponseDto) => {
-                          return (
-                            id === new Date(meeting.startDatetime).getMonth()
-                          );
-                        }
-                      );
-                      setMeetings(m);
-                      reset(m);
-                      setMonth(Months[id]);
-                      setMonthDay(id + 1);
-                      setTotal(
-                        m
-                          .map((m) => +m.price)
-                          .reduce((acum, value) => acum + value, 0)
-                      );
-                      getBilling(m[0], id + 1);
-                    } else {
-                      setMeetings(
-                        props.lastMeetings.filter(
-                          (meeting: MeetingResponseDto) => {
-                            return (
-                              new Date().getMonth() ===
-                                new Date(meeting.startDatetime).getMonth() &&
-                              new Date().getFullYear() ===
-                                new Date(meeting.startDatetime).getFullYear()
-                            );
-                          }
-                        )
-                      );
-                    }
-                  }}
-                  disablePortal
-                  options={Months.map((month: string, idx: number) => ({
-                    id: idx,
-                    label: month,
-                  }))}
-                  renderInput={(params: any) => (
-                    <Input
-                      onChange={() => {}}
-                      name="monthId"
-                      {...params}
-                      label="Mes"
-                    />
-                  )}
-                />
-              </div>
+                  reset(m);
+                  setTotal(
+                    m
+                      .map((m) => +m.price)
+                      .reduce((acum, value) => acum + value, 0)
+                  );
+                  setMonth(Months[new Date().getMonth()]);
+                  setMonthDay(new Date().getMonth() + 1);
+                  getBilling(m[0]);
+                }}
+              />
             </div>
           </h3>
           <div>
             <div className="flex justify-between items-center">
-              <div className="flex gap-2">
-                <h3 className="text-xl text-primary font-semibold">Mes:</h3>
-                <span className="text-xl">{month}</span>
-              </div>
               <div className="flex justify-end items-center gap-2 text-primary py-4">
                 <FaChevronLeft
                   className="text-2xl hover:cursor-pointer"
@@ -386,6 +317,11 @@ export default function Home(props: any) {
                 </TableBody>
               </Table>
             </TableContainer>
+            {pageMeetings.length === 0 && (
+              <div className="flex justify-center mt-4">
+                <p>No se encontraron pagos realizados en este mes</p>
+              </div>
+            )}
           </div>
         </div>
         <div className="bg-white rounded-lg p-4 flex flex-col gap-4">
@@ -416,7 +352,10 @@ export default function Home(props: any) {
               <p className="text-xl">Pendiente de facturación</p>
             )}
           </div>
-          <Button disabled={pay} onClick={() => setConfirm(true)}>
+          <Button
+            disabled={pay || pageMeetings.length === 0}
+            onClick={() => setConfirm(true)}
+          >
             Pagar
           </Button>
         </div>

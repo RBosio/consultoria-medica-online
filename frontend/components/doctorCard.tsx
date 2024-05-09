@@ -34,7 +34,7 @@ const DoctorCard: React.FC<MeetingResponseDto> = (props) => {
           </>
         )}
       </div>
-      <div className="w-full flex flex-col justify-center items-center">
+      <div className="w-full flex flex-col justify-center items-center h-full">
         <h2
           className={`${robotoBold.className} text-lg sm:text-2xl text-primary text-center mt-2`}
         >
@@ -55,32 +55,16 @@ const DoctorCard: React.FC<MeetingResponseDto> = (props) => {
           })}
         </div>
         <div className="w-3/4 h-2 border-t-2 border-emerald-200"></div>
-        <Rate rate={props.doctor.avgRate} num={"n"} />
+        <Rate rate={props.doctor.avgRate} />
         {props.doctor.description ? (
-            <p className="text-sm sm:text-base mx-4 sm:mx-6 mt-1 sm:mt-2 sm:mb-6 text-justify line-clamp-6 sm:line-clamp-5">
-              {props.doctor.description}
-            </p>
+          <p className="text-sm sm:text-base m-4 text-justify line-clamp-6 sm:line-clamp-5">
+            {props.doctor.description}
+          </p>
         ) : (
-          ""
+          <div className="h-full flex items-center text-center">
+            El profesional no posee descripción actualmente
+          </div>
         )}
-        <div className="flex flex-col items-center mb-2 mt-2">
-          <div className="flex items-center">
-            <FaEnvelope className="text-primary" />
-            <p className="text-sm sm:text-base px-1 sm:px-2">{props.doctor.user.email}</p>
-          </div>
-          <div className="flex items-center">
-            <FaPhone className="text-primary" />
-            <p className="text-sm sm:text-base px-1  sm:px-2">{props.doctor.user.phone}</p>
-          </div>
-          <div className="flex items-center">
-            <FaSuitcaseMedical className="text-primary" />
-            <div className="px-2">{props.doctor.user.healthInsurances.map((hi: any) => {
-              return (
-                <p key={hi.healthInsurance.id} className="flex items-center gap-2">{hi.healthInsurance.name} {hi.verified ? <FaCircleCheck className="text-green-600 text-xl"/> : <FaCircleXmark className="text-red-600 text-xl" />}</p>
-              )
-              })}</div>
-          </div>
-        </div>
       </div>
     </div>
   );

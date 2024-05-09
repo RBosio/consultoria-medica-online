@@ -87,7 +87,7 @@ export default function MedicalRecord(props: MedicalRecordI) {
 
       setDetail("");
       setObservations("");
-      router.push(`/medical-record/${router.query.userId}`);
+      router.push(`/meetings/medical-record/${router.query.userId}`);
     } else {
       setError(true);
       setMessage("Por favor, complete el detalle y la reunión");
@@ -127,7 +127,7 @@ export default function MedicalRecord(props: MedicalRecordI) {
     }
 
     setFile(null);
-    router.push(`/medical-record/${router.query.userId}`);
+    router.push(`/meetings/medical-record/${router.query.userId}`);
   };
 
   async function handleClick(url: string, name: string, type: string) {
@@ -151,9 +151,8 @@ export default function MedicalRecord(props: MedicalRecordI) {
     <Layout auth={props.auth}>
       <section className="bg-white w-5/6 mx-auto">
         <div
-          className={`flex flex-col md:flex-row ${
-            props.auth.role === "doctor" ? "justify-between" : "justify-center"
-          } items-center px-8 pt-8`}
+          className={`flex flex-col md:flex-row ${props.auth.role === "doctor" ? "justify-between" : "justify-center"
+            } items-center px-8 pt-8`}
         >
           <div className="flex flex-col md:flex-row items-center">
             {props.user.image ? (
@@ -256,20 +255,18 @@ export default function MedicalRecord(props: MedicalRecordI) {
         <div className="mx-8 mt-8 pb-4">
           <div className="flex justify-end items-center gap-2 text-primary py-4">
             <Link
-              href={`/medical-record/${router.query.userId}?page=${
-                router.query.page && Number(router.query.page) > 1
+              href={`/meetings/medical-record/${router.query.userId}?page=${router.query.page && Number(router.query.page) > 1
                   ? Number(router.query.page) - 1
                   : 1
-              }`}
+                }`}
             >
               <FaChevronLeft className="text-2xl" />
             </Link>
             <Link
-              href={`/medical-record/${router.query.userId}?page=${
-                router.query.page && Number(router.query.page) < props.pages
+              href={`/meetings/medical-record/${router.query.userId}?page=${router.query.page && Number(router.query.page) < props.pages
                   ? Number(router.query.page) + 1
                   : props.pages
-              }`}
+                }`}
             >
               <FaChevronRight className="text-2xl" />
             </Link>
@@ -403,7 +400,7 @@ export default function MedicalRecord(props: MedicalRecordI) {
                         {row.detail}
                         <div className="flex gap-2">
                           {row.files.length > 0 ||
-                          props.auth.role !== "doctor" ? (
+                            props.auth.role !== "doctor" ? (
                             ""
                           ) : (
                             <FaPaperclip

@@ -104,7 +104,7 @@ const UserCard: React.FC<MeetingResponseDto> = (props) => {
         <div className="w-3/4 h-2 border-b-2 border-emerald-200"></div>
       </div>
       <div className="h-full flex justify-center items-end my-4">
-        <Link href={`/medical-record/${props.user.id}`}>
+        <Link href={`/meetings/medical-record/${props.user.id}`}>
           <Button className="w-full">Historia clinica</Button>
         </Link>
       </div>

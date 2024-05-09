@@ -311,7 +311,7 @@ export default function Doctor(props: any) {
                         "text-red-400 font-semibold"
                         }`}
                     >
-                      {props.doctor.description || "No posee descripción"}
+                      {props.doctor.description || "El profesional no posee descripción"}
                     </p>
                   </div>
                 </div>

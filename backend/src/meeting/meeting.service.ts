@@ -35,7 +35,7 @@ export class MeetingService {
     private userService: UserService,
     private doctorService: DoctorService,
     private configService: ConfigService,
-  ) {}
+  ) { }
 
   async findAll(): Promise<Meeting[]> {
     return this.meetingRepository.find({
@@ -501,15 +501,12 @@ export class MeetingService {
     });
 
     if (!meetingFound) {
-      throw new HttpException('Reunion no encontrada', HttpStatus.NOT_FOUND);
+      throw new HttpException('Reunión no encontrada', HttpStatus.NOT_FOUND);
     }
 
-    if (meetingFound.repr) {
-      throw new HttpException(
-        'La reunion ya fue reprogramada',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
+    if (meetingFound.status === 'Finalizada') throw new HttpException('La reunión ya ha sido finalizada y no se puede reprogramar', HttpStatus.BAD_REQUEST);
+
+    if (meetingFound.repr) throw new HttpException('La reunión ya fue reprogramada', HttpStatus.BAD_REQUEST);
 
     meetingFound.repr = true;
     meetingFound.startDatetime = meeting.startDatetime;

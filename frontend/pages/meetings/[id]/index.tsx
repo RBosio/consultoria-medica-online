@@ -283,7 +283,7 @@ export default function DetailMeeting(props: MeetingI) {
                     >
                       Unirse
                     </Button>
-                    <Button
+                    {props.meeting.status === "Pagada" && <Button
                       size="small"
                       startIcon={<FaClock />}
                       onClick={() => {
@@ -295,7 +295,7 @@ export default function DetailMeeting(props: MeetingI) {
                       }}
                     >
                       Reprogramar
-                    </Button>
+                    </Button>}
                   </div>
                 ) : (
                   <Button

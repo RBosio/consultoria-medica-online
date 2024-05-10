@@ -284,7 +284,7 @@ export default function DetailMeeting(props: MeetingI) {
             </Box>
           </Fade>
         </Modal>
-        <main className="flex flex-col md:flex-row flex-wrap sm:flex-nowrap justify-between gap-1 sm:gap-4 m-4">
+        <main className="flex flex-col md:flex-row flex-wrap sm:flex-nowrap justify-between gap-1 sm:gap-4 m-4 h-[600px]">
           <section
             className={`${
               cancel ? "mt-[22rem]" : "mt-48"
@@ -459,7 +459,7 @@ export default function DetailMeeting(props: MeetingI) {
             ${
               openedChat
                 ? "fixed z-50 inset-0 backdrop-blur-sm bg-black bg-opacity-30"
-                : "w-[100%] sm:w-[40%] bg-white rounded-lg mt-5 sm:mt-0 hidden md:inline "
+                : "w-[100%] sm:w-[40%] bg-white rounded-lg mt-5 sm:mt-0 hidden md:inline"
             }
               `}
           >

@@ -256,7 +256,7 @@ export default function MedicalRecord(props: MedicalRecordI) {
               <FaChevronRight className="text-2xl" />
             </Link>
             <p className="text-md">
-              Pagina {router.query.page ? router.query.page : 1} - {props.pages}
+              Pagina {router.query.page ? router.query.page : 1} - {props.pages === 0 ? 1 : 0}
             </p>
           </div>
           <TableContainer component={Paper}>

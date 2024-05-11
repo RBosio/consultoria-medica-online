@@ -249,13 +249,13 @@ export default function MedicalRecord(props: MedicalRecordI) {
               href={`/medical-record?page=${
                 router.query.page && Number(router.query.page) < props.pages
                   ? Number(router.query.page) + 1
-                  : props.pages
+                  : props.pages + 1
               }`}
             >
               <FaChevronRight className="text-2xl" />
             </Link>
             <p className="text-md">
-              Pagina {router.query.page ? router.query.page : 1} - {props.pages === 0 ? 1 : 0}
+              Pagina {router.query.page ? router.query.page : 1} - {props.pages === 0 ? 1 : props.pages}
             </p>
           </div>
           <TableContainer component={Paper}>

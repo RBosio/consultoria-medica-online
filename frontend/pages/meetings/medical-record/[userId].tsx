@@ -39,6 +39,7 @@ import Button from "@/components/button";
 import { MeetingResponseDto } from "@/components/dto/meeting.dto";
 import { showDni } from "@/lib/dni";
 import { UserResponseDto } from "@/components/dto/user.dto";
+import Avatar from "@/components/avatar";
 
 interface MedicalRecordI {
   medicalRecords: MedicalRecordResponse[];
@@ -156,10 +157,14 @@ export default function MedicalRecord(props: MedicalRecordI) {
         >
           <div className="flex flex-col md:flex-row items-center">
             {props.user.image ? (
-              <img
-                src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/user/images/${props.user.image}`}
-                alt="Profile photo"
-                className="h-64 sm:h-56 object-cover w-full"
+              <Avatar
+                labelProps={{ className: "hidden" }}
+                name={props.user.name}
+                surname={props.user.surname}
+                className="bg-primary"
+                size={200}
+                icon={<FaUser size={100} />}
+                photo={props.user.image ? `${props.user.image}` : undefined}
               />
             ) : (
               <>

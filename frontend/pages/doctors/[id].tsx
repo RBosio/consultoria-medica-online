@@ -241,18 +241,17 @@ export default function Doctor(props: any) {
   };
 
   const getDiscount = () => {
-    if (!props.user.validateHealthInsurance) return null;
-
     const doctorsWorkingFor = props.doctor.user.healthInsurances;
     const userHealthInsurance = props.user.healthInsurances[0];
 
     if (!userHealthInsurance) return null;
 
     const foundHealthInsurance = doctorsWorkingFor.filter(
-      (hi: any) => hi.id === userHealthInsurance.id
+      (hi: any) => hi.healthInsuranceId === userHealthInsurance.healthInsurance.id
     );
 
-    return foundHealthInsurance[0] ?? null;
+    console.log(userHealthInsurance)
+    return foundHealthInsurance.length === 1 ? userHealthInsurance.healthInsurance : null;
   };
 
   return (

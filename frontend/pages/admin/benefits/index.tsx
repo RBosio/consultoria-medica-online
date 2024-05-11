@@ -4,7 +4,6 @@ import withAuth from "@/lib/withAuth";
 import SidebarAdmin from "@/components/sidebarAdmin";
 import { Auth } from "../../../../shared/types";
 import axios from "axios";
-import { HealthInsuranceResponseDto } from "@/components/dto/healthInsurance.dto";
 import {
   Alert,
   Box,
@@ -29,25 +28,28 @@ import {
   useTheme,
 } from "@mui/material";
 import {
+  FaAngleRight,
   FaChevronLeft,
   FaChevronRight,
+  FaCircleInfo,
   FaPlus,
   FaXmark,
 } from "react-icons/fa6";
-import { FaEdit } from "react-icons/fa";
 import Button from "@/components/button";
 import Input from "@/components/input";
 import { useFormik } from "formik";
 import { useRouter } from "next/router";
+import { robotoBold } from "@/lib/fonts";
+import { BenefitResponseDto } from "@/components/dto/benefit.dto";
+import { PlanResponseDto } from "@/components/dto/plan.dto";
 import { PRIMARY_COLOR } from "@/constants";
 
-interface HealthInsurance {
+interface Benefit {
   auth: Auth;
-  healthInsurances: HealthInsuranceResponseDto[];
+  benefits: BenefitResponseDto[];
 }
 
-export default function Home(props: HealthInsurance) {
-  const theme = useTheme();
+export default function Home(props: Benefit) {
   const router = useRouter();
 
   const [error, setError] = useState<boolean>(false);
@@ -58,115 +60,84 @@ export default function Home(props: HealthInsurance) {
   const [confirm, setConfirm] = useState<boolean>(false);
   const [update, setUpdate] = useState<boolean>(false);
   const [cancel, setCancel] = useState<boolean>(false);
-  const [healthInsurances, setHealthInsurances] = useState<any[]>([]);
+  const [benefit, setBenefit] = useState<any>();
+  const [benefits, setSpecialities] = useState<any[]>([]);
   const [page, setPage] = useState<any>();
   const [o, setO] = useState(false);
 
   useEffect(() => {
     setPage(1);
-    setHealthInsurances(
-      props.healthInsurances.filter((hi, idx) => idx >= 4 * 0 && idx < 4)
+    setSpecialities(
+      props.benefits.filter((sp, idx) => idx >= 4 * 0 && idx < 4)
     );
   }, []);
 
-  const addHealthInsurance = useFormik({
+  const pagination = (p: number, sp?: BenefitResponseDto[]) => {
+    if (!sp) {
+      if (p === 0 || p === Math.ceil(props.benefits.length / 4) + 1) return;
+
+      setPage(p);
+      setSpecialities(
+        props.benefits.filter((sp, idx) => idx >= 4 * (p - 1) && idx < 4 * p)
+      );
+    } else {
+      setPage(p);
+      setSpecialities(sp.filter((s, idx) => idx >= 4 * (p - 1) && idx < 4 * p));
+    }
+  };
+
+  const addBenefit = useFormik({
     initialValues: {
       name: "",
-      discount: 0,
+      price: 0,
     },
     onSubmit: async (values, { setSubmitting }) => {
-      if (
-        values.discount === 0 ||
-        values.discount === null ||
-        values.discount === undefined ||
-        values.name === ""
-      ) {
-        setMessage("Ingrese todos los campos!");
-        setError(true);
+      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/benefit`, values, {
+        withCredentials: true,
+        headers: { Authorization: `Bearer ${props.auth.token}` },
+      });
 
-        setConfirm(false);
-        return;
-      } else if (values.discount < 0 || values.discount > 100) {
-        setMessage("El descuento debe ser entre 0 y 100!");
-
-        setConfirm(false);
-        setError(true);
-        return;
-      }
-
-      values.discount = values.discount / 100;
-
-      await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/healthInsurance`,
-        values,
+      let benefits = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/benefit`,
         {
           withCredentials: true,
           headers: { Authorization: `Bearer ${props.auth.token}` },
         }
       );
 
-      let healthInsurances = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/healthInsurance`,
-        {
-          withCredentials: true,
-          headers: { Authorization: `Bearer ${props.auth.token}` },
-        }
-      );
-
-      addHealthInsurance.values.name = "";
-      addHealthInsurance.values.discount = 0;
+      addBenefit.values.name = "";
 
       setConfirm(false);
       setAdd(false);
       setO(false);
 
-      setMessage("Obra social agregada correctamente!");
+      setSpecialities(benefits.data);
+      pagination(page, benefits.data);
+
+      setMessage("Beneficio agregado correctamente!");
       setSuccess(true);
-
-      setHealthInsurances(healthInsurances.data);
-      pagination(page, healthInsurances.data);
-
-      router.push(`/admin/health-insurances`);
+      router.push(`/admin/benefits`);
     },
   });
 
-  const editHealthInsurance = useFormik({
+  const editBenefit = useFormik({
     initialValues: {
       id: 0,
       name: "",
-      discount: 0,
+      price: 0,
     },
     onSubmit: async (values, { setSubmitting }) => {
-      if (
-        values.discount === 0 ||
-        values.discount === null ||
-        values.discount === undefined ||
-        values.name === ""
-      ) {
-        setMessage("Ingrese todos los campos!");
-        setError(true);
-
-        setUpdate(false);
-        return;
-      } else if (values.discount < 0 || values.discount > 100) {
-        setMessage("El descuento debe ser entre 0 y 100!");
-
-        setUpdate(false);
-        setError(true);
-        return;
-      }
-
       await axios.patch(
-        `${process.env.NEXT_PUBLIC_API_URL}/healthInsurance/${values.id}`,
-        { name: values.name, discount: values.discount / 100 },
+        `${process.env.NEXT_PUBLIC_API_URL}/benefit/${values.id}`,
+        { name: values.name, price: values.price },
         {
           withCredentials: true,
           headers: { Authorization: `Bearer ${props.auth.token}` },
         }
       );
 
-      let healthInsurances = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/healthInsurance`,
+      let benefits = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/benefit`,
         {
           withCredentials: true,
           headers: { Authorization: `Bearer ${props.auth.token}` },
@@ -177,95 +148,76 @@ export default function Home(props: HealthInsurance) {
       setEdit(false);
       setO(false);
 
-      setMessage("Obra social editada correctamente!");
+      setMessage("Beneficio editada correctamente!");
       setSuccess(true);
 
-      setHealthInsurances(healthInsurances.data);
-      pagination(page, healthInsurances.data);
+      setSpecialities(benefits.data);
+      pagination(page, benefits.data);
 
-      router.push(`/admin/health-insurances`);
+      router.push(`/admin/benefits`);
     },
   });
 
-  const deleteHealthInsurance = async () => {
-    const id = localStorage.getItem("healthInsuranceId");
-    await axios.delete(
-      `${process.env.NEXT_PUBLIC_API_URL}/healthInsurance/${id}`,
-      {
-        withCredentials: true,
-        headers: { Authorization: `Bearer ${props.auth.token}` },
-      }
-    );
+  const deleteBenefit = async () => {
+    const id = localStorage.getItem("benefitId");
+    await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/benefit/${id}`, {
+      withCredentials: true,
+      headers: { Authorization: `Bearer ${props.auth.token}` },
+    });
 
     setUpdate(false);
     setEdit(false);
     setCancel(false);
+    setBenefit(null);
 
-    setMessage("Obra social eliminada correctamente!");
+    setMessage("Beneficio eliminado correctamente!");
     setSuccess(true);
 
-    setHealthInsurances(
-      props.healthInsurances.filter((hi) => hi.id != Number(id))
-    );
+    setSpecialities(props.benefits.filter((sp) => sp.id != Number(id)));
     pagination(
       page,
-      props.healthInsurances.filter((hi) => hi.id != Number(id))
+      props.benefits.filter((sp) => sp.id != Number(id))
     );
 
-    router.push(`/admin/health-insurances`);
+    router.push(`/admin/benefits`);
   };
 
   const onConfirmClick = () => {
-    if (add) {
-      addHealthInsurance.handleSubmit();
-    } else if (cancel) {
-      deleteHealthInsurance();
-    } else if (update) {
-      editHealthInsurance.handleSubmit();
-    } else {
-      setConfirm(false);
-      setAdd(false);
-      setUpdate(false);
+    if (confirm) {
+      if (addBenefit.values.name.length > 0) {
+        addBenefit.handleSubmit();
+      } else {
+        setError(true);
+        setMessage("El nombre es requerido!");
+        setConfirm(false);
+        return;
+      }
     }
-  };
 
-  const showEdit = async (id: number) => {
+    if (cancel) {
+      deleteBenefit();
+    } else if (editBenefit.values.name.length > 0) {
+      editBenefit.handleSubmit();
+    }
+
+    setConfirm(false);
     setAdd(false);
     setEdit(false);
-    const hi = await axios.get(
-      `${process.env.NEXT_PUBLIC_API_URL}/healthInsurance/${id}`,
+    setO(false);
+  };
+
+  const showDetail = async (id: number) => {
+    setAdd(false);
+    setEdit(false);
+    const p = await axios.get(
+      `${process.env.NEXT_PUBLIC_API_URL}/benefit/${id}`,
       {
         withCredentials: true,
         headers: { Authorization: `Bearer ${props.auth.token}` },
       }
     );
 
-    editHealthInsurance.setValues({
-      id: hi.data.id,
-      name: hi.data.name,
-      discount: hi.data.discount * 100,
-    });
-
-    setEdit(true);
-  };
-
-  const pagination = (p: number, sp?: HealthInsuranceResponseDto[]) => {
-    if (!sp) {
-      if (p === 0 || p === Math.ceil(props.healthInsurances.length / 4) + 1)
-        return;
-
-      setPage(p);
-      setHealthInsurances(
-        props.healthInsurances.filter(
-          (hi, idx) => idx >= 4 * (p - 1) && idx < 4 * p
-        )
-      );
-    } else {
-      setPage(p);
-      setHealthInsurances(
-        sp.filter((s, idx) => idx >= 4 * (p - 1) && idx < 4 * p)
-      );
-    }
+    setBenefit(p.data);
   };
 
   return (
@@ -288,6 +240,7 @@ export default function Home(props: HealthInsurance) {
                     onClick={() => {
                       setEdit(false);
                       setAdd(true);
+                      setBenefit(null);
                       setO(true);
                     }}
                   >
@@ -311,7 +264,7 @@ export default function Home(props: HealthInsurance) {
 
                   <p className="text-md">
                     Página {page ? page : 1} -{" "}
-                    {Math.ceil(props.healthInsurances.length / 4)}
+                    {Math.ceil(props.benefits.length / 4)}
                   </p>
                 </div>
                 <TableContainer component={Paper}>
@@ -346,22 +299,12 @@ export default function Home(props: HealthInsurance) {
                             fontSize: "1.2rem",
                           }}
                         >
-                          Descuento
-                        </TableCell>
-                        <TableCell
-                          align="center"
-                          sx={{
-                            color: "#fff",
-                            padding: "1.2rem",
-                            fontSize: "1.2rem",
-                          }}
-                        >
                           Operaciones
                         </TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {healthInsurances.map((row) => (
+                      {benefits.map((row) => (
                         <TableRow
                           key={row.id}
                           sx={{
@@ -387,25 +330,18 @@ export default function Home(props: HealthInsurance) {
                             align="center"
                             sx={{ padding: "1.2rem", fontSize: "1.2rem" }}
                           >
-                            {row.discount * 100} %
-                          </TableCell>
-                          <TableCell
-                            className="text-sm"
-                            align="center"
-                            sx={{ padding: "1.2rem", fontSize: "1.2rem" }}
-                          >
                             <div className="flex justify-center items-center gap-4 text-primary">
-                              <FaEdit
+                              <FaCircleInfo
                                 className="hover:cursor-pointer hover:opacity-70"
                                 onClick={() => {
+                                  showDetail(row.id);
                                   setO(true);
-                                  showEdit(row.id);
                                 }}
                               />{" "}
                               <FaXmark
                                 onClick={() => {
                                   localStorage.setItem(
-                                    "healthInsuranceId",
+                                    "benefitId",
                                     row.id.toString()
                                   );
                                   setCancel(true);
@@ -445,7 +381,7 @@ export default function Home(props: HealthInsurance) {
                       component="h2"
                       className="text-center text-primary text-2xl"
                     >
-                      Obra social
+                      Especialidad
                     </Typography>
                     <Typography
                       id="modal-modal-description"
@@ -453,28 +389,60 @@ export default function Home(props: HealthInsurance) {
                       variant={"body2"}
                       sx={{ mt: 2 }}
                     >
+                      <div>
+                        {benefit ? (
+                          <div className="p-2 m-4 relative">
+                            <h4
+                              className={`text-primary text-3xl text-center ${robotoBold.className}`}
+                            >
+                              {benefit.name}
+                            </h4>
+                            <h4 className="text-primary text-xl text-center underline mt-8">
+                              Planes en los que se encuentra el beneficio
+                            </h4>
+                            <div className="flex justify-center">
+                              <div className="md:flex md:justify-center md:items-center md:flex-wrap">
+                                {benefit.plans.length === 0 ? (
+                                  <div className="bg-secondary text-white font-semibold p-4 rounded-lg mt-4">
+                                    Actualmente no se encuentran planes con este
+                                    beneficio!
+                                  </div>
+                                ) : (
+                                  benefit.plans.map((p: PlanResponseDto) => {
+                                    return (
+                                      <div
+                                        className="flex justify-between items-center gap-2 text-white bg-secondary p-4 rounded-md m-2"
+                                        key={p.id}
+                                      >
+                                        <div className="flex items-center gap-2">
+                                          <FaAngleRight /> <p>{p.name}</p>
+                                        </div>
+                                      </div>
+                                    );
+                                  })
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        ) : (
+                          ""
+                        )}
+                      </div>
                       {add ? (
                         <div className="bg-white p-8 border border-primary rounded-md shadow-md mt-12">
                           <h4 className="text-primary text-xl mb-4 text-center">
-                            Agregar obra social
+                            Agregar beneficio
                           </h4>
                           <form
                             className="flex flex-col md:flex-row justify-center gap-4"
-                            onSubmit={addHealthInsurance.handleSubmit}
+                            onSubmit={addBenefit.handleSubmit}
                           >
                             <Input
                               placeholder="Nombre"
                               type="text"
                               name="name"
-                              onChange={addHealthInsurance.handleChange}
-                              onBlur={addHealthInsurance.handleBlur}
-                            />
-                            <Input
-                              placeholder="Descuento"
-                              type="number"
-                              name="discount"
-                              onChange={addHealthInsurance.handleChange}
-                              onBlur={addHealthInsurance.handleBlur}
+                              onChange={addBenefit.handleChange}
+                              onBlur={addBenefit.handleBlur}
                             />
                             <Button onClick={() => setConfirm(true)}>
                               Agregar
@@ -487,27 +455,19 @@ export default function Home(props: HealthInsurance) {
                       {edit ? (
                         <div className="bg-white p-8 border border-primary rounded-md shadow-md mt-12">
                           <h4 className="text-primary text-xl mb-4 text-center">
-                            Editar obra social
+                            Editar beneficio
                           </h4>
                           <form
-                            className="flex flex-col md:flex-row justify-center gap-4"
-                            onSubmit={editHealthInsurance.handleSubmit}
+                            className="flex justify-center gap-4"
+                            onSubmit={editBenefit.handleSubmit}
                           >
                             <Input
                               placeholder="Nombre"
                               type="text"
                               name="name"
-                              onChange={editHealthInsurance.handleChange}
-                              onBlur={editHealthInsurance.handleBlur}
-                              value={editHealthInsurance.values.name}
-                            />
-                            <Input
-                              placeholder="Descuento"
-                              type="number"
-                              name="discount"
-                              onChange={editHealthInsurance.handleChange}
-                              onBlur={editHealthInsurance.handleBlur}
-                              value={editHealthInsurance.values.discount}
+                              onChange={editBenefit.handleChange}
+                              onBlur={editBenefit.handleBlur}
+                              value={editBenefit.values.name}
                             />
                             <Button onClick={() => setUpdate(true)}>
                               Editar
@@ -536,16 +496,16 @@ export default function Home(props: HealthInsurance) {
           aria-describedby="alert-dialog-description"
         >
           <DialogTitle id="alert-dialog-title" className="text-center">
-            {confirm ? "Obra social" : ""}
+            {confirm ? "Beneficio" : ""}
           </DialogTitle>
           <DialogContent>
             <DialogContentText id="alert-dialog-description">
               {confirm
-                ? "¿Desea agregar la obra social?"
+                ? "¿Desea agregar el beneficio?"
                 : update
                 ? "¿Desea actualizar los datos?"
                 : cancel
-                ? "¿Desea eliminar la obra social?"
+                ? "¿Desea eliminar el beneficio?"
                 : ""}
             </DialogContentText>
           </DialogContent>
@@ -590,29 +550,20 @@ export default function Home(props: HealthInsurance) {
 
 export const getServerSideProps = withAuth(
   async (auth: Auth | null, context: any) => {
-    if (auth!.role !== "admin") {
-      return {
-        redirect: {
-          destination: "/",
-          permanent: false,
-        },
-      };
-    }
-
-    let healthInsurances = await axios.get(
-      `${process.env.NEXT_PUBLIC_API_URL}/healthInsurance`,
+    let benefits = await axios.get(
+      `${process.env.NEXT_PUBLIC_API_URL}/benefit`,
       {
         withCredentials: true,
         headers: { Authorization: `Bearer ${context.req.cookies.token}` },
       }
     );
 
-    healthInsurances = healthInsurances.data;
+    benefits = benefits.data;
 
     return {
       props: {
         auth,
-        healthInsurances,
+        benefits,
       },
     };
   },

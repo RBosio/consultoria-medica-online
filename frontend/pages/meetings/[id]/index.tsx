@@ -3,12 +3,7 @@ import { Auth } from "@/../shared/types";
 import axios from "axios";
 import Layout from "@/components/layout";
 import {
-  Autocomplete,
-  Box,
   Fab,
-  Fade,
-  Modal,
-  Typography,
   useTheme,
 } from "@mui/material";
 import { useRouter } from "next/router";
@@ -20,8 +15,6 @@ import Input from "@/components/input";
 import { BsFillChatLeftTextFill } from "react-icons/bs";
 import {
   FaCalendarDays,
-  FaCheck,
-  FaCircleInfo,
   FaClock,
   FaPaperPlane,
   FaPaperclip,
@@ -52,7 +45,6 @@ export default function DetailMeeting(props: MeetingI) {
   const [type, setType] = useState<string>("");
   const [motive, setMotive] = useState<string>("");
   const [showMotive, setShowMotive] = useState<boolean>(false);
-  const [cancel, setCancel] = useState<boolean>(false);
   const [openedChat, setOpenedChat] = useState(false);
 
   useEffect(() => {
@@ -190,30 +182,8 @@ export default function DetailMeeting(props: MeetingI) {
     }
   }
 
-  function motiveHandleChange($e: any) {
-    setMotive($e.target.value);
-  }
-
   function xHandleClick() {
     setFile("");
-  }
-
-  async function motiveHandleClick() {
-    let { id } = router.query;
-
-    const [t, startDatetime] = atob(String(id)).split(".");
-
-    await axios.patch(
-      `${process.env.NEXT_PUBLIC_API_URL}/meeting/cancel/${t}/${startDatetime}`,
-      { motive },
-      {
-        withCredentials: true,
-        headers: { Authorization: `Bearer ${props.auth.token}` },
-      }
-    );
-
-    setCancel(false);
-    props.meeting.status = "Cancelada";
   }
 
   function showMotiveHandleClick() {
@@ -286,9 +256,7 @@ export default function DetailMeeting(props: MeetingI) {
         </Modal>
         <main className="flex flex-col md:flex-row flex-wrap sm:flex-nowrap justify-between gap-1 sm:gap-4 m-4 h-[600px]">
           <section
-            className={`${
-              cancel ? "mt-[22rem]" : "mt-48"
-            } md:mt-0 w-full md:w-1/2 h-5/12 sm:h-full`}
+            className="md:mt-0 w-full md:w-1/2 h-5/12 sm:h-full"
           >
             {props.auth.role === "user" ? (
               <DoctorCard
@@ -331,18 +299,8 @@ export default function DetailMeeting(props: MeetingI) {
               </div>
               <div className="flex items-center m-2">
                 <p className="text-zinc-800">{props.meeting.status}</p>
-                {props.meeting.status === "Cancelada" ? (
-                  <FaCircleInfo
-                    className="ml-2 text-primary hover:cursor-pointer hover:opacity-70 text-lg"
-                    onClick={showMotiveHandleClick}
-                  />
-                ) : (
-                  ""
-                )}
               </div>
-
               <div className="w-3/4 h-2 border-t-2 border-emerald-200 mb-3"></div>
-
               <div className="flex justify-end items-center w-full mb-2">
                 {props.auth.role === "user" ? (
                   <div className="m-2">
@@ -360,13 +318,13 @@ export default function DetailMeeting(props: MeetingI) {
                             .getTime()
                         ) &&
                           Date.now() <
-                            moment(props.meeting.startDatetime)
-                              .add(
-                                props.meeting.doctor.durationMeeting + 10,
-                                "minutes"
-                              )
-                              .toDate()
-                              .getTime())
+                          moment(props.meeting.startDatetime)
+                            .add(
+                              props.meeting.doctor.durationMeeting + 10,
+                              "minutes"
+                            )
+                            .toDate()
+                            .getTime())
                       }
                       onClick={() =>
                         router.push(`/meetings/${router.query.id}/videocall`)
@@ -374,7 +332,7 @@ export default function DetailMeeting(props: MeetingI) {
                     >
                       Unirse
                     </Button>
-                    <Button
+                    {props.meeting.status === "Pagada" && <Button
                       size="small"
                       startIcon={<FaClock />}
                       onClick={() => {
@@ -386,7 +344,7 @@ export default function DetailMeeting(props: MeetingI) {
                       }}
                     >
                       Reprogramar
-                    </Button>
+                    </Button>}
                   </div>
                 ) : (
                   <Button
@@ -404,40 +362,20 @@ export default function DetailMeeting(props: MeetingI) {
                           .getTime()
                       ) &&
                         Date.now() <
-                          moment(props.meeting.startDatetime)
-                            .add(
-                              props.meeting.doctor.durationMeeting + 10,
-                              "minutes"
-                            )
-                            .toDate()
-                            .getTime())
+                        moment(props.meeting.startDatetime)
+                          .add(
+                            props.meeting.doctor.durationMeeting + 10,
+                            "minutes"
+                          )
+                          .toDate()
+                          .getTime())
                     }
                     onClick={() =>
                       router.push(`/meetings/${router.query.id}/videocall`)
                     }
                   >
-                    Iniciar reunion
+                    Iniciar reunión
                   </Button>
-                )}
-                {props.meeting.status === "Pendiente" ||
-                props.meeting.status === "Pagada" ? (
-                  <Button
-                    className="mr-2 hidden"
-                    size="small"
-                    sx={{
-                      "&.MuiButton-contained": {
-                        background: theme.palette.error.main,
-                        color: "#ffffff",
-                        fontWeight: "bold",
-                      },
-                    }}
-                    startIcon={<FaXmark />}
-                    onClick={() => setCancel(true)}
-                  >
-                    Cancelar
-                  </Button>
-                ) : (
-                  ""
                 )}
               </div>
             </section>
@@ -456,8 +394,7 @@ export default function DetailMeeting(props: MeetingI) {
             onClick={handleOnClose}
             id="container"
             className={`
-            ${
-              openedChat
+            ${openedChat
                 ? "fixed z-50 inset-0 backdrop-blur-sm bg-black bg-opacity-30"
                 : "w-[100%] sm:w-[40%] bg-white rounded-lg mt-5 sm:mt-0 hidden md:inline"
             }
@@ -465,11 +402,10 @@ export default function DetailMeeting(props: MeetingI) {
           >
             <section
               className={`
-              ${
-                openedChat
+              ${openedChat
                   ? "flex flex-col h-5/6 bg-white"
                   : "w-[100%] sm:w-[40%] rounded-lg mt-5 sm:mt-0 hidden md:inline"
-              }
+                }
               `}
             >
               <div className="overflow-y-scroll h-[85%]" id="scroll">
@@ -494,9 +430,8 @@ export default function DetailMeeting(props: MeetingI) {
               >
                 {file ? (
                   <div
-                    className={`w-full py-1 px-2 bg-primary rounded-md text-white flex justify-between items-center overflow-x-hidden h-8 ${
-                      file.name.length > 60 ? "overflow-y-scroll" : ""
-                    }`}
+                    className={`w-full py-1 px-2 bg-primary rounded-md text-white flex justify-between items-center overflow-x-hidden h-8 ${file.name.length > 60 ? "overflow-y-scroll" : ""
+                      }`}
                   >
                     <div className={`${robotoBold.className}`}>{file.name}</div>
                     <FaXmark

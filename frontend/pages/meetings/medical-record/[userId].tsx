@@ -84,7 +84,7 @@ export default function MedicalRecord(props: MedicalRecordI) {
       );
 
       setSuccess(true);
-      setMessage("Se ha agregado el registro medico correctamente");
+      setMessage("Se ha agregado el registro médico correctamente");
 
       setDetail("");
       setObservations("");
@@ -288,7 +288,7 @@ export default function MedicalRecord(props: MedicalRecordI) {
                       fontSize: "1.2rem",
                     }}
                   >
-                    Medico
+                    Médico
                   </TableCell>
                   <TableCell
                     align="center"

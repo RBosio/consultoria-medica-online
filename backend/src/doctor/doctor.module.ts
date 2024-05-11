@@ -8,9 +8,10 @@ import { SpecialityModule } from 'src/speciality/speciality.module';
 import { PlanModule } from 'src/plan/plan.module';
 import { NestjsFormDataModule } from 'nestjs-form-data';
 import { Speciality } from 'src/entities/speciality.entity';
+import { HealthInsuranceModule } from 'src/health-insurance/health-insurance.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Doctor, Speciality]), UserModule, SpecialityModule, PlanModule, NestjsFormDataModule],
+  imports: [TypeOrmModule.forFeature([Doctor, Speciality]), UserModule, SpecialityModule, PlanModule, HealthInsuranceModule ,NestjsFormDataModule],
   controllers: [DoctorController],
   providers: [DoctorService],
   exports: [DoctorService]

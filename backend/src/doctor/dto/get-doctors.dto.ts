@@ -3,7 +3,7 @@ export class getDoctorsDto {
     avgRate?: number
     seniority?: number
     specialityId?: number
-    planId?: number
+    healthInsuranceId?: number
     orderBy?: string
     page?: number
     perPage?: number

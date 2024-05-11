@@ -60,6 +60,7 @@ export default function MedicalRecord(props: MedicalRecordI) {
   const [error, setError] = useState<boolean>(false);
   const [message, setMessage] = useState<string>("");
   const [success, setSuccess] = useState<boolean>(false);
+  const [id, setId] = useState<number>();
 
   useEffect(() => {
     moment.locale("es");
@@ -106,9 +107,7 @@ export default function MedicalRecord(props: MedicalRecordI) {
       formData.append("file", file);
       formData.append("type", file.type);
       await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/medicalRecord/${moment(
-          datetime
-        ).format("YYYY-MM-DDTHH:mm:ss")}/file`,
+        `${process.env.NEXT_PUBLIC_API_URL}/medicalRecord/${id}/file`,
         formData,
         {
           withCredentials: true,
@@ -268,13 +267,13 @@ export default function MedicalRecord(props: MedicalRecordI) {
               href={`/medical-record/${router.query.userId}?page=${
                 router.query.page && Number(router.query.page) < props.pages
                   ? Number(router.query.page) + 1
-                  : props.pages
+                  : props.pages + 1
               }`}
             >
               <FaChevronRight className="text-2xl" />
             </Link>
             <p className="text-md">
-              Pagina {router.query.page ? router.query.page : 1} - {props.pages}
+              Pagina {router.query.page ? router.query.page : 1} - {props.pages === 0 ? 1 : props.pages}
             </p>
           </div>
           <TableContainer component={Paper}>
@@ -410,6 +409,7 @@ export default function MedicalRecord(props: MedicalRecordI) {
                               onClick={() => {
                                 const file = document.getElementById("file");
                                 setDatetime(row.datetime);
+                                setId(row.id);
                                 setFiles(false);
                                 file?.click();
                               }}
@@ -572,6 +572,8 @@ export const getServerSideProps = withAuth(
     );
 
     meetings = meetings.data;
+
+    console.log({ medicalRecords });
 
     return {
       props: {

@@ -52,6 +52,7 @@ export default function MedicalRecord(props: MedicalRecordI) {
   const [file, setFile] = useState<any>();
   const [files, setFiles] = useState<boolean>(false);
   const [showFiles, setShowFiles] = useState<boolean>(false);
+  const [id, setId] = useState<number>();
 
   useEffect(() => {
     moment.locale("es");
@@ -92,9 +93,7 @@ export default function MedicalRecord(props: MedicalRecordI) {
       formData.append("file", file);
       formData.append("type", file.type);
       await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/medicalRecord/${moment(
-          datetime
-        ).format("YYYY-MM-DDTHH:mm:ss")}/file`,
+        `${process.env.NEXT_PUBLIC_API_URL}/medicalRecord/${id}/file`,
         formData,
         {
           withCredentials: true,
@@ -373,6 +372,7 @@ export default function MedicalRecord(props: MedicalRecordI) {
                                 onClick={() => {
                                   const file = document.getElementById("file");
                                   setDatetime(row.datetime);
+                                  setId(row.id);
                                   setFiles(false);
                                   file?.click();
                                 }}

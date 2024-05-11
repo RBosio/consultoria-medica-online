@@ -1,10 +1,13 @@
-import { Column, Entity, OneToMany, OneToOne, PrimaryColumn } from 'typeorm'
+import { Column, Entity, OneToMany, OneToOne, PrimaryColumn, PrimaryGeneratedColumn } from 'typeorm'
 import { Meeting } from './meeting.entity'
 import { File } from './file.entity'
 
 @Entity()
 export class MedicalRecord {
-    @PrimaryColumn()
+    @PrimaryGeneratedColumn()
+    id: number
+
+    @Column()
     datetime: Date
 
     @Column()

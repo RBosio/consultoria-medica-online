@@ -31,9 +31,6 @@ export class Meeting {
   status: string;
 
   @Column({ nullable: true })
-  medicalRecordDatetime: Date;
-
-  @Column({ nullable: true })
   tpc: string;
 
   @Column({ default: 0, type: 'decimal', precision: 6, scale: 2 })

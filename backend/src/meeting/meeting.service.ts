@@ -269,7 +269,7 @@ export class MeetingService {
   async findByMedicalRecords(userId: number, doctorId: number) {
     return this.meetingRepository.find({
       where: {
-        medicalRecordDatetime: IsNull(),
+        medicalRecord: IsNull(),
         user: {
           id: userId,
         },

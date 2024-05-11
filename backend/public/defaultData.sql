@@ -58,14 +58,14 @@ INSERT INTO
         userId,
         startDatetime,
         doctorId,
-        medicalRecordDatetime,
+        medicalRecordId,
         price,
         status
     )
 VALUES
-    (1, "2024-05-10T20:00:00", 1, "2024-01-20T20:00:12", 200, "Pagada"),
-    (1, "2024-05-12T14:00:00", 1, "2024-01-20T20:00:13", 200, "Pagada"),
-    (1, "2024-05-14T18:00:00", 1, "2024-01-20T20:00:14", 200, "Pagada"),
+    (1, "2024-05-10T20:00:00", 1, null, 200, "Pagada"),
+    (1, "2024-05-12T14:00:00", 1, null, 200, "Pagada"),
+    (1, "2024-05-14T18:00:00", 1, null, 200, "Pagada"),
     (1, "2024-05-09T09:00:00", 1, null, 200, "Finalizada"),
     (1, "2024-05-18T14:30:00", 1, null, 200, "Cancelada"),
     (1, "2024-05-20T14:30:00", 1, null, 200, "Cancelada"),

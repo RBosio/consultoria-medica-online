@@ -138,7 +138,7 @@ const Filters: React.FC<FiltersProps> = (props) => {
     initialValues: {
       name: "",
       specialityId: "",
-      planId: "",
+      healthInsuranceId: "",
       avgRate: "",
       seniority: "",
       orderByField: "none",
@@ -224,7 +224,7 @@ const Filters: React.FC<FiltersProps> = (props) => {
           />
           <Autocomplete
             onChange={(event, newValue: any) => {
-              filtersForm.setFieldValue("planId", newValue ? newValue.id : "");
+              filtersForm.setFieldValue("healthInsuranceId", newValue ? newValue.id : "");
             }}
             disablePortal
             noOptionsText="Obra Social no encontrada"
@@ -235,7 +235,7 @@ const Filters: React.FC<FiltersProps> = (props) => {
             renderInput={(params: any) => (
               <Input
                 onChange={filtersForm.handleChange}
-                name="planId"
+                name="healthInsuranceId"
                 {...params}
                 label="Obra Social"
               />

@@ -271,7 +271,7 @@ export default function MedicalRecord(props: MedicalRecordI) {
                       fontSize: "1.2rem",
                     }}
                   >
-                    Medico
+                    Médico
                   </TableCell>
                   <TableCell
                     align="center"

@@ -131,7 +131,7 @@ export class MeetingController {
 
   @Patch('repr/:id/:startDatetime')
   @Roles(RoleEnum.User, RoleEnum.Admin)
-  cancelMeeting(
+  reprMeeting(
     @Param('id') id: number,
     @Param('startDatetime') startDatetime: Date,
     @Body() meeting: updateMeetingDto,

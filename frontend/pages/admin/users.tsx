@@ -281,7 +281,7 @@ export default function Home(props: Speciality) {
                     />
 
                     <p className="text-md">
-                      Pagina {page ? page : 1} -{" "}
+                      Página {page ? page : 1} -{" "}
                       {Math.ceil(props.users.length / 10)}
                     </p>
                   </div>

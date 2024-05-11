@@ -199,8 +199,7 @@ export default function Doctor(props: any) {
     } else {
       try {
         await axios.patch(
-          `${process.env.NEXT_PUBLIC_API_URL}/meeting/repr/${
-            props.auth.id
+          `${process.env.NEXT_PUBLIC_API_URL}/meeting/repr/${props.auth.id
           }/${moment(date).format("YYYY-MM-DDTHH:mm:ss")}`,
           {
             startDatetime: selectedDate,
@@ -229,8 +228,8 @@ export default function Doctor(props: any) {
         router.push(
           `/meetings/${btoa(
             props.auth.id +
-              "." +
-              moment(new Date(selectedDate)).format("YYYY-MM-DDTHH:mm:ss")
+            "." +
+            moment(new Date(selectedDate)).format("YYYY-MM-DDTHH:mm:ss")
           )}`
         );
       } catch (error: any) {
@@ -311,10 +310,9 @@ export default function Doctor(props: any) {
                   <div className="flex flex-col items-center gap-2">
                     <h2 className="text-primary text-xl">Descripción</h2>
                     <p
-                      className={`text-justify line-clamp-[8] ${
-                        !props.doctor.description &&
+                      className={`text-justify line-clamp-[8] ${!props.doctor.description &&
                         "text-red-400 font-semibold"
-                      }`}
+                        }`}
                     >
                       {props.doctor.description || "No posee descripción"}
                     </p>
@@ -370,9 +368,9 @@ export default function Doctor(props: any) {
                     <p className={`text-3xl ${robotoBold.className}`}>
                       {getDiscount()
                         ? pesos.format(
-                            props.doctor.priceMeeting *
-                              (1 - Number(getDiscount().discount))
-                          )
+                          props.doctor.priceMeeting *
+                          (1 - Number(getDiscount().discount))
+                        )
                         : pesos.format(props.doctor.priceMeeting)}
                     </p>
                   </div>
@@ -410,14 +408,14 @@ export default function Doctor(props: any) {
                                 <ToggleButton
                                   sx={{
                                     "&.MuiToggleButton-root , &.MuiToggleButton-root.Mui-disabled, &.MuiToggleButton-root.MuiToggleButtonGroup-grouped":
-                                      {
-                                        border: `1px solid ${theme.palette.primary.light}`,
-                                        transition: "background .2s ease",
-                                      },
+                                    {
+                                      border: `1px solid ${theme.palette.primary.light}`,
+                                      transition: "background .2s ease",
+                                    },
                                     "&:hover, &.MuiToggleButton-root.Mui-selected:hover":
-                                      {
-                                        background: theme.palette.primary.light,
-                                      },
+                                    {
+                                      background: theme.palette.primary.light,
+                                    },
                                     "&.Mui-disabled": {
                                       background: "#F7F7F7",
                                     },
@@ -488,8 +486,8 @@ export default function Doctor(props: any) {
                 router.push(
                   `/meetings/${btoa(
                     props.auth.id +
-                      "." +
-                      moment(detail.startDatetime).format("YYYY-MM-DDTHH:mm:ss")
+                    "." +
+                    moment(detail.startDatetime).format("YYYY-MM-DDTHH:mm:ss")
                   )}`
                 )
               }
@@ -524,20 +522,17 @@ export default function Doctor(props: any) {
             {confirmTurn
               ? "Confirmar turno"
               : repr
-              ? "Reprogramar reunión"
-              : ""}
+                ? "Reprogramar reunión"
+                : ""}
           </DialogTitle>
           <DialogContent>
             <DialogContentText id="alert-dialog-description">
-              {confirmTurn
-                ? `¿Estás seguro que deseas sacar el turno para el
-              <b>${getFormattedSelectedDate().day}</b> a las
-              <b>${getFormattedSelectedDate().time}</b>?`
-                : repr
-                ? `¿Estás seguro que deseas reprogramar la reunión del día ${moment(
-                    date
-                  ).format("LLLL")} hs al ${moment(selectedDate).format("LLLL")} hs?`
-                : ""}
+              {confirmTurn ?
+                <>¿Estás seguro que deseas sacar el turno para el <b>{getFormattedSelectedDate().day}</b> a las <b>{getFormattedSelectedDate().time}</b>?</>
+                : repr ?
+                  <>¿Estás seguro que deseas reprogramar la reunión del día {moment(date).format("LLLL")} al <b>{moment(selectedDate).format("LLLL")}</b>?</>
+                  : null
+              }
             </DialogContentText>
           </DialogContent>
           <DialogActions>

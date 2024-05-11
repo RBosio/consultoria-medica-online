@@ -106,8 +106,12 @@ export default function Doctor(props: any) {
     } catch (error) {
       console.log(error);
     }
-    const date: Date = JSON.parse(localStorage.getItem("repr")!);
-    setDate(date);
+    const dateT: Date = JSON.parse(localStorage.getItem("repr")!);
+    setDate(dateT);
+
+    return () => {
+      localStorage.removeItem("repr");
+    }
   }, []);
 
   const showDetail = async (selectedDate: string) => {
@@ -452,7 +456,6 @@ export default function Doctor(props: any) {
                     ) : (
                       <Button
                         onClick={() => setRepr(true)}
-                        disabled={!Boolean(selectedDate)}
                         className="w-40"
                       >
                         Reprogramar
@@ -533,7 +536,7 @@ export default function Doctor(props: any) {
                 : repr
                 ? `¿Estás seguro que deseas reprogramar la reunión del día ${moment(
                     date
-                  ).format("LLLL")} al ${moment(selectedDate).format("LLLL")}?`
+                  ).format("LLLL")} hs al ${moment(selectedDate).format("LLLL")} hs?`
                 : ""}
             </DialogContentText>
           </DialogContent>

@@ -96,7 +96,21 @@ export default function Home(props: BillingProps) {
 
   useEffect(() => {
     (async () => {
-      if (month) {
+      if (!month) {
+        let billings = await axios.get<Billing[]>(
+          `${process.env.NEXT_PUBLIC_API_URL}/billing/${
+            new Date().getMonth() + 1
+          }/${new Date().getFullYear()}`,
+          {
+            withCredentials: true,
+            headers: { Authorization: `Bearer ${props.auth.token}` },
+          }
+        );
+
+        setBillingsMonth(billings.data);
+        billings.data.filter((billing: Billing) => !billing.paid).length > 0 &&
+          setPending(true);
+      } else {
         let billings = await axios.get<Billing[]>(
           `${process.env.NEXT_PUBLIC_API_URL}/billing/${month}/${year}`,
           {
@@ -272,11 +286,21 @@ export default function Home(props: BillingProps) {
                           )}
                           <Tooltip
                             title="Facturación"
-                            onClick={() =>
+                            onClick={() => {
+                              if (month && year) {
+                                localStorage.setItem(
+                                  "monthLocal",
+                                  month!.toString()
+                                );
+                                localStorage.setItem(
+                                  "yearLocal",
+                                  year!.toString()
+                                );
+                              }
                               router.push(
                                 `/admin/billing/${row.doctor.user.id}`
-                              )
-                            }
+                              );
+                            }}
                           >
                             <IconButton className="p-0">
                               <img src="/billing.svg" className="size-6" />

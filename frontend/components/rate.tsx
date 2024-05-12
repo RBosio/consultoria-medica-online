@@ -4,7 +4,7 @@ import Rating from '@mui/material/Rating';
 
 interface RateProps {
     rate: number
-    num?: string
+    hideNumber?: boolean
     className?: string
 }
 
@@ -22,7 +22,7 @@ const Rate: React.FC<RateProps> = (props) => {
                     color: theme.palette.primary.main,
                 },
             }} color='primary' value={Number(props.rate)} precision={0.5} readOnly />
-            {props.num ? '' : <span className="text-md md:ml-2 select-none">({props.rate})</span>}
+            {!props.hideNumber && <span className="text-md md:ml-2 select-none">({props.rate})</span>}
         </div>
     );
 };

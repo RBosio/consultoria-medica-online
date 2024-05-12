@@ -408,7 +408,7 @@ export default function ProfileView(props: any) {
                         <FaVenus className="text-primary size-4" />
                       )}
                       <p className="mx-2 text-xl">
-                        {user.gender ? "Hombre" : "Mujer"}
+                        {user.gender ? "Masculino" : "Femenino"}
                       </p>
                     </div>
                   </div>

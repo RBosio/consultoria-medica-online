@@ -240,7 +240,7 @@ export default function Home(props: any) {
                   onClick={() => page < pages && paginated(true)}
                 />
                 <p className="text-md">
-                  Pagina {page} - {pages}
+                  Página {page} - {pages}
                 </p>
               </div>
             </div>

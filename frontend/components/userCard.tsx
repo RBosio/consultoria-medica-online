@@ -47,20 +47,12 @@ const UserCard: React.FC<MeetingResponseDto> = (props) => {
       </div>
       <div className="w-full flex flex-col justify-center items-center">
         <h2
-          className={`${robotoBold.className} text-2xl text-primary text-center mt-2`}
+          className={`${robotoBold.className} text-2xl text-primary text-center my-2`}
         >
           {props.user.name} {props.user.surname}
         </h2>
         <div className="w-3/4 h-2 border-t-2 border-emerald-200"></div>
-        <div className="flex flex-col items-center mb-2 mt-2">
-          <div className="flex items-center">
-            <FaEnvelope className="text-primary" />
-            <p className="px-2">{props.user.email}</p>
-          </div>
-          <div className="flex items-center">
-            <FaPhone className="text-primary" />
-            <p className="px-2">{props.user.phone}</p>
-          </div>
+        <div className="flex flex-col items-center my-2">
           <div className="flex items-center">
             <FaAddressCard className="text-primary" />
             <p className="px-2">{showDni(props.user.dni)}</p>
@@ -78,34 +70,12 @@ const UserCard: React.FC<MeetingResponseDto> = (props) => {
               <FaVenus className="text-primary" />
             )}
 
-            <p className="px-2">{props.user.gender ? "Hombre" : "Mujer"}</p>
-          </div>
-          <div className="flex items-center">
-            <FaSuitcaseMedical className="text-primary" />
-            {props.user.healthInsurances.map((h) => {
-              return (
-                h.healthInsurance && (
-                  <p
-                    className="px-2 flex items-center gap-2"
-                    key={h.healthInsurance?.id}
-                  >
-                    {h.healthInsurance?.name}{" "}
-                    {h.verified ? (
-                      <FaCircleCheck className="text-green-600 text-xl" />
-                    ) : (
-                      <FaCircleXmark className="text-red-600 text-xl" />
-                    )}
-                  </p>
-                )
-              );
-            })}
+            <p className="px-2">{props.user.gender ? "Masculino" : "Femenino"}</p>
           </div>
         </div>
         <div className="w-3/4 h-2 border-b-2 border-emerald-200"></div>
-      </div>
-      <div className="h-full flex justify-center items-end my-4">
-        <Link href={`/medical-record/${props.user.id}`}>
-          <Button className="w-full">Historia clinica</Button>
+        <Link href={`/meetings/medical-record/${props.user.id}`}>
+          <Button className="w-full m-4">Historia clínica</Button>
         </Link>
       </div>
     </div>

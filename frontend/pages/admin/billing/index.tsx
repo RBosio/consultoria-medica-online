@@ -56,7 +56,13 @@ export default function Home(props: BillingProps) {
   const [year, setYear] = useState<number>();
   const [billingsMonth, setBillingsMonth] = useState<Billing[]>([]);
 
-  const onConfirmClick = () => {};
+  const onConfirmClick = async () => {
+    await payAll();
+
+    setConfirm(false);
+    setMessage("Operaciones registradas como pagadas con éxito");
+    setSuccess(true);
+  };
 
   const payAll = async () => {
     const billings = billingsMonth
@@ -131,7 +137,7 @@ export default function Home(props: BillingProps) {
               />
               <Button
                 disabled={billingsMonth.length === 0 || !pending}
-                onClick={payAll}
+                onClick={() => setConfirm(true)}
               >
                 Pagar todos
               </Button>
@@ -295,11 +301,13 @@ export default function Home(props: BillingProps) {
           aria-describedby="alert-dialog-description"
         >
           <DialogTitle id="alert-dialog-title" className="text-center">
-            {confirm ? "Beneficio" : ""}
+            {confirm ? "Facturación" : ""}
           </DialogTitle>
           <DialogContent>
             <DialogContentText id="alert-dialog-description">
-              {confirm ? "¿Desea agregar el beneficio?" : ""}
+              {confirm
+                ? "¿Desea establecer como pagadas todas las operaciones de este mes?"
+                : ""}
             </DialogContentText>
           </DialogContent>
           <DialogActions>

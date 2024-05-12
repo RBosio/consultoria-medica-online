@@ -373,7 +373,7 @@ export default function ProfileView(props: any) {
                 <div className="w-full">
                   <div className="flex flex-col items-center p-2 w-full">
                     <h2
-                      className={`text-primary ${robotoBold.className} text-3xl`}
+                      className={`text-primary ${robotoBold.className} text-3xl text-center`}
                     >
                       {user.name} {user.surname}
                     </h2>

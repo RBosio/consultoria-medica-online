@@ -571,8 +571,6 @@ export const getServerSideProps = withAuth(
 
     meetings = meetings.data;
 
-    console.log({ medicalRecords });
-
     return {
       props: {
         auth,

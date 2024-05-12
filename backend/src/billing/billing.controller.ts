@@ -11,6 +11,15 @@ import { createBillingDto } from './dto/create-billing.dto';
 export class BillingController {
   constructor(private billingService: BillingService) {}
 
+  @Get(':month/:year')
+  @Roles(RoleEnum.Admin)
+  async getBillingsByMonthAndYear(
+    @Param('month') month: string,
+    @Param('year') year: string,
+  ) {
+    return this.billingService.getBillingsByMonthAndYear(+month, +year);
+  }
+
   @Get(':id/:month/:year')
   @Roles(RoleEnum.Admin)
   async getBilling(

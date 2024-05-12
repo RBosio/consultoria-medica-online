@@ -1,4 +1,9 @@
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import {
+  Injectable,
+  HttpException,
+  HttpStatus,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Between, In, IsNull, LessThan, MoreThan, Repository } from 'typeorm';
 import { updateMeetingDto } from './dto/update-meeting.dto';
@@ -35,7 +40,7 @@ export class MeetingService {
     private userService: UserService,
     private doctorService: DoctorService,
     private configService: ConfigService,
-  ) { }
+  ) {}
 
   async findAll(): Promise<Meeting[]> {
     return this.meetingRepository.find({
@@ -98,10 +103,53 @@ export class MeetingService {
     return meetingsFound;
   }
 
+  private getMonth(month: number): string {
+    if ([1, 2, 3, 4, 5, 6, 7, 8, 9].includes(month)) return '0' + month;
+
+    return month.toString();
+  }
+
+  private getMinAndMaxDatesOfMonth(month: number, year: number) {
+    if ([1, 3, 5, 7, 8, 10, 12].includes(month))
+      return moment(`${year}-${this.getMonth(month)}-31T23:59:59`).format(
+        'YYYY-MM-DDTHH:mm:ss',
+      );
+    if ([4, 6, 9, 11].includes(month))
+      return moment(`${year}-${this.getMonth(month)}-30T23:59:59`).format(
+        'YYYY-MM-DDTHH:mm:ss',
+      );
+    if ([2].includes(month))
+      return moment(`${year}-${this.getMonth(month)}-28T23:59:59`).format(
+        'YYYY-MM-DDTHH:mm:ss',
+      );
+  }
+
+  async findByMonthAndYear(month: number, year: number) {
+    const min = moment(`${year}-${this.getMonth(month)}-01T00:00:00`).format(
+      'YYYY-MM-DDTHH:mm:ss',
+    );
+    const max = this.getMinAndMaxDatesOfMonth(month, year);
+
+    return this.meetingRepository.find({
+      where: {
+        startDatetime: Between(moment(min).toDate(), moment(max).toDate()),
+      },
+      relations: {
+        doctor: {
+          user: true,
+        },
+      },
+    });
+  }
+
   async findAllByDoctor(id: number, query: getMeetingsDto): Promise<Meeting[]> {
     const { name, status } = query;
 
     let doctorFound = await this.doctorService.findOneByUserId(id);
+
+    if (!doctorFound) {
+      throw new NotFoundException('doctor not found!');
+    }
 
     let meetingsFound = await this.meetingRepository.find({
       relations: {
@@ -504,9 +552,17 @@ export class MeetingService {
       throw new HttpException('Reunión no encontrada', HttpStatus.NOT_FOUND);
     }
 
-    if (meetingFound.status === 'Finalizada') throw new HttpException('La reunión ya ha sido finalizada y no se puede reprogramar', HttpStatus.BAD_REQUEST);
+    if (meetingFound.status === 'Finalizada')
+      throw new HttpException(
+        'La reunión ya ha sido finalizada y no se puede reprogramar',
+        HttpStatus.BAD_REQUEST,
+      );
 
-    if (meetingFound.repr) throw new HttpException('La reunión ya fue reprogramada', HttpStatus.BAD_REQUEST);
+    if (meetingFound.repr)
+      throw new HttpException(
+        'La reunión ya fue reprogramada',
+        HttpStatus.BAD_REQUEST,
+      );
 
     meetingFound.repr = true;
     meetingFound.startDatetime = meeting.startDatetime;

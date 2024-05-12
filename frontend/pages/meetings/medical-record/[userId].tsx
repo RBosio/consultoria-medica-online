@@ -21,6 +21,7 @@ import {
   FaCalendarDays,
   FaChevronLeft,
   FaChevronRight,
+  FaFile,
   FaMars,
   FaPaperclip,
   FaUser,
@@ -328,20 +329,23 @@ export default function MedicalRecord(props: MedicalRecordI) {
                       <div className="flex justify-center items-center gap-2">
                         {row.detail}
                         <div className="flex gap-2">
-                          {row.files.length > 0 ||
-                            props.auth.role !== "doctor" ? (
-                            ""
-                          ) : (
-                            <FaPaperclip
-                              onClick={() => {
-                                const file = document.getElementById("file");
-                                setDatetime(row.datetime);
-                                setFiles(false);
-                                file?.click();
-                              }}
-                              className="text-primary hover:cursor-pointer hover:opacity-70"
-                            />
-                          )}
+                          {row.files.length > 0 ? (
+                            <a
+                              target="_blank"
+                              href={`http://localhost:3000/uploads/medical-record/${row.files[0].url}`}
+                            >
+                              <FaFile className="text-primary text-lg hover:cursor-pointer" />
+                            </a>
+                          ) : <FaPaperclip
+                            onClick={() => {
+                              const file = document.getElementById("file");
+                              setDatetime(row.datetime);
+                              setFiles(false);
+                              file?.click();
+                            }}
+                            className="text-primary hover:cursor-pointer hover:opacity-70"
+                          />}
+
                         </div>
                       </div>
                     </TableCell>

@@ -109,8 +109,8 @@ export default function Home(props: BillingProps) {
   return (
     <Layout auth={props.auth}>
       <div className="flex justify-center">
-        <div className="flex flex-col md:flex-row justify-center gap-4 w-[90%] mt-12">
-          <div>
+        <div className="flex flex-col xl:flex-row justify-center gap-4 w-[90%] mt-12">
+          <div className="flex justify-center">
             <SidebarAdmin
               auth={props.auth}
               setSidebarOpened={true}
@@ -118,7 +118,7 @@ export default function Home(props: BillingProps) {
             />
           </div>
           <div className="bg-white p-4 w-full h-full">
-            <div className="flex justify-between items-center mx-4 my-4">
+            <div className="flex flex-col xl:flex-row justify-between items-center mx-4 my-4 gap-4 xl:gap-0">
               <DatePicker
                 label="Fecha de facturación"
                 name="meetingsDate"
@@ -135,7 +135,7 @@ export default function Home(props: BillingProps) {
               >
                 Pagar todos
               </Button>
-              <div className="font-semibold">
+              <div className="font-semibold text-center">
                 {pending ? (
                   <h3 className="text-red-600">
                     Existen pagos pendientes para este mes

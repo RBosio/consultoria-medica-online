@@ -205,7 +205,7 @@ export default function DetailMeeting(props: MeetingI) {
   return (
     <Layout auth={props.auth} className="flex flex-col justify-center relative">
       <>
-        <main className="flex flex-col md:flex-row flex-wrap sm:flex-nowrap justify-between gap-1 sm:gap-4 m-4">
+        <main className="flex flex-col md:flex-row flex-wrap sm:flex-nowrap justify-between gap-1 sm:gap-4 m-4 mt-[300px] sm:mt-[600px] md:mt-0">
           <section
             className="md:mt-0 w-full md:w-1/2 h-5/12 sm:h-full"
           >

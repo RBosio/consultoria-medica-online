@@ -395,20 +395,16 @@ export default function Home(props: Speciality) {
                                   idx: number
                                 ) => {
                                   return (
-                                    <div
-                                      key={idx}
-                                    >
+                                    <div key={idx}>
                                       {hi.healthInsurance && (
                                         <div className="flex justify-center gap-1">
-                                        {hi.healthInsurance.name}
-                                        {
-                                          hi.verified ? (
+                                          {hi.healthInsurance.name}
+                                          {hi.verified ? (
                                             <FaCheck className="text-green-500" />
                                           ) : (
                                             <FaXmark className="text-red-500" />
-                                          )
-                                        }
-                                          </div>
+                                          )}
+                                        </div>
                                       )}
                                     </div>
                                   );
@@ -434,28 +430,11 @@ export default function Home(props: Speciality) {
                               {row?.doctor ? (
                                 <>
                                   {row?.doctor.verified ? (
-                                    <>
-                                      <Tooltip title="Verificado">
-                                        <IconButton>
-                                          <FaCheck className="text-green-600 size-4" />
-                                        </IconButton>
-                                      </Tooltip>
-                                      <Tooltip
-                                        title="Facturación"
-                                        onClick={() =>
-                                          router.push(
-                                            `/admin/billing/${row.id}`
-                                          )
-                                        }
-                                      >
-                                        <IconButton className="p-0">
-                                          <img
-                                            src="/billing.svg"
-                                            className="size-6"
-                                          />
-                                        </IconButton>
-                                      </Tooltip>
-                                    </>
+                                    <Tooltip title="Verificado">
+                                      <IconButton>
+                                        <FaCheck className="text-green-600 size-4" />
+                                      </IconButton>
+                                    </Tooltip>
                                   ) : (
                                     <Tooltip title="No verificado">
                                       <IconButton>
@@ -554,41 +533,40 @@ export default function Home(props: Speciality) {
                                   {user.healthInsurances.map((hi, idx) => {
                                     return (
                                       hi.healthInsurance && (
-                                      <div
-                                        className="flex items-center gap-2"
-                                        key={idx}
-                                      >
-                                        <p
-                                          className={`${
-                                            hi.verified
-                                              ? "text-green-600"
-                                              : "text-red-600"
-                                          }
-                                  hover:cursor-pointer hover:underline`}
-                                          onClick={() => {
-                                            if (hi.verified) return;
-
-                                            localStorage.setItem(
-                                              "healthInsuranceId",
-                                              hi.healthInsurance.id.toString()
-                                            );
-                                            localStorage.setItem(
-                                              "userHIId",
-                                              user.id.toString()
-                                            );
-
-                                            setConfirm(true);
-                                          }}
+                                        <div
+                                          className="flex items-center gap-2"
+                                          key={idx}
                                         >
-                                          {hi.healthInsurance.name}{" "}
-                                        </p>
-                                        {hi.verified ? (
-                                          <FaCheck className="text-green-500" />
-                                        ) : (
-                                          <FaXmark className="text-red-500" />
-                                        )}
-                                      </div>
-                                        
+                                          <p
+                                            className={`${
+                                              hi.verified
+                                                ? "text-green-600"
+                                                : "text-red-600"
+                                            }
+                                  hover:cursor-pointer hover:underline`}
+                                            onClick={() => {
+                                              if (hi.verified) return;
+
+                                              localStorage.setItem(
+                                                "healthInsuranceId",
+                                                hi.healthInsurance.id.toString()
+                                              );
+                                              localStorage.setItem(
+                                                "userHIId",
+                                                user.id.toString()
+                                              );
+
+                                              setConfirm(true);
+                                            }}
+                                          >
+                                            {hi.healthInsurance.name}{" "}
+                                          </p>
+                                          {hi.verified ? (
+                                            <FaCheck className="text-green-500" />
+                                          ) : (
+                                            <FaXmark className="text-red-500" />
+                                          )}
+                                        </div>
                                       )
                                     );
                                   })}

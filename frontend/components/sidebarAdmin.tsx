@@ -10,7 +10,7 @@ import { useRouter } from "next/router";
 import {
   FaHandshake,
   FaKitMedical,
-  FaThumbsUp,
+  FaMoneyBill,
   FaUser,
   FaUserDoctor,
 } from "react-icons/fa6";
@@ -49,6 +49,11 @@ const SidebarAdmin: React.FC<SidebarAdminProps> = (props) => {
         name: "Especialidades",
         path: "/admin/specialities",
         icon: <FaUserDoctor />,
+      },
+      {
+        name: "Facturación",
+        path: "/admin/billing",
+        icon: <FaMoneyBill />,
       },
     ],
     bottom: [],

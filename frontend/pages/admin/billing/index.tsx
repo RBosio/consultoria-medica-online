@@ -1,0 +1,362 @@
+import React, { useEffect, useState } from "react";
+import Layout from "@/components/layout";
+import withAuth from "@/lib/withAuth";
+import SidebarAdmin from "@/components/sidebarAdmin";
+import { Auth } from "../../../../shared/types";
+import axios from "axios";
+import {
+  Alert,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  IconButton,
+  Paper,
+  Snackbar,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Tooltip,
+} from "@mui/material";
+import { FaCheck, FaXmark } from "react-icons/fa6";
+import Button from "@/components/button";
+import { useRouter } from "next/router";
+import { PRIMARY_COLOR } from "@/constants";
+import DatePicker from "@/components/dateInput";
+import { pesos } from "@/lib/formatCurrency";
+import { DoctorResponseDto } from "@/components/dto/doctor.dto";
+import moment from "moment";
+
+interface Billing {
+  doctor: DoctorResponseDto;
+  price: number;
+  paid: boolean;
+}
+
+interface BillingProps {
+  auth: Auth;
+  billings: Billing[];
+}
+
+export default function Home(props: BillingProps) {
+  const router = useRouter();
+
+  const [error, setError] = useState<boolean>(false);
+  const [success, setSuccess] = useState<boolean>(false);
+  const [message, setMessage] = useState<string>("");
+  const [confirm, setConfirm] = useState<boolean>(false);
+  const [o, setO] = useState(false);
+  const [pending, setPending] = useState<boolean>(false);
+  const [lastPendings, setLastPendings] = useState<boolean>(false);
+  const [month, setMonth] = useState<number>();
+  const [year, setYear] = useState<number>();
+  const [billingsMonth, setBillingsMonth] = useState<Billing[]>([]);
+
+  const onConfirmClick = () => {};
+
+  const payAll = async () => {
+    const billings = billingsMonth
+      .filter((billing) => !billing.paid)
+      .map((billing) => billing.doctor.id);
+    try {
+      await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/billing`,
+        {
+          billings,
+          month,
+          year,
+        },
+        {
+          withCredentials: true,
+          headers: { Authorization: `Bearer ${props.auth.token}` },
+        }
+      );
+
+      setBillingsMonth(
+        billingsMonth.map((b) => {
+          return {
+            ...b,
+            paid: true,
+          };
+        })
+      );
+      setPending(false);
+    } catch (error) {}
+  };
+
+  useEffect(() => {
+    (async () => {
+      if (month) {
+        let billings = await axios.get<Billing[]>(
+          `${process.env.NEXT_PUBLIC_API_URL}/billing/${month}/${year}`,
+          {
+            withCredentials: true,
+            headers: { Authorization: `Bearer ${props.auth.token}` },
+          }
+        );
+
+        setBillingsMonth(billings.data);
+        billings.data.filter((billing: Billing) => !billing.paid).length > 0 &&
+          setPending(true);
+      }
+    })();
+  }, [month, year]);
+
+  return (
+    <Layout auth={props.auth}>
+      <div className="flex justify-center">
+        <div className="flex flex-col md:flex-row justify-center gap-4 w-[90%] mt-12">
+          <div>
+            <SidebarAdmin
+              auth={props.auth}
+              setSidebarOpened={true}
+              sidebarOpened
+            />
+          </div>
+          <div className="bg-white p-4 w-full h-full">
+            <div className="flex justify-between items-center mx-4 my-4">
+              <DatePicker
+                label="Fecha de facturación"
+                name="meetingsDate"
+                views={["year", "month"]}
+                onChange={(date: any) => {
+                  setMonth(+moment(new Date(date.$d)).format("MM"));
+                  setYear(+moment(new Date(date.$d)).format("YYYY"));
+                  setPending(false);
+                }}
+              />
+              <Button
+                disabled={billingsMonth.length === 0 || !pending}
+                onClick={payAll}
+              >
+                Pagar todos
+              </Button>
+              <div className="font-semibold">
+                {pending ? (
+                  <h3 className="text-red-600">
+                    Existen pagos pendientes para este mes
+                  </h3>
+                ) : (
+                  <h3 className="text-green-400">
+                    No existen pagos pendientes en este mes
+                  </h3>
+                )}
+              </div>
+            </div>
+            <TableContainer component={Paper}>
+              <Table aria-label="meetings table">
+                <TableHead sx={{ bgcolor: PRIMARY_COLOR }}>
+                  <TableRow>
+                    <TableCell
+                      align="center"
+                      sx={{
+                        color: "#fff",
+                        padding: "1.2rem",
+                        fontSize: "1.2rem",
+                      }}
+                    >
+                      Médico
+                    </TableCell>
+                    <TableCell
+                      align="center"
+                      sx={{
+                        color: "#fff",
+                        padding: "1.2rem",
+                        fontSize: "1.2rem",
+                      }}
+                    >
+                      CBU / Alias
+                    </TableCell>
+                    <TableCell
+                      align="center"
+                      sx={{
+                        color: "#fff",
+                        padding: "1.2rem",
+                        fontSize: "1.2rem",
+                      }}
+                    >
+                      Email
+                    </TableCell>
+                    <TableCell
+                      align="center"
+                      sx={{
+                        color: "#fff",
+                        padding: "1.2rem",
+                        fontSize: "1.2rem",
+                      }}
+                    >
+                      <div className="flex justify-center items-center gap-2">
+                        Monto a pagar
+                      </div>
+                    </TableCell>
+                    <TableCell
+                      align="center"
+                      sx={{
+                        color: "#fff",
+                        padding: "1.2rem",
+                        fontSize: "1.2rem",
+                      }}
+                    >
+                      <div className="flex justify-center items-center gap-2">
+                        Operaciones
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {billingsMonth.map((row: Billing, idx: number) => (
+                    <TableRow
+                      key={idx}
+                      sx={{
+                        "&:last-child td, &:last-child th": { border: 0 },
+                      }}
+                    >
+                      <TableCell
+                        className="text-sm"
+                        align="center"
+                        sx={{ padding: "1.2rem", fontSize: "1.2rem" }}
+                      >
+                        {row.doctor.user.surname}, {row.doctor.user.name}
+                      </TableCell>
+                      <TableCell
+                        className="text-sm"
+                        align="center"
+                        sx={{ padding: "1.2rem", fontSize: "1.2rem" }}
+                      >
+                        {!row.doctor.cbu && !row.doctor.alias
+                          ? "-"
+                          : row.doctor.cbu + "/" + row.doctor.alias}
+                      </TableCell>
+                      <TableCell
+                        className="text-sm"
+                        align="center"
+                        sx={{ padding: "1.2rem", fontSize: "1.2rem" }}
+                      >
+                        {row.doctor.user.email}
+                      </TableCell>
+                      <TableCell
+                        className="text-sm"
+                        align="center"
+                        sx={{ padding: "1.2rem", fontSize: "1.2rem" }}
+                      >
+                        {pesos.format(row.price)}
+                      </TableCell>
+                      <TableCell
+                        className="text-sm"
+                        align="center"
+                        sx={{ padding: "1.2rem", fontSize: "1.2rem" }}
+                      >
+                        <>
+                          {row.paid ? (
+                            <Tooltip title="Pagado">
+                              <IconButton>
+                                <FaCheck className="text-green-600 size-4" />
+                              </IconButton>
+                            </Tooltip>
+                          ) : (
+                            <Tooltip title="No pagado">
+                              <IconButton>
+                                <FaXmark className="text-red-600 size-4" />
+                              </IconButton>
+                            </Tooltip>
+                          )}
+                          <Tooltip
+                            title="Facturación"
+                            onClick={() =>
+                              router.push(
+                                `/admin/billing/${row.doctor.user.id}`
+                              )
+                            }
+                          >
+                            <IconButton className="p-0">
+                              <img src="/billing.svg" className="size-6" />
+                            </IconButton>
+                          </Tooltip>
+                        </>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </div>
+        </div>
+        <Dialog
+          open={confirm}
+          onClose={() => {
+            setConfirm(false);
+            setO(false);
+          }}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <DialogTitle id="alert-dialog-title" className="text-center">
+            {confirm ? "Beneficio" : ""}
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+              {confirm ? "¿Desea agregar el beneficio?" : ""}
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button
+              color="error"
+              variant="text"
+              onClick={() => {
+                setConfirm(false);
+              }}
+            >
+              Cancelar
+            </Button>
+            <Button onClick={onConfirmClick} autoFocus>
+              Confirmar
+            </Button>
+          </DialogActions>
+        </Dialog>
+        <Snackbar
+          open={error || success}
+          anchorOrigin={{ vertical: "top", horizontal: "center" }}
+          autoHideDuration={4000}
+          onClose={() => {
+            setError(false);
+            setSuccess(false);
+          }}
+        >
+          <Alert
+            elevation={6}
+            variant="filled"
+            severity={error ? "error" : "success"}
+          >
+            {message}
+          </Alert>
+        </Snackbar>
+      </div>
+    </Layout>
+  );
+}
+
+export const getServerSideProps = withAuth(
+  async (auth: Auth | null, context: any) => {
+    let billings = await axios.get(
+      `${process.env.NEXT_PUBLIC_API_URL}/benefit`,
+      {
+        withCredentials: true,
+        headers: { Authorization: `Bearer ${context.req.cookies.token}` },
+      }
+    );
+
+    billings = billings.data;
+
+    return {
+      props: {
+        auth,
+        billings: [],
+      },
+    };
+  },
+  { protected: true }
+);

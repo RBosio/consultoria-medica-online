@@ -34,7 +34,7 @@ const DoctorCard: React.FC<MeetingResponseDto> = (props) => {
           </>
         )}
       </div>
-      <div className="w-full flex flex-col justify-center items-center h-full">
+      <div className="w-full flex flex-col justify-start items-center h-full">
         <h2
           className={`${robotoBold.className} text-lg sm:text-2xl text-primary text-center mt-2`}
         >

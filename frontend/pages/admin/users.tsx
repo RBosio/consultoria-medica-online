@@ -396,14 +396,19 @@ export default function Home(props: Speciality) {
                                 ) => {
                                   return (
                                     <div
-                                      className="flex justify-center gap-1"
                                       key={idx}
                                     >
-                                      {hi.healthInsurance.name}
-                                      {hi.verified ? (
-                                        <FaCheck className="text-green-500" />
-                                      ) : (
-                                        <FaXmark className="text-red-500" />
+                                      {hi.healthInsurance && (
+                                        <div className="flex justify-center gap-1">
+                                        {hi.healthInsurance.name}
+                                        {
+                                          hi.verified ? (
+                                            <FaCheck className="text-green-500" />
+                                          ) : (
+                                            <FaXmark className="text-red-500" />
+                                          )
+                                        }
+                                          </div>
                                       )}
                                     </div>
                                   );
@@ -548,6 +553,7 @@ export default function Home(props: Speciality) {
                                   </p>{" "}
                                   {user.healthInsurances.map((hi, idx) => {
                                     return (
+                                      hi.healthInsurance && (
                                       <div
                                         className="flex items-center gap-2"
                                         key={idx}
@@ -582,6 +588,8 @@ export default function Home(props: Speciality) {
                                           <FaXmark className="text-red-500" />
                                         )}
                                       </div>
+                                        
+                                      )
                                     );
                                   })}
                                 </div>

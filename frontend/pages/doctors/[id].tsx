@@ -31,6 +31,8 @@ import moment from "moment";
 import "moment/locale/es";
 import Message from "@/components/message";
 import { pesos } from "@/lib/formatCurrency";
+import { UserHealthInsuranceResponseDto } from "@/components/dto/userHealthInsurance.dto";
+import { HealthInsuranceResponseDto } from "@/components/dto/healthInsurance.dto";
 
 export default function Doctor(props: any) {
   const theme = useTheme();
@@ -243,18 +245,28 @@ export default function Doctor(props: any) {
     }
   };
 
-  const getDiscount = () => {
-    const doctorsWorkingFor = props.doctor.user.healthInsurances;
-    const userHealthInsurance = props.user.healthInsurances[0];
+  const getMax = (foundHealthInsurance: HealthInsuranceResponseDto[]) => {
+    let max = foundHealthInsurance[0];
+    foundHealthInsurance.forEach((hi: HealthInsuranceResponseDto) => {
+      if(Number(hi.discount) > Number(max.discount)) {
+        max = hi
+      }
+    })
 
-    if (!userHealthInsurance) return null;
+    return max;
+  }
 
-    const foundHealthInsurance = doctorsWorkingFor.filter(
-      (hi: any) => hi.healthInsuranceId === userHealthInsurance.healthInsurance.id
-    );
+  const getDiscount = (): HealthInsuranceResponseDto => {
+    const doctorsWorkingFor = props.doctor.user.healthInsurances.filter((hi: UserHealthInsuranceResponseDto) => hi.verified);
+    const userHealthInsurance = props.user.healthInsurances.filter((hi: UserHealthInsuranceResponseDto) => hi.verified);
 
-    console.log(userHealthInsurance)
-    return foundHealthInsurance.length === 1 ? userHealthInsurance.healthInsurance : null;
+    const foundHealthInsurance = userHealthInsurance
+    .filter(
+      (hi: UserHealthInsuranceResponseDto) => doctorsWorkingFor.map((h: any) => h.healthInsuranceId).includes(hi.healthInsurance.id)
+    )
+    .map((hi: UserHealthInsuranceResponseDto) => hi.healthInsurance)
+    
+    return getMax(foundHealthInsurance)
   };
 
   return (

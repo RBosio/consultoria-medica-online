@@ -347,7 +347,7 @@ export default function DetailMeeting(props: MeetingI) {
             className={`
             ${openedChat
                 ? "fixed z-50 inset-0 backdrop-blur-sm bg-black bg-opacity-30"
-                : "w-[100%] sm:w-[40%] bg-white rounded-lg mt-5 sm:mt-0 hidden md:inline "
+                : "w-[100%] sm:w-[40%] bg-white rounded-lg mt-5 sm:mt-0 hidden md:inline h-[600px]"
               }
               `}
           >

@@ -20,7 +20,6 @@ import {
   FaChevronLeft,
   FaChevronRight,
   FaFile,
-  FaPaperclip,
   FaUser,
 } from "react-icons/fa6";
 import { useRouter } from "next/router";
@@ -79,7 +78,7 @@ export default function MedicalRecord(props: MedicalRecordI) {
           </div>
         </div>
         <div className="mx-8 mt-8 pb-4">
-          <div className="flex justify-end items-center gap-2 text-primary py-4">
+          <div className="flex justify-end items-center gap-2 text-primary mb-4">
             <Link
               href={`/medical-record?page=${router.query.page && Number(router.query.page) > 1
                 ? Number(router.query.page) - 1

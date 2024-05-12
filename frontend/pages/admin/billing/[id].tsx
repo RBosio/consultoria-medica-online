@@ -221,8 +221,8 @@ export default function Home(props: any) {
                       .reduce((acum, value) => acum + value, 0)
                   );
                   setMonth(Months[new Date().getMonth()]);
-                  setMonthDay(new Date().getMonth() + 1);
-                  getBilling(m[0]);
+                  setMonthDay(new Date(date.$d).getMonth() + 1);
+                  getBilling(m[0], new Date(date.$d).getMonth() + 1);
                 }}
               />
             </div>

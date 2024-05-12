@@ -243,7 +243,7 @@ export default function Home(props: BillingProps) {
                         align="center"
                         sx={{ padding: "1.2rem", fontSize: "1.2rem" }}
                       >
-                        {pesos.format(row.price)}
+                        {pesos.format(row.price * 0.95)}
                       </TableCell>
                       <TableCell
                         className="text-sm"

@@ -21,8 +21,9 @@ import {
   TableHead,
   TableRow,
   Tooltip,
+  useTheme,
 } from "@mui/material";
-import { FaCheck, FaXmark } from "react-icons/fa6";
+import { FaCheck, FaUserDoctor, FaXmark } from "react-icons/fa6";
 import Button from "@/components/button";
 import { useRouter } from "next/router";
 import { PRIMARY_COLOR } from "@/constants";
@@ -30,6 +31,7 @@ import DatePicker from "@/components/dateInput";
 import { pesos } from "@/lib/formatCurrency";
 import { DoctorResponseDto } from "@/components/dto/doctor.dto";
 import moment from "moment";
+import Input from "@/components/input";
 
 interface Billing {
   doctor: DoctorResponseDto;
@@ -43,6 +45,7 @@ interface BillingProps {
 }
 
 export default function Home(props: BillingProps) {
+  const theme = useTheme();
   const router = useRouter();
 
   const [error, setError] = useState<boolean>(false);
@@ -55,6 +58,8 @@ export default function Home(props: BillingProps) {
   const [month, setMonth] = useState<number>();
   const [year, setYear] = useState<number>();
   const [billingsMonth, setBillingsMonth] = useState<Billing[]>([]);
+  const [billingsFiltered, setBillingsFiltered] = useState<any[]>([]);
+  const [name, setName] = useState<string>("");
 
   const onConfirmClick = async () => {
     await payAll();
@@ -69,20 +74,45 @@ export default function Home(props: BillingProps) {
       .filter((billing) => !billing.paid)
       .map((billing) => billing.doctor.id);
     try {
-      await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/billing`,
-        {
-          billings,
-          month,
-          year,
-        },
-        {
-          withCredentials: true,
-          headers: { Authorization: `Bearer ${props.auth.token}` },
-        }
-      );
+      console.log(month, year);
+
+      if (!month || !year) {
+        await axios.post(
+          `${process.env.NEXT_PUBLIC_API_URL}/billing`,
+          {
+            billings,
+            month: new Date().getMonth() + 1,
+            year: new Date().getFullYear(),
+          },
+          {
+            withCredentials: true,
+            headers: { Authorization: `Bearer ${props.auth.token}` },
+          }
+        );
+      } else {
+        await axios.post(
+          `${process.env.NEXT_PUBLIC_API_URL}/billing`,
+          {
+            billings,
+            month,
+            year,
+          },
+          {
+            withCredentials: true,
+            headers: { Authorization: `Bearer ${props.auth.token}` },
+          }
+        );
+      }
 
       setBillingsMonth(
+        billingsMonth.map((b) => {
+          return {
+            ...b,
+            paid: true,
+          };
+        })
+      );
+      setBillingsFiltered(
         billingsMonth.map((b) => {
           return {
             ...b,
@@ -107,7 +137,9 @@ export default function Home(props: BillingProps) {
           }
         );
 
+        // setMonth(new Date().getMonth() + 1);
         setBillingsMonth(billings.data);
+        setBillingsFiltered(billings.data);
         billings.data.filter((billing: Billing) => !billing.paid).length > 0 &&
           setPending(true);
       } else {
@@ -120,11 +152,23 @@ export default function Home(props: BillingProps) {
         );
 
         setBillingsMonth(billings.data);
+        setBillingsFiltered(billings.data);
         billings.data.filter((billing: Billing) => !billing.paid).length > 0 &&
           setPending(true);
       }
     })();
   }, [month, year]);
+
+  const filterChange = (name: string) => {
+    setBillingsFiltered(
+      billingsMonth.filter((b: Billing) =>
+        b.doctor.user.name
+          .concat(" " + b.doctor.user.surname)
+          .toLowerCase()
+          .includes(name)
+      )
+    );
+  };
 
   return (
     <Layout auth={props.auth}>
@@ -167,6 +211,19 @@ export default function Home(props: BillingProps) {
                 )}
               </div>
             </div>
+            <Input
+              name="name"
+              value={name}
+              onChange={($e: any) => {
+                setName($e.target.value.toLowerCase());
+                filterChange($e.target.value.toLowerCase());
+              }}
+              startadornment={
+                <FaUserDoctor color={theme.palette.primary.main} />
+              }
+              className="my-4"
+              label="Médico"
+            />
             <TableContainer component={Paper}>
               <Table aria-label="meetings table">
                 <TableHead sx={{ bgcolor: PRIMARY_COLOR }}>
@@ -228,7 +285,7 @@ export default function Home(props: BillingProps) {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {billingsMonth.map((row: Billing, idx: number) => (
+                  {billingsFiltered.map((row: Billing, idx: number) => (
                     <TableRow
                       key={idx}
                       sx={{

@@ -233,7 +233,7 @@ export default function Home(props: BillingProps) {
                     $e.target.checked
                       ? (() => {
                           setBillingsFiltered(
-                            billingsMonth.filter((billing) => billing.paid)
+                            billingsMonth.filter((billing) => !billing.paid)
                           );
                           setName("");
                         })()

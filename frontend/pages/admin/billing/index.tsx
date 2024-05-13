@@ -6,6 +6,7 @@ import { Auth } from "../../../../shared/types";
 import axios from "axios";
 import {
   Alert,
+  Checkbox,
   Dialog,
   DialogActions,
   DialogContent,
@@ -61,6 +62,8 @@ export default function Home(props: BillingProps) {
   const [billingsFiltered, setBillingsFiltered] = useState<any[]>([]);
   const [name, setName] = useState<string>("");
 
+  const label = { inputProps: { "aria-label": "Hello world!" } };
+
   const onConfirmClick = async () => {
     await payAll();
 
@@ -74,8 +77,6 @@ export default function Home(props: BillingProps) {
       .filter((billing) => !billing.paid)
       .map((billing) => billing.doctor.id);
     try {
-      console.log(month, year);
-
       if (!month || !year) {
         await axios.post(
           `${process.env.NEXT_PUBLIC_API_URL}/billing`,
@@ -211,19 +212,39 @@ export default function Home(props: BillingProps) {
                 )}
               </div>
             </div>
-            <Input
-              name="name"
-              value={name}
-              onChange={($e: any) => {
-                setName($e.target.value.toLowerCase());
-                filterChange($e.target.value.toLowerCase());
-              }}
-              startadornment={
-                <FaUserDoctor color={theme.palette.primary.main} />
-              }
-              className="my-4"
-              label="Médico"
-            />
+            <div className="flex justify-between items-center">
+              <Input
+                name="name"
+                value={name}
+                onChange={($e: any) => {
+                  setName($e.target.value.toLowerCase());
+                  filterChange($e.target.value.toLowerCase());
+                }}
+                startadornment={
+                  <FaUserDoctor color={theme.palette.primary.main} />
+                }
+                className="my-4"
+                label="Médico"
+              />
+              <div className="flex items-center">
+                Pagos pendientes
+                <Checkbox
+                  onChange={($e) =>
+                    $e.target.checked
+                      ? (() => {
+                          setBillingsFiltered(
+                            billingsMonth.filter((billing) => billing.paid)
+                          );
+                          setName("");
+                        })()
+                      : (() => {
+                          setBillingsFiltered(billingsMonth);
+                          setName("");
+                        })()
+                  }
+                />
+              </div>
+            </div>
             <TableContainer component={Paper}>
               <Table aria-label="meetings table">
                 <TableHead sx={{ bgcolor: PRIMARY_COLOR }}>

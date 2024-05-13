@@ -440,15 +440,18 @@ export class MeetingService {
       version: 1,
     };
 
-    meeting.status = 'Finalizada';
-    await this.meetingRepository.save(meeting);
-
     return {
       tokenMeeting: await this.jwtService.signAsync(payloadMeeting, {
         secret: process.env.ZOOM_VIDEO_SDK_SECRET,
       }),
       meeting,
     };
+  }
+
+  async finish(id: number, startDatetime: Date) {
+    const meeting = await this.findOne(id, startDatetime);
+    meeting.status = 'Finalizada';
+    return this.meetingRepository.save(meeting);
   }
 
   async createPreference(pref: any, doctorId: number) {

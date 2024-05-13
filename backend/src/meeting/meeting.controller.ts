@@ -138,4 +138,13 @@ export class MeetingController {
   ) {
     return this.meetingService.repr(id, startDatetime, meeting);
   }
+
+  @Patch('finish/:id/:startDatetime')
+  @Roles(RoleEnum.User, RoleEnum.Doctor, RoleEnum.Admin)
+  finishMeeting(
+    @Param('id') id: number,
+    @Param('startDatetime') startDatetime: Date,
+  ): Promise<Meeting | HttpException> {
+    return this.meetingService.finish(id, startDatetime);
+  }
 }

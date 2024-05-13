@@ -57,7 +57,9 @@ export class Meeting {
   })
   comments: Comment;
 
-  @OneToMany(() => Notification, (notifications) => notifications.meeting)
+  @OneToMany(() => Notification, (notifications) => notifications.meeting, {
+    cascade: true,
+  })
   notifications: Notification[];
 
   @Column({ type: Date, default: () => 'CURRENT_TIMESTAMP' })

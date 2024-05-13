@@ -50,7 +50,9 @@ export class Notification {
   @JoinColumn({ name: 'userIdReceive' })
   userReceive: User;
 
-  @ManyToOne(() => Meeting, (meeting) => meeting.notifications)
+  @ManyToOne(() => Meeting, (meeting) => meeting.notifications, {
+    onUpdate: 'SET NULL',
+  })
   meeting: Meeting;
 
   @Column({ type: Date, default: () => 'CURRENT_TIMESTAMP' })

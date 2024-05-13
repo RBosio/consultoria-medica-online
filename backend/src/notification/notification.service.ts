@@ -73,16 +73,16 @@ export class NotificationService {
     newNotification.userReceive = userReceive;
 
     if (notification.meetingUserId && notification.meetingStartDatetime) {
+      const meetingFound = await this.meetingService.findOne(
+        notification.meetingUserId,
+        notification.meetingStartDatetime,
+      );
+
+      newNotification.meeting = meetingFound;
+
       if (notification.mStartDOld && notification.mStartDNew) {
         newNotification.mStartDOld = notification.mStartDOld;
         newNotification.mStartDNew = notification.mStartDNew;
-      } else {
-        const meetingFound = await this.meetingService.findOne(
-          notification.meetingUserId,
-          notification.meetingStartDatetime,
-        );
-
-        newNotification.meeting = meetingFound;
       }
     }
 

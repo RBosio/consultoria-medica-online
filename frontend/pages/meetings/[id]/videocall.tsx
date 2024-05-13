@@ -61,6 +61,23 @@ export default function Meeting(props: any) {
     }
   };
 
+  async function finish() {
+    const { id } = router.query;
+
+    if (id && typeof id === "string") {
+      const [t, startDatetime] = atob(id).split(".");
+
+      await axios.patch(
+        `${process.env.NEXT_PUBLIC_API_URL}/meeting/finish/${t}/${startDatetime}`,
+        {},
+        {
+          withCredentials: true,
+          headers: { Authorization: `Bearer ${props.auth.token}` },
+        }
+      );
+    }
+  }
+
   async function join() {
     const { id } = router.query;
 
@@ -255,6 +272,7 @@ export default function Meeting(props: any) {
     }
 
     client.leave();
+    await finish();
     router.push("/");
   };
 
@@ -296,9 +314,19 @@ export default function Meeting(props: any) {
   };
 
   return (
-    <Layout renderSidebar={false} auth={props.auth}>
+    <Layout renderSidebar={false} renderNavbar={false} auth={props.auth}>
       <div className="flex h-full ">
-        <div className="w-full flex flex-col relative justify-center items-center xl:p-5">
+        <div className="flex flex-col relative justify-center items-center xl:p-5">
+          <div className="w-full my-4">
+            {props.auth.role === "doctor" && (
+              <a
+                href={`../../meetings/medical-record/${user?.id}`}
+                target="_blank"
+              >
+                <Button>Ver historia clínica</Button>
+              </a>
+            )}
+          </div>
           <div className="flex flex-col relative">
             {loading ? (
               <div className="absolute top-0 right-0 w-full h-full bg-black z-10 opacity-75 flex items-center justify-center">
@@ -312,7 +340,9 @@ export default function Meeting(props: any) {
             ) : null}
             <div className="flex justify-between items-center bg-primary p-4 rounded-t-md">
               <Avatar
-                labelProps={{ className: "text-white font-bold text-lg ml-2" }}
+                labelProps={{
+                  className: "text-white font-bold text-lg ml-2",
+                }}
                 name={doctor?.user.name ?? ""}
                 surname={doctor?.user.surname ?? ""}
                 className="bg-white"

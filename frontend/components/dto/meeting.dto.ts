@@ -13,5 +13,6 @@ export interface MeetingResponseDto {
   price: number;
   specialities: SpecialityResponseDto[];
   motive?: string;
+  repr?: boolean;
   auth?: Auth;
 }

@@ -2,10 +2,7 @@ import withAuth from "@/lib/withAuth";
 import { Auth } from "@/../shared/types";
 import axios from "axios";
 import Layout from "@/components/layout";
-import {
-  Fab,
-  useTheme,
-} from "@mui/material";
+import { Fab, useTheme } from "@mui/material";
 import { useRouter } from "next/router";
 import { MeetingResponseDto } from "@/components/dto/meeting.dto";
 import { SpecialityResponseDto } from "@/components/dto/speciality.dto";
@@ -206,9 +203,7 @@ export default function DetailMeeting(props: MeetingI) {
     <Layout auth={props.auth} className="flex flex-col justify-center relative">
       <>
         <main className="flex flex-col md:flex-row flex-wrap sm:flex-nowrap justify-between gap-1 sm:gap-4 m-4 mt-[300px] sm:mt-[600px] md:mt-0">
-          <section
-            className="md:mt-0 w-full md:w-1/2 h-5/12 sm:h-full"
-          >
+          <section className="md:mt-0 w-full md:w-1/2 h-5/12 sm:h-full">
             {props.auth.role === "user" ? (
               <DoctorCard
                 startDatetime={props.meeting.startDatetime}
@@ -269,13 +264,13 @@ export default function DetailMeeting(props: MeetingI) {
                             .getTime()
                         ) &&
                           Date.now() <
-                          moment(props.meeting.startDatetime)
-                            .add(
-                              props.meeting.doctor.durationMeeting + 10,
-                              "minutes"
-                            )
-                            .toDate()
-                            .getTime())
+                            moment(props.meeting.startDatetime)
+                              .add(
+                                props.meeting.doctor.durationMeeting + 10,
+                                "minutes"
+                              )
+                              .toDate()
+                              .getTime())
                       }
                       onClick={() =>
                         router.push(`/meetings/${router.query.id}/videocall`)
@@ -283,19 +278,22 @@ export default function DetailMeeting(props: MeetingI) {
                     >
                       Unirse
                     </Button>
-                    {props.meeting.status === "Pagada" && <Button
-                      size="small"
-                      startIcon={<FaClock />}
-                      onClick={() => {
-                        localStorage.setItem(
-                          "repr",
-                          JSON.stringify(props.meeting.startDatetime)
-                        );
-                        router.push(`/doctors/${props.meeting.doctor.id}`);
-                      }}
-                    >
-                      Reprogramar
-                    </Button>}
+                    {props.meeting.status === "Pagada" && (
+                      <Button
+                        size="small"
+                        startIcon={<FaClock />}
+                        onClick={() => {
+                          localStorage.setItem(
+                            "repr",
+                            JSON.stringify(props.meeting.startDatetime)
+                          );
+                          router.push(`/doctors/${props.meeting.doctor.id}`);
+                        }}
+                        disabled={props.meeting.repr}
+                      >
+                        Reprogramar
+                      </Button>
+                    )}
                   </div>
                 ) : (
                   <Button
@@ -313,13 +311,13 @@ export default function DetailMeeting(props: MeetingI) {
                           .getTime()
                       ) &&
                         Date.now() <
-                        moment(props.meeting.startDatetime)
-                          .add(
-                            props.meeting.doctor.durationMeeting + 10,
-                            "minutes"
-                          )
-                          .toDate()
-                          .getTime())
+                          moment(props.meeting.startDatetime)
+                            .add(
+                              props.meeting.doctor.durationMeeting + 10,
+                              "minutes"
+                            )
+                            .toDate()
+                            .getTime())
                     }
                     onClick={() =>
                       router.push(`/meetings/${router.query.id}/videocall`)
@@ -345,18 +343,20 @@ export default function DetailMeeting(props: MeetingI) {
             onClick={handleOnClose}
             id="container"
             className={`
-            ${openedChat
+            ${
+              openedChat
                 ? "fixed z-50 inset-0 backdrop-blur-sm bg-black bg-opacity-30"
                 : "w-[100%] sm:w-[40%] bg-white rounded-lg mt-5 sm:mt-0 hidden md:inline h-[600px]"
-              }
+            }
               `}
           >
             <section
               className={`
-              ${openedChat
+              ${
+                openedChat
                   ? "flex flex-col h-5/6 bg-white"
                   : "w-[100%] sm:w-[40%] rounded-lg mt-5 sm:mt-0 hidden md:inline"
-                }
+              }
               `}
             >
               <div className="overflow-y-scroll h-[85%]" id="scroll">
@@ -381,8 +381,9 @@ export default function DetailMeeting(props: MeetingI) {
               >
                 {file ? (
                   <div
-                    className={`w-full py-1 px-2 bg-primary rounded-md text-white flex justify-between items-center overflow-x-hidden h-8 ${file.name.length > 60 ? "overflow-y-scroll" : ""
-                      }`}
+                    className={`w-full py-1 px-2 bg-primary rounded-md text-white flex justify-between items-center overflow-x-hidden h-8 ${
+                      file.name.length > 60 ? "overflow-y-scroll" : ""
+                    }`}
                   >
                     <div className={`${robotoBold.className}`}>{file.name}</div>
                     <FaXmark

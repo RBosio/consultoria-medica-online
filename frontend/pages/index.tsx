@@ -462,7 +462,7 @@ export default function Home(props: any) {
                                     `El doctor ${n.userSend.surname}, ${n.userSend.name} solicitó verificación de la obra social ${n.healthInsurance.name}`
                                   ) : n.type === "verificationHi" ? (
                                     `El administrador ${n.userSend.surname}, ${n.userSend.name} acaba de realizar la verificación de la obra social ${n.healthInsurance.name}`
-                                  ) : n.type === "meeting" ? (
+                                  ) : n.type === "meeting" && n.meeting ? (
                                     `El usuario ${n.userSend.surname}, ${
                                       n.userSend.name
                                     } acaba de solicitar una reunión para el día ${moment(
@@ -500,7 +500,7 @@ export default function Home(props: any) {
                                       )}`
                                     : n.type === "verificationHi"
                                     ? "/profile"
-                                    : n.type === "meeting"
+                                    : n.type === "meeting" && n.meeting
                                     ? `/meetings/${btoa(
                                         n.meeting.userId +
                                           "." +
@@ -625,9 +625,11 @@ export const getServerSideProps = withAuth(
         lastMeeting,
         doctors,
         doctor,
-        notifications: notifications.filter(
-          (n: NotificationResponseDto) => n.readed === false
-        ),
+        notifications: notifications.filter((n: NotificationResponseDto) => {
+          if (n.type === "meeting" && !n.meeting) return false;
+
+          return n.readed === false;
+        }),
         plans,
       },
     };

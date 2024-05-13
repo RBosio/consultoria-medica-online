@@ -73,7 +73,13 @@ const Navbar: React.FC<NavbarProps> = (props) => {
           headers: { Authorization: `Bearer ${props.auth.token}` },
         }
       );
-      setNotifications(notifications.data);
+      setNotifications(
+        notifications.data.filter((n: NotificationResponseDto) => {
+          if (n.type === "meeting" && !n.meeting) return false;
+
+          return true;
+        })
+      );
     };
 
     func();
@@ -96,7 +102,13 @@ const Navbar: React.FC<NavbarProps> = (props) => {
         headers: { Authorization: `Bearer ${props.auth.token}` },
       }
     );
-    setNotifications(notifications.data);
+    setNotifications(
+      notifications.data.filter((n: NotificationResponseDto) => {
+        if (n.type === "meeting" && !n.meeting) return false;
+
+        return true;
+      })
+    );
   };
 
   const markAsReadAll = async () => {
@@ -116,7 +128,13 @@ const Navbar: React.FC<NavbarProps> = (props) => {
         headers: { Authorization: `Bearer ${props.auth.token}` },
       }
     );
-    setNotifications(notifications.data);
+    setNotifications(
+      notifications.data.filter((n: NotificationResponseDto) => {
+        if (n.type === "meeting" && !n.meeting) return false;
+
+        return true;
+      })
+    );
   };
 
   return (

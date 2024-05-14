@@ -11,7 +11,7 @@ import { Meeting } from 'src/entities/meeting.entity';
 import { createMeetingDto } from './dto/create-meeting.dto';
 import { v4 as uuidv4 } from 'uuid';
 import { JwtService } from '@nestjs/jwt';
-import { Request } from 'express';
+import { Request, Response } from 'express';
 import { joinMeetingResponseDto } from './dto/join-meeting-response.dto';
 import { DoctorService } from 'src/doctor/doctor.service';
 import { getMeetingsDto } from './dto/get-meetings.dto';
@@ -24,6 +24,8 @@ import { v4 as uuid } from 'uuid';
 import * as moment from 'moment';
 import { PreferenceRequest } from 'mercadopago/dist/clients/preference/commonTypes';
 import { Cron } from '@nestjs/schedule';
+import { Workbook } from 'exceljs';
+import { HealthInsuranceService } from 'src/health-insurance/health-insurance.service';
 
 export interface RequestT extends Request {
   user: {
@@ -39,6 +41,7 @@ export class MeetingService {
     private jwtService: JwtService,
     private userService: UserService,
     private doctorService: DoctorService,
+    private healthInsruanceService: HealthInsuranceService,
     private configService: ConfigService,
   ) {}
 
@@ -417,6 +420,9 @@ export class MeetingService {
 
     newMeeting.doctor = await this.doctorService.findOne(meeting.doctorId);
     newMeeting.user = await this.userService.findOne(req.user.id);
+    newMeeting.healthInsurance = await this.healthInsruanceService.findOne(
+      meeting.healthInsuranceId,
+    );
     newMeeting.tpc = uuidv4();
 
     return this.meetingRepository.save(newMeeting);
@@ -599,4 +605,156 @@ export class MeetingService {
 
     await this.meetingRepository.save(m);
   }
+
+  async getData(userId: number): Promise<DataList[]> {
+    const doctor = await this.doctorService.findOneByUserId(userId);
+    const meetings = await this.meetingRepository.find({
+      where: {
+        doctor: {
+          user: {
+            id: userId,
+          },
+        },
+      },
+      relations: {
+        user: {
+          healthInsurances: {
+            healthInsurance: true,
+          },
+        },
+        doctor: {
+          user: {
+            healthInsurances: {
+              healthInsurance: true,
+            },
+          },
+        },
+        healthInsurance: true,
+      },
+    });
+
+    const users: { hi: string; meetings: any[] }[] = [];
+    doctor.user.healthInsurances.map((hi) => {
+      users.push({
+        hi: hi.healthInsurance.name,
+        meetings: meetings.filter(
+          (meeting) => meeting.healthInsurance.id === hi.healthInsurance.id,
+        ),
+      });
+    });
+
+    const response: DataList[] = [];
+
+    users.map((u) => {
+      const resp = {
+        hi: u.hi,
+        user: '',
+        date: '',
+        dni: '',
+        num: '',
+      };
+
+      u.meetings.map((meeting) => {
+        response.push({
+          hi: u.hi,
+          user: meeting.user.surname + ', ' + meeting.user.name,
+          date: moment(meeting.startDatetime).format('YYYY-MM-DD HH:mm:ss'),
+          dni: meeting.user.dni,
+          num: 'test',
+        });
+
+        return resp;
+      });
+    });
+
+    return response;
+  }
+
+  async generateReport(userId: number, res: Response) {
+    const workbook = new Workbook();
+    const worksheet = workbook.addWorksheet('0');
+
+    worksheet.columns = [
+      {
+        header: 'Paciente',
+        key: 'user',
+        width: 20,
+      },
+      {
+        header: 'Fecha de la reunión',
+        key: 'date',
+        width: 20,
+      },
+      {
+        header: 'Dni',
+        key: 'dni',
+        width: 20,
+      },
+      {
+        header: '# de afiliado',
+        key: 'num',
+        width: 20,
+      },
+      {
+        header: 'Obra social',
+        key: 'hi',
+        width: 20,
+      },
+    ];
+    // worksheet.getCell('A1').alignment = { vertical: 'middle' };
+    // worksheet.getCell('A1').fill = {
+    //   type: 'pattern',
+    //   pattern: 'solid',
+    //   fgColor: { argb: 'FFFFFF' },
+    //   bgColor: { argb: 'EEEEEE' },
+    // };
+    // worksheet.getCell('B1').alignment = { vertical: 'middle' };
+    // worksheet.getCell('B1').fill = {
+    //   type: 'pattern',
+    //   pattern: 'solid',
+    //   fgColor: { argb: 'FFFFFF' },
+    //   bgColor: { argb: 'EEEEEE' },
+    // };
+    // worksheet.getCell('C1').alignment = { vertical: 'middle' };
+    // worksheet.getCell('C1').fill = {
+    //   type: 'pattern',
+    //   pattern: 'solid',
+    //   fgColor: { argb: 'FFFFFF' },
+    //   bgColor: { argb: 'EEEEEE' },
+    // };
+    // worksheet.getCell('D1').alignment = { vertical: 'middle' };
+    // worksheet.getCell('D1').fill = {
+    //   type: 'pattern',
+    //   pattern: 'solid',
+    //   fgColor: { argb: 'FFFFFF' },
+    //   bgColor: { argb: 'EEEEEE' },
+    // };
+    // worksheet.getCell('E1').alignment = { vertical: 'middle' };
+    // worksheet.getCell('E1').fill = {
+    //   type: 'pattern',
+    //   pattern: 'solid',
+    //   fgColor: { argb: 'FFFFFF' },
+    //   bgColor: { argb: 'EEEEEE' },
+    // };
+
+    const data: DataList[] = await this.getData(userId);
+
+    data.forEach((val, i, _) => {
+      worksheet.addRow(val);
+    });
+
+    const buffer = await workbook.xlsx.writeBuffer();
+
+    return res
+      .set('Content-Disposition', `attachment; filename=example.xlsx`)
+      .send(buffer);
+  }
+}
+
+interface DataList {
+  user: string;
+  date: string;
+  dni: string;
+  hi: string;
+  num: string;
 }

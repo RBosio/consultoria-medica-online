@@ -3,7 +3,6 @@ import {
   Get,
   Body,
   Param,
-  Delete,
   Patch,
   HttpException,
   Post,
@@ -11,6 +10,7 @@ import {
   Req,
   ParseIntPipe,
   Query,
+  Res,
 } from '@nestjs/common';
 import { MeetingService, RequestT } from './meeting.service';
 import { Meeting } from 'src/entities/meeting.entity';
@@ -22,6 +22,7 @@ import { Roles } from 'src/auth/roles.decorator';
 import { RoleEnum } from 'src/enums/role.enum';
 import { joinMeetingResponseDto } from './dto/join-meeting-response.dto';
 import { getMeetingsDto } from './dto/get-meetings.dto';
+import { Response } from 'express';
 
 @Controller('meeting')
 @UseGuards(AuthGuard, RolesGuard)
@@ -74,6 +75,11 @@ export class MeetingController {
     @Req() req: any,
   ): Promise<Meeting | HttpException> {
     return this.meetingService.findLastMeeting(id, req.user.role);
+  }
+
+  @Get('report/:userId')
+  reports(@Param('userId', ParseIntPipe) userId: number, @Res() res: Response) {
+    return this.meetingService.generateReport(userId, res);
   }
 
   @Get(':id/:startDatetime')

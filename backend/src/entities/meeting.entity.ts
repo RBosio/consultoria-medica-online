@@ -12,6 +12,7 @@ import { Doctor } from './doctor.entity';
 import { MedicalRecord } from './medical-record.entity';
 import { Comment } from './comment.entity';
 import { Notification } from './notification.entity';
+import { HealthInsurance } from './health-insurance.entity';
 
 @Entity()
 export class Meeting {
@@ -51,6 +52,12 @@ export class Meeting {
   @OneToOne(() => MedicalRecord, (medicalRecord) => medicalRecord.meeting)
   @JoinColumn()
   medicalRecord: MedicalRecord;
+
+  @ManyToOne(
+    () => HealthInsurance,
+    (healthInsurance) => healthInsurance.meeting,
+  )
+  healthInsurance: HealthInsurance;
 
   @OneToMany(() => Comment, (comment) => comment.meeting, {
     cascade: true,

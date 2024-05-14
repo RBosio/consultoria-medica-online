@@ -77,9 +77,14 @@ export class MeetingController {
     return this.meetingService.findLastMeeting(id, req.user.role);
   }
 
-  @Get('report/:userId')
-  reports(@Param('userId', ParseIntPipe) userId: number, @Res() res: Response) {
-    return this.meetingService.generateReport(userId, res);
+  @Get('report/:userId/:month/:year')
+  reports(
+    @Param('userId', ParseIntPipe) userId: number,
+    @Res() res: Response,
+    @Param('month', ParseIntPipe) month: number,
+    @Param('year', ParseIntPipe) year: number,
+  ) {
+    return this.meetingService.generateReport(userId, res, month, year);
   }
 
   @Get(':id/:startDatetime')

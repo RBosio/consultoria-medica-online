@@ -606,7 +606,11 @@ export class MeetingService {
     await this.meetingRepository.save(m);
   }
 
-  async getData(userId: number): Promise<DataList[]> {
+  async getData(
+    userId: number,
+    month: number,
+    year: number,
+  ): Promise<DataList[]> {
     const doctor = await this.doctorService.findOneByUserId(userId);
     const meetings = await this.meetingRepository.find({
       where: {
@@ -633,11 +637,18 @@ export class MeetingService {
       },
     });
 
+    const filtered = meetings.filter((meeting) => {
+      return (
+        meeting.startDatetime.getFullYear() === year &&
+        meeting.startDatetime.getMonth() + 1 === month
+      );
+    });
+
     const users: { hi: string; meetings: any[] }[] = [];
     doctor.user.healthInsurances.map((hi) => {
       users.push({
         hi: hi.healthInsurance.name,
-        meetings: meetings.filter(
+        meetings: filtered.filter(
           (meeting) => meeting.healthInsurance.id === hi.healthInsurance.id,
         ),
       });
@@ -670,7 +681,12 @@ export class MeetingService {
     return response;
   }
 
-  async generateReport(userId: number, res: Response) {
+  async generateReport(
+    userId: number,
+    res: Response,
+    month: number,
+    year: number,
+  ) {
     const workbook = new Workbook();
     const worksheet = workbook.addWorksheet('0');
 
@@ -679,26 +695,31 @@ export class MeetingService {
         header: 'Paciente',
         key: 'user',
         width: 20,
+        outlineLevel: 1,
       },
       {
         header: 'Fecha de la reunión',
         key: 'date',
         width: 20,
+        outlineLevel: 1,
       },
       {
         header: 'Dni',
         key: 'dni',
         width: 20,
+        outlineLevel: 1,
       },
       {
         header: '# de afiliado',
         key: 'num',
         width: 20,
+        outlineLevel: 1,
       },
       {
         header: 'Obra social',
         key: 'hi',
         width: 20,
+        outlineLevel: 1,
       },
     ];
     // worksheet.getCell('A1').alignment = { vertical: 'middle' };
@@ -737,7 +758,7 @@ export class MeetingService {
     //   bgColor: { argb: 'EEEEEE' },
     // };
 
-    const data: DataList[] = await this.getData(userId);
+    const data: DataList[] = await this.getData(userId, month, year);
 
     data.forEach((val, i, _) => {
       worksheet.addRow(val);

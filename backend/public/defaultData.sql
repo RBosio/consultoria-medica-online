@@ -26,7 +26,9 @@ VALUES
 INSERT INTO
     health_insurance (name, discount)
 VALUES
+    ('OSDE', 0.60),
     ('OSDE', 0.30),
+    ('OSDE', 0.20),
     ('IOSFA', 0.20),
     ('SWISS MEDICAL', 0.35),
     ('GALENO', 0.30),
@@ -74,13 +76,21 @@ INSERT INTO
         doctorId,
         medicalRecordId,
         status,
-        price
+        price,
+        healthInsuranceId
     )
 VALUES
-    (1, "2024-02-10T09:00:00", 1, 1, "Finalizada", 3000),
-    (1, "2024-03-15T11:00:00", 18, 2, "Finalizada", 3699),
-    (1, "2024-04-24T16:30:00", 18, 3, "Finalizada", 3699),
-    (1, "2024-05-02T13:45:00", 17, 4, "Finalizada",1500);
+    (1, "2024-02-10T09:00:00", 1, 1, "Finalizada", 3000, 1),
+    (1, "2024-03-15T11:00:00", 18, 2, "Finalizada", 3699, 9),
+    (1, "2024-04-24T16:30:06", 18, null, "Finalizada", 3699, 9),
+    (2, "2024-04-24T16:30:05", 18, null, "Finalizada", 3699, 9),
+    (3, "2024-04-24T16:30:04", 18, null, "Finalizada", 3699, 9),
+    (3, "2024-04-24T16:30:03", 18, null, "Finalizada", 3699, 9),
+    (4, "2024-04-24T16:30:02", 18, null, "Finalizada", 3699, 9),
+    (5, "2024-04-24T16:30:01", 18, null, "Finalizada", 3699, 9),
+    (5, "2024-04-24T16:30:40", 18, null, "Finalizada", 3699, 6),
+    (1, "2024-05-02T13:45:00", 17, 4, "Finalizada", 1500, 3),
+    (1, "2024-05-03T12:00:00", 1, null, "Pagada", 2500, 4);
 
 INSERT INTO
     comment (

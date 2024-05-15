@@ -26,6 +26,7 @@ import { PreferenceRequest } from 'mercadopago/dist/clients/preference/commonTyp
 import { Cron } from '@nestjs/schedule';
 import { Workbook } from 'exceljs';
 import { HealthInsuranceService } from 'src/health-insurance/health-insurance.service';
+import { Doctor } from 'src/entities/doctor.entity';
 
 export interface RequestT extends Request {
   user: {
@@ -607,16 +608,15 @@ export class MeetingService {
   }
 
   async getData(
-    userId: number,
+    doctor: Doctor,
     month: number,
     year: number,
   ): Promise<DataList[]> {
-    const doctor = await this.doctorService.findOneByUserId(userId);
     const meetings = await this.meetingRepository.find({
       where: {
         doctor: {
           user: {
-            id: userId,
+            id: doctor.user.id,
           },
         },
       },
@@ -644,10 +644,11 @@ export class MeetingService {
       );
     });
 
-    const users: { hi: string; meetings: any[] }[] = [];
+    const users: { hi: string; cod: string; meetings: any[] }[] = [];
     doctor.user.healthInsurances.map((hi) => {
       users.push({
         hi: hi.healthInsurance.name,
+        cod: hi.cod,
         meetings: filtered.filter(
           (meeting) => meeting.healthInsurance.id === hi.healthInsurance.id,
         ),
@@ -671,7 +672,7 @@ export class MeetingService {
           user: meeting.user.surname + ', ' + meeting.user.name,
           date: moment(meeting.startDatetime).format('YYYY-MM-DD HH:mm:ss'),
           dni: meeting.user.dni,
-          num: 'test',
+          num: u.cod,
         });
 
         return resp;
@@ -694,80 +695,85 @@ export class MeetingService {
       {
         header: 'Paciente',
         key: 'user',
-        width: 20,
+        width: 24,
         outlineLevel: 1,
       },
       {
         header: 'Fecha de la reunión',
         key: 'date',
-        width: 20,
+        width: 24,
         outlineLevel: 1,
       },
       {
         header: 'Dni',
         key: 'dni',
-        width: 20,
+        width: 24,
         outlineLevel: 1,
       },
       {
         header: '# de afiliado',
         key: 'num',
-        width: 20,
+        width: 24,
         outlineLevel: 1,
       },
       {
         header: 'Obra social',
         key: 'hi',
-        width: 20,
+        width: 24,
         outlineLevel: 1,
       },
     ];
-    // worksheet.getCell('A1').alignment = { vertical: 'middle' };
-    // worksheet.getCell('A1').fill = {
-    //   type: 'pattern',
-    //   pattern: 'solid',
-    //   fgColor: { argb: 'FFFFFF' },
-    //   bgColor: { argb: 'EEEEEE' },
-    // };
-    // worksheet.getCell('B1').alignment = { vertical: 'middle' };
-    // worksheet.getCell('B1').fill = {
-    //   type: 'pattern',
-    //   pattern: 'solid',
-    //   fgColor: { argb: 'FFFFFF' },
-    //   bgColor: { argb: 'EEEEEE' },
-    // };
-    // worksheet.getCell('C1').alignment = { vertical: 'middle' };
-    // worksheet.getCell('C1').fill = {
-    //   type: 'pattern',
-    //   pattern: 'solid',
-    //   fgColor: { argb: 'FFFFFF' },
-    //   bgColor: { argb: 'EEEEEE' },
-    // };
-    // worksheet.getCell('D1').alignment = { vertical: 'middle' };
-    // worksheet.getCell('D1').fill = {
-    //   type: 'pattern',
-    //   pattern: 'solid',
-    //   fgColor: { argb: 'FFFFFF' },
-    //   bgColor: { argb: 'EEEEEE' },
-    // };
-    // worksheet.getCell('E1').alignment = { vertical: 'middle' };
-    // worksheet.getCell('E1').fill = {
-    //   type: 'pattern',
-    //   pattern: 'solid',
-    //   fgColor: { argb: 'FFFFFF' },
-    //   bgColor: { argb: 'EEEEEE' },
-    // };
 
-    const data: DataList[] = await this.getData(userId, month, year);
+    const header = ['A', 'B', 'C', 'D', 'E'];
+
+    const doctor = await this.doctorService.findOneByUserId(userId);
+    const data: DataList[] = await this.getData(doctor, month, year);
 
     data.forEach((val, i, _) => {
       worksheet.addRow(val);
     });
 
+    worksheet.eachRow(function (row, rowNumber) {
+      if (rowNumber === 1) {
+        worksheet.columns.map((_, idx: number) => {
+          worksheet.getCell(`${header[idx]}1`).fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: '34d399' },
+          };
+          worksheet.getCell(`${header[idx]}1`).font = {
+            name: 'Arial',
+            color: { argb: 'FFFFFF' },
+            family: 1,
+            size: 14,
+          };
+          worksheet.getCell(`${header[idx]}1`).alignment = {
+            vertical: 'middle',
+            horizontal: 'center',
+          };
+        });
+      } else {
+        worksheet.columns.map((_, idx: number) => {
+          worksheet.getCell(`${header[idx]}${rowNumber}`).font = {
+            name: 'Arial',
+            family: 1,
+            size: 10,
+          };
+          worksheet.getCell(`${header[idx]}${rowNumber}`).alignment = {
+            vertical: 'middle',
+            horizontal: 'center',
+          };
+        });
+      }
+    });
+
     const buffer = await workbook.xlsx.writeBuffer();
 
     return res
-      .set('Content-Disposition', `attachment; filename=example.xlsx`)
+      .set(
+        'Content-Disposition',
+        `attachment; filename=${year}-${month}_${doctor.user.surname}-${doctor.user.name}.xlsx`,
+      )
       .send(buffer);
   }
 }

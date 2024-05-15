@@ -6,6 +6,7 @@ export interface DoctorResponseDto {
   id: number;
   description: string;
   avgRate: number;
+  count: number;
   priceMeeting: number;
   durationMeeting: number;
   planId?: number;

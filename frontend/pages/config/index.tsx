@@ -175,7 +175,7 @@ export default function Config(props: ConfigProps) {
         return;
       }
 
-      if (values.cbu.length !== 22) {
+      if (values.cbu.length !== 0 && values.cbu.length !== 22) {
         setMessage("CBU inválido");
         setError(true);
         return;
@@ -380,7 +380,10 @@ export default function Config(props: ConfigProps) {
                     />
                   ))}
                 </div>
-                <Rate rate={Number(props.doctor.avgRate)} />
+                <Rate
+                  rate={Number(props.doctor.avgRate)}
+                  count={Number(props.doctor.count)}
+                />
                 <Divider
                   variant="middle"
                   sx={{

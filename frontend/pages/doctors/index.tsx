@@ -76,6 +76,7 @@ export default function Doctors(props: any) {
                 specialities={doctor.specialities}
                 description={doctor.description}
                 rate={Number(doctor.avgRate)}
+                count={Number(doctor.count)}
                 id={doctor.id}
                 photo={doctor.user.image}
                 seniority={doctor.seniority}
@@ -225,7 +226,10 @@ const Filters: React.FC<FiltersProps> = (props) => {
           />
           <Autocomplete
             onChange={(event, newValue: any) => {
-              filtersForm.setFieldValue("healthInsuranceId", newValue ? newValue.id : "");
+              filtersForm.setFieldValue(
+                "healthInsuranceId",
+                newValue ? newValue.id : ""
+              );
             }}
             disablePortal
             noOptionsText="Obra Social no encontrada"

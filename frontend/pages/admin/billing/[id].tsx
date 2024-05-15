@@ -27,8 +27,6 @@ import {
 import { PRIMARY_COLOR } from "@/constants";
 import { pesos } from "@/lib/formatCurrency";
 import Button from "@/components/button";
-import DatePicker from "@/components/dateInput";
-import dayjs from "dayjs";
 
 const Months = [
   "Enero",

@@ -25,17 +25,18 @@ import { getMeetingsDto } from './dto/get-meetings.dto';
 import { Response } from 'express';
 
 @Controller('meeting')
-@UseGuards(AuthGuard, RolesGuard)
 export class MeetingController {
   constructor(private meetingService: MeetingService) {}
 
   @Get()
+  @UseGuards(AuthGuard, RolesGuard)
   @Roles(RoleEnum.User, RoleEnum.Doctor, RoleEnum.Admin)
   getMeetings(): Promise<Meeting[]> {
     return this.meetingService.findAll();
   }
 
   @Get('user/:userId')
+  @UseGuards(AuthGuard, RolesGuard)
   @Roles(RoleEnum.User, RoleEnum.Admin)
   getMeetingsByUser(
     @Param('userId', ParseIntPipe) userId: number,
@@ -45,6 +46,7 @@ export class MeetingController {
   }
 
   @Get('doctor/:userId')
+  @UseGuards(AuthGuard, RolesGuard)
   @Roles(RoleEnum.Doctor, RoleEnum.Admin)
   getMeetingsByDoctor(
     @Param('userId', ParseIntPipe) userId: number,
@@ -54,6 +56,7 @@ export class MeetingController {
   }
 
   @Get('medicalRecord/:userId/:doctorId')
+  @UseGuards(AuthGuard, RolesGuard)
   @Roles(RoleEnum.User, RoleEnum.Doctor, RoleEnum.Admin)
   getMeetingsNoMR(
     @Param('userId') userId: number,
@@ -63,12 +66,14 @@ export class MeetingController {
   }
 
   @Get('lastPayment/:userId')
+  @UseGuards(AuthGuard, RolesGuard)
   @Roles(RoleEnum.User, RoleEnum.Admin)
   lastPayment(@Param('userId') userId: number) {
     return this.meetingService.lastPayment(userId);
   }
 
   @Get('lastMeeting/:id')
+  @UseGuards(AuthGuard, RolesGuard)
   @Roles(RoleEnum.User, RoleEnum.Doctor, RoleEnum.Admin)
   getLastMeeting(
     @Param('id') id: number,
@@ -88,6 +93,7 @@ export class MeetingController {
   }
 
   @Get(':id/:startDatetime')
+  @UseGuards(AuthGuard, RolesGuard)
   @Roles(RoleEnum.User, RoleEnum.Doctor, RoleEnum.Admin)
   getMeeting(
     @Param('id') id: number,
@@ -97,6 +103,7 @@ export class MeetingController {
   }
 
   @Post()
+  @UseGuards(AuthGuard, RolesGuard)
   @Roles(RoleEnum.User, RoleEnum.Admin)
   createMeeting(
     @Body() meeting: createMeetingDto,
@@ -106,6 +113,7 @@ export class MeetingController {
   }
 
   @Post('join/:id/:startDatetime')
+  @UseGuards(AuthGuard, RolesGuard)
   @Roles(RoleEnum.User, RoleEnum.Doctor, RoleEnum.Admin)
   joinMeeting(
     @Req() req: RequestT,
@@ -116,6 +124,7 @@ export class MeetingController {
   }
 
   @Post('create-preference/:doctorId')
+  @UseGuards(AuthGuard, RolesGuard)
   @Roles(RoleEnum.User, RoleEnum.Doctor, RoleEnum.Admin)
   createPreference(
     @Body() createPreference: any,
@@ -125,12 +134,14 @@ export class MeetingController {
   }
 
   @Patch('pay/:id/:startDatetime')
+  @UseGuards(AuthGuard, RolesGuard)
   @Roles(RoleEnum.User, RoleEnum.Admin)
   pay(@Param('id') id: number, @Param('startDatetime') startDatetime: Date) {
     return this.meetingService.pay(id, startDatetime);
   }
 
   @Patch(':id/:startDatetime')
+  @UseGuards(AuthGuard, RolesGuard)
   @Roles(RoleEnum.User, RoleEnum.Doctor, RoleEnum.Admin)
   updateMeeting(
     @Param('id') id: number,
@@ -141,6 +152,7 @@ export class MeetingController {
   }
 
   @Patch('repr/:id/:startDatetime')
+  @UseGuards(AuthGuard, RolesGuard)
   @Roles(RoleEnum.User, RoleEnum.Admin)
   reprMeeting(
     @Param('id') id: number,
@@ -151,6 +163,7 @@ export class MeetingController {
   }
 
   @Patch('finish/:id/:startDatetime')
+  @UseGuards(AuthGuard, RolesGuard)
   @Roles(RoleEnum.User, RoleEnum.Doctor, RoleEnum.Admin)
   finishMeeting(
     @Param('id') id: number,

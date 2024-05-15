@@ -169,34 +169,41 @@ export default function Config(props: ConfigProps) {
       alias: props.doctor.alias,
     },
     onSubmit: async (values, { setSubmitting }) => {
-      if (values.priceMeeting.toString().length > 0) {
-        values.durationMeeting = duration;
-        await axios.patch(
-          `${process.env.NEXT_PUBLIC_API_URL}/user/${props.doctor.user.id}`,
-          values,
-          {
-            withCredentials: true,
-            headers: { Authorization: `Bearer ${props.auth.token}` },
-          }
-        );
-
-        await axios.patch(
-          `${process.env.NEXT_PUBLIC_API_URL}/doctor/${props.doctor.id}`,
-          { ...values, description },
-          {
-            withCredentials: true,
-            headers: { Authorization: `Bearer ${props.auth.token}` },
-          }
-        );
-
-        setModify(false);
-
-        setMessage("Datos actualizados correctamente!");
-        setSuccess(true);
-      } else {
+      if (values.priceMeeting.toString().length === 0) {
         setMessage("Ingrese un valor al precio de la reunión");
         setError(true);
+        return;
       }
+
+      if (values.cbu.length !== 22) {
+        setMessage("CBU inválido");
+        setError(true);
+        return;
+      }
+
+      values.durationMeeting = duration;
+      await axios.patch(
+        `${process.env.NEXT_PUBLIC_API_URL}/user/${props.doctor.user.id}`,
+        values,
+        {
+          withCredentials: true,
+          headers: { Authorization: `Bearer ${props.auth.token}` },
+        }
+      );
+
+      await axios.patch(
+        `${process.env.NEXT_PUBLIC_API_URL}/doctor/${props.doctor.id}`,
+        { ...values, description },
+        {
+          withCredentials: true,
+          headers: { Authorization: `Bearer ${props.auth.token}` },
+        }
+      );
+
+      setModify(false);
+
+      setMessage("Datos actualizados correctamente!");
+      setSuccess(true);
 
       router.push(`/config`);
     },

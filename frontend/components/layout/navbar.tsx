@@ -30,6 +30,7 @@ interface NavbarProps {
   sidebarOpened: boolean;
   renderSidebar: boolean;
   leftElement?: ReactElement;
+  renderProfile: boolean;
 }
 
 const Navbar: React.FC<NavbarProps> = (props) => {
@@ -73,7 +74,13 @@ const Navbar: React.FC<NavbarProps> = (props) => {
           headers: { Authorization: `Bearer ${props.auth.token}` },
         }
       );
-      setNotifications(notifications.data);
+      setNotifications(
+        notifications.data.filter((n: NotificationResponseDto) => {
+          if (n.type === "meeting" && !n.meeting) return false;
+
+          return true;
+        })
+      );
     };
 
     func();
@@ -96,7 +103,13 @@ const Navbar: React.FC<NavbarProps> = (props) => {
         headers: { Authorization: `Bearer ${props.auth.token}` },
       }
     );
-    setNotifications(notifications.data);
+    setNotifications(
+      notifications.data.filter((n: NotificationResponseDto) => {
+        if (n.type === "meeting" && !n.meeting) return false;
+
+        return true;
+      })
+    );
   };
 
   const markAsReadAll = async () => {
@@ -116,13 +129,20 @@ const Navbar: React.FC<NavbarProps> = (props) => {
         headers: { Authorization: `Bearer ${props.auth.token}` },
       }
     );
-    setNotifications(notifications.data);
+    setNotifications(
+      notifications.data.filter((n: NotificationResponseDto) => {
+        if (n.type === "meeting" && !n.meeting) return false;
+
+        return true;
+      })
+    );
   };
 
   return (
     <section
-      className={`p-4 bg-white w-full shrink-0 h-20 shadow-md flex items-center justify-between ${props.leftElement ? "" : "md:justify-end"
-        } z-10`}
+      className={`p-4 bg-white w-full shrink-0 h-20 shadow-md flex items-center justify-between ${
+        props.leftElement ? "" : "md:justify-end"
+      } z-10`}
     >
       {props.leftElement}
       {props.renderSidebar && (
@@ -143,223 +163,253 @@ const Navbar: React.FC<NavbarProps> = (props) => {
         alt="Logo HealthTech"
         onClick={() => router.push("/")}
       />
-      <div className="flex items-center justify-center relative">
-        <Tooltip placement="bottom" title="Notificaciones">
-          <IconButton onClick={handleClickNotify} size="small">
-            <Badge
-              badgeContent={notifications.filter((n) => !n.readed).length}
-              color="primary"
-              className="text-secondary text-2xl mx-4 hover:cursor-pointer hover:opacity-70"
-            >
-              <FaBell className={openN ? "text-primary" : ""} />
-            </Badge>
-          </IconButton>
-        </Tooltip>
-        <Menu
-          anchorEl={notifyPosition}
-          id="account-menu"
-          open={openNotify}
-          onClose={handleClose}
-          onClick={handleClose}
-          PaperProps={{
-            elevation: 0,
-            sx: {
-              overflow: "visible",
-              bgcolor: "#fff",
-              filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.32))",
-            },
-          }}
-          transformOrigin={{ horizontal: "right", vertical: "top" }}
-          anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
-        >
-          <div className="min-w-[500px]">
-            <div className="bg-primary flex justify-end absolute top-0 w-full rounded-md">
+      {props.renderProfile && (
+        <div className="flex items-center justify-center relative">
+          <Tooltip placement="bottom" title="Notificaciones">
+            <IconButton onClick={handleClickNotify} size="small">
+              <Badge
+                badgeContent={notifications.filter((n) => !n.readed).length}
+                color="primary"
+                className="text-secondary text-2xl mx-4 hover:cursor-pointer hover:opacity-70"
+              >
+                <FaBell className={openN ? "text-primary" : ""} />
+              </Badge>
+            </IconButton>
+          </Tooltip>
+          <Menu
+            anchorEl={notifyPosition}
+            id="account-menu"
+            open={openNotify}
+            onClose={handleClose}
+            onClick={handleClose}
+            PaperProps={{
+              elevation: 0,
+              sx: {
+                overflow: "visible",
+                bgcolor: "#fff",
+                filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.32))",
+              },
+            }}
+            transformOrigin={{ horizontal: "right", vertical: "top" }}
+            anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+          >
+            <div className="min-w-[500px]">
+              <div className="bg-primary flex justify-end absolute top-0 w-full rounded-md">
+                {notifications.length > 0 ? (
+                  <p
+                    className="text-white text-xl mx-4 p-4 hover:underline hover:cursor-pointer"
+                    onClick={markAsReadAll}
+                  >
+                    Leer todos
+                  </p>
+                ) : (
+                  <p className="text-xl text-white p-4">
+                    Por el momento no existen notificaciones a mostrar
+                  </p>
+                )}
+                <div className="bg-primary w-full h-1 absolute bottom-0"></div>
+              </div>
               {notifications.length > 0 ? (
-                <p
-                  className="text-white text-xl mx-4 p-4 hover:underline hover:cursor-pointer"
-                  onClick={markAsReadAll}
-                >
-                  Leer todos
-                </p>
-              ) : (
-                <p className="text-xl text-white p-4">
-                  Por el momento no existen notificaciones a mostrar
-                </p>
-              )}
-              <div className="bg-primary w-full h-1 absolute bottom-0"></div>
-            </div>
-            {notifications.length > 0 ? (
-              <div className="max-h-80 overflow-y-scroll mt-16">
-                {notifications.map((n) => {
-                  return (
-                    <Link
-                      key={n.id}
-                      href={
-                        n.type === "comment"
-                          ? `/meetings/${btoa(
-                              n.meeting.userId +
-                                "." +
-                                moment(n.meeting.startDatetime).format(
-                                  "YYYY-MM-DDTHH:mm:ss"
-                                )
-                            )}`
-                          : n.type === "verification hi"
-                          ? `/admin/users`
-                          : n.type === "verificationHi"
-                          ? "/profile"
-                          : n.type === "verificationDoc"
-                          ? "/profile"
-                          : n.type === "meeting"
-                          ? `/meetings/${btoa(
-                              n.meeting.userId +
-                                "." +
-                                moment(n.meeting.startDatetime).format(
-                                  "YYYY-MM-DDTHH:mm:ss"
-                                )
-                            )}`
-                          : ""
-                      }
-                      onClick={() => {
-                        markAsRead(n.id);
-                        setOpenN(!openN);
-                      }}
-                    >
-                      <MenuItem sx={{ color: "#ffffff" }}>
-                        <div className="text-black w-full">
-                          <div className="p-2">
-                            <div className="flex justify-between items-center">
-                              <div
-                                className={`w-2 h-2 rounded-full m-2 ${!n.readed ? "bg-primary" : ""
+                <div className="max-h-80 overflow-y-scroll mt-16">
+                  {notifications.map((n) => {
+                    return (
+                      <Link
+                        key={n.id}
+                        href={
+                          n.type === "comment"
+                            ? `/meetings/${btoa(
+                                n.meeting.userId +
+                                  "." +
+                                  moment(n.meeting.startDatetime).format(
+                                    "YYYY-MM-DDTHH:mm:ss"
+                                  )
+                              )}`
+                            : n.type === "verification hi"
+                            ? `/admin/users`
+                            : n.type === "verificationHi"
+                            ? "/profile"
+                            : n.type === "verificationDoc"
+                            ? "/profile"
+                            : n.type === "meeting"
+                            ? `/meetings/${btoa(
+                                n.meeting.userId +
+                                  "." +
+                                  moment(n.meeting.startDatetime).format(
+                                    "YYYY-MM-DDTHH:mm:ss"
+                                  )
+                              )}`
+                            : n.type === "rdatetime"
+                            ? `/meetings/${btoa(
+                                n.userIdSend +
+                                  "." +
+                                  moment(n.mStartDNew).format(
+                                    "YYYY-MM-DDTHH:mm:ss"
+                                  )
+                              )}`
+                            : ""
+                        }
+                        onClick={() => {
+                          markAsRead(n.id);
+                          setOpenN(!openN);
+                        }}
+                      >
+                        <MenuItem sx={{ color: "#ffffff" }}>
+                          <div className="text-black w-full">
+                            <div className="p-2">
+                              <div className="flex justify-between items-center">
+                                <div
+                                  className={`w-2 h-2 rounded-full m-2 ${
+                                    !n.readed ? "bg-primary" : ""
                                   }`}
-                              ></div>
+                                ></div>
 
-                              <div className="mr-2 w-full">
-                                <div className="flex items-center gap-2">
-                                  <p className="p-2 text-lg">
-                                    {n.type === "verification" ? (
-                                      `El doctor ${n.userSend.surname}, ${n.userSend.name} solicitó verificación de su cuenta`
-                                    ) : n.type === "comment" ? (
-                                      <>
-                                        El{" "}
-                                        {props.auth.role === "user"
-                                          ? "doctor"
-                                          : "usuario"}{" "}
-                                        {n.userSend.surname}, {n.userSend.name}{" "}
-                                        realizó un comentario en la reunión del
-                                        día{" "}
-                                        <span>
-                                          {moment(
-                                            n.meeting.startDatetime
-                                          ).format("LLL")}
-                                        </span>
-                                      </>
-                                    ) : n.type === "verificationDoctorRequest" ? (
-                                      `El usuario ${n.userSend.name} ${n.userSend.surname} solicitó la verificación de su cuenta médica`
-                                    ) : n.type === "verificationDoctor" ? (
-                                      `El administrador ${n.userSend.name} ${n.userSend.surname} te ha verificado como médico con éxito`
-                                    ) : n.type === "verificationHiRequest" ? (
-                                      `El ${n.userSend.doctor ? "doctor" : "usuario"
-                                      } ${n.userSend.surname}, ${n.userSend.name
-                                      } solicitó verificación de la obra social ${n.healthInsurance.name
-                                      }`
-                                    ) : n.type === "verificationHi" ? (
-                                      `El administrador ${n.userSend.surname}, ${n.userSend.name} acaba de realizar la verificación de la obra social ${n.healthInsurance.name}`
-                                    ) : n.type === "meeting" ? (
-                                      `El usuario ${n.userSend.surname}, ${n.userSend.name
-                                      } acaba de solicitar una reunión para el día ${moment(
-                                        n.meeting.startDatetime
-                                      ).format("LLL")}
+                                <div className="mr-2 w-full">
+                                  <div className="flex items-center gap-2">
+                                    <p className="p-2 text-lg">
+                                      {n.type === "verification" ? (
+                                        `El doctor ${n.userSend.surname}, ${n.userSend.name} solicitó verificación de su cuenta`
+                                      ) : n.type === "comment" ? (
+                                        <>
+                                          El{" "}
+                                          {props.auth.role === "user"
+                                            ? "doctor"
+                                            : "usuario"}{" "}
+                                          {n.userSend.surname},{" "}
+                                          {n.userSend.name} realizó un
+                                          comentario en la reunión del día{" "}
+                                          <span>
+                                            {moment(
+                                              n.meeting.startDatetime
+                                            ).format("LLL")}
+                                          </span>
+                                        </>
+                                      ) : n.type === "verificationHiRequest" ? (
+                                        `El ${
+                                          n.userSend.doctor
+                                            ? "doctor"
+                                            : "usuario"
+                                        } ${n.userSend.surname}, ${
+                                          n.userSend.name
+                                        } solicitó verificación de la obra social ${
+                                          n.healthInsurance.name
+                                        }`
+                                      ) : n.type === "verificationHi" ? (
+                                        `El administrador ${n.userSend.surname}, ${n.userSend.name} acaba de realizar la verificación de la obra social ${n.healthInsurance.name}`
+                                      ) : n.type === "meeting" ? (
+                                        `El usuario ${n.userSend.surname}, ${
+                                          n.userSend.name
+                                        } acaba de solicitar una reunión para el día ${moment(
+                                          n.meeting.startDatetime
+                                        ).format("LLL")}
                                       `
-                                    ) : n.type === "verificationDoc" ? (
-                                      `El administrador ${n.userSend.surname}, ${n.userSend.name} acaba de realizar la verificación su cuenta`
-                                    ) : (
-                                      ""
-                                    )}
+                                      ) : n.type === "verificationDoc" ? (
+                                        `El administrador ${n.userSend.surname}, ${n.userSend.name} acaba de realizar la verificación su cuenta`
+                                      ) : n.type === "rdatetime" ? (
+                                        `El paciente ${n.userSend.surname}, ${
+                                          n.userSend.name
+                                        } acaba de realizar la modificación de la reunión del día ${moment(
+                                          n.mStartDOld
+                                        ).format(
+                                          "LLLL"
+                                        )} hs para el día ${moment(
+                                          n.mStartDNew
+                                        ).format("LLLL")} hs`
+                                      ) : (
+                                        ""
+                                      )}
+                                    </p>
+                                  </div>
+                                  <p className="text-sm text-right p-2 text-gray-400">
+                                    {moment(n.created_at).format("LLL")}
                                   </p>
                                 </div>
-                                <p className="text-sm text-right p-2 text-gray-400">
-                                  {moment(n.created_at).format("LLL")}
-                                </p>
-                              </div>
-                              <div className="min-w-12 flex justify-end gap-2 text-xl text-primary">
-                                <FaAngleRight className="hover:opacity-70" />
+                                <div className="min-w-12 flex justify-end gap-2 text-xl text-primary">
+                                  <FaAngleRight className="hover:opacity-70" />
+                                </div>
                               </div>
                             </div>
+                            <div className="w-[90%] border-b-2 border-primary h-2 m-auto"></div>
                           </div>
-                          <div className="w-[90%] border-b-2 border-primary h-2 m-auto"></div>
-                        </div>
-                      </MenuItem>
-                    </Link>
-                  );
-                })}
-              </div>
-            ) : (
-              ""
-            )}
-          </div>
-        </Menu>
-        <Tooltip className="hidden md:block" placement="bottom" title="Perfil">
-          <IconButton
-            className={`rounded-md hover:bg-primary_light ${menuPosition ? "bg-primary" : ""
-              }`}
-            onClick={handleClick}
-            size="small"
+                        </MenuItem>
+                      </Link>
+                    );
+                  })}
+                </div>
+              ) : (
+                ""
+              )}
+            </div>
+          </Menu>
+          <Tooltip
+            className="hidden md:block"
+            placement="bottom"
+            title="Perfil"
           >
-            <Avatar
-              labelProps={{ className: `${menuPosition ? "text-white" : ""}` }}
-              name={props.auth.name}
-              surname={props.auth.surname}
-              photo={props.auth.photo}
-            />
-          </IconButton>
-        </Tooltip>
-        <Menu
-          anchorEl={menuPosition}
-          id="account-menu"
-          open={open}
-          onClose={handleClose}
-          onClick={handleClose}
-          PaperProps={{
-            elevation: 0,
-            sx: {
-              overflow: "visible",
-              bgcolor: theme.palette.primary.main,
-              filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.32))",
-              mt: 1,
-            },
-          }}
-          transformOrigin={{ horizontal: "right", vertical: "top" }}
-          anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
-        >
-          <Link href="/profile">
-            <MenuItem sx={{ color: "#ffffff" }}>
-              <ListItemIcon>
-                <IoPersonSharp color="#ffffff" />
-              </ListItemIcon>
-              Perfil
-            </MenuItem>
-          </Link>
-          <Divider sx={{ margin: "0.5em 0" }} color="#ffffff" />
-          {props.auth.role === "user" && (
-            <Link href="/register_doctor">
+            <IconButton
+              className={`rounded-md hover:bg-primary_light ${
+                menuPosition ? "bg-primary" : ""
+              }`}
+              onClick={handleClick}
+              size="small"
+            >
+              <Avatar
+                labelProps={{
+                  className: `${menuPosition ? "text-white" : ""}`,
+                }}
+                name={props.auth.name}
+                surname={props.auth.surname}
+                photo={props.auth.photo}
+              />
+            </IconButton>
+          </Tooltip>
+          <Menu
+            anchorEl={menuPosition}
+            id="account-menu"
+            open={open}
+            onClose={handleClose}
+            onClick={handleClose}
+            PaperProps={{
+              elevation: 0,
+              sx: {
+                overflow: "visible",
+                bgcolor: theme.palette.primary.main,
+                filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.32))",
+                mt: 1,
+              },
+            }}
+            transformOrigin={{ horizontal: "right", vertical: "top" }}
+            anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+          >
+            <Link href="/profile">
               <MenuItem sx={{ color: "#ffffff" }}>
                 <ListItemIcon>
-                  <FaUserDoctor color="#ffffff" />
+                  <IoPersonSharp color="#ffffff" />
                 </ListItemIcon>
-                ¿Eres un profesional médico?
+                Perfil
               </MenuItem>
             </Link>
-          )}
-          <Link href="/logout">
-            <MenuItem sx={{ color: "#ffffff" }} onClick={handleClose}>
-              <ListItemIcon>
-                <GrLogout color="#ffffff" />
-              </ListItemIcon>
-              Logout
-            </MenuItem>
-          </Link>
-        </Menu>
-      </div>
+            <Divider sx={{ margin: "0.5em 0" }} color="#ffffff" />
+            {props.auth.role === "user" && (
+              <Link href="/register_doctor">
+                <MenuItem sx={{ color: "#ffffff" }}>
+                  <ListItemIcon>
+                    <FaUserDoctor color="#ffffff" />
+                  </ListItemIcon>
+                  ¿Eres un profesional médico?
+                </MenuItem>
+              </Link>
+            )}
+            <Link href="/logout">
+              <MenuItem sx={{ color: "#ffffff" }} onClick={handleClose}>
+                <ListItemIcon>
+                  <GrLogout color="#ffffff" />
+                </ListItemIcon>
+                Logout
+              </MenuItem>
+            </Link>
+          </Menu>
+        </div>
+      )}
     </section>
   );
 };

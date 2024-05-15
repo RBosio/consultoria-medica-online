@@ -13,6 +13,6 @@ export interface MeetingResponseDto {
   price: number;
   specialities: SpecialityResponseDto[];
   motive?: string;
-  cancelDate?: Date;
+  repr?: boolean;
   auth?: Auth;
 }

@@ -4,13 +4,62 @@ import { Billing } from 'src/entities/billing.entity';
 import { Repository } from 'typeorm';
 import { createBillingDto } from './dto/create-billing.dto';
 import { DoctorService } from 'src/doctor/doctor.service';
+import { MeetingService } from 'src/meeting/meeting.service';
 
 @Injectable()
 export class BillingService {
   constructor(
     @InjectRepository(Billing) private billingRepository: Repository<Billing>,
     private doctorService: DoctorService,
+    private meetingService: MeetingService,
   ) {}
+
+  async getBillingsByMonthAndYear(month: number, year: number) {
+    const meetings = await this.meetingService.findByMonthAndYear(month, year);
+    const doctors = [];
+    let response = [];
+
+    meetings.map((meeting) => {
+      if (doctors.includes(meeting.doctorId)) {
+        response = response.map((m) => {
+          if (m.doctor.id === meeting.doctorId) {
+            return { ...m, price: m.price + +meeting.price };
+          }
+
+          return m;
+        });
+      } else {
+        doctors.push(meeting.doctorId);
+        response.push({
+          doctor: meeting.doctor,
+          price: +meeting.price,
+          paid: 1,
+        });
+      }
+    });
+
+    response = await Promise.all(
+      response.map(async (r) => {
+        return { ...r, paid: await this.checkPaid(month, year, r.doctor.id) };
+      }),
+    );
+
+    return response;
+  }
+
+  private async checkPaid(month: number, year: number, doctorId: number) {
+    const check = await this.billingRepository.find({
+      where: {
+        doctor: {
+          id: doctorId,
+        },
+        month,
+        year,
+      },
+    });
+
+    return check.length > 0;
+  }
 
   async getBilling(month: number, year: number, doctorId: number) {
     const billing = await this.billingRepository.findOne({
@@ -29,11 +78,29 @@ export class BillingService {
   }
 
   async save(createBillingDto: createBillingDto) {
-    const billing = this.billingRepository.create(createBillingDto);
+    if (createBillingDto.billings) {
+      Promise.all(
+        createBillingDto.billings.map(async (billing) => {
+          const b = this.billingRepository.create({
+            month: createBillingDto.month,
+            year: createBillingDto.year,
+          });
 
-    const doctor = await this.doctorService.findOne(createBillingDto.doctorId);
-    billing.doctor = doctor;
+          const doctor = await this.doctorService.findOne(billing);
+          b.doctor = doctor;
 
-    return this.billingRepository.save(billing);
+          return this.billingRepository.save(b);
+        }),
+      );
+    } else {
+      const billing = this.billingRepository.create(createBillingDto);
+
+      const doctor = await this.doctorService.findOne(
+        createBillingDto.doctorId,
+      );
+      billing.doctor = doctor;
+
+      return this.billingRepository.save(billing);
+    }
   }
 }

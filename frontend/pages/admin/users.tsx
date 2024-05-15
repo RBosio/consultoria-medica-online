@@ -24,18 +24,15 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  ToggleButton,
-  ToggleButtonGroup,
   Tooltip,
   Typography,
   useTheme,
 } from "@mui/material";
 import {
-  FaArrowDownShortWide,
-  FaArrowUpWideShort,
   FaChevronLeft,
   FaChevronRight,
   FaCircleInfo,
+  FaSort,
   FaUserDoctor,
   FaXmark,
 } from "react-icons/fa6";
@@ -66,6 +63,7 @@ export default function Home(props: Speciality) {
   const [o, setO] = useState(false);
   const [verify, setVerify] = useState<boolean>(false);
   const [name, setName] = useState<string>("");
+  const [directionName, setDirectionName] = useState<string>("asc");
 
   const theme = useTheme();
   const router = useRouter();
@@ -73,7 +71,7 @@ export default function Home(props: Speciality) {
   useEffect(() => {
     setPage(1);
     const filter = props.users.filter((sp, idx) => idx >= 10 * 0 && idx < 10);
-    setUsers(filter);
+    setUsers(props.users);
     setUsersFiltered(filter);
   }, []);
 
@@ -159,19 +157,6 @@ export default function Home(props: Speciality) {
       }
     );
 
-    await axios.post(
-      `${process.env.NEXT_PUBLIC_API_URL}/notification`,
-      {
-        userIdSend: props.auth.id,
-        userIdReceive: user?.id,
-        type: "verificationDoctor",
-      },
-      {
-        withCredentials: true,
-        headers: { Authorization: `Bearer ${props.auth.token}` },
-      }
-    );
-
     setSuccess(true);
     setMessage("Doctor verificado con éxito");
 
@@ -186,9 +171,18 @@ export default function Home(props: Speciality) {
       `${process.env.NEXT_PUBLIC_API_URL}/notification`,
       {
         userIdSend: props.auth.id,
-        userIdReceive: user.id,
+        userIdReceive: user!.id,
         type: "verificationDoc",
       },
+      {
+        withCredentials: true,
+        headers: { Authorization: `Bearer ${props.auth.token}` },
+      }
+    );
+
+    await axios.patch(
+      `${process.env.NEXT_PUBLIC_API_URL}/user/clearHI/${user!.id}`,
+      {},
       {
         withCredentials: true,
         headers: { Authorization: `Bearer ${props.auth.token}` },
@@ -199,27 +193,43 @@ export default function Home(props: Speciality) {
   const filterChange = (name: string) => {
     setPage(1);
     setUsersFiltered(
-      users.filter((u: UserResponseDto) => u.name.toLowerCase().includes(name))
+      users.filter((u: UserResponseDto) =>
+        u.name
+          .concat(" " + u.surname)
+          .toLowerCase()
+          .includes(name)
+      )
     );
   };
 
-  const [orderDirection, setOrderDirection] = useState("asc");
-  const handleOrderChange = (
-    event: React.MouseEvent<HTMLElement>,
-    nextOrderDirection: string
-  ) => {
-    if (nextOrderDirection !== null) {
-      setName("");
+  const handleOrderChange = (filter: string) => {
+    setName("");
+    if (filter === "name") {
       setUsersFiltered(
-        users.sort((a, b) => {
-          if (nextOrderDirection === "asc") {
+        usersFiltered.sort((a, b) => {
+          if (directionName === "asc") {
             return a.name.localeCompare(b.name);
           } else {
             return b.name.localeCompare(a.name);
           }
         })
       );
-      setOrderDirection(nextOrderDirection);
+    } else {
+      setUsersFiltered(
+        usersFiltered.sort((a, b) => {
+          if (directionName === "asc") {
+            return a.surname.localeCompare(b.surname);
+          } else {
+            return b.surname.localeCompare(a.surname);
+          }
+        })
+      );
+    }
+
+    if (directionName === "asc") {
+      setDirectionName("desc");
+    } else {
+      setDirectionName("asc");
     }
   };
 
@@ -248,26 +258,8 @@ export default function Home(props: Speciality) {
                     <FaUserDoctor color={theme.palette.primary.main} />
                   }
                   className="w-1/2"
-                  label="Nombre"
+                  label="Paciente"
                 />
-                <ToggleButtonGroup
-                  sx={{
-                    ".MuiButtonBase-root.MuiToggleButton-root.Mui-selected": {
-                      background: theme.palette.primary.light,
-                    },
-                  }}
-                  orientation="vertical"
-                  value={orderDirection}
-                  onChange={handleOrderChange}
-                  exclusive
-                >
-                  <ToggleButton value="asc" aria-label="asc">
-                    <FaArrowUpWideShort />
-                  </ToggleButton>
-                  <ToggleButton value="desc" aria-label="desc">
-                    <FaArrowDownShortWide />
-                  </ToggleButton>
-                </ToggleButtonGroup>
               </div>
               <div className="w-5/6">
                 {
@@ -289,7 +281,7 @@ export default function Home(props: Speciality) {
                     />
 
                     <p className="text-md">
-                      Pagina {page ? page : 1} -{" "}
+                      Página {page ? page : 1} -{" "}
                       {Math.ceil(props.users.length / 10)}
                     </p>
                   </div>
@@ -306,7 +298,13 @@ export default function Home(props: Speciality) {
                             fontSize: "1.2rem",
                           }}
                         >
-                          Nombre
+                          <div className="flex items-center">
+                            <p className="w-3/4">Nombre</p>
+                            <FaSort
+                              className="hover:cursor-pointer"
+                              onClick={() => handleOrderChange("name")}
+                            />
+                          </div>
                         </TableCell>
                         <TableCell
                           align="center"
@@ -316,7 +314,13 @@ export default function Home(props: Speciality) {
                             fontSize: "1.2rem",
                           }}
                         >
-                          Apellido
+                          <div className="flex items-center">
+                            <p className="w-3/4">Apellido</p>
+                            <FaSort
+                              className="hover:cursor-pointer"
+                              onClick={() => handleOrderChange("surname")}
+                            />
+                          </div>
                         </TableCell>
                         <TableCell
                           align="center"
@@ -391,15 +395,16 @@ export default function Home(props: Speciality) {
                                   idx: number
                                 ) => {
                                   return (
-                                    <div
-                                      className="flex justify-center gap-1"
-                                      key={idx}
-                                    >
-                                      {hi.healthInsurance.name}
-                                      {hi.verified ? (
-                                        <FaCheck className="text-green-500" />
-                                      ) : (
-                                        <FaXmark className="text-red-500" />
+                                    <div key={idx}>
+                                      {hi.healthInsurance && (
+                                        <div className="flex justify-center gap-1">
+                                          {hi.healthInsurance.name}
+                                          {hi.verified ? (
+                                            <FaCheck className="text-green-500" />
+                                          ) : (
+                                            <FaXmark className="text-red-500" />
+                                          )}
+                                        </div>
                                       )}
                                     </div>
                                   );
@@ -437,19 +442,6 @@ export default function Home(props: Speciality) {
                                       </IconButton>
                                     </Tooltip>
                                   )}
-                                  <Tooltip
-                                    title="Facturación"
-                                    onClick={() =>
-                                      router.push(`/admin/billing/${row.id}`)
-                                    }
-                                  >
-                                    <IconButton className="p-0">
-                                      <img
-                                        src="/billing.svg"
-                                        className="size-6"
-                                      />
-                                    </IconButton>
-                                  </Tooltip>
                                 </>
                               ) : (
                                 ""
@@ -496,8 +488,9 @@ export default function Home(props: Speciality) {
                       >
                         {user && (
                           <div
-                            className={`mt-4 p-4 mx-auto ${!user?.doctor && "flex flex-col items-center"
-                              }`}
+                            className={`mt-4 p-4 mx-auto ${
+                              !user?.doctor && "flex flex-col items-center"
+                            }`}
                           >
                             <div className="flex flex-col md:flex-row gap-4 md:gap-0 justify-between">
                               <div className="flex flex-col gap-2">
@@ -539,39 +532,42 @@ export default function Home(props: Speciality) {
                                   </p>{" "}
                                   {user.healthInsurances.map((hi, idx) => {
                                     return (
-                                      <div
-                                        className="flex items-center gap-2"
-                                        key={idx}
-                                      >
-                                        <p
-                                          className={`${hi.verified
-                                            ? "text-green-600"
-                                            : "text-red-600"
+                                      hi.healthInsurance && (
+                                        <div
+                                          className="flex items-center gap-2"
+                                          key={idx}
+                                        >
+                                          <p
+                                            className={`${
+                                              hi.verified
+                                                ? "text-green-600"
+                                                : "text-red-600"
                                             }
                                   hover:cursor-pointer hover:underline`}
-                                          onClick={() => {
-                                            if (hi.verified) return;
+                                            onClick={() => {
+                                              if (hi.verified) return;
 
-                                            localStorage.setItem(
-                                              "healthInsuranceId",
-                                              hi.healthInsurance.id.toString()
-                                            );
-                                            localStorage.setItem(
-                                              "userHIId",
-                                              user.id.toString()
-                                            );
+                                              localStorage.setItem(
+                                                "healthInsuranceId",
+                                                hi.healthInsurance.id.toString()
+                                              );
+                                              localStorage.setItem(
+                                                "userHIId",
+                                                user.id.toString()
+                                              );
 
-                                            setConfirm(true);
-                                          }}
-                                        >
-                                          {hi.healthInsurance.name}{" "}
-                                        </p>
-                                        {hi.verified ? (
-                                          <FaCheck className="text-green-500" />
-                                        ) : (
-                                          <FaXmark className="text-red-500" />
-                                        )}
-                                      </div>
+                                              setConfirm(true);
+                                            }}
+                                          >
+                                            {hi.healthInsurance.name}{" "}
+                                          </p>
+                                          {hi.verified ? (
+                                            <FaCheck className="text-green-500" />
+                                          ) : (
+                                            <FaXmark className="text-red-500" />
+                                          )}
+                                        </div>
+                                      )
                                     );
                                   })}
                                 </div>
@@ -614,8 +610,9 @@ export default function Home(props: Speciality) {
                                 </div>
                               </div>
                               <div
-                                className={`${user.doctor && "ml-24"
-                                  } hidden md:block`}
+                                className={`${
+                                  user.doctor && "ml-24"
+                                } hidden md:block`}
                               >
                                 {user?.doctor && (
                                   <div className="flex flex-col gap-2">
@@ -738,8 +735,8 @@ export default function Home(props: Speciality) {
               {confirm
                 ? "¿Desea validar la obra social?"
                 : verify
-                  ? "¿Desea verificar al doctor?"
-                  : ""}
+                ? "¿Desea verificar al doctor?"
+                : ""}
             </DialogContentText>
           </DialogContent>
           <DialogActions>
@@ -782,6 +779,15 @@ export default function Home(props: Speciality) {
 
 export const getServerSideProps = withAuth(
   async (auth: Auth | null, context: any) => {
+    if (auth!.role !== "admin") {
+      return {
+        redirect: {
+          destination: "/",
+          permanent: false,
+        },
+      };
+    }
+
     let users = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/user`, {
       withCredentials: true,
       headers: { Authorization: `Bearer ${context.req.cookies.token}` },

@@ -197,7 +197,6 @@ export default function Meetings(props: Meeting) {
               options={[
                 { id: "Pagada", label: "Pagada" },
                 { id: "Finalizada", label: "Finalizada" },
-                { id: "Cancelada", label: "Cancelada" },
               ]}
               renderInput={(params: any) => (
                 <Input
@@ -237,6 +236,7 @@ export default function Meetings(props: Meeting) {
                       specialities={meeting.doctor.specialities}
                       auth={props.auth}
                       tpc=""
+                      price={meeting.price}
                     />
                   );
                 }

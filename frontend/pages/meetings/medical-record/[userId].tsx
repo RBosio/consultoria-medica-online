@@ -15,30 +15,36 @@ import axios from "axios";
 import { MedicalRecordResponse } from "@/components/dto/medical-record.dto";
 import moment from "moment";
 import "moment/locale/es";
+import { robotoBold } from "@/lib/fonts";
 import {
   FaAddressCard,
+  FaCalendarDays,
   FaChevronLeft,
   FaChevronRight,
-  FaCircleInfo,
-  FaEnvelope,
+  FaFile,
+  FaMars,
   FaPaperclip,
-  FaPhone,
   FaUser,
+  FaVenus,
 } from "react-icons/fa6";
 import { useRouter } from "next/router";
+import { IoAdd } from "react-icons/io5";
 import Link from "next/link";
 import {
   Alert,
+  Autocomplete,
+  Box,
   Chip,
-  MenuItem,
-  Select,
+  Fade,
+  Modal,
   Snackbar,
-  TextField,
 } from "@mui/material";
 import Button from "@/components/button";
 import { MeetingResponseDto } from "@/components/dto/meeting.dto";
 import { showDni } from "@/lib/dni";
 import { UserResponseDto } from "@/components/dto/user.dto";
+import Avatar from "@/components/avatar";
+import Input from "@/components/input";
 
 interface MedicalRecordI {
   medicalRecords: MedicalRecordResponse[];
@@ -51,8 +57,8 @@ interface MedicalRecordI {
 export default function MedicalRecord(props: MedicalRecordI) {
   const router = useRouter();
 
-  const [detail, setDetail] = useState<string>();
-  const [observations, setObservations] = useState<string>();
+  const [detail, setDetail] = useState<string>("");
+  const [observations, setObservations] = useState<string>("");
   const [meeting, setMeeting] = useState<any>();
   const [datetime, setDatetime] = useState<any>();
   const [file, setFile] = useState<any>();
@@ -60,6 +66,8 @@ export default function MedicalRecord(props: MedicalRecordI) {
   const [error, setError] = useState<boolean>(false);
   const [message, setMessage] = useState<string>("");
   const [success, setSuccess] = useState<boolean>(false);
+  const [id, setId] = useState<number>();
+  const [modal, setModal] = useState<boolean>(false);
 
   useEffect(() => {
     moment.locale("es");
@@ -67,6 +75,7 @@ export default function MedicalRecord(props: MedicalRecordI) {
 
   const handleClickAdd = async () => {
     if (detail && meeting) {
+      setModal(false);
       await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/medicalRecord`,
         {
@@ -83,14 +92,14 @@ export default function MedicalRecord(props: MedicalRecordI) {
       );
 
       setSuccess(true);
-      setMessage("Se ha agregado el registro medico correctamente");
+      setMessage("Se ha agregado el registro médico correctamente");
 
       setDetail("");
       setObservations("");
-      router.push(`/medical-record/${router.query.userId}`);
+      router.push(`/meetings/medical-record/${router.query.userId}`);
     } else {
       setError(true);
-      setMessage("Por favor, complete el detalle y la reunión");
+      setMessage("Por favor, indique la reunión y el detalle de la misma. Las observaciones son opcionales");
     }
   };
 
@@ -106,9 +115,7 @@ export default function MedicalRecord(props: MedicalRecordI) {
       formData.append("file", file);
       formData.append("type", file.type);
       await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/medicalRecord/${moment(
-          datetime
-        ).format("YYYY-MM-DDTHH:mm:ss")}/file`,
+        `${process.env.NEXT_PUBLIC_API_URL}/medicalRecord/${id}/file`,
         formData,
         {
           withCredentials: true,
@@ -127,7 +134,7 @@ export default function MedicalRecord(props: MedicalRecordI) {
     }
 
     setFile(null);
-    router.push(`/medical-record/${router.query.userId}`);
+    router.push(`/meetings/medical-record/${router.query.userId}`);
   };
 
   async function handleClick(url: string, name: string, type: string) {
@@ -151,16 +158,18 @@ export default function MedicalRecord(props: MedicalRecordI) {
     <Layout auth={props.auth}>
       <section className="bg-white w-5/6 mx-auto">
         <div
-          className={`flex flex-col md:flex-row ${
-            props.auth.role === "doctor" ? "justify-between" : "justify-center"
-          } items-center px-8 pt-8`}
+          className={`flex flex-col md:flex-row justify-center items-center px-8 pt-8`}
         >
           <div className="flex flex-col md:flex-row items-center">
             {props.user.image ? (
-              <img
-                src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/user/images/${props.user.image}`}
-                alt="Profile photo"
-                className="h-64 sm:h-56 object-cover w-full"
+              <Avatar
+                labelProps={{ className: "hidden" }}
+                name={props.user.name}
+                surname={props.user.surname}
+                className="bg-primary"
+                size={200}
+                icon={<FaUser size={100} />}
+                photo={props.user.image ? `${props.user.image}` : undefined}
               />
             ) : (
               <>
@@ -170,111 +179,52 @@ export default function MedicalRecord(props: MedicalRecordI) {
               </>
             )}
             <div className="flex flex-col items-center ml-4">
-              <h3 className="text-primary text-3xl">
-                {props.user.name} {props.user.surname}
-              </h3>
-              <h5 className="text-md flex items-center gap-2">
-                <FaEnvelope className="text-primary" /> {props.user.email}
-              </h5>
+              <h2 className={`text-primary text-3xl ${robotoBold.className}`}>
+                Historia clínica
+              </h2>
+              <h3 className="text-primary text-2xl">{props.user.name} {props.user.surname}</h3>
               <div className="flex flex-col">
-                <p className="flex items-center gap-2">
-                  <FaPhone className="text-primary" /> {props.user.phone}
-                </p>
                 <p className="flex items-center gap-2">
                   <FaAddressCard className="text-primary" />{" "}
                   {props.user.dni && showDni(props.user.dni)}
                 </p>
+                <p className="flex items-center gap-2">
+                  <FaCalendarDays className="text-primary" /> {moment().diff(props.user.birthday, "years")} años
+                </p>
+                <p className="flex items-center gap-2">
+                  {props.user.gender ? (
+                    <FaMars className="text-primary" />
+                  ) : (
+                    <FaVenus className="text-primary" />
+                  )}
+                  {props.user.gender ? "Masculino" : "Femenino"}
+                </p>
               </div>
             </div>
           </div>
-          {props.auth.role === "doctor" ? (
-            <div className="md:w-2/3">
-              <div className="flex flex-col md:flex-row justify-center items-center gap-4 mt-4 md:mt-0">
-                <TextField
-                  onChange={($e) => setDetail($e.target.value)}
-                  id="outlined-multiline-static"
-                  label="Detail"
-                  multiline
-                  rows={4}
-                  fullWidth
-                  color="primary"
-                  value={detail}
-                  focused
-                />
-                <TextField
-                  onChange={($e) => setObservations($e.target.value)}
-                  id="outlined-multiline-static"
-                  label="Observations"
-                  multiline
-                  rows={4}
-                  fullWidth
-                  color="primary"
-                  value={observations}
-                  focused
-                />
-              </div>
-              <div className="mt-4 flex flex-col md:flex-row justify-between items-center">
-                <div className="flex items-center gap-2 md:w-1/2">
-                  <h5 className="text-primary text-xl">Reunión</h5>
-                  <Select
-                    onChange={($e) => setMeeting($e.target.value)}
-                    labelId="demo-simple-select-helper-label"
-                    id="demo-simple-select-helper"
-                    label="Reunion"
-                    sx={{ width: "81.9%" }}
-                  >
-                    {props.meetings.map(
-                      (meeting: MeetingResponseDto, idx: number) => {
-                        return (
-                          <MenuItem
-                            key={idx}
-                            value={moment(meeting.startDatetime).format(
-                              "YYYY-MM-DDTHH:mm:ss"
-                            )}
-                          >
-                            {moment(meeting.startDatetime).format("LLL")}
-                          </MenuItem>
-                        );
-                      }
-                    )}
-                  </Select>
-                </div>
-                <div className="mt-4 md:mt-0 w-full flex justify-center">
-                  <Button
-                    onClick={handleClickAdd}
-                    sx={{ width: "40%", margin: "auto" }}
-                  >
-                    Agregar
-                  </Button>
-                </div>
-              </div>
-            </div>
-          ) : (
-            ""
-          )}
+
         </div>
         <div className="mx-8 mt-8 pb-4">
-          <div className="flex justify-end items-center gap-2 text-primary py-4">
+          <div className="flex justify-end items-center gap-2 text-primary mb-6">
+            <Button onClick={() => setModal(true)} startIcon={<IoAdd />} className="mr-auto">Nueva historia clínica</Button>
             <Link
-              href={`/medical-record/${router.query.userId}?page=${
-                router.query.page && Number(router.query.page) > 1
-                  ? Number(router.query.page) - 1
-                  : 1
-              }`}
+              href={`/meetings/medical-record/${router.query.userId}?page=${router.query.page && Number(router.query.page) > 1
+                ? Number(router.query.page) - 1
+                : 1
+                }`}
             >
               <FaChevronLeft className="text-2xl" />
             </Link>
             <Link
-              href={`/medical-record/${router.query.userId}?page=${
-                router.query.page && Number(router.query.page) < props.pages
-                  ? Number(router.query.page) + 1
-                  : props.pages
-              }`}
+              href={`/meetings/medical-record/${router.query.userId}?page=${router.query.page && Number(router.query.page) < props.pages
+                ? Number(router.query.page) + 1
+                : props.pages + 1
+                }`}
             >
               <FaChevronRight className="text-2xl" />
             </Link>
             <p className="text-md">
-              Pagina {router.query.page ? router.query.page : 1} - {props.pages}
+              Página {router.query.page ? router.query.page : 1} - {props.pages === 0 ? 1 : props.pages}
             </p>
           </div>
           <TableContainer component={Paper}>
@@ -289,7 +239,7 @@ export default function MedicalRecord(props: MedicalRecordI) {
                       fontSize: "1.2rem",
                     }}
                   >
-                    Medico
+                    Médico
                   </TableCell>
                   <TableCell
                     align="center"
@@ -320,26 +270,7 @@ export default function MedicalRecord(props: MedicalRecordI) {
                       width: "30%",
                     }}
                   >
-                    <div className="flex justify-center items-center gap-2">
-                      Detalle{" "}
-                      {
-                        <FaCircleInfo
-                          className="text-xl hover:cursor-pointer hover:opacity-70"
-                          onClick={() => {
-                            setFile(null);
-                            setFiles(true);
-
-                            setTimeout(() => {
-                              const div =
-                                document.querySelector(".overflow-y-auto");
-                              if (div) {
-                                div.scrollTop = 1200;
-                              }
-                            }, 240);
-                          }}
-                        />
-                      }
-                    </div>
+                    Detalle
                   </TableCell>
                   <TableCell
                     align="center"
@@ -402,20 +333,24 @@ export default function MedicalRecord(props: MedicalRecordI) {
                       <div className="flex justify-center items-center gap-2">
                         {row.detail}
                         <div className="flex gap-2">
-                          {row.files.length > 0 ||
-                          props.auth.role !== "doctor" ? (
-                            ""
-                          ) : (
-                            <FaPaperclip
-                              onClick={() => {
-                                const file = document.getElementById("file");
-                                setDatetime(row.datetime);
-                                setFiles(false);
-                                file?.click();
-                              }}
-                              className="text-primary hover:cursor-pointer hover:opacity-70"
-                            />
-                          )}
+                          {row.files.length > 0 ? (
+                            <a
+                              target="_blank"
+                              href={`http://localhost:3000/uploads/medical-record/${row.files[0].url}`}
+                            >
+                              <FaFile className="text-primary text-lg hover:cursor-pointer" />
+                            </a>
+                          ) : <FaPaperclip
+                            onClick={() => {
+                              const file = document.getElementById("file");
+                              setDatetime(row.datetime);
+                              setId(row.id);
+                              setFiles(false);
+                              file?.click();
+                            }}
+                            className="text-primary hover:cursor-pointer hover:opacity-70"
+                          />}
+
                         </div>
                       </div>
                     </TableCell>
@@ -524,6 +459,69 @@ export default function MedicalRecord(props: MedicalRecordI) {
             {message}
           </Alert>
         </Snackbar>
+        <Modal
+          open={modal}
+          onClose={() => setModal(false)}
+        >
+          <Fade in={modal}>
+            <Box
+              className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-4/12"
+              sx={{
+                position: "absolute" as "absolute",
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+                bgcolor: "background.paper",
+                boxShadow: 24,
+                p: 4,
+              }}
+            >
+              <div className="flex flex-col gap-6">
+                <h2 className={`${robotoBold.className} text-primary text-xl mb-4`}>Agregar historia clínica</h2>
+                <Autocomplete
+                  onChange={(event, newValue: any) => setMeeting(newValue ? newValue.id : null)}
+                  disablePortal
+                  noOptionsText="No hay reuniones realizadas"
+                  options={props.meetings.map((meeting: MeetingResponseDto) => ({
+                    id: moment(meeting.startDatetime).format("YYYY-MM-DDTHH:mm:ss"),
+                    label: moment(meeting.startDatetime).format("LLL"),
+                  }))}
+                  renderInput={(params: any) => (
+                    <Input
+                      variant="outlined"
+                      onChange={() => { }}
+                      name="healthInsuranceId"
+                      {...params}
+                      label="Reunión"
+                    />
+                  )}
+                />
+                <Input
+                  onChange={($e) => setDetail($e.target.value)}
+                  label="Detalle"
+                  multiline
+                  rows={4}
+                  fullWidth
+                  color="primary"
+                  variant="outlined"
+                  value={detail}
+                />
+                <Input
+                  onChange={($e) => setObservations($e.target.value)}
+                  label="Observaciones"
+                  fullWidth
+                  value={observations}
+                  variant="outlined"
+                />
+                <Button
+                  onClick={handleClickAdd}
+                >
+                  ACEPTAR
+                </Button>
+              </div>
+            </Box>
+          </Fade>
+        </Modal>
       </section>
     </Layout>
   );

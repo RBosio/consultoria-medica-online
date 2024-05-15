@@ -406,7 +406,10 @@ export default function Home(props: any) {
                 </div>
               ))}
             {props.auth.role === "doctor" &&
-              (!props.doctor.durationMeeting || !props.doctor.priceMeeting ? (
+              (!props.doctor.durationMeeting ||
+              !props.doctor.priceMeeting ||
+              !props.doctor.cbu ||
+              !props.doctor.alias ? (
                 <>
                   <h2 className="text-3xl text-center text-zinc-600">
                     Termine de configurar su perfil
@@ -459,7 +462,7 @@ export default function Home(props: any) {
                                     `El doctor ${n.userSend.surname}, ${n.userSend.name} solicitó verificación de la obra social ${n.healthInsurance.name}`
                                   ) : n.type === "verificationHi" ? (
                                     `El administrador ${n.userSend.surname}, ${n.userSend.name} acaba de realizar la verificación de la obra social ${n.healthInsurance.name}`
-                                  ) : n.type === "meeting" ? (
+                                  ) : n.type === "meeting" && n.meeting ? (
                                     `El usuario ${n.userSend.surname}, ${
                                       n.userSend.name
                                     } acaba de solicitar una reunión para el día ${moment(
@@ -467,6 +470,14 @@ export default function Home(props: any) {
                                     ).format("LLL")}`
                                   ) : n.type === "verificationDoc" ? (
                                     `El administrador ${n.userSend.surname}, ${n.userSend.name} acaba de realizar la verificación su cuenta`
+                                  ) : n.type === "rdatetime" ? (
+                                    `El paciente ${n.userSend.surname}, ${
+                                      n.userSend.name
+                                    } acaba de realizar la modificación de la reunión del día ${moment(
+                                      n.mStartDOld
+                                    ).format("LLLL")} hs para el día ${moment(
+                                      n.mStartDNew
+                                    ).format("LLLL")} hs`
                                   ) : (
                                     ""
                                   )}
@@ -489,7 +500,7 @@ export default function Home(props: any) {
                                       )}`
                                     : n.type === "verificationHi"
                                     ? "/profile"
-                                    : n.type === "meeting"
+                                    : n.type === "meeting" && n.meeting
                                     ? `/meetings/${btoa(
                                         n.meeting.userId +
                                           "." +
@@ -499,6 +510,14 @@ export default function Home(props: any) {
                                       )}`
                                     : n.type === "verificationDoc"
                                     ? "/profile"
+                                    : n.type === "rdatetime"
+                                    ? `/meetings/${btoa(
+                                        n.userIdSend +
+                                          "." +
+                                          moment(n.mStartDNew).format(
+                                            "YYYY-MM-DDTHH:mm:ss"
+                                          )
+                                      )}`
                                     : ""
                                 }
                                 onClick={() => {
@@ -606,9 +625,11 @@ export const getServerSideProps = withAuth(
         lastMeeting,
         doctors,
         doctor,
-        notifications: notifications.filter(
-          (n: NotificationResponseDto) => n.readed === false
-        ),
+        notifications: notifications.filter((n: NotificationResponseDto) => {
+          if (n.type === "meeting" && !n.meeting) return false;
+
+          return n.readed === false;
+        }),
         plans,
       },
     };

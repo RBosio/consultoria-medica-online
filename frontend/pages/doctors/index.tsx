@@ -76,8 +76,11 @@ export default function Doctors(props: any) {
                 specialities={doctor.specialities}
                 description={doctor.description}
                 rate={Number(doctor.avgRate)}
+                count={Number(doctor.count)}
                 id={doctor.id}
                 photo={doctor.user.image}
+                seniority={doctor.seniority}
+                experience={doctor.employmentDate}
               />
             ))
           )}
@@ -137,7 +140,7 @@ const Filters: React.FC<FiltersProps> = (props) => {
     initialValues: {
       name: "",
       specialityId: "",
-      planId: "",
+      healthInsuranceId: "",
       avgRate: "",
       seniority: "",
       orderByField: "none",
@@ -223,7 +226,10 @@ const Filters: React.FC<FiltersProps> = (props) => {
           />
           <Autocomplete
             onChange={(event, newValue: any) => {
-              filtersForm.setFieldValue("planId", newValue ? newValue.id : "");
+              filtersForm.setFieldValue(
+                "healthInsuranceId",
+                newValue ? newValue.id : ""
+              );
             }}
             disablePortal
             noOptionsText="Obra Social no encontrada"
@@ -234,7 +240,7 @@ const Filters: React.FC<FiltersProps> = (props) => {
             renderInput={(params: any) => (
               <Input
                 onChange={filtersForm.handleChange}
-                name="planId"
+                name="healthInsuranceId"
                 {...params}
                 label="Obra Social"
               />
@@ -339,6 +345,15 @@ const Filters: React.FC<FiltersProps> = (props) => {
 
 export const getServerSideProps = withAuth(
   async (auth: Auth | null, context: any) => {
+    if (auth!.role === "doctor") {
+      return {
+        redirect: {
+          destination: "/",
+          permanent: false,
+        },
+      };
+    }
+
     let { query } = context;
 
     try {

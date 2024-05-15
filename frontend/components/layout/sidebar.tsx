@@ -41,7 +41,7 @@ const Sidebar: React.FC<SidebarProps> = (props) => {
         name: "Profesionales",
         path: "/doctors",
         icon: <FaUserDoctor />,
-        hide: false,
+        hide: props.auth.role === "doctor",
       },
       {
         name: "Mis reuniones",

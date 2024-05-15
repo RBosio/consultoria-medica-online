@@ -263,7 +263,7 @@ export default function Home(props: Benefit) {
                   />
 
                   <p className="text-md">
-                    Pagina {page ? page : 1} -{" "}
+                    Página {page ? page : 1} -{" "}
                     {Math.ceil(props.benefits.length / 4)}
                   </p>
                 </div>

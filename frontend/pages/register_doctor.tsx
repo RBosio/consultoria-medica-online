@@ -73,7 +73,7 @@ const RegisterDoctorForm: React.FC<any> = (props) => {
                     {
                         userIdSend: props.auth.id,
                         userIdReceive: props.admin.id,
-                        type: "verificationDoctorRequest",
+                        type: "verification",
                     },
                     {
                         withCredentials: true,

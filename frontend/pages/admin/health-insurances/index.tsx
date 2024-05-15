@@ -310,7 +310,7 @@ export default function Home(props: HealthInsurance) {
                   />
 
                   <p className="text-md">
-                    Pagina {page ? page : 1} -{" "}
+                    Página {page ? page : 1} -{" "}
                     {Math.ceil(props.healthInsurances.length / 4)}
                   </p>
                 </div>
@@ -590,6 +590,15 @@ export default function Home(props: HealthInsurance) {
 
 export const getServerSideProps = withAuth(
   async (auth: Auth | null, context: any) => {
+    if (auth!.role !== "admin") {
+      return {
+        redirect: {
+          destination: "/",
+          permanent: false,
+        },
+      };
+    }
+
     let healthInsurances = await axios.get(
       `${process.env.NEXT_PUBLIC_API_URL}/healthInsurance`,
       {

@@ -45,10 +45,10 @@ export class MedicalRecordService {
     });
   }
 
-  async findOne(datetime: Date): Promise<MedicalRecord> {
+  async findOne(id: number): Promise<MedicalRecord> {
     const medicalRecordFound = await this.medicalRecordRepository.findOne({
       where: {
-        datetime,
+        id,
       },
       relations: ['meeting'],
     });
@@ -91,25 +91,25 @@ export class MedicalRecordService {
       medicalRecord.startDatetime,
     );
 
+    newMedicalRecord.meeting = meetingFound;
+
     newMedicalRecord = await this.medicalRecordRepository.save(
       newMedicalRecord,
     );
 
-    meetingFound.medicalRecordDatetime = medicalRecord.datetime;
-
-    await this.meetingService.update(
-      meetingFound.userId,
-      meetingFound.startDatetime,
-      meetingFound,
-    );
+    // await this.meetingService.update(
+    //   meetingFound.userId,
+    //   meetingFound.startDatetime,
+    //   meetingFound,
+    // );
 
     return newMedicalRecord;
   }
 
-  async update(datetime: Date, medicalRecord: updateMedicalRecordDto) {
+  async update(id: number, medicalRecord: updateMedicalRecordDto) {
     const medicalRecordFound = await this.medicalRecordRepository.findOne({
       where: {
-        datetime,
+        id,
       },
     });
     if (!medicalRecordFound) {
@@ -123,10 +123,8 @@ export class MedicalRecordService {
     return this.medicalRecordRepository.save(updateMedicalRecord);
   }
 
-  async delete(datetime: Date) {
-    const medicalRecord = await this.findOne(datetime);
-
-    medicalRecord.meeting.medicalRecordDatetime = null;
+  async delete(id: number) {
+    const medicalRecord = await this.findOne(id);
 
     await this.meetingService.update(
       medicalRecord.meeting.userId,
@@ -134,7 +132,7 @@ export class MedicalRecordService {
       medicalRecord.meeting,
     );
 
-    const result = await this.medicalRecordRepository.delete({ datetime });
+    const result = await this.medicalRecordRepository.delete({ id });
 
     if (result.affected == 0) {
       throw new HttpException('Registro no encontrado', HttpStatus.NOT_FOUND);
@@ -143,10 +141,10 @@ export class MedicalRecordService {
     return result;
   }
 
-  async uploadFile(datetime: Date, body: any) {
+  async uploadFile(id: number, body: any) {
     const medicalRecord = await this.medicalRecordRepository.findOne({
       where: {
-        datetime,
+        id,
       },
     });
     if (!medicalRecord) {

@@ -31,6 +31,8 @@ import moment from "moment";
 import "moment/locale/es";
 import Message from "@/components/message";
 import { pesos } from "@/lib/formatCurrency";
+import { UserHealthInsuranceResponseDto } from "@/components/dto/userHealthInsurance.dto";
+import { HealthInsuranceResponseDto } from "@/components/dto/healthInsurance.dto";
 
 export default function Doctor(props: any) {
   const theme = useTheme();
@@ -42,6 +44,9 @@ export default function Doctor(props: any) {
   const [mp, setMP] = useState<any>();
   const [paid, setPaid] = useState<boolean>(false);
   const [detail, setDetail] = useState<any>();
+  const [repr, setRepr] = useState<boolean>(false);
+  const [date, setDate] = useState<Date>();
+  const [message, setMessage] = useState<string>();
 
   useEffect(() => {
     moment.locale("es");
@@ -80,6 +85,7 @@ export default function Doctor(props: any) {
               startDatetime: selected,
               doctorId: router.query.id,
               price,
+              healthInsuranceId: getDiscount()?.id ? getDiscount().id : null,
             },
             {
               withCredentials: true,
@@ -103,6 +109,12 @@ export default function Doctor(props: any) {
     } catch (error) {
       console.log(error);
     }
+    const dateT: Date = JSON.parse(localStorage.getItem("repr")!);
+    setDate(dateT);
+
+    return () => {
+      localStorage.removeItem("repr");
+    };
   }, []);
 
   const showDetail = async (selectedDate: string) => {
@@ -156,54 +168,123 @@ export default function Doctor(props: any) {
   };
 
   const onConfirmClick = async () => {
-    try {
-      let price = null;
-      if (getDiscount()) {
-        price =
-          props.doctor.priceMeeting * (1 - Number(getDiscount().discount));
-      } else {
-        price = props.doctor.priceMeeting;
-      }
-
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/meeting/create-preference/${router.query.id}`,
-        {
-          startDatetime: selectedDate,
-          doctorId: router.query.id,
-          price,
-        },
-        {
-          withCredentials: true,
-          headers: { Authorization: `Bearer ${props.auth.token}` },
+    if (!repr) {
+      try {
+        let price = null;
+        if (getDiscount()) {
+          price =
+            props.doctor.priceMeeting * (1 - Number(getDiscount().discount));
+        } else {
+          price = props.doctor.priceMeeting;
         }
-      );
 
-      const { id } = response.data;
-      setPreferenceId(id);
-    } catch (error) {
-      setMeetingError(true);
+        const response = await axios.post(
+          `${process.env.NEXT_PUBLIC_API_URL}/meeting/create-preference/${router.query.id}`,
+          {
+            startDatetime: selectedDate,
+            doctorId: router.query.id,
+            price,
+          },
+          {
+            withCredentials: true,
+            headers: { Authorization: `Bearer ${props.auth.token}` },
+          }
+        );
+
+        const { id } = response.data;
+        setPreferenceId(id);
+      } catch (error) {
+        setMessage(
+          "Se ha producido un error al crear la reunión, inténtelo nuevamente más tarde"
+        );
+        setMeetingError(true);
+      }
+    } else {
+      try {
+        await axios.patch(
+          `${process.env.NEXT_PUBLIC_API_URL}/meeting/repr/${
+            props.auth.id
+          }/${moment(date).format("YYYY-MM-DDTHH:mm:ss")}`,
+          {
+            startDatetime: selectedDate,
+          },
+          {
+            withCredentials: true,
+            headers: { Authorization: `Bearer ${props.auth.token}` },
+          }
+        );
+
+        await axios.post(
+          `${process.env.NEXT_PUBLIC_API_URL}/notification`,
+          {
+            userIdSend: props.auth.id,
+            userIdReceive: props.doctor.user.id,
+            type: "rdatetime",
+            mStartDOld: moment(date).format("YYYY-MM-DDTHH:mm:ss"),
+            mStartDNew: selectedDate,
+            meetingUserId: props.auth.id,
+            meetingStartDatetime: moment(selectedDate).format(
+              "YYYY-MM-DDTHH:mm:ss"
+            ),
+          },
+          {
+            withCredentials: true,
+            headers: { Authorization: `Bearer ${props.auth.token}` },
+          }
+        );
+
+        router.push(
+          `/meetings/${btoa(
+            props.auth.id +
+              "." +
+              moment(new Date(selectedDate)).format("YYYY-MM-DDTHH:mm:ss")
+          )}`
+        );
+      } catch (error: any) {
+        setMessage(error.response.data.message);
+        setMeetingError(true);
+      } finally {
+        localStorage.removeItem("repr");
+        setRepr(false);
+        setDate(undefined);
+      }
     }
   };
 
-  const getDiscount = () => {
-    if (!props.user.validateHealthInsurance) return null;
+  const getMax = (foundHealthInsurance: HealthInsuranceResponseDto[]) => {
+    let max = foundHealthInsurance[0];
+    foundHealthInsurance.forEach((hi: HealthInsuranceResponseDto) => {
+      if (Number(hi.discount) > Number(max.discount)) {
+        max = hi;
+      }
+    });
 
-    const doctorsWorkingFor = props.doctor.user.healthInsurances;
-    const userHealthInsurance = props.user.healthInsurances[0];
+    return max;
+  };
 
-    if (!userHealthInsurance) return null;
-
-    const foundHealthInsurance = doctorsWorkingFor.filter(
-      (hi: any) => hi.id === userHealthInsurance.id
+  const getDiscount = (): HealthInsuranceResponseDto => {
+    const doctorsWorkingFor = props.doctor.user.healthInsurances.filter(
+      (hi: UserHealthInsuranceResponseDto) => hi.verified
+    );
+    const userHealthInsurance = props.user.healthInsurances.filter(
+      (hi: UserHealthInsuranceResponseDto) => hi.verified
     );
 
-    return foundHealthInsurance[0] ?? null;
+    const foundHealthInsurance = userHealthInsurance
+      .filter((hi: UserHealthInsuranceResponseDto) =>
+        doctorsWorkingFor
+          .map((h: any) => h.healthInsuranceId)
+          .includes(hi.healthInsurance.id)
+      )
+      .map((hi: UserHealthInsuranceResponseDto) => hi.healthInsurance);
+
+    return getMax(foundHealthInsurance);
   };
 
   return (
     <Layout auth={props.auth}>
       <section className="flex overflow-y-auto xl:p-8">
-        <div className="flex flex-col xl:flex-row xl:gap-6 xl:mt-[3rem]">
+        <div className="flex flex-col xl:flex-row xl:gap-6 xl:mt-[3rem] w-full">
           <div className="bg-white shrink-0 relative xl:rounded-md xl:shadow-md xl:w-4/12">
             <Avatar
               labelProps={{ className: "hidden xl:hidden" }}
@@ -250,10 +331,16 @@ export default function Doctor(props: any) {
                   <GoDotFill color={theme.palette.primary.main} />
                 </Divider>
                 <div className="p-4 flex flex-col gap-6">
-                  <div className="flex flex-col gap-2">
+                  <div className="flex flex-col items-center gap-2">
                     <h2 className="text-primary text-xl">Descripción</h2>
-                    <p className="line-clamp-[10]">
-                      {props.doctor.description}
+                    <p
+                      className={`text-justify line-clamp-[8] ${
+                        !props.doctor.description &&
+                        "text-red-400 font-semibold"
+                      }`}
+                    >
+                      {props.doctor.description ||
+                        "El profesional no posee descripción"}
                     </p>
                   </div>
                 </div>
@@ -382,13 +469,19 @@ export default function Doctor(props: any) {
                 </div>
                 {props.doctorAvailability.length > 0 ? (
                   <div className="my-6 flex justify-center items-center xl:-0">
-                    <Button
-                      onClick={() => setConfirmTurn(true)}
-                      disabled={!Boolean(selectedDate)}
-                      className="w-40"
-                    >
-                      Aceptar
-                    </Button>
+                    {!date ? (
+                      <Button
+                        onClick={() => setConfirmTurn(true)}
+                        disabled={!Boolean(selectedDate)}
+                        className="w-40"
+                      >
+                        Aceptar
+                      </Button>
+                    ) : (
+                      <Button onClick={() => setRepr(true)} className="w-40">
+                        Reprogramar
+                      </Button>
+                    )}
                   </div>
                 ) : (
                   <div className="flex flex-col justify-center items-center gap-2 mt-36">
@@ -436,10 +529,11 @@ export default function Doctor(props: any) {
           )}
         </div>
         <Dialog
-          open={confirmTurn}
+          open={confirmTurn || repr}
           onClose={() => {
             setConfirmTurn(false);
             setPreferenceId(undefined);
+            setRepr(false);
           }}
           aria-labelledby="alert-dialog-title"
           aria-describedby="alert-dialog-description"
@@ -448,13 +542,27 @@ export default function Doctor(props: any) {
             className={`${robotoBold.className} text-primary`}
             id="alert-dialog-title"
           >
-            Confirmar turno
+            {confirmTurn
+              ? "Confirmar turno"
+              : repr
+              ? "Reprogramar reunión"
+              : ""}
           </DialogTitle>
           <DialogContent>
             <DialogContentText id="alert-dialog-description">
-              ¿Estás seguro que deseas sacar el turno para el{" "}
-              <b>{getFormattedSelectedDate().day}</b> a las{" "}
-              <b>{getFormattedSelectedDate().time}</b>?
+              {confirmTurn ? (
+                <>
+                  ¿Estás seguro que deseas sacar el turno para el{" "}
+                  <b>{getFormattedSelectedDate().day}</b> a las{" "}
+                  <b>{getFormattedSelectedDate().time}</b>?
+                </>
+              ) : repr ? (
+                <>
+                  ¿Estás seguro que deseas reprogramar la reunión del día{" "}
+                  {moment(date).format("LLLL")} al{" "}
+                  <b>{moment(selectedDate).format("LLLL")}</b>?
+                </>
+              ) : null}
             </DialogContentText>
           </DialogContent>
           <DialogActions>
@@ -464,6 +572,7 @@ export default function Doctor(props: any) {
               onClick={() => {
                 setConfirmTurn(false);
                 setPreferenceId(undefined);
+                setRepr(false);
               }}
             >
               Cancelar
@@ -487,8 +596,7 @@ export default function Doctor(props: any) {
           onClose={() => setMeetingError(false)}
         >
           <Alert elevation={6} variant="filled" severity="error">
-            Se ha producido un error al crear la reunión, inténtelo nuevamente
-            más tarde
+            {message}
           </Alert>
         </Snackbar>
       </section>
@@ -498,6 +606,15 @@ export default function Doctor(props: any) {
 
 export const getServerSideProps = withAuth(
   async (auth: Auth | null, context: any) => {
+    if (auth!.role === "doctor") {
+      return {
+        redirect: {
+          destination: "/",
+          permanent: false,
+        },
+      };
+    }
+
     let { query } = context;
 
     try {

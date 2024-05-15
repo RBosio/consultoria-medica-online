@@ -79,6 +79,11 @@ export class NotificationService {
       );
 
       newNotification.meeting = meetingFound;
+
+      if (notification.mStartDOld && notification.mStartDNew) {
+        newNotification.mStartDOld = notification.mStartDOld;
+        newNotification.mStartDNew = notification.mStartDNew;
+      }
     }
 
     if (notification.healthInsuranceId) {

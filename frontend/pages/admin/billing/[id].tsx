@@ -10,8 +10,6 @@ import Link from "next/link";
 import { FaChevronLeft, FaChevronRight, FaCircleInfo } from "react-icons/fa6";
 import {
   Alert,
-  Autocomplete,
-  Chip,
   Dialog,
   DialogActions,
   DialogContent,
@@ -29,7 +27,6 @@ import {
 import { PRIMARY_COLOR } from "@/constants";
 import { pesos } from "@/lib/formatCurrency";
 import Button from "@/components/button";
-import Input from "@/components/input";
 
 const Months = [
   "Enero",
@@ -61,20 +58,53 @@ export default function Home(props: any) {
   const [confirm, setConfirm] = useState<boolean>(false);
   const [message, setMessage] = useState<string>("");
   const [pay, setPay] = useState<boolean>(false);
+  const [yearLocal, setYearLocal] = useState<number>();
+  const [monthLocal, setMonthLocal] = useState<any>();
+  const [test, setTest] = useState();
 
   const router = useRouter();
 
   useEffect(() => {
-    const m: MeetingResponseDto[] = props.lastMeetings.filter(
-      (meeting: MeetingResponseDto) => {
+    return () => {
+      localStorage.removeItem("yearLocal");
+      localStorage.removeItem("monthLocal");
+    };
+  }, []);
+
+  useEffect(() => {
+    let m: MeetingResponseDto[];
+    const y = localStorage.getItem("yearLocal");
+    const mo = localStorage.getItem("monthLocal");
+
+    if (y && mo) {
+      setYearLocal(+y!);
+      setMonthLocal(+mo!);
+      m = props.lastMeetings.filter((meeting: MeetingResponseDto) => {
+        return (
+          +mo - 1 === new Date(meeting.startDatetime).getMonth() &&
+          +y === new Date(meeting.startDatetime).getFullYear()
+        );
+      });
+
+      setMonth(Months[+mo - 1]);
+      setMonthDay(+mo);
+      setYear(+y);
+    } else {
+      setYearLocal(new Date().getFullYear());
+      setMonthLocal(new Date().getMonth() + 1);
+      m = props.lastMeetings.filter((meeting: MeetingResponseDto) => {
         return (
           new Date().getMonth() ===
             new Date(meeting.startDatetime).getMonth() &&
           new Date().getFullYear() ===
             new Date(meeting.startDatetime).getFullYear()
         );
-      }
-    );
+      });
+
+      setMonth(Months[new Date().getMonth()]);
+      setMonthDay(new Date().getMonth() + 1);
+      setYear(new Date().getFullYear());
+    }
 
     setYears([
       ...new Set(
@@ -89,10 +119,11 @@ export default function Home(props: any) {
       setPageMeetings(m.filter((_, idx) => idx < 5));
     }
 
-    setMonth(Months[new Date().getMonth()]);
-    setMonthDay(new Date().getMonth() + 1);
-    setYear(new Date().getFullYear());
-    setPages(Math.ceil(m.length / 5));
+    if (m.length === 0) {
+      setPages(1);
+    } else {
+      setPages(Math.ceil(m.length / 5));
+    }
 
     getBilling(m[0]);
   }, []);
@@ -100,16 +131,33 @@ export default function Home(props: any) {
   const getBilling = async (m: MeetingResponseDto, month?: number) => {
     if (!m) return;
 
-    let billing = await axios.get(
-      `${process.env.NEXT_PUBLIC_API_URL}/billing/${m.doctor.id}/${
-        month ? month : monthDay
-      }/${year}`,
-      {
-        withCredentials: true,
-        headers: { Authorization: `Bearer ${props.auth.token}` },
-      }
-    );
-    const b = billing.data;
+    let mon = localStorage.getItem("monthLocal");
+    if ([1, 2, 3, 4, 5, 6, 7, 8, 9].includes(+mon!)) {
+      mon = "0" + mon;
+    }
+
+    let billing;
+    if (!mon) {
+      billing = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/billing/${m.doctor.id}/${
+          new Date().getMonth() + 1
+        }/${new Date().getFullYear()}`,
+        {
+          withCredentials: true,
+          headers: { Authorization: `Bearer ${props.auth.token}` },
+        }
+      );
+    } else {
+      billing = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/billing/${m.doctor.id}/${mon}/${year}`,
+        {
+          withCredentials: true,
+          headers: { Authorization: `Bearer ${props.auth.token}` },
+        }
+      );
+    }
+
+    const b = billing!.data;
 
     if (b) {
       setPay(true);
@@ -149,7 +197,7 @@ export default function Home(props: any) {
       {
         month: monthDay,
         year,
-        doctorId: props.lastMeetings[0].doctor.id,
+        doctorId: props.lastMeetings[0]?.doctor.id,
       },
       {
         withCredentials: true,
@@ -174,126 +222,51 @@ export default function Home(props: any) {
           <h2 className="text-3xl text-center xl:text-left">
             Reuniones de{" "}
             <span className="text-primary font-semibold">
-              {props.lastMeetings[0].doctor.user.surname},{" "}
-              {props.lastMeetings[0].doctor.user.name}
+              {props.lastMeetings[0]?.doctor.user.surname},{" "}
+              {props.lastMeetings[0]?.doctor.user.name}
             </span>
           </h2>
           <div className="flex flex-col xl:flex-row justify-between items-center my-4">
             <div>
               <h3 className="text-primary font-semibold">CBU / CVU</h3>
-              <span>2301230210302130213</span>
+              <span>{props.lastMeetings[0]?.doctor.cbu || "-"}</span>
             </div>
             <div>
               <h3 className="text-primary font-semibold">Alias</h3>
-              <span>GATO.PERRO.LORO</span>
+              <span>{props.lastMeetings[0]?.doctor.alias || "-"}</span>
             </div>
           </div>
-          <h3 className="text-xl flex items-center gap-4">
-            <div className="flex gap-24 w-full">
-              <div className="w-1/2">
-                <Autocomplete
-                  onChange={(event, newValue: any) => {
-                    if (newValue) {
-                      setPay(false);
-                      const { label } = newValue;
-
-                      const m: MeetingResponseDto[] = meetings.filter(
-                        (meeting: MeetingResponseDto) => {
-                          return (
-                            +label ===
-                            new Date(meeting.startDatetime).getFullYear()
-                          );
-                        }
-                      );
-                      setMeetings(m);
-                      setYear(+label);
-                      reset(m);
-                      setTotal(
-                        m
-                          .map((m) => +m.price)
-                          .reduce((acum, value) => acum + value, 0)
-                      );
-                      setMonth(Months[new Date().getMonth()]);
-                      setMonthDay(new Date().getMonth() + 1);
-                      getBilling(m[0]);
-                    }
-                  }}
-                  disablePortal
-                  options={years.map((year: number, idx: number) => ({
-                    id: idx,
-                    label: year.toString(),
-                  }))}
-                  renderInput={(params: any) => (
-                    <Input
-                      onChange={() => {}}
-                      name="year"
-                      {...params}
-                      label="Año"
-                    />
-                  )}
-                />
-              </div>
-              <div className="w-1/2">
-                <Autocomplete
-                  onChange={(event, newValue: any) => {
-                    if (newValue) {
-                      setPay(false);
-                      const { id } = newValue;
-                      const m: MeetingResponseDto[] = props.lastMeetings.filter(
-                        (meeting: MeetingResponseDto) => {
-                          return (
-                            id === new Date(meeting.startDatetime).getMonth()
-                          );
-                        }
-                      );
-                      setMeetings(m);
-                      reset(m);
-                      setMonth(Months[id]);
-                      setMonthDay(id + 1);
-                      setTotal(
-                        m
-                          .map((m) => +m.price)
-                          .reduce((acum, value) => acum + value, 0)
-                      );
-                      getBilling(m[0], id + 1);
-                    } else {
-                      setMeetings(
-                        props.lastMeetings.filter(
-                          (meeting: MeetingResponseDto) => {
-                            return (
-                              new Date().getMonth() ===
-                                new Date(meeting.startDatetime).getMonth() &&
-                              new Date().getFullYear() ===
-                                new Date(meeting.startDatetime).getFullYear()
-                            );
-                          }
-                        )
-                      );
-                    }
-                  }}
-                  disablePortal
-                  options={Months.map((month: string, idx: number) => ({
-                    id: idx,
-                    label: month,
-                  }))}
-                  renderInput={(params: any) => (
-                    <Input
-                      onChange={() => {}}
-                      name="monthId"
-                      {...params}
-                      label="Mes"
-                    />
-                  )}
-                />
-              </div>
-            </div>
-          </h3>
+          <h3 className="text-xl flex items-center gap-4"></h3>
           <div>
+            <h4 className="text-primary text-xl font-semibold">
+              {yearLocal &&
+                monthLocal &&
+                moment(
+                  new Date(
+                    `${yearLocal}-${
+                      [1, 2, 3, 4, 5, 6, 7, 8, 9].includes(monthLocal)
+                        ? "0" + monthLocal
+                        : monthLocal
+                    }-01T20:00:00`
+                  )
+                )
+                  .format("MMMM, YYYY")[0]
+                  .toUpperCase() +
+                  moment(
+                    new Date(
+                      `${yearLocal}-${
+                        [1, 2, 3, 4, 5, 6, 7, 8, 9].includes(monthLocal)
+                          ? "0" + monthLocal
+                          : monthLocal
+                      }-01T20:00:00`
+                    )
+                  )
+                    .format("MMMM, YYYY")
+                    .split("")
+                    .splice(1)
+                    .join("")}
+            </h4>
             <div className="flex justify-between items-center">
-              <div className="flex gap-2">
-                <h3 className="text-xl text-primary font-semibold">Mes:</h3>
-                <span className="text-xl">{month}</span>
-              </div>
               <div className="flex justify-end items-center gap-2 text-primary py-4">
                 <FaChevronLeft
                   className="text-2xl hover:cursor-pointer"
@@ -305,7 +278,7 @@ export default function Home(props: any) {
                   onClick={() => page < pages && paginated(true)}
                 />
                 <p className="text-md">
-                  Pagina {page} - {pages}
+                  Página {page} - {pages}
                 </p>
               </div>
             </div>
@@ -382,6 +355,11 @@ export default function Home(props: any) {
                 </TableBody>
               </Table>
             </TableContainer>
+            {pageMeetings.length === 0 && (
+              <div className="flex justify-center mt-4">
+                <p>No se encontraron pagos realizados en este mes</p>
+              </div>
+            )}
           </div>
         </div>
         <div className="bg-white rounded-lg p-4 flex flex-col gap-4">
@@ -412,7 +390,10 @@ export default function Home(props: any) {
               <p className="text-xl">Pendiente de facturación</p>
             )}
           </div>
-          <Button disabled={pay} onClick={() => setConfirm(true)}>
+          <Button
+            disabled={pay || pageMeetings.length === 0}
+            onClick={() => setConfirm(true)}
+          >
             Pagar
           </Button>
         </div>
@@ -471,6 +452,15 @@ export default function Home(props: any) {
 
 export const getServerSideProps = withAuth(
   async (auth: Auth | null, context: any) => {
+    if (auth!.role !== "admin") {
+      return {
+        redirect: {
+          destination: "/",
+          permanent: false,
+        },
+      };
+    }
+
     let { id } = context.query;
 
     let lastMeetings = await axios.get(

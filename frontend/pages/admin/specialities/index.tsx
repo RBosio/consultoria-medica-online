@@ -271,7 +271,7 @@ export default function Home(props: Speciality) {
                   />
 
                   <p className="text-md">
-                    Pagina {page ? page : 1} -{" "}
+                    Página {page ? page : 1} -{" "}
                     {Math.ceil(props.specialities.length / 4)}
                   </p>
                 </div>
@@ -515,6 +515,15 @@ export default function Home(props: Speciality) {
 
 export const getServerSideProps = withAuth(
   async (auth: Auth | null, context: any) => {
+    if (auth!.role !== "admin") {
+      return {
+        redirect: {
+          destination: "/",
+          permanent: false,
+        },
+      };
+    }
+
     let specialities = await axios.get(
       `${process.env.NEXT_PUBLIC_API_URL}/speciality`,
       {

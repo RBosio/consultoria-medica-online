@@ -2,7 +2,7 @@ import withAuth from "@/lib/withAuth";
 import { Auth } from "@/../shared/types";
 import axios from "axios";
 import Layout from "@/components/layout";
-import { Box, Fab, Fade, Modal, Typography, useTheme } from "@mui/material";
+import { Fab, useTheme } from "@mui/material";
 import { useRouter } from "next/router";
 import { MeetingResponseDto } from "@/components/dto/meeting.dto";
 import { SpecialityResponseDto } from "@/components/dto/speciality.dto";
@@ -12,8 +12,7 @@ import Input from "@/components/input";
 import { BsFillChatLeftTextFill } from "react-icons/bs";
 import {
   FaCalendarDays,
-  FaCheck,
-  FaCircleInfo,
+  FaClock,
   FaPaperPlane,
   FaPaperclip,
   FaPlay,
@@ -26,7 +25,6 @@ import { robotoBold } from "@/lib/fonts";
 import Button from "@/components/button";
 import UserCard from "@/components/userCard";
 import DoctorCard from "@/components/doctorCard";
-import Link from "next/link";
 
 interface MeetingI {
   meeting: MeetingResponseDto;
@@ -44,18 +42,10 @@ export default function DetailMeeting(props: MeetingI) {
   const [type, setType] = useState<string>("");
   const [motive, setMotive] = useState<string>("");
   const [showMotive, setShowMotive] = useState<boolean>(false);
-  const [cancel, setCancel] = useState<boolean>(false);
   const [openedChat, setOpenedChat] = useState(false);
 
   useEffect(() => {
     moment.locale("es");
-    console.log(
-      Date.now() >
-        moment(props.meeting.startDatetime)
-          .subtract(10, "minutes")
-          .toDate()
-          .getTime()
-    );
   }, []);
 
   const handleOnClose = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
@@ -189,30 +179,8 @@ export default function DetailMeeting(props: MeetingI) {
     }
   }
 
-  function motiveHandleChange($e: any) {
-    setMotive($e.target.value);
-  }
-
   function xHandleClick() {
     setFile("");
-  }
-
-  async function motiveHandleClick() {
-    let { id } = router.query;
-
-    const [t, startDatetime] = atob(String(id)).split(".");
-
-    await axios.patch(
-      `${process.env.NEXT_PUBLIC_API_URL}/meeting/cancel/${t}/${startDatetime}`,
-      { motive },
-      {
-        withCredentials: true,
-        headers: { Authorization: `Bearer ${props.auth.token}` },
-      }
-    );
-
-    setCancel(false);
-    props.meeting.status = "Cancelada";
   }
 
   function showMotiveHandleClick() {
@@ -234,61 +202,8 @@ export default function DetailMeeting(props: MeetingI) {
   return (
     <Layout auth={props.auth} className="flex flex-col justify-center relative">
       <>
-        <Modal
-          open={showMotive}
-          onClose={() => setShowMotive(false)}
-          aria-labelledby="modal-modal-title"
-          aria-describedby="modal-modal-description"
-        >
-          <Fade in={showMotive}>
-            <Box
-              sx={{
-                position: "absolute" as "absolute",
-                top: "50%",
-                left: "50%",
-                transform: "translate(-50%, -50%)",
-                bgcolor: "background.paper",
-
-                boxShadow: 24,
-                p: 4,
-              }}
-            >
-              <Typography
-                id="modal-modal-title"
-                variant="h6"
-                component="h2"
-                className="text-center text-primary text-2xl"
-              >
-                Motivo de cancelacion
-              </Typography>
-              <Typography
-                id="modal-modal-description"
-                component={"span"}
-                variant={"body2"}
-                sx={{ mt: 2 }}
-              >
-                <div className="w-[90%] h-[40%] m-auto">
-                  <p className="w-full h-full my-2 p-2 rounded-lg overflow-y-scroll">
-                    {motive ? motive : props.meeting.motive}
-                  </p>
-                  <div className="text-gray-500 text-xs mt-2 flex justify-end">
-                    {props.meeting.cancelDate
-                      ? moment(props.meeting.cancelDate).format(
-                          "DD/MM/YYYY HH:mm"
-                        )
-                      : moment(new Date()).format("DD/MM/YYYY HH:mm")}
-                  </div>
-                </div>
-              </Typography>
-            </Box>
-          </Fade>
-        </Modal>
-        <main className="flex flex-col md:flex-row flex-wrap sm:flex-nowrap justify-between gap-1 sm:gap-4 m-4">
-          <section
-            className={`${
-              cancel ? "mt-[22rem]" : "mt-48"
-            } md:mt-0 w-full md:w-1/2 h-5/12 sm:h-full`}
-          >
+        <main className="flex flex-col md:flex-row flex-wrap sm:flex-nowrap justify-between gap-1 sm:gap-4 m-4 mt-[300px] sm:mt-[600px] md:mt-0">
+          <section className="md:mt-0 w-full md:w-1/2 h-5/12 sm:h-full">
             {props.auth.role === "user" ? (
               <DoctorCard
                 startDatetime={props.meeting.startDatetime}
@@ -330,114 +245,89 @@ export default function DetailMeeting(props: MeetingI) {
               </div>
               <div className="flex items-center m-2">
                 <p className="text-zinc-800">{props.meeting.status}</p>
-                {props.meeting.status === "Cancelada" ? (
-                  <FaCircleInfo
-                    className="ml-2 text-primary hover:cursor-pointer hover:opacity-70 text-lg"
-                    onClick={showMotiveHandleClick}
-                  />
-                ) : (
-                  ""
-                )}
               </div>
-
               <div className="w-3/4 h-2 border-t-2 border-emerald-200 mb-3"></div>
-
               <div className="flex justify-end items-center w-full mb-2">
                 {props.auth.role === "user" ? (
+                  <div className="m-2">
+                    <Button
+                      className="bg-green-600 hover:bg-green-800 mr-2"
+                      size="small"
+                      startIcon={<FaPlay />}
+                      disabled={
+                        props.meeting.status !== "Pagada" ||
+                        (!(
+                          Date.now() >
+                          moment(props.meeting.startDatetime)
+                            .subtract(10, "minutes")
+                            .toDate()
+                            .getTime()
+                        ) &&
+                          Date.now() <
+                            moment(props.meeting.startDatetime)
+                              .add(
+                                props.meeting.doctor.durationMeeting + 10,
+                                "minutes"
+                              )
+                              .toDate()
+                              .getTime())
+                      }
+                      onClick={() =>
+                        router.push(`/meetings/${router.query.id}/videocall`)
+                      }
+                    >
+                      Unirse
+                    </Button>
+                    {props.meeting.status === "Pagada" && (
+                      <Button
+                        size="small"
+                        startIcon={<FaClock />}
+                        onClick={() => {
+                          localStorage.setItem(
+                            "repr",
+                            JSON.stringify(props.meeting.startDatetime)
+                          );
+                          router.push(`/doctors/${props.meeting.doctor.id}`);
+                        }}
+                        disabled={props.meeting.repr}
+                      >
+                        Reprogramar
+                      </Button>
+                    )}
+                  </div>
+                ) : (
                   <Button
                     className="bg-green-600 hover:bg-green-800 mr-2"
                     size="small"
-                    endIcon={<FaPlay />}
+                    startIcon={<FaPlay />}
                     disabled={
                       (props.meeting.status !== "Pendiente" &&
                         props.meeting.status !== "Pagada") ||
-                      !(
+                      (!(
                         Date.now() >
                         moment(props.meeting.startDatetime)
                           .subtract(10, "minutes")
                           .toDate()
                           .getTime()
-                      )
+                      ) &&
+                        Date.now() <
+                          moment(props.meeting.startDatetime)
+                            .add(
+                              props.meeting.doctor.durationMeeting + 10,
+                              "minutes"
+                            )
+                            .toDate()
+                            .getTime())
                     }
                     onClick={() =>
                       router.push(`/meetings/${router.query.id}/videocall`)
                     }
                   >
-                    Unirse
+                    Iniciar reunión
                   </Button>
-                ) : (
-                  <Button
-                    className="bg-green-600 hover:bg-green-800 mr-2"
-                    size="small"
-                    endIcon={<FaPlay />}
-                    disabled={
-                      (props.meeting.status !== "Pendiente" &&
-                        props.meeting.status !== "Pagada") ||
-                      !(
-                        Date.now() >
-                        moment(props.meeting.startDatetime)
-                          .subtract(10, "minutes")
-                          .toDate()
-                          .getTime()
-                      )
-                    }
-                    onClick={() =>
-                      router.push(`/meetings/${router.query.id}/videocall`)
-                    }
-                  >
-                    Iniciar reunion
-                  </Button>
-                )}
-                {props.meeting.status === "Pendiente" ||
-                props.meeting.status === "Pagada" ? (
-                  <Button
-                    className="mr-2 hidden"
-                    size="small"
-                    sx={{
-                      "&.MuiButton-contained": {
-                        background: theme.palette.error.main,
-                        color: "#ffffff",
-                        fontWeight: "bold",
-                      },
-                    }}
-                    endIcon={<FaXmark />}
-                    onClick={() => setCancel(true)}
-                  >
-                    Cancelar
-                  </Button>
-                ) : (
-                  ""
                 )}
               </div>
             </section>
-            {cancel ? (
-              <section className="mt-4 p-4 w-full md:h-1/3 bg-white rounded-lg">
-                <form
-                  className="h-full flex flex-col justify-center items-center"
-                  onSubmit={() => handleSubmit}
-                >
-                  <Input
-                    id="outlined-multiline-static"
-                    label="Motivo"
-                    multiline
-                    rows={2}
-                    placeholder="Ingrese un motivo"
-                    className="w-[90%]"
-                    onChange={motiveHandleChange}
-                  />
-                  <Button
-                    className="mt-2"
-                    size="small"
-                    endIcon={<FaCheck />}
-                    onClick={motiveHandleClick}
-                  >
-                    Aceptar
-                  </Button>
-                </form>
-              </section>
-            ) : (
-              ""
-            )}
           </section>
           <Fab
             color="primary"
@@ -456,7 +346,7 @@ export default function DetailMeeting(props: MeetingI) {
             ${
               openedChat
                 ? "fixed z-50 inset-0 backdrop-blur-sm bg-black bg-opacity-30"
-                : "w-[100%] sm:w-[40%] bg-white rounded-lg mt-5 sm:mt-0 hidden md:inline "
+                : "w-[100%] sm:w-[40%] bg-white rounded-lg mt-5 sm:mt-0 hidden md:inline h-[600px]"
             }
               `}
           >

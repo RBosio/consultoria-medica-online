@@ -8,6 +8,7 @@ import { getDoctorsDto } from './dto/get-doctors.dto';
 import * as Moment from 'moment';
 import { extendMoment } from 'moment-range';
 import { SpecialityService } from 'src/speciality/speciality.service';
+import { HealthInsuranceService } from 'src/health-insurance/health-insurance.service';
 import { PlanService } from 'src/plan/plan.service';
 import { createDoctorDto } from './dto/create-doctor.dto';
 import { v4 as uuidv4 } from 'uuid';
@@ -19,19 +20,27 @@ import { Speciality } from 'src/entities/speciality.entity';
 export class DoctorService {
   constructor(
     @InjectRepository(Doctor) private doctorRepository: Repository<Doctor>,
-    @InjectRepository(Speciality) private specialityRepository: Repository<Speciality>,
+    @InjectRepository(Speciality)
+    private specialityRepository: Repository<Speciality>,
     private userService: UserService,
     private specialityService: SpecialityService,
     private planService: PlanService,
-  ) { }
+    private healthInsuranceService: HealthInsuranceService,
+  ) {}
 
   async create(userIdToAssociate: number, doctor: createDoctorDto) {
     const user = await this.userService.findOne(userIdToAssociate);
     if (!user)
       throw new HttpException('Usuario no encontrado', HttpStatus.NOT_FOUND);
 
-    const doctorExists = await this.doctorRepository.findOne({where:{userId: userIdToAssociate}});
-    if(doctorExists) throw new HttpException("El usuario ya está registrado como médico", HttpStatus.BAD_REQUEST);
+    const doctorExists = await this.doctorRepository.findOne({
+      where: { userId: userIdToAssociate },
+    });
+    if (doctorExists)
+      throw new HttpException(
+        'El usuario ya está registrado como médico',
+        HttpStatus.BAD_REQUEST,
+      );
 
     // Validar archivos
     const eightMB = 1024 * 1024 * 8;
@@ -44,28 +53,57 @@ export class DoctorService {
     ];
 
     if (!validMimeTypes.includes(doctor.registration.mimeType)) {
-      throw new HttpException(`El archivo de matrícula no posee un tipo válido. Permitidos: ${validMimeTypes}`, HttpStatus.NOT_FOUND);
-    };
+      throw new HttpException(
+        `El archivo de matrícula no posee un tipo válido. Permitidos: ${validMimeTypes}`,
+        HttpStatus.NOT_FOUND,
+      );
+    }
 
     if (doctor.registration.size > eightMB) {
-      throw new HttpException(`El archivo de matrícula debe tener un peso menor a 8MB`, HttpStatus.NOT_FOUND);
-
-    };
-    const registrationFilename = `${uuidv4()}.${doctor.registration.fileType.ext}`;
-
+      throw new HttpException(
+        `El archivo de matrícula debe tener un peso menor a 8MB`,
+        HttpStatus.NOT_FOUND,
+      );
+    }
+    const registrationFilename = `${uuidv4()}.${
+      doctor.registration.fileType.ext
+    }`;
 
     if (!validMimeTypes.includes(doctor.title.mimeType)) {
-      throw new HttpException(`El archivo de título no posee un tipo válido. Permitidos: ${validMimeTypes}`, HttpStatus.NOT_FOUND);
-    };
+      throw new HttpException(
+        `El archivo de título no posee un tipo válido. Permitidos: ${validMimeTypes}`,
+        HttpStatus.NOT_FOUND,
+      );
+    }
 
     if (doctor.title.size > eightMB) {
-      throw new HttpException(`El archivo de título debe tener un peso menor a 8MB`, HttpStatus.NOT_FOUND);
-
-    };
+      throw new HttpException(
+        `El archivo de título debe tener un peso menor a 8MB`,
+        HttpStatus.NOT_FOUND,
+      );
+    }
     const titleFilename = `${uuidv4()}.${doctor.title.fileType.ext}`;
 
-    const registrationPath = path.join(__dirname, '..', '..', 'public', 'uploads', 'doctor', 'registration', registrationFilename);
-    const titlePath = path.join(__dirname, '..', '..', 'public', 'uploads', 'doctor', 'title', titleFilename);
+    const registrationPath = path.join(
+      __dirname,
+      '..',
+      '..',
+      'public',
+      'uploads',
+      'doctor',
+      'registration',
+      registrationFilename,
+    );
+    const titlePath = path.join(
+      __dirname,
+      '..',
+      '..',
+      'public',
+      'uploads',
+      'doctor',
+      'title',
+      titleFilename,
+    );
 
     await fs.promises.writeFile(registrationPath, doctor.registration.buffer);
     await fs.promises.writeFile(titlePath, doctor.title.buffer);
@@ -73,7 +111,9 @@ export class DoctorService {
     const newDoctor = await this.doctorRepository.create(doctor);
 
     const specialitiesIds = JSON.parse(doctor.specialitiesStr);
-    const specialities = await this.specialityRepository.findBy({id: In(specialitiesIds)});
+    const specialities = await this.specialityRepository.findBy({
+      id: In(specialitiesIds),
+    });
 
     newDoctor.user = user;
     newDoctor.registration = registrationFilename;
@@ -87,32 +127,31 @@ export class DoctorService {
   }
 
   async findAll(query: getDoctorsDto) {
-    const { name, avgRate, seniority, specialityId, orderBy, page, perPage } =
-      query;
+    const {
+      name,
+      avgRate,
+      seniority,
+      specialityId,
+      healthInsuranceId,
+      orderBy,
+      page,
+      perPage,
+    } = query;
     const moment = extendMoment(Moment);
 
     let doctorsFound = [];
 
-    if (!name && !avgRate && !seniority && !specialityId) {
-      doctorsFound = await this.doctorRepository.find({
-        where: {
-          verified: true,
+    doctorsFound = await this.doctorRepository.find({
+      where: {
+        verified: true,
+      },
+      order: {
+        plan: {
+          price: 'DESC',
         },
-        order: {
-          plan: {
-            price: 'DESC',
-          },
-        },
-        relations: ['user', 'specialities', 'plan'],
-      });
-    } else {
-      doctorsFound = await this.doctorRepository.find({
-        where: {
-          verified: true,
-        },
-        relations: ['user', 'specialities', 'plan'],
-      });
-    }
+      },
+      relations: ['user', 'specialities', 'plan', 'user.healthInsurances'],
+    });
 
     // FILTER
     if (name) {
@@ -130,6 +169,11 @@ export class DoctorService {
 
     if (specialityId) {
       const speciality = await this.specialityService.findOne(specialityId);
+      if (!speciality)
+        throw new HttpException(
+          `Especialidad de ID: ${healthInsuranceId} inexistente`,
+          HttpStatus.BAD_REQUEST,
+        );
       doctorsFound = doctorsFound.filter((doctor) =>
         doctor.specialities.some((val) => val.id === speciality.id),
       );
@@ -146,6 +190,20 @@ export class DoctorService {
     if (seniority) {
       doctorsFound = doctorsFound.filter(
         (doctor) => doctor.seniority >= seniority,
+      );
+    }
+
+    if (healthInsuranceId) {
+      const hI = await this.healthInsuranceService.findOne(healthInsuranceId);
+      if (!hI)
+        throw new HttpException(
+          `Obra social de ID: ${healthInsuranceId} inexistente`,
+          HttpStatus.BAD_REQUEST,
+        );
+      doctorsFound = doctorsFound.filter((doc) =>
+        doc.user.healthInsurances
+          .map((h) => h.healthInsuranceId)
+          .includes(hI.id),
       );
     }
 
@@ -196,7 +254,7 @@ export class DoctorService {
     const set = new Set();
     const d = [];
 
-    for (let i = 0; i < max;) {
+    for (let i = 0; i < max; ) {
       const randomIndex = Math.floor(Math.random() * doctors.length);
       if (!set.has(randomIndex)) {
         set.add(randomIndex);
@@ -247,7 +305,7 @@ export class DoctorService {
       }
     }
 
-    if (param === 'avgRate') {
+    if (param === 'rate') {
       if (order.toLowerCase() === 'asc') {
         paginatedItemsCpy.items = paginatedItemsCpy.items.sort((x, y) =>
           x.avgRate > y.avgRate ? 1 : -1,
@@ -291,7 +349,7 @@ export class DoctorService {
     });
 
     if (!doctorFound) {
-      throw new HttpException('Medico no encontrado', HttpStatus.NOT_FOUND);
+      throw new HttpException('Médico no encontrado', HttpStatus.NOT_FOUND);
     }
 
     delete doctorFound.user.password;
@@ -331,7 +389,7 @@ export class DoctorService {
     });
 
     if (!doctorFound) {
-      throw new HttpException('Medico no encontrado', HttpStatus.NOT_FOUND);
+      throw new HttpException('Médico no encontrado', HttpStatus.NOT_FOUND);
     }
 
     doctorFound.verified = true;
@@ -361,7 +419,7 @@ export class DoctorService {
     }
 
     if (!doctorFound) {
-      throw new HttpException('Medico no encontrado', HttpStatus.NOT_FOUND);
+      throw new HttpException('Médico no encontrado', HttpStatus.NOT_FOUND);
     }
 
     if (doctor.planId) {
@@ -377,7 +435,7 @@ export class DoctorService {
   async cancelPlan(id: number) {
     const doctor = await this.findOne(id);
     if (!doctor) {
-      throw new HttpException('Medico no encontrado', HttpStatus.NOT_FOUND);
+      throw new HttpException('Médico no encontrado', HttpStatus.NOT_FOUND);
     }
 
     doctor.plan = null;
@@ -396,41 +454,11 @@ export class DoctorService {
     const result = await this.doctorRepository.delete({ id });
 
     if (result.affected == 0) {
-      throw new HttpException('Medico no encontrado', HttpStatus.NOT_FOUND);
+      throw new HttpException('Médico no encontrado', HttpStatus.NOT_FOUND);
     }
 
     await this.userService.delete(doctor.user.dni);
 
     return result;
   }
-
-  // async uploadRegistration(id: number, url: string) {
-  //   const doctorFound = await this.doctorRepository.findOne({
-  //     where: {
-  //       id,
-  //     },
-  //     relations: ['user'],
-  //   });
-  //   if (!doctorFound) {
-  //     throw new HttpException('Medico no encontrado', HttpStatus.NOT_FOUND);
-  //   }
-
-  //   doctorFound.registration = url;
-  //   return this.doctorRepository.save(doctorFound);
-  // }
-
-  // async uploadTitle(id: number, url: string) {
-  //   const doctorFound = await this.doctorRepository.findOne({
-  //     where: {
-  //       id,
-  //     },
-  //     relations: ['user'],
-  //   });
-  //   if (!doctorFound) {
-  //     throw new HttpException('Medico no encontrado', HttpStatus.NOT_FOUND);
-  //   }
-
-  //   doctorFound.title = url;
-  //   return this.doctorRepository.save(doctorFound);
-  // }
 }

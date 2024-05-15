@@ -259,6 +259,20 @@ export class UserService {
     return this.userRepository.save(updateUser);
   }
 
+  async clearHI(id: number) {
+    const entities = await this.userHealthInsuranceRepository.find({
+      where: {
+        user: {
+          id,
+        },
+      },
+    });
+    
+    await this.userHealthInsuranceRepository.remove(entities);
+
+    return 'removed';
+  }
+
   async delete(dni: string) {
     const result = await this.userRepository.delete({ dni });
 
@@ -314,27 +328,27 @@ export class UserService {
     await this.create({
       dni: '33429120',
       email: 'user@gmail.com',
-      name: 'User',
-      surname: 'User',
+      name: 'Alejandro',
+      surname: 'Torres',
       password: '123456',
-      phone: '33-333333',
-      address: 'Calle falsa 123',
+      phone: '341671235',
+      address: 'Laprida 950',
       cuit: '20-33429120-1',
       birthday: new Date('1993-04-01'),
-      gender: false,
+      gender: true,
       city: 82084,
     });
 
     await this.create({
       dni: '38233911',
       email: 'doctor@gmail.com',
-      name: 'Doctor',
-      surname: 'Doctor',
+      name: 'Sebastián',
+      surname: 'López',
       password: '123456',
-      phone: '44-444444',
-      address: 'Calle falsa 123',
+      phone: '3416712356',
+      address: 'Corrientes 2351',
       cuit: '20-38233911-1',
-      birthday: new Date('1998-08-14'),
+      birthday: new Date('1978-08-14'),
       gender: true,
       city: 82084,
     });
@@ -342,14 +356,14 @@ export class UserService {
     await this.create({
       dni: '34266592',
       email: 'admin@gmail.com',
-      name: 'Admin',
-      surname: 'Admin',
+      name: 'Valeria',
+      surname: 'Sánchez',
       password: '123456',
-      phone: '55-555555',
-      address: 'Calle falsa 123',
+      phone: '0115612324',
+      address: 'Urquiza 1996',
       cuit: '20-33429120-1',
       birthday: new Date('1993-04-01'),
-      gender: true,
+      gender: false,
       city: 82084,
     });
   }

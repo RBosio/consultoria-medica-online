@@ -1,14 +1,47 @@
 INSERT INTO
     speciality (name)
 VALUES
-    ('Psicologia'),
-    ('Cardiologia');
+    ('Psicología'),
+    ('Cardiología'),
+    ('Dermatología'),
+    ('Neurología'),
+    ('Oftalmología'),
+    ('Oncología'),
+    ('Pediatría'),
+    ('Endocrinología'),
+    ('Ginecología'),
+    ('Urología'),
+    ('Traumatología'),
+    ('Nutriología'),
+    ('Anestesiología'),
+    ('Radiología'),
+    ('Hematología'),
+    ('Infectología'),
+    ('Nefrología'),
+    ('Otorrinolaringología'),
+    ('Reumatología'),
+    ('Medicina General'),
+    ('Ortopedia');
 
 INSERT INTO
     health_insurance (name, discount)
 VALUES
+    ('OSDE', 0.60),
     ('OSDE', 0.30),
-    ('IOSFA', 0.20);
+    ('OSDE', 0.20),
+    ('IOSFA', 0.20),
+    ('SWISS MEDICAL', 0.35),
+    ('GALENO', 0.30),
+    ('HOSPITAL ALEMÁN', 0.25),
+    ('MEDICUS', 0.30),
+    ('OMINT', 0.35),
+    ('OSPOCE', 0.40),
+    ('SANCOR SALUD', 0.35),
+    ('PREVENCIÓN SALUD', 0.25),
+    ('WILLIAM HOPE', 0.20),
+    ('OSPJN', 0.25),
+    ('OPDEA', 0.30),
+    ('OSPESA', 0.40);
 
 INSERT INTO
     plan (name, price, planId)
@@ -31,53 +64,33 @@ VALUES
 INSERT INTO
     medical_record (datetime, detail, observations)
 VALUES
-    ("2024-01-20T20:00:00", "Detalle", "Observaciones"),
-    ("2024-01-20T20:00:01", "Detalle", "Observaciones"),
-    ("2024-01-20T20:00:02", "Detalle", "Observaciones"),
-    ("2024-01-20T20:00:03", "Detalle", "Observaciones"),
-    ("2024-01-20T20:00:04", "Detalle", "Observaciones"),
-    ("2024-01-20T20:00:05", "Detalle", "Observaciones"),
-    ("2024-01-20T20:00:06", "Detalle", "Observaciones"),
-    ("2024-01-20T20:00:07", "Detalle", "Observaciones"),
-    ("2024-01-20T20:00:08", "Detalle", "Observaciones"),
-    ("2024-01-20T20:00:09", "Detalle", "Observaciones"),
-    ("2024-01-20T20:00:10", "Detalle", "Observaciones"),
-    ("2024-01-20T20:00:11", "Detalle", "Observaciones"),
-    ("2024-01-20T20:00:12", "Detalle", "Observaciones"),
-    ("2024-01-20T20:00:13", "Detalle", "Observaciones"),
-    ("2024-01-20T20:00:14", "Detalle", "Observaciones"),
-    ("2024-01-20T20:00:15", "Detalle", "Observaciones"),
-    ("2024-01-20T20:00:16", "Detalle", "Observaciones"),
-    ("2024-01-20T20:00:17", "Detalle", "Observaciones"),
-    ("2024-01-20T20:00:18", "Detalle", "Observaciones"),
-    ("2024-01-20T20:00:19", "Detalle", "Observaciones"),
-    ("2024-01-20T20:00:20", "Detalle", "Observaciones");
+    ("2024-02-10T09:45:00", "Astigmatismo de grado menor", NULL),
+    ("2024-03-15T12:00:00", "Posible rotura de ligamentos cruzados", "Ir a consultorio físico para exámenes"),
+    ("2024-05-02T14:00:00", "Bloqueo en rama derecha del corazón", "Realizar Ecocardiograma y Ergometría en un plazo menor a 2 semanas"),
+    ("2024-04-24T17:30:00", "Avance positivo en la recuperación de los ligamentos cruzados", NULL);
 
 INSERT INTO
     meeting (
         userId,
         startDatetime,
         doctorId,
-        medicalRecordDatetime,
+        medicalRecordId,
+        status,
         price,
-        status
+        healthInsuranceId
     )
 VALUES
-    (1, "2024-05-10T20:00:00", 1, "2024-01-20T20:00:12", 200, "Pagada"),
-    (1, "2024-05-12T14:00:00", 1, "2024-01-20T20:00:13", 200, "Pagada"),
-    (1, "2024-05-14T18:00:00", 1, "2024-01-20T20:00:14", 200, "Pagada"),
-    (1, "2024-05-09T09:00:00", 1, null, 200, "Finalizada"),
-    (1, "2024-05-18T14:30:00", 1, null, 200, "Cancelada"),
-    (1, "2024-05-20T14:30:00", 1, null, 200, "Cancelada"),
-    (1, "2024-03-24T14:00:00", 1, null, 200, "Finalizada"),
-    (1, "2024-03-19T14:45:00", 1, null, 200, "Finalizada"),
-    (1, "2024-02-29T09:10:00", 1, null, 200, "Finalizada"),
-    (1, "2024-04-10T16:20:00", 1, null, 200, "Cancelada"),
-    (1, "2024-04-18T14:40:00", 1, null, 200, "Cancelada"),
-    (1, "2024-02-24T14:10:00", 1, null, 200, "Finalizada"),
-    (1, "2024-03-19T14:10:00", 1, null, 200, "Finalizada"),
-    (1, "2024-04-29T09:20:00", 1, null, 200, "Finalizada"),
-    (1, "2024-02-10T16:10:00", 1, null, 200, "Cancelada");
+    (1, "2024-02-10T09:00:00", 1, 1, "Finalizada", 3000, 1),
+    (1, "2024-03-15T11:00:00", 18, 2, "Finalizada", 3699, 9),
+    (1, "2024-04-24T16:30:06", 18, null, "Finalizada", 3699, 9),
+    (2, "2024-04-24T16:30:05", 18, null, "Finalizada", 3699, 9),
+    (3, "2024-04-24T16:30:04", 18, null, "Finalizada", 3699, 9),
+    (3, "2024-04-24T16:30:03", 18, null, "Finalizada", 3699, 9),
+    (4, "2024-04-24T16:30:02", 18, null, "Finalizada", 3699, 9),
+    (5, "2024-04-24T16:30:01", 18, null, "Finalizada", 3699, 9),
+    (5, "2024-04-24T16:30:40", 18, null, "Finalizada", 3699, 6),
+    (1, "2024-05-02T13:45:00", 17, 4, "Finalizada", 1500, 3),
+    (1, "2024-05-03T12:00:00", 1, null, "Pagada", 2500, 4);
 
 INSERT INTO
     comment (
@@ -91,15 +104,15 @@ VALUES
     (
         "2024-01-15T14:32:48",
         1,
-        "2024-05-10T20:00:00",
-        "Comentario 1",
+        "2024-02-10T09:00:00",
+        "Hola, ¿cómo le va?",
         1
     ),
     (
         "2024-01-15T15:14:26",
         1,
-        "2024-05-10T20:00:00",
-        "Comentario 2",
+        "2024-02-10T09:00:00",
+        "Buenas! En unos minutos comenzamos la reunión",
         2
     );
 

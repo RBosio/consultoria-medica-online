@@ -4,8 +4,9 @@ import { IoIosArrowForward } from "react-icons/io";
 import Rate from "./rate";
 import { robotoBold } from "@/lib/fonts";
 import Button from "./button";
-import { FaUserDoctor } from "react-icons/fa6";
+import { FaUserDoctor, FaUserNurse } from "react-icons/fa6";
 import { useRouter } from "next/router";
+import moment from "moment";
 
 export interface DoctorProps {
   fullName: string;
@@ -13,8 +14,11 @@ export interface DoctorProps {
   description: string;
   id: number;
   rate: number;
+  count: number;
   planId?: number;
+  seniority: number;
   specialities: any[];
+  experience: Date;
 }
 
 const Doctor: React.FC<DoctorProps> = (props) => {
@@ -54,7 +58,11 @@ const Doctor: React.FC<DoctorProps> = (props) => {
           </p>
         </div>
         <div className="shrink-0 flex flex-col items-center justify-between sm:h-full sm:items-center sm:justify-center gap-4">
-          <Rate rate={props.rate} />
+          <Rate rate={props.rate} count={props.count} />
+          <p className="flex items-center gap-2 text-lg">
+            <FaUserNurse className="text-primary" />
+            {moment(props.experience).format("MMMM, YYYY")}
+          </p>
           <Button
             onClick={() => router.push(`${router.pathname}/${props.id}`)}
             size="medium"

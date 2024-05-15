@@ -73,6 +73,12 @@ export class UserController {
     return this.userService.update(id, user);
   }
 
+  @Patch('clearHI/:id')
+  @Roles(RoleEnum.Admin)
+  clearHI(@Param('id', ParseIntPipe) id: number) {
+    return this.userService.clearHI(id);
+  }
+
   @Delete(':dni')
   @Roles(RoleEnum.Admin)
   deleteUser(@Param('dni') dni: string) {

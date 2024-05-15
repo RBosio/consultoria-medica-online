@@ -37,10 +37,10 @@ export class MedicalRecordController {
         return this.medicalRecordService.getPages(userId)
     }
     
-    @Get(':datetime')
+    @Get(':id')
     @Roles(RoleEnum.User, RoleEnum.Doctor, RoleEnum.Admin)
-    getMedicalRecord(@Param('datetime') datetime: Date): Promise<MedicalRecord | HttpException> {
-        return this.medicalRecordService.findOne(datetime)
+    getMedicalRecord(@Param('id') id: string): Promise<MedicalRecord | HttpException> {
+        return this.medicalRecordService.findOne(+id)
     }
 
     @Post()
@@ -49,16 +49,16 @@ export class MedicalRecordController {
         return this.medicalRecordService.create(medicalRecord)
     }
 
-    @Patch(':datetime')
+    @Patch(':id')
     @Roles(RoleEnum.Doctor)
-    updateMedicalRecord(@Param('datetime') datetime: Date, @Body() medicalRecord: updateMedicalRecordDto) {
-        return this.medicalRecordService.update(datetime, medicalRecord)
+    updateMedicalRecord(@Param('id') id: string, @Body() medicalRecord: updateMedicalRecordDto) {
+        return this.medicalRecordService.update(+id, medicalRecord)
     }
 
-    @Delete(':datetime')
+    @Delete(':id')
     @Roles(RoleEnum.Doctor)
-    deleteMedicalRecord(@Param('datetime') datetime: Date) {
-        return this.medicalRecordService.delete(datetime)
+    deleteMedicalRecord(@Param('id') id: string) {
+        return this.medicalRecordService.delete(+id)
     }
 
     @UseInterceptors(
@@ -77,11 +77,11 @@ export class MedicalRecordController {
             }
         )
     )
-    @Post(':datetime/file')
+    @Post(':id/file')
     @Roles(RoleEnum.Doctor)
-    uploadFile(@Param('datetime') datetime: Date, @Req() request: Request) {
+    uploadFile(@Param('id') id: string, @Req() request: Request) {
         const { body } = request
 
-        return this.medicalRecordService.uploadFile(datetime, body)
+        return this.medicalRecordService.uploadFile(+id, body)
     }
 }

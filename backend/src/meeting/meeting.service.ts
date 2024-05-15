@@ -542,8 +542,10 @@ export class MeetingService {
     });
 
     if (avgRate) {
+      const doctor = await this.doctorService.findOne(meetingFound.doctorId);
       await this.doctorService.update(meetingFound.doctorId, {
         avgRate,
+        count: doctor.count + 1,
       });
     }
 

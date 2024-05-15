@@ -20,20 +20,27 @@ import { Speciality } from 'src/entities/speciality.entity';
 export class DoctorService {
   constructor(
     @InjectRepository(Doctor) private doctorRepository: Repository<Doctor>,
-    @InjectRepository(Speciality) private specialityRepository: Repository<Speciality>,
+    @InjectRepository(Speciality)
+    private specialityRepository: Repository<Speciality>,
     private userService: UserService,
     private specialityService: SpecialityService,
     private planService: PlanService,
     private healthInsuranceService: HealthInsuranceService,
-  ) { }
+  ) {}
 
   async create(userIdToAssociate: number, doctor: createDoctorDto) {
     const user = await this.userService.findOne(userIdToAssociate);
     if (!user)
       throw new HttpException('Usuario no encontrado', HttpStatus.NOT_FOUND);
 
-    const doctorExists = await this.doctorRepository.findOne({ where: { userId: userIdToAssociate } });
-    if (doctorExists) throw new HttpException("El usuario ya está registrado como médico", HttpStatus.BAD_REQUEST);
+    const doctorExists = await this.doctorRepository.findOne({
+      where: { userId: userIdToAssociate },
+    });
+    if (doctorExists)
+      throw new HttpException(
+        'El usuario ya está registrado como médico',
+        HttpStatus.BAD_REQUEST,
+      );
 
     // Validar archivos
     const eightMB = 1024 * 1024 * 8;
@@ -46,28 +53,57 @@ export class DoctorService {
     ];
 
     if (!validMimeTypes.includes(doctor.registration.mimeType)) {
-      throw new HttpException(`El archivo de matrícula no posee un tipo válido. Permitidos: ${validMimeTypes}`, HttpStatus.NOT_FOUND);
-    };
+      throw new HttpException(
+        `El archivo de matrícula no posee un tipo válido. Permitidos: ${validMimeTypes}`,
+        HttpStatus.NOT_FOUND,
+      );
+    }
 
     if (doctor.registration.size > eightMB) {
-      throw new HttpException(`El archivo de matrícula debe tener un peso menor a 8MB`, HttpStatus.NOT_FOUND);
-
-    };
-    const registrationFilename = `${uuidv4()}.${doctor.registration.fileType.ext}`;
-
+      throw new HttpException(
+        `El archivo de matrícula debe tener un peso menor a 8MB`,
+        HttpStatus.NOT_FOUND,
+      );
+    }
+    const registrationFilename = `${uuidv4()}.${
+      doctor.registration.fileType.ext
+    }`;
 
     if (!validMimeTypes.includes(doctor.title.mimeType)) {
-      throw new HttpException(`El archivo de título no posee un tipo válido. Permitidos: ${validMimeTypes}`, HttpStatus.NOT_FOUND);
-    };
+      throw new HttpException(
+        `El archivo de título no posee un tipo válido. Permitidos: ${validMimeTypes}`,
+        HttpStatus.NOT_FOUND,
+      );
+    }
 
     if (doctor.title.size > eightMB) {
-      throw new HttpException(`El archivo de título debe tener un peso menor a 8MB`, HttpStatus.NOT_FOUND);
-
-    };
+      throw new HttpException(
+        `El archivo de título debe tener un peso menor a 8MB`,
+        HttpStatus.NOT_FOUND,
+      );
+    }
     const titleFilename = `${uuidv4()}.${doctor.title.fileType.ext}`;
 
-    const registrationPath = path.join(__dirname, '..', '..', 'public', 'uploads', 'doctor', 'registration', registrationFilename);
-    const titlePath = path.join(__dirname, '..', '..', 'public', 'uploads', 'doctor', 'title', titleFilename);
+    const registrationPath = path.join(
+      __dirname,
+      '..',
+      '..',
+      'public',
+      'uploads',
+      'doctor',
+      'registration',
+      registrationFilename,
+    );
+    const titlePath = path.join(
+      __dirname,
+      '..',
+      '..',
+      'public',
+      'uploads',
+      'doctor',
+      'title',
+      titleFilename,
+    );
 
     await fs.promises.writeFile(registrationPath, doctor.registration.buffer);
     await fs.promises.writeFile(titlePath, doctor.title.buffer);
@@ -75,7 +111,9 @@ export class DoctorService {
     const newDoctor = await this.doctorRepository.create(doctor);
 
     const specialitiesIds = JSON.parse(doctor.specialitiesStr);
-    const specialities = await this.specialityRepository.findBy({ id: In(specialitiesIds) });
+    const specialities = await this.specialityRepository.findBy({
+      id: In(specialitiesIds),
+    });
 
     newDoctor.user = user;
     newDoctor.registration = registrationFilename;
@@ -89,8 +127,16 @@ export class DoctorService {
   }
 
   async findAll(query: getDoctorsDto) {
-    const { name, avgRate, seniority, specialityId, healthInsuranceId, orderBy, page, perPage } =
-      query;
+    const {
+      name,
+      avgRate,
+      seniority,
+      specialityId,
+      healthInsuranceId,
+      orderBy,
+      page,
+      perPage,
+    } = query;
     const moment = extendMoment(Moment);
 
     let doctorsFound = [];
@@ -123,7 +169,11 @@ export class DoctorService {
 
     if (specialityId) {
       const speciality = await this.specialityService.findOne(specialityId);
-      if (!speciality) throw new HttpException(`Especialidad de ID: ${healthInsuranceId} inexistente`, HttpStatus.BAD_REQUEST);
+      if (!speciality)
+        throw new HttpException(
+          `Especialidad de ID: ${healthInsuranceId} inexistente`,
+          HttpStatus.BAD_REQUEST,
+        );
       doctorsFound = doctorsFound.filter((doctor) =>
         doctor.specialities.some((val) => val.id === speciality.id),
       );
@@ -145,9 +195,17 @@ export class DoctorService {
 
     if (healthInsuranceId) {
       const hI = await this.healthInsuranceService.findOne(healthInsuranceId);
-      if (!hI) throw new HttpException(`Obra social de ID: ${healthInsuranceId} inexistente`, HttpStatus.BAD_REQUEST);
-      doctorsFound = doctorsFound.filter(doc => doc.user.healthInsurances.map(h => h.healthInsuranceId).includes(hI.id));
-    };
+      if (!hI)
+        throw new HttpException(
+          `Obra social de ID: ${healthInsuranceId} inexistente`,
+          HttpStatus.BAD_REQUEST,
+        );
+      doctorsFound = doctorsFound.filter((doc) =>
+        doc.user.healthInsurances
+          .map((h) => h.healthInsuranceId)
+          .includes(hI.id),
+      );
+    }
 
     doctorsFound = doctorsFound.map((doctor) => {
       delete doctor.user.password;
@@ -196,7 +254,7 @@ export class DoctorService {
     const set = new Set();
     const d = [];
 
-    for (let i = 0; i < max;) {
+    for (let i = 0; i < max; ) {
       const randomIndex = Math.floor(Math.random() * doctors.length);
       if (!set.has(randomIndex)) {
         set.add(randomIndex);

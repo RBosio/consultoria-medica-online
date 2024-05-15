@@ -6,6 +6,7 @@ export class updateDoctorDto {
   durationMeeting?: number;
   priceMeeting?: number;
   avgRate?: number;
+  count?: number;
   description?: string;
   planId?: number;
   userId?: number;

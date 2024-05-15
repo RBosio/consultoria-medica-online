@@ -42,6 +42,9 @@ export class Doctor {
   @Column({ default: 0, type: 'decimal', precision: 2, scale: 1 })
   avgRate: number;
 
+  @Column({ default: 0 })
+  count: number;
+
   @Column({ type: 'text', nullable: true })
   description: string;
 

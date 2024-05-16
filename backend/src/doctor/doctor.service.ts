@@ -1,6 +1,6 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, MoreThan, Repository } from 'typeorm';
+import { In, IsNull, MoreThan, Not, Repository } from 'typeorm';
 import { updateDoctorDto } from './dto/update-doctor.dto';
 import { Doctor } from 'src/entities/doctor.entity';
 import { UserService } from 'src/user/user.service';
@@ -144,6 +144,7 @@ export class DoctorService {
     doctorsFound = await this.doctorRepository.find({
       where: {
         verified: true,
+        planId: Not(IsNull()),
       },
       order: {
         plan: {

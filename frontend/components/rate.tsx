@@ -12,8 +12,6 @@ interface RateProps {
 const Rate: React.FC<RateProps> = (props) => {
   const theme = useTheme();
 
-  console.log(props.count);
-
   return (
     <div
       className={`flex flex-col md:flex-row items-center justify-center ${props.className}`}

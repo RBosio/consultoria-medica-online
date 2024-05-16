@@ -73,7 +73,6 @@ export default function ProfileView(props: any) {
   const [year, setYear] = useState<number>();
 
   useEffect(() => {
-    console.log(props.auth);
     moment.locale("es");
   }, []);
 

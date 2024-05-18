@@ -85,6 +85,7 @@ export default function Doctor(props: any) {
               startDatetime: selected,
               doctorId: router.query.id,
               price,
+              specialityId: props.doctor.specialities[0].id,
               healthInsuranceId: getDiscount()?.id ? getDiscount().id : null,
             },
             {

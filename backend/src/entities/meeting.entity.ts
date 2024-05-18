@@ -13,6 +13,7 @@ import { MedicalRecord } from './medical-record.entity';
 import { Comment } from './comment.entity';
 import { Notification } from './notification.entity';
 import { HealthInsurance } from './health-insurance.entity';
+import { Speciality } from './speciality.entity';
 
 @Entity()
 export class Meeting {
@@ -58,6 +59,9 @@ export class Meeting {
     (healthInsurance) => healthInsurance.meeting,
   )
   healthInsurance: HealthInsurance;
+
+  @ManyToOne(() => Speciality, (speciality) => speciality.meeting)
+  speciality: Speciality;
 
   @OneToMany(() => Comment, (comment) => comment.meeting, {
     cascade: true,

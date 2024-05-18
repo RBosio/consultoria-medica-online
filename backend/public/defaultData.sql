@@ -77,20 +77,21 @@ INSERT INTO
         medicalRecordId,
         status,
         price,
-        healthInsuranceId
+        healthInsuranceId,
+        specialityId
     )
 VALUES
-    (1, "2024-02-10T09:00:00", 1, 1, "Finalizada", 3000, 1),
-    (1, "2024-03-15T11:00:00", 18, 2, "Finalizada", 3699, 9),
-    (1, "2024-04-24T16:30:06", 18, null, "Finalizada", 3699, 9),
-    (2, "2024-04-24T16:30:05", 18, null, "Finalizada", 3699, 9),
-    (3, "2024-04-24T16:30:04", 18, null, "Finalizada", 3699, 9),
-    (3, "2024-04-24T16:30:03", 18, null, "Finalizada", 3699, 9),
-    (4, "2024-04-24T16:30:02", 18, null, "Finalizada", 3699, 9),
-    (5, "2024-04-24T16:30:01", 18, null, "Finalizada", 3699, 9),
-    (5, "2024-04-24T16:30:40", 18, null, "Finalizada", 3699, 6),
-    (1, "2024-05-02T13:45:00", 17, 4, "Finalizada", 1500, 3),
-    (1, "2024-05-03T12:00:00", 1, null, "Pagada", 2500, 4);
+    (1, "2024-02-10T09:00:00", 1, 1, "Finalizada", 3000, 1, 2),
+    (1, "2024-03-15T11:00:00", 1, 2, "Finalizada", 3699, 2, 3),
+    (1, "2023-04-24T16:30:06", 1, null, "Finalizada", 3699, 2, 3),
+    (2, "2023-04-24T16:30:05", 1, null, "Finalizada", 3699, 2, 4),
+    (3, "2022-04-24T16:30:04", 1, null, "Finalizada", 3699, 2, 5),
+    (3, "2022-04-24T16:30:03", 1, null, "Finalizada", 3699, 1, 5),
+    (4, "2021-04-24T16:30:02", 1, null, "Finalizada", 3699, 1, 1),
+    (5, "2021-04-24T16:30:01", 1, null, "Finalizada", 3699, 1, 6),
+    (5, "2021-04-24T16:30:40", 1, null, "Finalizada", 3699, 1, 7),
+    (1, "2024-05-02T13:45:00", 17, 4, "Finalizada", 1500, 3, 7),
+    (1, "2024-05-03T12:00:00", 1, null, "Pagada", 2500, 4, 7);
 
 INSERT INTO
     comment (

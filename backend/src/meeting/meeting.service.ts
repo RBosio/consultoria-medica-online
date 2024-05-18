@@ -27,6 +27,7 @@ import { Cron } from '@nestjs/schedule';
 import { Workbook } from 'exceljs';
 import { HealthInsuranceService } from 'src/health-insurance/health-insurance.service';
 import { Doctor } from 'src/entities/doctor.entity';
+import { SpecialityService } from 'src/speciality/speciality.service';
 
 export interface RequestT extends Request {
   user: {
@@ -43,6 +44,7 @@ export class MeetingService {
     private userService: UserService,
     private doctorService: DoctorService,
     private healthInsruanceService: HealthInsuranceService,
+    private specialityService: SpecialityService,
     private configService: ConfigService,
   ) {}
 
@@ -424,6 +426,9 @@ export class MeetingService {
     newMeeting.healthInsurance = await this.healthInsruanceService.findOne(
       meeting.healthInsuranceId,
     );
+    newMeeting.speciality = await this.specialityService.findOne(
+      meeting.specialityId,
+    );
     newMeeting.tpc = uuidv4();
 
     return this.meetingRepository.save(newMeeting);
@@ -777,6 +782,68 @@ export class MeetingService {
         `attachment; filename=${year}-${month}_${doctor.user.surname}-${doctor.user.name}.xlsx`,
       )
       .send(buffer);
+  }
+
+  async charts() {
+    const response = [];
+    const meetings = await this.meetingRepository.find({
+      relations: {
+        speciality: true,
+      },
+    });
+    const specialities = await this.specialityService.findAll();
+
+    const specialitiesResponse = specialities
+      .map((sp) => {
+        return {
+          x: sp.name,
+          y: meetings.filter((meeting) => meeting.speciality.id === sp.id)
+            .length,
+        };
+      })
+      .filter((sp) => sp.y !== 0)
+      .sort((a, b) => {
+        if (a.y > b.y) return -1;
+      });
+
+    const years = new Set(
+      meetings.map((meeting) => meeting.startDatetime.getFullYear()),
+    );
+    const resp = [];
+    years.forEach((year) => {
+      resp.push({
+        x: year,
+        y: meetings.filter(
+          (meeting) => meeting.startDatetime.getFullYear() === year,
+        ).length,
+      });
+    });
+
+    const resp2 = [];
+    years.forEach((year) => {
+      resp2.push({
+        x: year,
+        y: meetings
+          .filter((meeting) => meeting.startDatetime.getFullYear() === year)
+          .map((meeting) => +meeting.price)
+          .reduce((prev, curr) => prev + curr, 0),
+      });
+    });
+
+    response.push(
+      specialitiesResponse,
+      resp.sort((a, b) => {
+        if (a.x < b.x) {
+          return -1;
+        }
+      }),
+      resp2.sort((a, b) => {
+        if (a.x < b.x) {
+          return -1;
+        }
+      }),
+    );
+    return response;
   }
 }
 

@@ -102,6 +102,13 @@ export class MeetingController {
     return this.meetingService.findOne(id, startDatetime);
   }
 
+  @Get('charts')
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(RoleEnum.Admin)
+  charts() {
+    return this.meetingService.charts();
+  }
+
   @Post()
   @UseGuards(AuthGuard, RolesGuard)
   @Roles(RoleEnum.User, RoleEnum.Admin)

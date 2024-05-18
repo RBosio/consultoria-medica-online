@@ -5,6 +5,7 @@ import Layout from "@/components/layout";
 import withAuth from "@/lib/withAuth";
 import { Auth } from "../../../shared/types";
 import axios from "axios";
+import SidebarAdmin from "@/components/sidebarAdmin";
 
 interface Speciality {
   speciality: string;
@@ -87,13 +88,22 @@ export default function Admin(props: any) {
 
   return (
     <Layout auth={props.auth}>
-      <div className="bg-white">
-        <div className="flex flex-col md:flex-row items-center justify-center gap-4 p-4 w-1/2 mx-auto">
-          <canvas id="acquisitions"></canvas>
-          <canvas id="acquisitions2"></canvas>
+      <div className="flex flex-col md:flex-row justify-center gap-4 w-[90%] mt-12 mx-auto">
+        <div>
+          <SidebarAdmin
+            auth={props.auth}
+            setSidebarOpened={true}
+            sidebarOpened
+          />
         </div>
-        <div className="flex items-center justify-center gap-4 p-4 w-1/2 mx-auto">
-          <canvas id="acquisitions3"></canvas>
+        <div className="bg-white w-full">
+          <div className="flex flex-col md:flex-row items-center justify-center gap-4 p-4 w-1/2 mx-auto">
+            <canvas id="acquisitions"></canvas>
+            <canvas id="acquisitions2"></canvas>
+          </div>
+          <div className="flex items-center justify-center gap-4 p-4 w-1/2 mx-auto">
+            <canvas id="acquisitions3"></canvas>
+          </div>
         </div>
       </div>
     </Layout>

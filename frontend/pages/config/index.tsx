@@ -406,9 +406,10 @@ export default function Config(props: ConfigProps) {
                       Descripción
                     </h2>
                     <p
-                      className={`text-justify line-clamp-[8] ${!props.doctor.description &&
+                      className={`text-justify line-clamp-[8] ${
+                        !props.doctor.description &&
                         "text-red-400 font-semibold"
-                        }`}
+                      }`}
                     >
                       {props.doctor.description || "No posee descripción"}
                     </p>
@@ -462,38 +463,48 @@ export default function Config(props: ConfigProps) {
           </div>
           <div className="overflow-hidden w-full md:min-w-[70%] md:pb-6">
             <div
-              className={`flex flex-col md:flex-row md:flex-nowrap items-center transition-all ease-in duration-500 ${modify ? "-translate-x-full" : ""
-                } gap-6`}
+              className={`flex flex-col md:flex-row md:flex-nowrap items-center transition-all ease-in duration-500 ${
+                modify ? "-translate-x-full" : ""
+              } gap-6`}
             >
               <div className="bg-white w-full h-full rounded-md shadow-md p-4 flex flex-col justify-center">
                 <div className="flex flex-col">
                   <div className="flex items-center mb-4">
-                    <h3 className={`text-primary text-xl ${robotoBold.className}`}>Obras sociales</h3>
-                    {props.doctor.user.healthInsurances.length > 0 && <IconButton color="secondary" aria-label="add an alarm">
-                      <IoIosAddCircleOutline color={theme.palette.primary.main} />
-                    </IconButton>}
+                    <h3
+                      className={`text-primary text-xl ${robotoBold.className}`}
+                    >
+                      Obras sociales
+                    </h3>
+                    {props.doctor.user.healthInsurances.length > 0 && (
+                      <IconButton color="secondary" aria-label="add an alarm">
+                        <IoIosAddCircleOutline
+                          color={theme.palette.primary.main}
+                        />
+                      </IconButton>
+                    )}
                   </div>
-                  {props.doctor.user.healthInsurances.length > 0
-                    ? props.doctor.user.healthInsurances.map(
-                      (hi: any) => {
-                        return (
-                          <p
-                            key={hi.healthInsurance.id}
-                            className="flex items-center gap-2"
-                          >
-                            {hi.healthInsurance.name}{" "}
-                            {hi.verified ? (
-                              <FaCircleCheck className="text-green-600" />
-                            ) : (
-                              <FaCircleXmark className="text-red-600" />
-                            )}
-                          </p>
-                        );
-                      }
-                    )
-                    :
-                    <p>No estás verificado en ninguna obra social. <LinkMUI href="/profile">Puedes cargar una aquí</LinkMUI></p>
-                  }
+                  {props.doctor.user.healthInsurances.length > 0 ? (
+                    props.doctor.user.healthInsurances.map((hi: any) => {
+                      return (
+                        <p
+                          key={hi.healthInsurance.id}
+                          className="flex items-center gap-2"
+                        >
+                          {hi.healthInsurance.name}{" "}
+                          {hi.verified ? (
+                            <FaCircleCheck className="text-green-600" />
+                          ) : (
+                            <FaCircleXmark className="text-red-600" />
+                          )}
+                        </p>
+                      );
+                    })
+                  ) : (
+                    <p>
+                      No estás verificado en ninguna obra social.{" "}
+                      <LinkMUI href="/profile">Puedes cargar una aquí</LinkMUI>
+                    </p>
+                  )}
                 </div>
                 <Divider
                   variant="middle"
@@ -507,7 +518,9 @@ export default function Config(props: ConfigProps) {
                   <GoDotFill color={theme.palette.primary.main} />
                 </Divider>
                 <div>
-                  <h3 className={`text-primary text-xl mb-4 ${robotoBold.className}`}>
+                  <h3
+                    className={`text-primary text-xl mb-4 ${robotoBold.className}`}
+                  >
                     Plan actual
                   </h3>
                   <div
@@ -522,9 +535,9 @@ export default function Config(props: ConfigProps) {
                       <p className="text-center">
                         {props.doctor.plan
                           ? props.doctor.planSince &&
-                          `Miembro desde ${moment(
-                            props.doctor.planSince
-                          ).format("LL")}`
+                            `Miembro desde ${moment(
+                              props.doctor.planSince
+                            ).format("LL")}`
                           : "Actualmente se encuentra sin plan, solicite uno para comenzar a trabajar"}
                       </p>
                     </div>
@@ -573,7 +586,9 @@ export default function Config(props: ConfigProps) {
                   <GoDotFill color={theme.palette.primary.main} />
                 </Divider>
                 <div>
-                  <h3 className={`text-primary text-xl mb-4 ${robotoBold.className}`}>
+                  <h3
+                    className={`text-primary text-xl mb-4 ${robotoBold.className}`}
+                  >
                     Rangos horarios
                   </h3>
                   <div className="flex flex-col md:flex-row items-center">
@@ -630,12 +645,16 @@ export default function Config(props: ConfigProps) {
                           );
                         })}
                       </Select>
-                      <Button className="mx-4" type="submit" startIcon={<FaPlus />}>
+                      <Button
+                        className="mx-4"
+                        type="submit"
+                        startIcon={<FaPlus />}
+                      >
                         Agregar
                       </Button>
                     </form>
                   </div>
-                  <div className="flex w-1/4 items-center mt-2 overflow-x-scroll p-4 w-full">
+                  <div className="flex items-center mt-2 overflow-x-scroll p-4 w-full">
                     <div className="mt-8">
                       <div className="my-4">
                         <p className="text-primary text-xl">Desde</p>
@@ -693,7 +712,9 @@ export default function Config(props: ConfigProps) {
                 >
                   <div className="flex justify-center">
                     <div className="md:w-1/2 p-4 w-full">
-                      <h3 className={`text-primary text-xl text-center ${robotoBold.className}`}>
+                      <h3
+                        className={`text-primary text-xl text-center ${robotoBold.className}`}
+                      >
                         Parámetros
                       </h3>
                       <div className="flex flex-col md:flex-row gap-4 md:gap-0 mt-4 md:mt-0 justify-between items-center">
@@ -801,32 +822,32 @@ export default function Config(props: ConfigProps) {
               {confirmSchedule
                 ? "Rango horario"
                 : confirmUpdate
-                  ? "Datos personales"
-                  : confirmVerification
-                    ? "Verificacion de cuenta"
-                    : confirmVerificationHI
-                      ? "Verificacion de obra social"
-                      : confirmCancelPlan
-                        ? "Cancelar plan"
-                        : confirmHealthInsurance
-                          ? "Confirmar obra social"
-                          : ""}
+                ? "Datos personales"
+                : confirmVerification
+                ? "Verificacion de cuenta"
+                : confirmVerificationHI
+                ? "Verificacion de obra social"
+                : confirmCancelPlan
+                ? "Cancelar plan"
+                : confirmHealthInsurance
+                ? "Confirmar obra social"
+                : ""}
             </DialogTitle>
             <DialogContent>
               <DialogContentText id="alert-dialog-description">
                 {confirmSchedule
                   ? "¿Desea agregar el rango horario?"
                   : confirmUpdate
-                    ? "¿Desea actualizar los datos?"
-                    : confirmVerification
-                      ? "¿Desea solicitar la verificacion de la cuenta?"
-                      : confirmVerificationHI
-                        ? "¿Desea solicitar la verificacion de la obra social?"
-                        : confirmCancelPlan
-                          ? "¿Desea cancelar su plan actual?"
-                          : confirmHealthInsurance
-                            ? "¿Desea agregar la obra social?"
-                            : ""}
+                  ? "¿Desea actualizar los datos?"
+                  : confirmVerification
+                  ? "¿Desea solicitar la verificacion de la cuenta?"
+                  : confirmVerificationHI
+                  ? "¿Desea solicitar la verificacion de la obra social?"
+                  : confirmCancelPlan
+                  ? "¿Desea cancelar su plan actual?"
+                  : confirmHealthInsurance
+                  ? "¿Desea agregar la obra social?"
+                  : ""}
               </DialogContentText>
             </DialogContent>
             <DialogActions>

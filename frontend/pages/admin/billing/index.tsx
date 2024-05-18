@@ -175,7 +175,7 @@ export default function Home(props: BillingProps) {
     <Layout auth={props.auth}>
       <div className="flex justify-center">
         <div className="flex flex-col xl:flex-row justify-center gap-4 w-[90%] mt-12">
-          <div className="flex justify-center">
+          <div>
             <SidebarAdmin
               auth={props.auth}
               setSidebarOpened={true}

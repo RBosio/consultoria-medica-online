@@ -11,6 +11,7 @@ import {
   FaHandshake,
   FaKitMedical,
   FaMoneyBill,
+  FaSatelliteDish,
   FaUser,
   FaUserDoctor,
 } from "react-icons/fa6";
@@ -54,6 +55,11 @@ const SidebarAdmin: React.FC<SidebarAdminProps> = (props) => {
         name: "Facturación",
         path: "/admin/billing",
         icon: <FaMoneyBill />,
+      },
+      {
+        name: "Estadística",
+        path: "/admin/charts",
+        icon: <FaSatelliteDish />,
       },
     ],
     bottom: [],

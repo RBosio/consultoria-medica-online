@@ -71,6 +71,7 @@ export default function ProfileView(props: any) {
   const [healthInsuranceVerify, setHealthInsuranceVerify] = useState<number>();
   const [month, setMonth] = useState<number>();
   const [year, setYear] = useState<number>();
+  const [cod, setCod] = useState<string>();
 
   useEffect(() => {
     moment.locale("es");
@@ -331,6 +332,7 @@ export default function ProfileView(props: any) {
       `${process.env.NEXT_PUBLIC_API_URL}/user/healthInsurance/${props.auth.id}`,
       {
         healthInsuranceId: healthInsurance,
+        cod,
       },
       {
         withCredentials: true,
@@ -464,8 +466,14 @@ export default function ProfileView(props: any) {
                 <div className="md:w-2/3">
                   <div className="my-4 md:flex gap-4">
                     <div className="flex items-center gap-4 md:w-full">
-                      <div className="w-full">
+                      <div className="flex items-end gap-2 w-full">
+                        <Input
+                          className="w-1/2"
+                          label="Código"
+                          onChange={($e) => setCod($e.target.value)}
+                        ></Input>
                         <Autocomplete
+                          className="w-1/2"
                           onChange={(event, newValue: any) => {
                             setHealthInsurance(newValue?.id);
                           }}
@@ -592,18 +600,19 @@ export default function ProfileView(props: any) {
                       </form>
                     </div>
                   )}
-                  <div className="mt-12 flex items-center gap-2">
-                    <DatePicker
-                      label="Fecha de facturación"
-                      name="meetingsDate"
-                      views={["year", "month"]}
-                      onChange={(date: any) => {
-                        setMonth(+moment(new Date(date.$d)).format("MM"));
-                        setYear(+moment(new Date(date.$d)).format("YYYY"));
-                      }}
-                    />
-                    <a
-                      href={`
+                  {props.auth.role === "doctor" && (
+                    <div className="mt-12 flex items-center gap-2">
+                      <DatePicker
+                        label="Fecha de facturación"
+                        name="meetingsDate"
+                        views={["year", "month"]}
+                        onChange={(date: any) => {
+                          setMonth(+moment(new Date(date.$d)).format("MM"));
+                          setYear(+moment(new Date(date.$d)).format("YYYY"));
+                        }}
+                      />
+                      <a
+                        href={`
                       ${
                         !month || !year
                           ? `${
@@ -613,11 +622,12 @@ export default function ProfileView(props: any) {
                             }/${new Date().getFullYear()}`
                           : `${process.env.NEXT_PUBLIC_API_URL}/meeting/report/${props.auth.id}/${month}/${year}`
                       }`}
-                      target="_blank"
-                    >
-                      <Button>Generar reporte</Button>
-                    </a>
-                  </div>
+                        target="_blank"
+                      >
+                        <Button>Generar reporte</Button>
+                      </a>
+                    </div>
+                  )}
                 </div>
               </div>
             </section>

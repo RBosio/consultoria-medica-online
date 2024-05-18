@@ -173,7 +173,7 @@ export class UserService {
     return newUser;
   }
 
-  async addHealthInsurance(id: number, healthInsuranceId: number) {
+  async addHealthInsurance(id: number, healthInsuranceId: number, cod: string) {
     const user = await this.userRepository.findOne({
       where: {
         id,
@@ -189,6 +189,7 @@ export class UserService {
     const userHI = this.userHealthInsuranceRepository.create({
       user,
       healthInsurance,
+      cod,
     });
     await this.userHealthInsuranceRepository.save(userHI);
 
@@ -267,7 +268,7 @@ export class UserService {
         },
       },
     });
-    
+
     await this.userHealthInsuranceRepository.remove(entities);
 
     return 'removed';

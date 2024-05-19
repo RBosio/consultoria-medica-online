@@ -182,7 +182,7 @@ export default function Home(props: BillingProps) {
               sidebarOpened
             />
           </div>
-          <div className="bg-white p-4 w-full h-full">
+          <div className="bg-white p-4 w-full h-full rounded-lg shadow-lg">
             <div className="flex flex-col xl:flex-row justify-between items-center mx-4 my-4 gap-4 xl:gap-0">
               <DatePicker
                 label="Fecha de facturación"

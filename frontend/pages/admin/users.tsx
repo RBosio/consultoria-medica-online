@@ -244,46 +244,49 @@ export default function Home(props: Speciality) {
               sidebarOpened
             />
           </div>
-          <div className="bg-white p-4 w-full h-full">
+          <div className="bg-white p-4 w-full h-full rounded-lg shadow-lg">
             <section className="w-full rounded-md flex flex-col items-center relative">
-              <div className="flex justify-between items-center gap-4 w-5/6">
-                <Input
-                  name="name"
-                  value={name}
-                  onChange={($e: any) => {
-                    setName($e.target.value.toLowerCase());
-                    filterChange($e.target.value.toLowerCase());
-                  }}
-                  startadornment={
-                    <FaUserDoctor color={theme.palette.primary.main} />
-                  }
-                  className="w-1/2"
-                  label="Paciente"
-                />
-              </div>
               <div className="w-5/6">
                 {
-                  <div className="flex justify-end items-center gap-2 text-primary py-4">
-                    <FaChevronLeft
-                      className="text-2xl hover:cursor-pointer"
-                      onClick={() => {
-                        pagination(page - 1);
-                        setName("");
+                  <div className="flex justify-between items-center py-4">
+                    <Input
+                      name="name"
+                      value={name}
+                      placeholder="Buscar por usuario..."
+                      variant="outlined"
+                      onChange={($e: any) => {
+                        setName($e.target.value.toLowerCase());
+                        filterChange($e.target.value.toLowerCase());
                       }}
+                      startadornment={
+                        <FaUserDoctor color={theme.palette.primary.main} />
+                      }
+                      className="w-4/12"
+                      label="Usuario"
                     />
+                    <div className="flex gap-2 text-primary">
+                      <FaChevronLeft
+                        className="text-2xl hover:cursor-pointer"
+                        onClick={() => {
+                          pagination(page - 1);
+                          setName("");
+                        }}
+                      />
 
-                    <FaChevronRight
-                      className="text-2xl hover:cursor-pointer"
-                      onClick={() => {
-                        pagination(page + 1);
-                        setName("");
-                      }}
-                    />
+                      <FaChevronRight
+                        className="text-2xl hover:cursor-pointer"
+                        onClick={() => {
+                          pagination(page + 1);
+                          setName("");
+                        }}
+                      />
 
-                    <p className="text-md">
-                      Página {page ? page : 1} -{" "}
-                      {Math.ceil(props.users.length / 10)}
-                    </p>
+                      <p className="text-md">
+                        Página {page ? page : 1} -{" "}
+                        {Math.ceil(props.users.length / 10)}
+                      </p>
+                    </div>
+
                   </div>
                 }
                 <TableContainer component={Paper}>
@@ -488,9 +491,8 @@ export default function Home(props: Speciality) {
                       >
                         {user && (
                           <div
-                            className={`mt-4 p-4 mx-auto ${
-                              !user?.doctor && "flex flex-col items-center"
-                            }`}
+                            className={`mt-4 p-4 mx-auto ${!user?.doctor && "flex flex-col items-center"
+                              }`}
                           >
                             <div className="flex flex-col md:flex-row gap-4 md:gap-0 justify-between">
                               <div className="flex flex-col gap-2">
@@ -538,11 +540,10 @@ export default function Home(props: Speciality) {
                                           key={idx}
                                         >
                                           <p
-                                            className={`${
-                                              hi.verified
-                                                ? "text-green-600"
-                                                : "text-red-600"
-                                            }
+                                            className={`${hi.verified
+                                              ? "text-green-600"
+                                              : "text-red-600"
+                                              }
                                   hover:cursor-pointer hover:underline`}
                                             onClick={() => {
                                               if (hi.verified) return;
@@ -610,9 +611,8 @@ export default function Home(props: Speciality) {
                                 </div>
                               </div>
                               <div
-                                className={`${
-                                  user.doctor && "ml-24"
-                                } hidden md:block`}
+                                className={`${user.doctor && "ml-24"
+                                  } hidden md:block`}
                               >
                                 {user?.doctor && (
                                   <div className="flex flex-col gap-2">
@@ -735,8 +735,8 @@ export default function Home(props: Speciality) {
               {confirm
                 ? "¿Desea validar la obra social?"
                 : verify
-                ? "¿Desea verificar al doctor?"
-                : ""}
+                  ? "¿Desea verificar al doctor?"
+                  : ""}
             </DialogContentText>
           </DialogContent>
           <DialogActions>

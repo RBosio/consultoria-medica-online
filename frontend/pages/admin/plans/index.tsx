@@ -268,7 +268,7 @@ export default function Home(props: Plan) {
               sidebarOpened
             />
           </div>
-          <div className="bg-white p-4 w-full h-full">
+          <div className="bg-white p-4 w-full h-full rounded-lg shadow-lg">
             <section className="w-full rounded-md flex flex-col items-center relative">
               <div className="w-5/6">
                 <div className="flex justify-end gap-4">

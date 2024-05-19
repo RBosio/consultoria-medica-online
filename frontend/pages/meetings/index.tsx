@@ -301,7 +301,7 @@ export const getServerSideProps = withAuth(
     let { query } = context;
 
     try {
-      let doctor;
+      let doctor = null;
       if (auth?.role === "doctor") {
         doctor = await axios.get(
           `${process.env.NEXT_PUBLIC_API_URL}/doctor/user/${auth?.id}`,

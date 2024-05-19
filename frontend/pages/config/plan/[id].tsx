@@ -63,7 +63,7 @@ export default function Login(props: any) {
         <Snackbar
           open={success}
           anchorOrigin={{ vertical: "top", horizontal: "center" }}
-          autoHideDuration={4000}
+          autoHideDuration={2500}
           onClose={() => {
             setSuccess(false);
             if(success) router.push("/")

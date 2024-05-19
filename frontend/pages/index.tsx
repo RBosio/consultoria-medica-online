@@ -28,6 +28,7 @@ import { BenefitResponseDto } from "@/components/dto/benefit.dto";
 import { MdOutlineAdminPanelSettings } from "react-icons/md";
 import { pesos } from "@/lib/formatCurrency";
 import { styled } from "@mui/material/styles";
+import Alert from '@mui/material/Alert';
 
 export default function Home(props: any) {
   const router = useRouter();
@@ -139,11 +140,11 @@ export default function Home(props: any) {
                 <h2 className="text-xl text-center text-zinc-600">
                   {props.auth.role === "user"
                     ? props.lastMeeting?.doctor.user.surname +
-                      ", " +
-                      props.lastMeeting?.doctor.user.name
+                    ", " +
+                    props.lastMeeting?.doctor.user.name
                     : props.lastMeeting?.user.surname +
-                      ", " +
-                      props.lastMeeting?.user.name}
+                    ", " +
+                    props.lastMeeting?.user.name}
                 </h2>
                 <div className="text-white bg-primary flex justify-center items-center p-2 rounded-lg">
                   <FaCalendarDays />
@@ -157,15 +158,15 @@ export default function Home(props: any) {
                   const route = `meetings/${btoa(
                     props.auth.role === "user"
                       ? props.auth.id +
-                          "." +
-                          moment(props.lastMeeting?.startDatetime).format(
-                            "YYYY-MM-DDTHH:mm:ss"
-                          )
+                      "." +
+                      moment(props.lastMeeting?.startDatetime).format(
+                        "YYYY-MM-DDTHH:mm:ss"
+                      )
                       : props.lastMeeting?.user.id +
-                          "." +
-                          moment(props.lastMeeting?.startDatetime).format(
-                            "YYYY-MM-DDTHH:mm:ss"
-                          )
+                      "." +
+                      moment(props.lastMeeting?.startDatetime).format(
+                        "YYYY-MM-DDTHH:mm:ss"
+                      )
                   )}`;
                   router.push(route);
                 }}
@@ -174,19 +175,21 @@ export default function Home(props: any) {
                 Ver reunión
               </Button>
             </>
-          ) : (
-            <h2 className="mx-auto text-xl flex flex-col md:flex-row items-center gap-4 text-zinc-600">
-              Actualmente no tiene reuniones pendientes{" "}
-              {(props.auth.role === "user" || props.auth.role === "admin") && (
-                <Button
-                  onClick={() => router.push("/doctors")}
-                  startIcon={<FaChevronRight />}
-                >
-                  Solicite una
-                </Button>
-              )}
-            </h2>
-          )}
+          ) : props.auth.role === "doctor" && !props.doctor.plan ?
+            <Alert className="w-full rounded-lg" severity="warning">Para realizar reuniones debes solicitar un plan de trabajo</Alert>
+            : (
+              <h2 className="mx-auto text-xl flex flex-col md:flex-row items-center gap-4 text-zinc-600">
+                Actualmente no tiene reuniones pendientes{" "}
+                {(props.auth.role === "user" || props.auth.role === "admin") && (
+                  <Button
+                    onClick={() => router.push("/doctors")}
+                    startIcon={<FaChevronRight />}
+                  >
+                    Solicite una
+                  </Button>
+                )}
+              </h2>
+            )}
         </div>
         <div className="flex flex-col lg:flex-row justify-between items-center gap-4 w-5/6 mx-auto mt-4 mb-4">
           <div className="bg-gray-100 w-full lg:w-2/3 p-4 rounded-3xl shadow-lg">
@@ -263,7 +266,7 @@ export default function Home(props: any) {
                 <h2 className="text-3xl text-center text-zinc-600 mb-4">
                   {props.doctor.plan
                     ? "¿Desea actualizar su plan?"
-                    : "Solicite un plan para comenzar a trabajar"}
+                    : "Solicite un plan de trabajo para comenzar"}
                 </h2>
                 <div className="flex flex-col md:flex-row justify-center items-center gap-8">
                   {plans.map((p: PlanResponseDto) => (
@@ -325,9 +328,8 @@ export default function Home(props: any) {
                 </>
               ) : (
                 <div
-                  className={`flex flex-col items-center ${
-                    props.notifications.length > 0 && "overflow-y-scroll"
-                  }`}
+                  className={`flex flex-col items-center ${props.notifications.length > 0 && "overflow-y-scroll"
+                    }`}
                 >
                   <h2 className="text-3xl text-center text-zinc-600">
                     Ultimas notificaciones no leídas
@@ -380,15 +382,15 @@ export default function Home(props: any) {
                                 href={
                                   n.type === "comment"
                                     ? `/meetings/${btoa(
-                                        n.meeting.userId +
-                                          "." +
-                                          moment(
-                                            n.meeting.startDatetime
-                                          ).format("YYYY-MM-DDTHH:mm:ss")
-                                      )}`
+                                      n.meeting.userId +
+                                      "." +
+                                      moment(
+                                        n.meeting.startDatetime
+                                      ).format("YYYY-MM-DDTHH:mm:ss")
+                                    )}`
                                     : n.type === "verificationHi"
-                                    ? "/profile"
-                                    : ""
+                                      ? "/profile"
+                                      : ""
                                 }
                                 onClick={() => {
                                   markAsRead(n.id);
@@ -407,9 +409,9 @@ export default function Home(props: any) {
               ))}
             {props.auth.role === "doctor" &&
               (!props.doctor.durationMeeting ||
-              !props.doctor.priceMeeting ||
-              !props.doctor.cbu ||
-              !props.doctor.alias ? (
+                !props.doctor.priceMeeting ||
+                !props.doctor.cbu ||
+                !props.doctor.alias ? (
                 <>
                   <h2 className="text-3xl text-center text-zinc-600">
                     Termine de configurar su perfil
@@ -421,9 +423,8 @@ export default function Home(props: any) {
                 </>
               ) : (
                 <div
-                  className={`flex flex-col items-center ${
-                    props.notifications.length > 0 && "overflow-y-scroll"
-                  }`}
+                  className={`flex flex-col items-center ${props.notifications.length > 0 && "overflow-y-scroll"
+                    }`}
                 >
                   <h2 className="text-3xl text-center text-zinc-600">
                     Ultimas notificaciones no leidas
@@ -463,16 +464,14 @@ export default function Home(props: any) {
                                   ) : n.type === "verificationHi" ? (
                                     `El administrador ${n.userSend.surname}, ${n.userSend.name} acaba de realizar la verificación de la obra social ${n.healthInsurance.name}`
                                   ) : n.type === "meeting" && n.meeting ? (
-                                    `El usuario ${n.userSend.surname}, ${
-                                      n.userSend.name
+                                    `El usuario ${n.userSend.surname}, ${n.userSend.name
                                     } acaba de solicitar una reunión para el día ${moment(
                                       n.meeting.startDatetime
                                     ).format("LLL")}`
                                   ) : n.type === "verificationDoc" ? (
                                     `El administrador ${n.userSend.surname}, ${n.userSend.name} acaba de realizar la verificación su cuenta`
                                   ) : n.type === "rdatetime" ? (
-                                    `El paciente ${n.userSend.surname}, ${
-                                      n.userSend.name
+                                    `El paciente ${n.userSend.surname}, ${n.userSend.name
                                     } acaba de realizar la modificación de la reunión del día ${moment(
                                       n.mStartDOld
                                     ).format("LLLL")} hs para el día ${moment(
@@ -492,33 +491,33 @@ export default function Home(props: any) {
                                 href={
                                   n.type === "comment"
                                     ? `/meetings/${btoa(
-                                        n.meeting.userId +
-                                          "." +
-                                          moment(
-                                            n.meeting.startDatetime
-                                          ).format("YYYY-MM-DDTHH:mm:ss")
-                                      )}`
+                                      n.meeting.userId +
+                                      "." +
+                                      moment(
+                                        n.meeting.startDatetime
+                                      ).format("YYYY-MM-DDTHH:mm:ss")
+                                    )}`
                                     : n.type === "verificationHi"
-                                    ? "/profile"
-                                    : n.type === "meeting" && n.meeting
-                                    ? `/meetings/${btoa(
-                                        n.meeting.userId +
+                                      ? "/profile"
+                                      : n.type === "meeting" && n.meeting
+                                        ? `/meetings/${btoa(
+                                          n.meeting.userId +
                                           "." +
                                           moment(
                                             n.meeting.startDatetime
                                           ).format("YYYY-MM-DDTHH:mm:ss")
-                                      )}`
-                                    : n.type === "verificationDoc"
-                                    ? "/profile"
-                                    : n.type === "rdatetime"
-                                    ? `/meetings/${btoa(
-                                        n.userIdSend +
-                                          "." +
-                                          moment(n.mStartDNew).format(
-                                            "YYYY-MM-DDTHH:mm:ss"
-                                          )
-                                      )}`
-                                    : ""
+                                        )}`
+                                        : n.type === "verificationDoc"
+                                          ? "/profile"
+                                          : n.type === "rdatetime"
+                                            ? `/meetings/${btoa(
+                                              n.userIdSend +
+                                              "." +
+                                              moment(n.mStartDNew).format(
+                                                "YYYY-MM-DDTHH:mm:ss"
+                                              )
+                                            )}`
+                                            : ""
                                 }
                                 onClick={() => {
                                   markAsRead(n.id);

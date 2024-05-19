@@ -538,7 +538,7 @@ export default function Config(props: ConfigProps) {
                           `Miembro desde ${moment(
                             props.doctor.planSince
                           ).format("LL")}`
-                          : "Actualmente se encuentra sin plan, solicite uno para comenzar a trabajar"}
+                          : "Actualmente se encuentra sin plan de trabajo, solicite uno para comenzar"}
                       </p>
                     </div>
                     {props.doctor.plan ? (

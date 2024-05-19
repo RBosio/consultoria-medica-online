@@ -429,7 +429,7 @@ export default function ProfileView(props: any) {
                   <div>
                     {user.healthInsurances.map((h: any, idx: number) => {
                       return (
-                        <div className="p-4" key={idx}>
+                        <div className="p-1" key={idx}>
                           {h.healthInsurance?.name ? (
                             <div className="flex items-center gap-2">
                               <FaChevronRight className="text-primary text-md size-4" />

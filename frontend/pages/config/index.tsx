@@ -406,10 +406,9 @@ export default function Config(props: ConfigProps) {
                       Descripción
                     </h2>
                     <p
-                      className={`text-justify line-clamp-[8] ${
-                        !props.doctor.description &&
+                      className={`text-justify line-clamp-[8] ${!props.doctor.description &&
                         "text-red-400 font-semibold"
-                      }`}
+                        }`}
                     >
                       {props.doctor.description || "No posee descripción"}
                     </p>
@@ -463,9 +462,8 @@ export default function Config(props: ConfigProps) {
           </div>
           <div className="overflow-hidden w-full md:min-w-[70%] md:pb-6">
             <div
-              className={`flex flex-col md:flex-row md:flex-nowrap items-center transition-all ease-in duration-500 ${
-                modify ? "-translate-x-full" : ""
-              } gap-6`}
+              className={`flex flex-col md:flex-row md:flex-nowrap items-center transition-all ease-in duration-500 ${modify ? "-translate-x-full" : ""
+                } gap-6`}
             >
               <div className="bg-white w-full h-full rounded-md shadow-md p-4 flex flex-col justify-center">
                 <div className="flex flex-col">
@@ -476,11 +474,13 @@ export default function Config(props: ConfigProps) {
                       Obras sociales
                     </h3>
                     {props.doctor.user.healthInsurances.length > 0 && (
-                      <IconButton color="secondary" aria-label="add an alarm">
-                        <IoIosAddCircleOutline
-                          color={theme.palette.primary.main}
-                        />
-                      </IconButton>
+                      <Link href={"/profile"}>
+                        <IconButton color="secondary" aria-label="add an alarm">
+                          <IoIosAddCircleOutline
+                            color={theme.palette.primary.main}
+                          />
+                        </IconButton>
+                      </Link>
                     )}
                   </div>
                   {props.doctor.user.healthInsurances.length > 0 ? (
@@ -535,9 +535,9 @@ export default function Config(props: ConfigProps) {
                       <p className="text-center">
                         {props.doctor.plan
                           ? props.doctor.planSince &&
-                            `Miembro desde ${moment(
-                              props.doctor.planSince
-                            ).format("LL")}`
+                          `Miembro desde ${moment(
+                            props.doctor.planSince
+                          ).format("LL")}`
                           : "Actualmente se encuentra sin plan, solicite uno para comenzar a trabajar"}
                       </p>
                     </div>
@@ -822,32 +822,32 @@ export default function Config(props: ConfigProps) {
               {confirmSchedule
                 ? "Rango horario"
                 : confirmUpdate
-                ? "Datos personales"
-                : confirmVerification
-                ? "Verificacion de cuenta"
-                : confirmVerificationHI
-                ? "Verificacion de obra social"
-                : confirmCancelPlan
-                ? "Cancelar plan"
-                : confirmHealthInsurance
-                ? "Confirmar obra social"
-                : ""}
+                  ? "Datos personales"
+                  : confirmVerification
+                    ? "Verificacion de cuenta"
+                    : confirmVerificationHI
+                      ? "Verificacion de obra social"
+                      : confirmCancelPlan
+                        ? "Cancelar plan"
+                        : confirmHealthInsurance
+                          ? "Confirmar obra social"
+                          : ""}
             </DialogTitle>
             <DialogContent>
               <DialogContentText id="alert-dialog-description">
                 {confirmSchedule
                   ? "¿Desea agregar el rango horario?"
                   : confirmUpdate
-                  ? "¿Desea actualizar los datos?"
-                  : confirmVerification
-                  ? "¿Desea solicitar la verificacion de la cuenta?"
-                  : confirmVerificationHI
-                  ? "¿Desea solicitar la verificacion de la obra social?"
-                  : confirmCancelPlan
-                  ? "¿Desea cancelar su plan actual?"
-                  : confirmHealthInsurance
-                  ? "¿Desea agregar la obra social?"
-                  : ""}
+                    ? "¿Desea actualizar los datos?"
+                    : confirmVerification
+                      ? "¿Desea solicitar la verificacion de la cuenta?"
+                      : confirmVerificationHI
+                        ? "¿Desea solicitar la verificacion de la obra social?"
+                        : confirmCancelPlan
+                          ? "¿Desea cancelar su plan actual?"
+                          : confirmHealthInsurance
+                            ? "¿Desea agregar la obra social?"
+                            : ""}
               </DialogContentText>
             </DialogContent>
             <DialogActions>

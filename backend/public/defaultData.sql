@@ -46,8 +46,9 @@ VALUES
 INSERT INTO
     plan (name, price, planId)
 VALUES
-    ('Plan 1', 12000, "asdasd-asd-asdasasdas"),
-    ('Plan 2', 20000, "adsda-sadasdas-dasdsad");
+    ('Básico', 12000, "asdasd-asd-asdasasdas"),
+    ('Avanzado', 20000, "adsda-sadasdas-dasdsad"),
+    ('Premium', 27000, "adsda-sadasdas-dasdsad");
 
 INSERT INTO
     schedule (day, start_hour, end_hour, doctorId)
@@ -119,5 +120,5 @@ VALUES
 
 UPDATE user SET admin = 1 WHERE id = 3;
 
-INSERT INTO benefit (name) VALUES ('Visibilidad normal'), ('Mayor llegada a los usuarios'), ('Visibilidad muy alta');
-INSERT INTO plan_benefits_benefit VALUES (1, 1), (1, 2), (2, 2), (2, 3);
+INSERT INTO benefit (name) VALUES ('Realizar reuniones con pacientes'), ('Visibilidad'), ('Mayor Visibilidad');
+INSERT INTO plan_benefits_benefit VALUES (1, 1), (2, 1), (2, 2), (3,1), (3,2), (3,3);

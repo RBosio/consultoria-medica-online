@@ -58,6 +58,7 @@ export default function ProfileView(props: any) {
     HealthInsuranceResponseDto[]
   >([]);
   const [healthInsurance, setHealthInsurance] = useState<number>(-1);
+  const [healthInsuranceName, setHealthInsuranceName] = useState<string>("");
   const [file, setFile] = useState<any>();
   const [imageFile, setImageFile] = useState<any>();
   const [type, setType] = useState<any>("");
@@ -322,7 +323,7 @@ export default function ProfileView(props: any) {
   };
 
   const handleClickHealthInsurance = async () => {
-    if (!file || !healthInsurance) {
+    if (!file || healthInsurance === -1) {
       setMessage("Debes seleccionar una obra social y un archivo!");
       setError(true);
       return;
@@ -348,6 +349,8 @@ export default function ProfileView(props: any) {
     setHealthInsurance(-1);
     setFile(null);
     setType(null);
+    setCod("");
+    setHealthInsuranceName("");
   };
 
   return (
@@ -469,13 +472,19 @@ export default function ProfileView(props: any) {
                       <div className="flex items-end gap-2 w-full">
                         <Input
                           className="w-1/2"
-                          label="Código"
+                          label="Número de afiliado"
                           onChange={($e) => setCod($e.target.value)}
+                          value={cod}
                         ></Input>
                         <Autocomplete
                           className="w-1/2"
                           onChange={(event, newValue: any) => {
                             setHealthInsurance(newValue?.id);
+                            setHealthInsuranceName(newValue?.label);
+                          }}
+                          value={{
+                            id: -1,
+                            label: healthInsuranceName,
                           }}
                           disablePortal
                           noOptionsText="Especialidad no encontrada"

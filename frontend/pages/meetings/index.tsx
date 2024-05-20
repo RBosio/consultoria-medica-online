@@ -14,7 +14,7 @@ import { SpecialityResponseDto } from "@/components/dto/speciality.dto";
 import Button from "@/components/button";
 import { IoMdSearch } from "react-icons/io";
 import Alert from '@mui/material/Alert';
-import Link from "@mui/material/Link"; 
+import Link from "@mui/material/Link";
 
 interface Meeting {
   auth: Auth;
@@ -214,16 +214,16 @@ export default function Meetings(props: Meeting) {
         </form>
         <section>
           <div className="w-[95%] overflow-hidden m-auto relative px-[14px] sm:mt-8">
+            {props.auth.role === "doctor" && !props.doctor.plan &&
+              <Alert className="w-full rounded-lg" severity="warning">Para realizar reuniones debes solicitar un <Link href="/">plan de trabajo</Link></Alert>
+            }
             <div
               className="flex flex-nowrap items-center transition-all ease-in "
               style={{ transitionDuration: ".5s" }}
               id="carouselInner"
             >
               {props.meetings.length === 0 ? (
-                props.auth.role === "doctor" && !props.doctor.plan ?
-                  <Alert className="w-full rounded-lg" severity="warning">Para realizar reuniones debes solicitar un <Link href="/">plan de trabajo</Link></Alert>
-                  :
-                  <h2 className="text-xl">No se encontraron resultados</h2>
+                <h2 className="text-xl">No se encontraron resultados</h2>
               ) : (
                 ""
               )}

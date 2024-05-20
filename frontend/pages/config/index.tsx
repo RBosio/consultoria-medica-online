@@ -460,12 +460,12 @@ export default function Config(props: ConfigProps) {
               </div>
             </div>
           </div>
-          <div className="overflow-hidden w-full md:min-w-[70%] md:pb-6">
+          <div className="overflow-hidden w-full md:min-w-[70%] lg:h-full xl:shadow-md">
             <div
-              className={`flex flex-col md:flex-row md:flex-nowrap items-center transition-all ease-in duration-500 ${modify ? "-translate-x-full" : ""
+              className={`flex flex-col h-full md:flex-row md:flex-nowrap items-center transition-all ease-in duration-500 ${modify ? "-translate-x-full" : ""
                 } gap-6`}
             >
-              <div className="bg-white w-full h-full rounded-md shadow-md p-4 flex flex-col justify-center">
+              <div className="bg-white w-full h-full rounded-md shadow-md p-4 flex flex-col">
                 <div className="flex flex-col">
                   <div className="flex items-center mb-4">
                     <h3
@@ -523,9 +523,13 @@ export default function Config(props: ConfigProps) {
                   >
                     Plan actual
                   </h3>
+                  {props.auth.role === "doctor" && !props.doctor.plan &&
+                    <Alert className="w-full rounded-lg mb-4" severity="warning">Para realizar reuniones debes solicitar un plan de trabajo</Alert>
+                  }
                   <div
                     className={`m-auto w-full bg-secondary flex flex-col md:flex-row md:justify-between items-center text-white px-8 py-2 mt-2 rounded-md ${robotoBold.className}`}
                   >
+
                     <div className="flex flex-col md:flex-row justify-center items-center gap-4 md:justify-between md:gap-0 md:w-2/3">
                       <p className="whitespace-nowrap">
                         {props.doctor.plan

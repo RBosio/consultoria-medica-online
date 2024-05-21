@@ -70,8 +70,6 @@ export default function ProfileView(props: any) {
   const [confirmHealthInsurance, setConfirmHealthInsurance] =
     useState<boolean>(false);
   const [healthInsuranceVerify, setHealthInsuranceVerify] = useState<number>();
-  const [month, setMonth] = useState<number>();
-  const [year, setYear] = useState<number>();
   const [cod, setCod] = useState<string>();
 
   useEffect(() => {
@@ -607,34 +605,6 @@ export default function ProfileView(props: any) {
                           Aceptar
                         </Button>
                       </form>
-                    </div>
-                  )}
-                  {props.auth.role === "doctor" && (
-                    <div className="mt-12 flex items-center gap-2">
-                      <DatePicker
-                        label="Fecha de facturación"
-                        name="meetingsDate"
-                        views={["year", "month"]}
-                        onChange={(date: any) => {
-                          setMonth(+moment(new Date(date.$d)).format("MM"));
-                          setYear(+moment(new Date(date.$d)).format("YYYY"));
-                        }}
-                      />
-                      <a
-                        href={`
-                      ${
-                        !month || !year
-                          ? `${
-                              process.env.NEXT_PUBLIC_API_URL
-                            }/meeting/report/${props.auth.id}/${
-                              new Date().getMonth() + 1
-                            }/${new Date().getFullYear()}`
-                          : `${process.env.NEXT_PUBLIC_API_URL}/meeting/report/${props.auth.id}/${month}/${year}`
-                      }`}
-                        target="_blank"
-                      >
-                        <Button>Generar reporte</Button>
-                      </a>
                     </div>
                   )}
                 </div>

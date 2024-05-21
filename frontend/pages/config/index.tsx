@@ -50,6 +50,7 @@ import moment from "moment";
 import "moment/locale/es";
 import { pesos } from "@/lib/formatCurrency";
 import LinkMUI from "@mui/material/Link";
+import DatePicker from "@/components/dateInput";
 
 interface ConfigProps {
   user: UserResponseDto;
@@ -154,6 +155,8 @@ export default function Config(props: ConfigProps) {
   const [confirmHealthInsurance, setConfirmHealthInsurance] =
     useState<boolean>(false);
   const [description, setDescription] = useState<string>("");
+  const [month, setMonth] = useState<number>();
+  const [year, setYear] = useState<number>();
 
   useEffect(() => {
     addEventListener("resize", () => {
@@ -406,9 +409,10 @@ export default function Config(props: ConfigProps) {
                       Descripción
                     </h2>
                     <p
-                      className={`text-justify line-clamp-[8] ${!props.doctor.description &&
+                      className={`text-justify line-clamp-[8] ${
+                        !props.doctor.description &&
                         "text-red-400 font-semibold"
-                        }`}
+                      }`}
                     >
                       {props.doctor.description || "No posee descripción"}
                     </p>
@@ -462,49 +466,83 @@ export default function Config(props: ConfigProps) {
           </div>
           <div className="overflow-hidden w-full md:min-w-[70%] lg:h-full xl:shadow-md">
             <div
-              className={`flex flex-col h-full md:flex-row md:flex-nowrap items-center transition-all ease-in duration-500 ${modify ? "-translate-x-full" : ""
-                } gap-6`}
+              className={`flex flex-col h-full md:flex-row md:flex-nowrap items-center transition-all ease-in duration-500 ${
+                modify ? "-translate-x-full" : ""
+              } gap-6`}
             >
               <div className="bg-white w-full h-full rounded-md shadow-md p-4 flex flex-col">
-                <div className="flex flex-col">
-                  <div className="flex items-center mb-4">
-                    <h3
-                      className={`text-primary text-xl ${robotoBold.className}`}
-                    >
-                      Obras sociales
-                    </h3>
-                    {props.doctor.user.healthInsurances.length > 0 && (
-                      <Link href={"/profile"}>
-                        <IconButton color="secondary" aria-label="add an alarm">
-                          <IoIosAddCircleOutline
-                            color={theme.palette.primary.main}
-                          />
-                        </IconButton>
-                      </Link>
+                <div className="flex justify-between items-center">
+                  <div className="flex flex-col">
+                    <div className="flex items-center mb-4">
+                      <h3
+                        className={`text-primary text-xl ${robotoBold.className}`}
+                      >
+                        Obras sociales
+                      </h3>
+                      {props.doctor.user.healthInsurances.length > 0 && (
+                        <Link href={"/profile"}>
+                          <IconButton
+                            color="secondary"
+                            aria-label="add an alarm"
+                          >
+                            <IoIosAddCircleOutline
+                              color={theme.palette.primary.main}
+                            />
+                          </IconButton>
+                        </Link>
+                      )}
+                    </div>
+                    {props.doctor.user.healthInsurances.length > 0 ? (
+                      props.doctor.user.healthInsurances.map((hi: any) => {
+                        return (
+                          <p
+                            key={hi.healthInsurance.id}
+                            className="flex items-center gap-2"
+                          >
+                            {hi.healthInsurance.name}{" "}
+                            {hi.verified ? (
+                              <FaCircleCheck className="text-green-600" />
+                            ) : (
+                              <FaCircleXmark className="text-red-600" />
+                            )}
+                          </p>
+                        );
+                      })
+                    ) : (
+                      <p>
+                        No estás verificado en ninguna obra social.{" "}
+                        <LinkMUI href="/profile">
+                          Puedes cargar una aquí
+                        </LinkMUI>
+                      </p>
                     )}
                   </div>
-                  {props.doctor.user.healthInsurances.length > 0 ? (
-                    props.doctor.user.healthInsurances.map((hi: any) => {
-                      return (
-                        <p
-                          key={hi.healthInsurance.id}
-                          className="flex items-center gap-2"
-                        >
-                          {hi.healthInsurance.name}{" "}
-                          {hi.verified ? (
-                            <FaCircleCheck className="text-green-600" />
-                          ) : (
-                            <FaCircleXmark className="text-red-600" />
-                          )}
-                        </p>
-                      );
-                    })
-                  ) : (
-                    <p>
-                      No estás verificado en ninguna obra social.{" "}
-                      <LinkMUI href="/profile">Puedes cargar una aquí</LinkMUI>
-                    </p>
-                  )}
+                  <div className="flex items-center gap-2">
+                    <DatePicker
+                      label="Fecha de facturación"
+                      name="meetingsDate"
+                      views={["year", "month"]}
+                      onChange={(date: any) => {
+                        setMonth(+moment(new Date(date.$d)).format("MM"));
+                        setYear(+moment(new Date(date.$d)).format("YYYY"));
+                      }}
+                    />
+                    <a
+                      href={`
+                      ${
+                        !month || !year
+                          ? `${
+                              process.env.NEXT_PUBLIC_API_URL
+                            }/meeting/report/${props.auth.id}/${
+                              new Date().getMonth() + 1
+                            }/${new Date().getFullYear()}`
+                          : `${process.env.NEXT_PUBLIC_API_URL}/meeting/report/${props.auth.id}/${month}/${year}`
+                      }`}
+                      target="_blank"
+                    >
+                      <Button>Generar reporte</Button>
+                    </a>
+                  </div>
                 </div>
                 <Divider
                   variant="middle"
@@ -523,13 +561,17 @@ export default function Config(props: ConfigProps) {
                   >
                     Plan actual
                   </h3>
-                  {props.auth.role === "doctor" && !props.doctor.plan &&
-                    <Alert className="w-full rounded-lg mb-4" severity="warning">Para realizar reuniones debes solicitar un plan de trabajo</Alert>
-                  }
+                  {props.auth.role === "doctor" && !props.doctor.plan && (
+                    <Alert
+                      className="w-full rounded-lg mb-4"
+                      severity="warning"
+                    >
+                      Para realizar reuniones debes solicitar un plan de trabajo
+                    </Alert>
+                  )}
                   <div
                     className={`m-auto w-full bg-secondary flex flex-col md:flex-row md:justify-between items-center text-white px-8 py-2 mt-2 rounded-md ${robotoBold.className}`}
                   >
-
                     <div className="flex flex-col md:flex-row justify-center items-center gap-4 md:justify-between md:gap-0 md:w-2/3">
                       <p className="whitespace-nowrap">
                         {props.doctor.plan
@@ -539,9 +581,9 @@ export default function Config(props: ConfigProps) {
                       <p className="text-center">
                         {props.doctor.plan
                           ? props.doctor.planSince &&
-                          `Miembro desde ${moment(
-                            props.doctor.planSince
-                          ).format("LL")}`
+                            `Miembro desde ${moment(
+                              props.doctor.planSince
+                            ).format("LL")}`
                           : "Actualmente se encuentra sin plan de trabajo, solicite uno para comenzar"}
                       </p>
                     </div>
@@ -826,32 +868,32 @@ export default function Config(props: ConfigProps) {
               {confirmSchedule
                 ? "Rango horario"
                 : confirmUpdate
-                  ? "Datos personales"
-                  : confirmVerification
-                    ? "Verificacion de cuenta"
-                    : confirmVerificationHI
-                      ? "Verificacion de obra social"
-                      : confirmCancelPlan
-                        ? "Cancelar plan"
-                        : confirmHealthInsurance
-                          ? "Confirmar obra social"
-                          : ""}
+                ? "Datos personales"
+                : confirmVerification
+                ? "Verificacion de cuenta"
+                : confirmVerificationHI
+                ? "Verificacion de obra social"
+                : confirmCancelPlan
+                ? "Cancelar plan"
+                : confirmHealthInsurance
+                ? "Confirmar obra social"
+                : ""}
             </DialogTitle>
             <DialogContent>
               <DialogContentText id="alert-dialog-description">
                 {confirmSchedule
                   ? "¿Desea agregar el rango horario?"
                   : confirmUpdate
-                    ? "¿Desea actualizar los datos?"
-                    : confirmVerification
-                      ? "¿Desea solicitar la verificacion de la cuenta?"
-                      : confirmVerificationHI
-                        ? "¿Desea solicitar la verificacion de la obra social?"
-                        : confirmCancelPlan
-                          ? "¿Desea cancelar su plan actual?"
-                          : confirmHealthInsurance
-                            ? "¿Desea agregar la obra social?"
-                            : ""}
+                  ? "¿Desea actualizar los datos?"
+                  : confirmVerification
+                  ? "¿Desea solicitar la verificacion de la cuenta?"
+                  : confirmVerificationHI
+                  ? "¿Desea solicitar la verificacion de la obra social?"
+                  : confirmCancelPlan
+                  ? "¿Desea cancelar su plan actual?"
+                  : confirmHealthInsurance
+                  ? "¿Desea agregar la obra social?"
+                  : ""}
               </DialogContentText>
             </DialogContent>
             <DialogActions>

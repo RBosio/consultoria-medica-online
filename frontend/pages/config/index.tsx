@@ -50,11 +50,8 @@ import moment from "moment";
 import "moment/locale/es";
 import { pesos } from "@/lib/formatCurrency";
 import LinkMUI from "@mui/material/Link";
-<<<<<<< HEAD
 import { PlanResponseDto } from "@/components/dto/plan.dto";
-=======
 import DatePicker from "@/components/dateInput";
->>>>>>> b37f76df53e9f6db41d3241467725233e4977cbb
 
 interface ConfigProps {
   user: UserResponseDto;

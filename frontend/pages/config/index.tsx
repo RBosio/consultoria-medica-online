@@ -51,6 +51,7 @@ import moment from "moment";
 import "moment/locale/es";
 import { pesos } from "@/lib/formatCurrency";
 import LinkMUI from "@mui/material/Link";
+import { PlanResponseDto } from "@/components/dto/plan.dto";
 import DatePicker from "@/components/dateInput";
 import { UserHealthInsuranceResponseDto } from "@/components/dto/userHealthInsurance.dto";
 
@@ -60,6 +61,7 @@ interface ConfigProps {
   schedules: ScheduleResponseDto[];
   healthInsurances: HealthInsuranceResponseDto[];
   notification: NotificationResponseDto;
+  plans: PlanResponseDto[];
   auth: Auth;
   token: string;
 }
@@ -600,30 +602,32 @@ export default function Config(props: ConfigProps) {
                     </Alert>
                   )}
                   <div
-                    className={`m-auto w-full bg-secondary flex flex-col md:flex-row md:justify-between items-center text-white px-8 py-2 mt-2 rounded-md ${robotoBold.className}`}
+                    className={`m-auto w-full bg-secondary flex flex-col gap-2 md:gap-0 md:flex-row sm:justify-between items-center text-white px-8 py-2 mt-2 rounded-md`}
                   >
-                    <div className="flex flex-col md:flex-row justify-center items-center gap-4 md:justify-between md:gap-0 md:w-2/3">
-                      <p className="whitespace-nowrap">
-                        {props.doctor.plan
-                          ? props.doctor.plan.name
-                          : "Sin plan"}
-                      </p>
-                      <p className="text-center">
-                        {props.doctor.plan
-                          ? props.doctor.planSince &&
-                            `Miembro desde ${moment(
-                              props.doctor.planSince
-                            ).format("LL")}`
-                          : "Actualmente se encuentra sin plan de trabajo, solicite uno para comenzar"}
-                      </p>
-                    </div>
+                    <Chip
+                      size="medium"
+                      variant="filled"
+                      color="primary"
+                      className={`${robotoBold.className}`}
+                      label={props.doctor.plan
+                        ? props.doctor.plan.name
+                        : "Sin plan"}
+                    />
+                    <p>
+                      {props.doctor.plan
+                        ? props.doctor.planSince &&
+                        `Miembro desde ${moment(
+                          props.doctor.planSince
+                        ).format("LL")}`
+                        : "Actualmente se encuentra sin plan de trabajo, solicite uno para comenzar"}
+                    </p>
                     {props.doctor.plan ? (
-                      <ButtonGroup className="mt-4 md:mt-0">
-                        <Link href={"/"}>
+                      <ButtonGroup>
+                        {Math.max(...props.plans.map(a => a.id)) !== props.doctor.plan.id && <Link href={"/"}>
                           <Button startIcon={<FaCircleUp />} color="info">
                             Actualizar
                           </Button>
-                        </Link>
+                        </Link>}
                         <Button
                           sx={{
                             "&.MuiButton-contained": {
@@ -1010,6 +1014,13 @@ export const getServerSideProps = withAuth(
 
     notification = notification.data;
 
+    let plans = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/plan`, {
+      withCredentials: true,
+      headers: { Authorization: `Bearer ${auth?.token}` },
+    });
+
+    plans = plans.data;
+
     return {
       props: {
         doctor,
@@ -1017,6 +1028,7 @@ export const getServerSideProps = withAuth(
         healthInsurances,
         notification,
         auth,
+        plans,
       },
     };
   },

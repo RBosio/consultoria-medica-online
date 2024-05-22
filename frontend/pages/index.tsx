@@ -272,7 +272,7 @@ export default function Home(props: any) {
                   {plans.map((p: PlanResponseDto) => (
                     <div
                       key={p.id}
-                      className="bg-white flex flex-col items-center shadow-xl"
+                      className="bg-white flex flex-col items-center shadow-xl rounded-md"
                     >
                       <h2 className="text-3xl text-primary font-semibold text-center pt-4">
                         {p.name}

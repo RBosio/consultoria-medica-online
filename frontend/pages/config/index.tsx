@@ -562,13 +562,21 @@ export default function Config(props: ConfigProps) {
                     <a
                       href={`
                       ${
-                        !month || !year || healthInsurance === 0
+                        !month || !year
                           ? `${
                               process.env.NEXT_PUBLIC_API_URL
                             }/meeting/report/${props.auth.id}/${
                               new Date().getMonth() + 1
-                            }/${new Date().getFullYear()}/0`
-                          : `${process.env.NEXT_PUBLIC_API_URL}/meeting/report/${props.auth.id}/${month}/${year}/${healthInsurance}`
+                            }/${new Date().getFullYear()}/${
+                              healthInsurance === 0 ? 0 : healthInsurance
+                            }`
+                          : `${
+                              process.env.NEXT_PUBLIC_API_URL
+                            }/meeting/report/${
+                              props.auth.id
+                            }/${month}/${year}/${
+                              healthInsurance === 0 ? 0 : healthInsurance
+                            }`
                       }`}
                       target="_blank"
                     >
@@ -609,25 +617,28 @@ export default function Config(props: ConfigProps) {
                       variant="filled"
                       color="primary"
                       className={`${robotoBold.className}`}
-                      label={props.doctor.plan
-                        ? props.doctor.plan.name
-                        : "Sin plan"}
+                      label={
+                        props.doctor.plan ? props.doctor.plan.name : "Sin plan"
+                      }
                     />
                     <p>
                       {props.doctor.plan
                         ? props.doctor.planSince &&
-                        `Miembro desde ${moment(
-                          props.doctor.planSince
-                        ).format("LL")}`
+                          `Miembro desde ${moment(
+                            props.doctor.planSince
+                          ).format("LL")}`
                         : "Actualmente se encuentra sin plan de trabajo, solicite uno para comenzar"}
                     </p>
                     {props.doctor.plan ? (
                       <ButtonGroup>
-                        {Math.max(...props.plans.map(a => a.id)) !== props.doctor.plan.id && <Link href={"/"}>
-                          <Button startIcon={<FaCircleUp />} color="info">
-                            Actualizar
-                          </Button>
-                        </Link>}
+                        {Math.max(...props.plans.map((a) => a.id)) !==
+                          props.doctor.plan.id && (
+                          <Link href={"/"}>
+                            <Button startIcon={<FaCircleUp />} color="info">
+                              Actualizar
+                            </Button>
+                          </Link>
+                        )}
                         <Button
                           sx={{
                             "&.MuiButton-contained": {

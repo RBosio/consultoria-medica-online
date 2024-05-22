@@ -28,6 +28,7 @@ import { Workbook } from 'exceljs';
 import { HealthInsuranceService } from 'src/health-insurance/health-insurance.service';
 import { Doctor } from 'src/entities/doctor.entity';
 import { SpecialityService } from 'src/speciality/speciality.service';
+import { HealthInsurance } from 'src/entities/health-insurance.entity';
 
 export interface RequestT extends Request {
   user: {
@@ -781,14 +782,17 @@ export class MeetingService {
 
     const buffer = await workbook.xlsx.writeBuffer();
 
-    const h = await this.healthInsruanceService.findOne(hi);
+    let h: HealthInsurance;
+    if (hi !== 0) {
+      h = await this.healthInsruanceService.findOne(hi);
+    }
 
     return res
       .set(
         'Content-Disposition',
         `attachment; filename=${year}-${month}_${doctor.user.surname}-${
           doctor.user.name
-        }-${h.name.replace(' ', '-')}.xlsx`,
+        }${h !== undefined ? '-' + h.name.replace(' ', '-') : ''}.xlsx`,
       )
       .send(buffer);
   }

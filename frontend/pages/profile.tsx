@@ -327,6 +327,12 @@ export default function ProfileView(props: any) {
       return;
     }
 
+    if (props.auth.role !== "doctor" && !cod) {
+      setMessage("Debes ingresar un número de afiliado!");
+      setError(true);
+      return;
+    }
+
     await axios.patch(
       `${process.env.NEXT_PUBLIC_API_URL}/user/healthInsurance/${props.auth.id}`,
       {
@@ -468,14 +474,18 @@ export default function ProfileView(props: any) {
                   <div className="my-4 md:flex gap-4">
                     <div className="flex items-center gap-4 md:w-full">
                       <div className="flex items-end gap-2 w-full">
-                        <Input
-                          className="w-1/2"
-                          label="Número de afiliado"
-                          onChange={($e) => setCod($e.target.value)}
-                          value={cod}
-                        ></Input>
+                        {props.auth.role !== "doctor" && (
+                          <Input
+                            className="w-1/2"
+                            label="Número de afiliado"
+                            onChange={($e) => setCod($e.target.value)}
+                            value={cod}
+                          ></Input>
+                        )}
                         <Autocomplete
-                          className="w-1/2"
+                          className={`${
+                            props.auth.role !== "doctor" ? "w-1/2" : "w-full"
+                          }`}
                           onChange={(event, newValue: any) => {
                             setHealthInsurance(newValue?.id);
                             setHealthInsuranceName(newValue?.label);

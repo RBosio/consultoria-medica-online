@@ -10,7 +10,7 @@ export class UserHealthInsurance {
   @PrimaryColumn()
   healthInsuranceId: number;
 
-  @Column()
+  @Column({ nullable: true })
   cod: string;
 
   @Column({ default: false })

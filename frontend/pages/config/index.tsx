@@ -20,6 +20,7 @@ import { robotoBold } from "@/lib/fonts";
 import Button from "@/components/button";
 import {
   Alert,
+  Autocomplete,
   ButtonGroup,
   Chip,
   Dialog,
@@ -51,6 +52,7 @@ import "moment/locale/es";
 import { pesos } from "@/lib/formatCurrency";
 import LinkMUI from "@mui/material/Link";
 import DatePicker from "@/components/dateInput";
+import { UserHealthInsuranceResponseDto } from "@/components/dto/userHealthInsurance.dto";
 
 interface ConfigProps {
   user: UserResponseDto;
@@ -134,6 +136,7 @@ export default function Config(props: ConfigProps) {
   ]);
   const [minutesTo, setMinutesTo] = useState<string[]>([]);
   const [healthInsurance, setHealthInsurance] = useState<number>(0);
+  const [healthInsuranceName, setHealthInsuranceName] = useState<string>("");
   const [duration, setDuration] = useState<number>(
     props.doctor.durationMeeting
   );
@@ -517,7 +520,34 @@ export default function Config(props: ConfigProps) {
                       </p>
                     )}
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-4">
+                    <Autocomplete
+                      className="w-1/2"
+                      onChange={(event, newValue: any) => {
+                        setHealthInsurance(newValue?.id);
+                        setHealthInsuranceName(newValue?.label);
+                      }}
+                      value={{
+                        id: -1,
+                        label: healthInsuranceName,
+                      }}
+                      disablePortal
+                      noOptionsText="Especialidad no encontrada"
+                      options={props.doctor.user.healthInsurances.map(
+                        (hi: UserHealthInsuranceResponseDto) => ({
+                          id: hi.healthInsurance.id,
+                          label: hi.healthInsurance.name,
+                        })
+                      )}
+                      renderInput={(params: any) => (
+                        <Input
+                          onChange={() => {}}
+                          name="healthInsuranceId"
+                          {...params}
+                          label="Obra social"
+                        />
+                      )}
+                    />
                     <DatePicker
                       label="Fecha de facturación"
                       name="meetingsDate"
@@ -530,13 +560,13 @@ export default function Config(props: ConfigProps) {
                     <a
                       href={`
                       ${
-                        !month || !year
+                        !month || !year || healthInsurance === 0
                           ? `${
                               process.env.NEXT_PUBLIC_API_URL
                             }/meeting/report/${props.auth.id}/${
                               new Date().getMonth() + 1
-                            }/${new Date().getFullYear()}`
-                          : `${process.env.NEXT_PUBLIC_API_URL}/meeting/report/${props.auth.id}/${month}/${year}`
+                            }/${new Date().getFullYear()}/0`
+                          : `${process.env.NEXT_PUBLIC_API_URL}/meeting/report/${props.auth.id}/${month}/${year}/${healthInsurance}`
                       }`}
                       target="_blank"
                     >

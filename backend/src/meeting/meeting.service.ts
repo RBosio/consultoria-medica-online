@@ -618,6 +618,7 @@ export class MeetingService {
     doctor: Doctor,
     month: number,
     year: number,
+    hi: number,
   ): Promise<DataList[]> {
     const meetings = await this.meetingRepository.find({
       where: {
@@ -625,6 +626,9 @@ export class MeetingService {
           user: {
             id: doctor.user.id,
           },
+        },
+        healthInsurance: {
+          id: hi === 0 ? null : hi,
         },
       },
       relations: {
@@ -694,6 +698,7 @@ export class MeetingService {
     res: Response,
     month: number,
     year: number,
+    hi: number,
   ) {
     const workbook = new Workbook();
     const worksheet = workbook.addWorksheet('0');
@@ -734,7 +739,7 @@ export class MeetingService {
     const header = ['A', 'B', 'C', 'D', 'E'];
 
     const doctor = await this.doctorService.findOneByUserId(userId);
-    const data: DataList[] = await this.getData(doctor, month, year);
+    const data: DataList[] = await this.getData(doctor, month, year, hi);
 
     data.forEach((val, i, _) => {
       worksheet.addRow(val);
@@ -776,10 +781,14 @@ export class MeetingService {
 
     const buffer = await workbook.xlsx.writeBuffer();
 
+    const h = await this.healthInsruanceService.findOne(hi);
+
     return res
       .set(
         'Content-Disposition',
-        `attachment; filename=${year}-${month}_${doctor.user.surname}-${doctor.user.name}.xlsx`,
+        `attachment; filename=${year}-${month}_${doctor.user.surname}-${
+          doctor.user.name
+        }-${h.name.replace(' ', '-')}.xlsx`,
       )
       .send(buffer);
   }

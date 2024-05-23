@@ -54,6 +54,7 @@ import LinkMUI from "@mui/material/Link";
 import { PlanResponseDto } from "@/components/dto/plan.dto";
 import DatePicker from "@/components/dateInput";
 import { UserHealthInsuranceResponseDto } from "@/components/dto/userHealthInsurance.dto";
+import { validCBU } from "@/lib/cbuValidator";
 
 interface ConfigProps {
   user: UserResponseDto;
@@ -185,7 +186,7 @@ export default function Config(props: ConfigProps) {
         return;
       }
 
-      if (values.cbu.length !== 0 && values.cbu.length !== 22) {
+      if (!validCBU(values.cbu)) {
         setMessage("CBU inválido");
         setError(true);
         return;

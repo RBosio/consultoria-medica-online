@@ -13,9 +13,6 @@ export class UserHealthInsurance {
   @Column({ nullable: true })
   cod: string;
 
-  @Column({ default: false })
-  verified: boolean;
-
   @Column({ nullable: true })
   date_verified: Date;
 

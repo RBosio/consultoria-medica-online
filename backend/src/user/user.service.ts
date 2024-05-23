@@ -217,38 +217,20 @@ export class UserService {
       await updateUser.hashPassword();
     }
 
-    if (user.verify) {
-      const hi = await this.userHealthInsuranceRepository.findOne({
-        where: {
-          userId: id,
-          healthInsuranceId: user.healthInsuranceId,
-        },
+    if (user.healthInsuranceId) {
+      const hi = await this.healthInsuranceService.findOne(
+        user.healthInsuranceId,
+      );
+
+      const newHi = this.userHealthInsuranceRepository.create({
+        userId: updateUser.id,
+        healthInsurance: hi,
+        user: updateUser,
       });
-      if (!hi) {
-        throw new HttpException(
-          'Obra social no encontrada',
-          HttpStatus.NOT_FOUND,
-        );
-      }
 
-      hi.verified = true;
-
-      this.userHealthInsuranceRepository.save(hi);
-    } else {
-      if (user.healthInsuranceId) {
-        const hi = await this.healthInsuranceService.findOne(
-          user.healthInsuranceId,
-        );
-
-        const newHi = this.userHealthInsuranceRepository.create({
-          userId: updateUser.id,
-          healthInsurance: hi,
-          user: updateUser,
-        });
-
-        await this.userHealthInsuranceRepository.save(newHi);
-      }
+      await this.userHealthInsuranceRepository.save(newHi);
     }
+
     const hiUser = await this.userHealthInsuranceRepository.find({
       where: {
         userId: id,

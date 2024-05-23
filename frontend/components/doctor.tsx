@@ -4,10 +4,10 @@ import { IoIosArrowForward } from "react-icons/io";
 import Rate from "./rate";
 import { robotoBold } from "@/lib/fonts";
 import Button from "./button";
-import { FaUserDoctor, FaUserNurse } from "react-icons/fa6";
+import { FaUserDoctor } from "react-icons/fa6";
 import { useRouter } from "next/router";
 import moment from "moment";
-
+import { FaBriefcaseMedical } from "react-icons/fa6";
 export interface DoctorProps {
   fullName: string;
   photo?: string;
@@ -23,6 +23,8 @@ export interface DoctorProps {
 
 const Doctor: React.FC<DoctorProps> = (props) => {
   const router = useRouter();
+
+  const yearsOfExperience = moment().diff(moment(props.experience), 'years');
 
   return (
     <div className="bg-white w-full rounded-md shadow-md flex">
@@ -59,9 +61,17 @@ const Doctor: React.FC<DoctorProps> = (props) => {
         </div>
         <div className="shrink-0 flex flex-col items-center justify-between sm:h-full sm:items-center sm:justify-center gap-4">
           <Rate rate={props.rate} count={props.count} />
-          <p className="flex items-center gap-2 text-lg">
-            <FaUserNurse className="text-primary" />
-            {moment(props.experience).format("MMMM, YYYY")}
+          <p className="flex items-center gap-2 text-md">
+            <FaBriefcaseMedical className="text-primary" />
+            {moment(props.experience).format("MMMM YYYY")} {
+              yearsOfExperience > 0 ?
+                yearsOfExperience === 1 ?
+                  `(${yearsOfExperience} año)`
+                  :
+                  `(${yearsOfExperience} años)`
+                :
+                ''
+            }
           </p>
           <Button
             onClick={() => router.push(`${router.pathname}/${props.id}`)}

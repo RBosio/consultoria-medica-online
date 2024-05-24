@@ -428,130 +428,114 @@ export default function ProfileView(props: any) {
               </div>
             </section>
             <section className="bg-white p-12 rounded-lg shadow-lg md:w-full">
-              <div className="flex flex-col md:flex-row md:justify-between">
-                <div>
-                  <h4 className="text-primary text-3xl mt-2 font-bold">
-                    Obras sociales
-                  </h4>
+              {props.auth.role !== "doctor" && (
+                <div className="flex flex-col md:flex-row md:justify-between">
                   <div>
-                    {user.healthInsurances.map((h: any, idx: number) => {
-                      return (
-                        <div className="p-1" key={idx}>
-                          {h.healthInsurance?.name ? (
-                            <div className="flex items-center gap-2">
-                              <FaChevronRight className="text-primary text-md size-4" />
-                              <p className="text-xl">
-                                {h.healthInsurance.name}
-                              </p>
-                              {h.verified ? (
-                                <FaCircleCheck className="text-green-600 text-lg size-4" />
-                              ) : (
-                                <div className="flex items-center gap-4">
-                                  <FaCircleXmark className="text-red-600 text-lg size-4" />
-                                  {!request && (
-                                    <FaCertificate
-                                      className="text-primary text-lg hover:cursor-pointer hover:opacity-70 size-6"
-                                      onClick={() => {
-                                        setHealthInsuranceVerify(
-                                          h.healthInsurance.id
-                                        );
-                                        setConfirmVerification(true);
-                                      }}
-                                    />
-                                  )}
-                                </div>
-                              )}
-                            </div>
-                          ) : (
-                            ""
-                          )}
-                        </div>
-                      );
-                    })}
+                    <h4 className="text-primary text-3xl mt-2 font-bold">
+                      Obras sociales
+                    </h4>
+                    <div>
+                      {user.healthInsurances.map((h: any, idx: number) => {
+                        return (
+                          <div className="p-1" key={idx}>
+                            {h.healthInsurance?.name ? (
+                              <div className="flex items-center gap-2">
+                                <FaChevronRight className="text-primary text-md size-4" />
+                                <p className="text-xl">
+                                  {h.healthInsurance.name}
+                                </p>
+                              </div>
+                            ) : (
+                              ""
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
-                </div>
-                <div className="md:w-2/3">
-                  <div className="my-4 md:flex gap-4">
-                    <div className="flex items-center gap-4 md:w-full">
-                      <div className="flex items-end gap-2 w-full">
-                        {props.auth.role !== "doctor" && (
-                          <Input
-                            className="w-1/2"
-                            label="Número de afiliado"
-                            onChange={($e) => setCod($e.target.value)}
-                            value={cod}
-                          ></Input>
-                        )}
-                        <Autocomplete
-                          className={`${
-                            props.auth.role !== "doctor" ? "w-1/2" : "w-full"
-                          }`}
-                          onChange={(event, newValue: any) => {
-                            setHealthInsurance(newValue?.id);
-                            setHealthInsuranceName(newValue?.label);
-                          }}
-                          value={{
-                            id: -1,
-                            label: healthInsuranceName,
-                          }}
-                          disablePortal
-                          noOptionsText="Especialidad no encontrada"
-                          options={healthInsurances.map((hi: any) => ({
-                            id: hi.id,
-                            label: hi.name,
-                          }))}
-                          renderInput={(params: any) => (
+                  <div className="md:w-2/3">
+                    <div className="my-4 md:flex gap-4">
+                      <div className="flex items-center gap-4 md:w-full">
+                        <div className="flex items-end gap-2 w-full">
+                          {props.auth.role !== "doctor" && (
                             <Input
-                              onChange={() => {}}
-                              name="healthInsuranceId"
-                              {...params}
-                              label="Obra social"
-                            />
+                              className="w-1/2"
+                              label="Número de afiliado"
+                              onChange={($e) => setCod($e.target.value)}
+                              value={cod}
+                            ></Input>
                           )}
+                          <Autocomplete
+                            className={`${
+                              props.auth.role !== "doctor" ? "w-1/2" : "w-full"
+                            }`}
+                            onChange={(event, newValue: any) => {
+                              setHealthInsurance(newValue?.id);
+                              setHealthInsuranceName(newValue?.label);
+                            }}
+                            value={{
+                              id: -1,
+                              label: healthInsuranceName,
+                            }}
+                            disablePortal
+                            noOptionsText="Especialidad no encontrada"
+                            options={healthInsurances.map((hi: any) => ({
+                              id: hi.id,
+                              label: hi.name,
+                            }))}
+                            renderInput={(params: any) => (
+                              <Input
+                                onChange={() => {}}
+                                name="healthInsuranceId"
+                                {...params}
+                                label="Obra social"
+                              />
+                            )}
+                          />
+                        </div>
+                        <input
+                          type="file"
+                          id="file2"
+                          className="hidden"
+                          onChange={handleChangeHI}
+                        />
+                        <FaPaperclip
+                          className="text-primary text-xl hover:cursor-pointer hover:opacity-70"
+                          onClick={($e: any) => handleClickFile($e, true)}
                         />
                       </div>
-                      <input
-                        type="file"
-                        id="file2"
-                        className="hidden"
-                        onChange={handleChangeHI}
-                      />
-                      <FaPaperclip
-                        className="text-primary text-xl hover:cursor-pointer hover:opacity-70"
-                        onClick={($e: any) => handleClickFile($e, true)}
-                      />
-                    </div>
-                    <div className="flex justify-center mt-2 md:block">
-                      <Button
-                        startIcon={<FaCheck />}
-                        onClick={() => {
-                          setConfirmHealthInsurance(true);
-                        }}
-                      >
-                        Agregar
-                      </Button>
-                    </div>
-                  </div>
-                  {file && (
-                    <div
-                      className={`w-full py-1 px-2 bg-primary rounded-md text-white flex justify-between items-center overflow-x-hidden h-8 ${
-                        file.name.length > 60 ? "overflow-y-scroll" : ""
-                      }`}
-                    >
-                      <div className={`${robotoBold.className}`}>
-                        {file.name}
+                      <div className="flex justify-center mt-2 md:block">
+                        <Button
+                          startIcon={<FaCheck />}
+                          onClick={() => {
+                            setConfirmHealthInsurance(true);
+                          }}
+                        >
+                          Agregar
+                        </Button>
                       </div>
-                      <FaXmark
-                        className="hover:cursor-pointer hover:opacity-70"
-                        onClick={() => {
-                          setFile("");
-                        }}
-                      />
                     </div>
-                  )}
+                    {file && (
+                      <div
+                        className={`w-full py-1 px-2 bg-primary rounded-md text-white flex justify-between items-center overflow-x-hidden h-8 ${
+                          file.name.length > 60 ? "overflow-y-scroll" : ""
+                        }`}
+                      >
+                        <div className={`${robotoBold.className}`}>
+                          {file.name}
+                        </div>
+                        <FaXmark
+                          className="hover:cursor-pointer hover:opacity-70"
+                          onClick={() => {
+                            setFile("");
+                          }}
+                        />
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
-              <div className="mt-12">
+              )}
+              <div className={`${props.auth.role !== "doctor" && "mt-12"}`}>
                 <h4 className="text-primary text-3xl mt-2 font-bold">
                   Contraseña
                 </h4>

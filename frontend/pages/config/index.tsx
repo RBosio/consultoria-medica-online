@@ -505,12 +505,7 @@ export default function Config(props: ConfigProps) {
                             key={hi.healthInsurance.id}
                             className="flex items-center gap-2"
                           >
-                            {hi.healthInsurance.name}{" "}
-                            {hi.verified ? (
-                              <FaCircleCheck className="text-green-600" />
-                            ) : (
-                              <FaCircleXmark className="text-red-600" />
-                            )}
+                            {hi.healthInsurance.name}
                           </p>
                         );
                       })

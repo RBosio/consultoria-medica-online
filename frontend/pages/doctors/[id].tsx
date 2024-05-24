@@ -264,16 +264,9 @@ export default function Doctor(props: any) {
   };
 
   const getDiscount = (): HealthInsuranceResponseDto => {
-    const doctorsWorkingFor = props.doctor.user.healthInsurances.filter(
-      (hi: UserHealthInsuranceResponseDto) => hi.verified
-    );
-    const userHealthInsurance = props.user.healthInsurances.filter(
-      (hi: UserHealthInsuranceResponseDto) => hi.verified
-    );
-
-    const foundHealthInsurance = userHealthInsurance
+    const foundHealthInsurance = props.user.healthInsurances
       .filter((hi: UserHealthInsuranceResponseDto) =>
-        doctorsWorkingFor
+        props.doctor.user.healthInsurances
           .map((h: any) => h.healthInsuranceId)
           .includes(hi.healthInsurance.id)
       )

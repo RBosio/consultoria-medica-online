@@ -485,7 +485,7 @@ export default function Home(props: Speciality) {
                                                                     </div>
                                                                     {user.dni}
                                                                 </div>
-                                                                <div className="flex items-center gap-2">
+                                                                {!user.doctor && <div className="flex items-center gap-2">
                                                                     <div className="flex items-center text-primary text-[16px] gap-1">
                                                                         <MdHealthAndSafety />
                                                                         Obras Sociales:
@@ -493,7 +493,7 @@ export default function Home(props: Speciality) {
                                                                     {
                                                                         user.healthInsurances.length > 0 ? user.healthInsurances?.map((hi) => hi.healthInsurance.name).join(", ") : '-'
                                                                     }
-                                                                </div>
+                                                                </div>}
                                                             </div>
                                                             {user?.doctor && (
                                                                 <div className="flex flex-col gap-2">
@@ -561,6 +561,15 @@ export default function Home(props: Speciality) {
                                                                         {user.doctor?.specialities
                                                                             .map((s) => s.name)
                                                                             .join(", ")}
+                                                                    </div>
+                                                                    <div className="flex items-center gap-2">
+                                                                        <div className="flex items-center text-primary text-[16px] gap-1">
+                                                                            <MdHealthAndSafety />
+                                                                            Obras Sociales:
+                                                                        </div>
+                                                                        {
+                                                                            user.healthInsurances.length > 0 ? user.healthInsurances?.map((hi) => hi.healthInsurance.name).join(", ") : '-'
+                                                                        }
                                                                     </div>
                                                                 </div>
                                                             )}

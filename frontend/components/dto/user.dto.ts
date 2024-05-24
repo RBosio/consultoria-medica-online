@@ -11,6 +11,7 @@ export interface UserResponseDto {
     gender: string
     phone: string
     image: string
+    city: number,
     birthday: Date
     healthInsurances: UserHealthInsuranceResponseDto[]
     token?: string

@@ -30,7 +30,7 @@ export class Doctor {
   @Column({ nullable: true })
   durationMeeting: number;
 
-  @Column({ default: 0 })
+  @Column({ nullable: true })
   priceMeeting: number;
 
   @Column({ default: false })

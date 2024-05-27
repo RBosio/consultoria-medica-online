@@ -1,5 +1,3 @@
-import { createDoctorDto } from "src/doctor/dto/create-doctor.dto"
-import { HealthInsurance } from "src/entities/health-insurance.entity"
 import { IsEmail, IsDefined, Length, Matches, IsDateString, IsIn, IsInt } from "class-validator"
 
 export class createUserDto {

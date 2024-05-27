@@ -156,20 +156,6 @@ export class UserService {
 
     newUser = await this.userRepository.save(newUser);
 
-    //TODO: REVISAR LA LÓGICA DE ABAJO SI SE PUEDE HACER EN OTROS ENDPOINTS SEPARADOS (Health Insurances)
-
-    // newUser.healthInsurances = []
-
-    // user.his.map(async hi => {
-    //     const healthInsurance = await this.healthInsuranceService.findOne(hi)
-
-    //     const userHI = this.userHealthInsuranceRepository.create({
-    //         user: newUser,
-    //         healthInsurance
-    //     })
-    //     await this.userHealthInsuranceRepository.save(userHI)
-    // })
-
     return newUser;
   }
 

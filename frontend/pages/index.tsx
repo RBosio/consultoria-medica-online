@@ -42,6 +42,8 @@ export default function Home(props: any) {
   const [rate, setRate] = React.useState<boolean>(false);
   const [stars, setStars] = React.useState<number>(5);
 
+  const incompleteDoctorData = props.doctor && (!props.doctor.cbu || !props.doctor.alias || !props.doctor.priceMeeting || !props.doctor.durationMeeting);
+
   const markAsRead = async (id: number) => {
     await axios.patch(
       `${process.env.NEXT_PUBLIC_API_URL}/notification/${id}`,
@@ -177,19 +179,22 @@ export default function Home(props: any) {
             </>
           ) : props.auth.role === "doctor" && !props.doctor.plan ?
             <Alert className="w-full rounded-lg" severity="warning">Para realizar reuniones debes solicitar un plan de trabajo</Alert>
-            : (
-              <h2 className="mx-auto text-xl flex flex-col md:flex-row items-center gap-4 text-zinc-600">
-                Actualmente no tiene reuniones pendientes{" "}
-                {(props.auth.role === "user" || props.auth.role === "admin") && (
-                  <Button
-                    onClick={() => router.push("/doctors")}
-                    startIcon={<FaChevronRight />}
-                  >
-                    Solicite una
-                  </Button>
-                )}
-              </h2>
-            )}
+            : incompleteDoctorData ?
+              <Alert className="w-full rounded-lg" severity="warning">Para realizar reuniones debes de completar los datos obligatorios de tu configuración</Alert>
+              :
+              (
+                <h2 className="mx-auto text-xl flex flex-col md:flex-row items-center gap-4 text-zinc-600">
+                  Actualmente no tiene reuniones pendientes{" "}
+                  {(props.auth.role === "user" || props.auth.role === "admin") && (
+                    <Button
+                      onClick={() => router.push("/doctors")}
+                      startIcon={<FaChevronRight />}
+                    >
+                      Solicite una
+                    </Button>
+                  )}
+                </h2>
+              )}
         </div>
         <div className="flex flex-col lg:flex-row justify-between items-center gap-4 w-5/6 mx-auto mt-4 mb-4">
           <div className="bg-gray-100 w-full lg:w-2/3 p-4 rounded-3xl shadow-lg">
@@ -414,7 +419,7 @@ export default function Home(props: any) {
                 !props.doctor.alias ? (
                 <>
                   <h2 className="text-3xl text-center text-zinc-600">
-                    Termine de configurar su perfil
+                    Complete los datos de su configuración para comenzar
                   </h2>
                   <PiGearSix className="text-primary text-9xl" />
                   <Button onClick={() => router.push("/config")}>

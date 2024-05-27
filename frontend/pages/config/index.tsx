@@ -164,11 +164,13 @@ export default function Config(props: ConfigProps) {
   const [month, setMonth] = useState<number>();
   const [year, setYear] = useState<number>();
 
+  const incompleteDoctorData = !props.doctor.cbu || !props.doctor.alias || !props.doctor.priceMeeting || !props.doctor.durationMeeting;
+
   useEffect(() => {
     addEventListener("resize", () => {
       setModify(false);
     });
-    setDescription(props.doctor.description);
+    setDescription(props.doctor.description ?? '');
   }, []);
 
   const updateForm = useFormik({
@@ -181,7 +183,13 @@ export default function Config(props: ConfigProps) {
     },
     onSubmit: async (values, { setSubmitting }) => {
       if (values.priceMeeting.toString().length === 0) {
-        setMessage("Ingrese un valor al precio de la reunión");
+        setMessage("Ingrese un valor para el precio de la reunión");
+        setError(true);
+        return;
+      }
+
+      if (!duration) {
+        setMessage("Ingrese un valor para la duración de la reunión");
         setError(true);
         return;
       }
@@ -360,7 +368,7 @@ export default function Config(props: ConfigProps) {
     <Layout auth={props.auth}>
       <section className="flex px-8 mt-8">
         <div className="w-full flex flex-col items-center lg:flex-row gap-6 relative">
-          <div className="rounded-md w-full xl:shadow-md bg-white relative lg:h-full">
+          <div className="rounded-md w-full bg-white relative lg:h-full shadow-md">
             <Avatar
               labelProps={{ className: "hidden" }}
               name={props.doctor.user.name}
@@ -415,10 +423,9 @@ export default function Config(props: ConfigProps) {
                       Descripción
                     </h2>
                     <p
-                      className={`text-justify line-clamp-[8] ${
-                        !props.doctor.description &&
+                      className={`text-justify line-clamp-[8] ${!props.doctor.description &&
                         "text-red-400 font-semibold"
-                      }`}
+                        }`}
                     >
                       {props.doctor.description || "No posee descripción"}
                     </p>
@@ -452,7 +459,7 @@ export default function Config(props: ConfigProps) {
                           <FaStopwatch size={15} /> Duración de reunión
                         </h4>
                         <p>
-                          {props.doctor.durationMeeting + " minutos" || "-"}
+                          {props.doctor.durationMeeting ? `${props.doctor.durationMeeting} minutos` : '-'}
                         </p>
                       </div>
                       <div className="hidden md:block">
@@ -470,13 +477,12 @@ export default function Config(props: ConfigProps) {
               </div>
             </div>
           </div>
-          <div className="overflow-hidden w-full md:min-w-[70%] lg:h-full xl:shadow-md">
+          <div className="overflow-hidden w-full md:min-w-[70%] lg:h-full">
             <div
-              className={`flex flex-col h-full md:flex-row md:flex-nowrap items-center transition-all ease-in duration-500 ${
-                modify ? "-translate-x-full" : ""
-              } gap-6`}
+              className={`flex flex-col h-full md:flex-row md:flex-nowrap items-center transition-all ease-in duration-500 ${modify ? "-translate-x-full" : ""
+                } gap-6`}
             >
-              <div className="bg-white w-full h-full rounded-md shadow-md p-4 flex flex-col">
+              <div className="bg-white w-full h-full rounded-md p-4 flex flex-col">
                 <div className="flex justify-between items-center">
                   <div className="flex flex-col">
                     <div className="flex items-center mb-4">
@@ -539,7 +545,7 @@ export default function Config(props: ConfigProps) {
                       )}
                       renderInput={(params: any) => (
                         <Input
-                          onChange={() => {}}
+                          onChange={() => { }}
                           name="healthInsuranceId"
                           {...params}
                           label="Obra social"
@@ -557,23 +563,16 @@ export default function Config(props: ConfigProps) {
                     />
                     <a
                       href={`
-                      ${
-                        !month || !year
-                          ? `${
-                              process.env.NEXT_PUBLIC_API_URL
-                            }/meeting/report/${props.auth.id}/${
-                              new Date().getMonth() + 1
-                            }/${new Date().getFullYear()}/${
-                              healthInsurance === 0 ? 0 : healthInsurance
-                            }`
-                          : `${
-                              process.env.NEXT_PUBLIC_API_URL
-                            }/meeting/report/${
-                              props.auth.id
-                            }/${month}/${year}/${
-                              healthInsurance === 0 ? 0 : healthInsurance
-                            }`
-                      }`}
+                      ${!month || !year
+                          ? `${process.env.NEXT_PUBLIC_API_URL
+                          }/meeting/report/${props.auth.id}/${new Date().getMonth() + 1
+                          }/${new Date().getFullYear()}/${healthInsurance === 0 ? 0 : healthInsurance
+                          }`
+                          : `${process.env.NEXT_PUBLIC_API_URL
+                          }/meeting/report/${props.auth.id
+                          }/${month}/${year}/${healthInsurance === 0 ? 0 : healthInsurance
+                          }`
+                        }`}
                       target="_blank"
                     >
                       <Button>Generar reporte</Button>
@@ -620,21 +619,21 @@ export default function Config(props: ConfigProps) {
                     <p>
                       {props.doctor.plan
                         ? props.doctor.planSince &&
-                          `Miembro desde ${moment(
-                            props.doctor.planSince
-                          ).format("LL")}`
+                        `Miembro desde ${moment(
+                          props.doctor.planSince
+                        ).format("LL")}`
                         : "Actualmente se encuentra sin plan de trabajo, solicite uno para comenzar"}
                     </p>
                     {props.doctor.plan ? (
                       <ButtonGroup>
                         {Math.max(...props.plans.map((a) => a.id)) !==
                           props.doctor.plan.id && (
-                          <Link href={"/"}>
-                            <Button startIcon={<FaCircleUp />} color="info">
-                              Actualizar
-                            </Button>
-                          </Link>
-                        )}
+                            <Link href={"/"}>
+                              <Button startIcon={<FaCircleUp />} color="info">
+                                Actualizar
+                              </Button>
+                            </Link>
+                          )}
                         <Button
                           sx={{
                             "&.MuiButton-contained": {
@@ -798,16 +797,19 @@ export default function Config(props: ConfigProps) {
                   }}
                 >
                   <div className="flex justify-center">
-                    <div className="md:w-1/2 p-4 w-full">
+                    <div className="px-10 py-4 w-full">
                       <h3
                         className={`text-primary text-xl text-center ${robotoBold.className}`}
                       >
                         Parámetros
                       </h3>
-                      <div className="flex flex-col md:flex-row gap-4 md:gap-0 mt-4 md:mt-0 justify-between items-center">
-                        <div className="w-full xl:w-auto">
+                      {incompleteDoctorData &&
+                        <Alert className="w-full rounded-lg my-2" severity="warning">Para realizar reuniones debes de completar los datos obligatorios de tu configuración (*)</Alert>
+                      }
+                      <div className="flex flex-col md:flex-row gap-10 mt-4 md:mt-0 justify-between items-center">
+                        <div className="w-full xl:w-1/2">
                           <h4 className="text-primary text-lg flex justify-center items-center gap-2">
-                            <FaStopwatch /> Duración
+                            <FaStopwatch /> Duración (*)
                           </h4>
                           <Select
                             className="w-full"
@@ -821,9 +823,9 @@ export default function Config(props: ConfigProps) {
                             ))}
                           </Select>
                         </div>
-                        <div className="w-full xl:w-28">
+                        <div className="w-full xl:w-1/2">
                           <h4 className="text-primary text-xl flex justify-center items-center gap-2">
-                            <FaMoneyBill1Wave /> Precio
+                            <FaMoneyBill1Wave /> Precio (*)
                           </h4>
                           <Input
                             className="w-full"
@@ -846,10 +848,10 @@ export default function Config(props: ConfigProps) {
                           value={description}
                         ></textarea>
                       </div>
-                      <div className="flex flex-col md:flex-row gap-4 md:gap-0 mt-4 md:mt-0 justify-between items-center">
-                        <div className="w-full xl:w-28">
+                      <div className="flex flex-col md:flex-row gap-10 mt-4 md:mt-0 justify-between items-center">
+                        <div className="w-full xl:w-1/2">
                           <h4 className="text-primary text-xl flex justify-center items-center gap-2">
-                            <FaBuildingColumns /> CBU/CVU
+                            <FaBuildingColumns /> CBU/CVU (*)
                           </h4>
                           <div className="flex items-center">
                             <Input
@@ -862,9 +864,9 @@ export default function Config(props: ConfigProps) {
                             />
                           </div>
                         </div>
-                        <div className="w-full xl:w-28">
+                        <div className="w-full xl:w-1/2">
                           <h4 className="text-primary text-xl flex justify-center items-center gap-2">
-                            <FaMoneyBillTransfer /> Alias
+                            <FaMoneyBillTransfer /> Alias (*)
                           </h4>
                           <div className="flex items-center">
                             <Input
@@ -909,32 +911,32 @@ export default function Config(props: ConfigProps) {
               {confirmSchedule
                 ? "Rango horario"
                 : confirmUpdate
-                ? "Datos personales"
-                : confirmVerification
-                ? "Verificacion de cuenta"
-                : confirmVerificationHI
-                ? "Verificacion de obra social"
-                : confirmCancelPlan
-                ? "Cancelar plan"
-                : confirmHealthInsurance
-                ? "Confirmar obra social"
-                : ""}
+                  ? "Datos personales"
+                  : confirmVerification
+                    ? "Verificacion de cuenta"
+                    : confirmVerificationHI
+                      ? "Verificacion de obra social"
+                      : confirmCancelPlan
+                        ? "Cancelar plan"
+                        : confirmHealthInsurance
+                          ? "Confirmar obra social"
+                          : ""}
             </DialogTitle>
             <DialogContent>
               <DialogContentText id="alert-dialog-description">
                 {confirmSchedule
                   ? "¿Desea agregar el rango horario?"
                   : confirmUpdate
-                  ? "¿Desea actualizar los datos?"
-                  : confirmVerification
-                  ? "¿Desea solicitar la verificacion de la cuenta?"
-                  : confirmVerificationHI
-                  ? "¿Desea solicitar la verificacion de la obra social?"
-                  : confirmCancelPlan
-                  ? "¿Desea cancelar su plan actual?"
-                  : confirmHealthInsurance
-                  ? "¿Desea agregar la obra social?"
-                  : ""}
+                    ? "¿Desea actualizar los datos?"
+                    : confirmVerification
+                      ? "¿Desea solicitar la verificacion de la cuenta?"
+                      : confirmVerificationHI
+                        ? "¿Desea solicitar la verificacion de la obra social?"
+                        : confirmCancelPlan
+                          ? "¿Desea cancelar su plan actual?"
+                          : confirmHealthInsurance
+                            ? "¿Desea agregar la obra social?"
+                            : ""}
               </DialogContentText>
             </DialogContent>
             <DialogActions>

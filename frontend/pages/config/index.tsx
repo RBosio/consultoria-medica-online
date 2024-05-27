@@ -141,7 +141,7 @@ export default function Config(props: ConfigProps) {
   const [healthInsurance, setHealthInsurance] = useState<number>(0);
   const [healthInsuranceName, setHealthInsuranceName] = useState<string>("");
   const [duration, setDuration] = useState<number>(
-    props.doctor.durationMeeting
+    props.doctor.durationMeeting ?? ''
   );
   const [day, setDay] = useState<number>(-1);
   const [from, setFrom] = useState<string>("");
@@ -174,10 +174,10 @@ export default function Config(props: ConfigProps) {
   const updateForm = useFormik({
     initialValues: {
       durationMeeting: duration,
-      priceMeeting: props.doctor.priceMeeting,
-      phone: props.doctor.user.phone,
-      cbu: props.doctor.cbu,
-      alias: props.doctor.alias,
+      priceMeeting: props.doctor.priceMeeting ?? '',
+      phone: props.doctor.user.phone ?? '',
+      cbu: props.doctor.cbu ?? '',
+      alias: props.doctor.alias ?? '',
     },
     onSubmit: async (values, { setSubmitting }) => {
       if (values.priceMeeting.toString().length === 0) {
@@ -186,7 +186,7 @@ export default function Config(props: ConfigProps) {
         return;
       }
 
-      if (!validCBU(values.cbu)) {
+      if (values.cbu && !validCBU(values.cbu)) {
         setMessage("CBU inválido");
         setError(true);
         return;

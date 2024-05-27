@@ -9,6 +9,7 @@ import {
     Alert,
     Box,
     Chip,
+    CircularProgress,
     Dialog,
     DialogActions,
     DialogContent,
@@ -76,19 +77,23 @@ export default function Home(props: Speciality) {
     const [verify, setVerify] = useState<boolean>(false);
     const [name, setName] = useState<string>("");
     const [directionName, setDirectionName] = useState<string>("asc");
+    const [cityLoading, setCityLoading] = useState(false);
 
     const theme = useTheme();
+
+    console.log(user);
 
     useEffect(() => {
         async function updateDepartment() {
             if (!o || !user?.city) return;
+            setCityLoading(true);
             const depReq = await axios.get(
                 `https://apis.datos.gob.ar/georef/api/departamentos?id=${user?.city}`
             );
             const data = depReq.data.departamentos[0];
             setUser({ ...user, province: data.provincia.nombre, cityStr: data.nombre });
+            setCityLoading(false);
         };
-
         updateDepartment();
     }, [o]);
 
@@ -469,7 +474,7 @@ export default function Home(props: Speciality) {
                                                                         <FaHome />
                                                                         Dirección:
                                                                     </div>
-                                                                    {user.address ? `${user.address} - ${user.cityStr}, ${user.province}` : '-'}
+                                                                    {cityLoading ? <CircularProgress size={15}/> : user.address ? `${user.address} - ${user.cityStr}, ${user.province}` : '-'}
                                                                 </div>
                                                                 <div className="flex items-center gap-2">
                                                                     <div className="flex items-center text-primary text-[16px] gap-1">

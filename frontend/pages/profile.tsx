@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Avatar from "@/components/avatar";
 import {
+  FaAddressBook,
   FaAddressCard,
   FaCalendarDays,
   FaCertificate,
@@ -12,6 +13,7 @@ import {
   FaCity,
   FaEnvelope,
   FaKey,
+  FaLocationDot,
   FaMars,
   FaPaperclip,
   FaPhone,
@@ -362,6 +364,10 @@ export default function ProfileView(props: any) {
                       <p className="mx-2 text-xl">
                         {user.department}, {user.province}
                       </p>
+                    </div>
+                    <div className="flex items-center">
+                      <FaLocationDot className="text-primary size-4" />
+                      <p className="mx-2 text-xl">{user.address}</p>
                     </div>
                     <div className="flex items-center">
                       <FaAddressCard className="text-primary size-4" />

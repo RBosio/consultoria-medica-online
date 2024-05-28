@@ -145,6 +145,10 @@ export class DoctorService {
       where: {
         verified: true,
         planId: Not(IsNull()),
+        priceMeeting: Not(IsNull()),
+        durationMeeting: Not(IsNull()),
+        cbu: Not(IsNull()),
+        // Por el momento haremos que el alias NO sea obligatorio
       },
       order: {
         plan: {

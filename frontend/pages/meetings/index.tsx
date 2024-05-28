@@ -30,6 +30,8 @@ export default function Meetings(props: Meeting) {
   const [index, setIndex] = useState(0);
   const [position, setPosition] = useState(0);
 
+  const incompleteDoctorData = props.doctor && (!props.doctor.cbu || !props.doctor.priceMeeting || !props.doctor.durationMeeting);
+
   const isClient = typeof window === "object";
 
   const [isDesktop, setDesktop] = useState(false);
@@ -214,8 +216,11 @@ export default function Meetings(props: Meeting) {
         </form>
         <section>
           <div className="w-[95%] overflow-hidden m-auto relative px-[14px] sm:mt-8">
-            {props.auth.role === "doctor" && !props.doctor.plan &&
+            {props.auth.role === "doctor" && !props.doctor.plan ?
               <Alert className="w-full rounded-lg" severity="warning">Para realizar reuniones debes solicitar un <Link href="/">plan de trabajo</Link></Alert>
+              : incompleteDoctorData ?
+                <Alert className="w-full rounded-lg" severity="warning">Para realizar reuniones debes de completar los datos obligatorios de tu <Link href="/config">configuración</Link></Alert> :
+                ""
             }
             <div
               className="flex flex-nowrap items-center transition-all ease-in "

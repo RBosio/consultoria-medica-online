@@ -26,6 +26,7 @@ export class UserService {
         },
         doctor: {
           specialities: true,
+          plan: true,
         },
       },
       where: {

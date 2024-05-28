@@ -2,24 +2,18 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Avatar from "@/components/avatar";
 import {
-  FaAddressBook,
   FaAddressCard,
   FaCalendarDays,
-  FaCertificate,
   FaCheck,
   FaChevronRight,
-  FaCircleCheck,
-  FaCircleXmark,
   FaCity,
   FaEnvelope,
   FaKey,
   FaLocationDot,
   FaMars,
-  FaPaperclip,
   FaPhone,
   FaUser,
   FaVenus,
-  FaXmark,
 } from "react-icons/fa6";
 import { robotoBold } from "@/lib/fonts";
 import moment from "moment";
@@ -45,7 +39,6 @@ import { HealthInsuranceResponseDto } from "../components/dto/healthInsurance.dt
 import withAuth from "@/lib/withAuth";
 import Layout from "@/components/layout";
 import { roboto } from "@/lib/fonts";
-import DatePicker from "@/components/dateInput";
 
 export default function ProfileView(props: any) {
   const router = useRouter();

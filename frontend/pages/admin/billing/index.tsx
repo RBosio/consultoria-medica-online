@@ -120,14 +120,15 @@ export default function Home(props: BillingProps) {
         })
       );
       setPending(false);
-    } catch (error) { }
+    } catch (error) {}
   };
 
   useEffect(() => {
     (async () => {
       if (!month) {
         let billings = await axios.get<Billing[]>(
-          `${process.env.NEXT_PUBLIC_API_URL}/billing/${new Date().getMonth() + 1
+          `${process.env.NEXT_PUBLIC_API_URL}/billing/${
+            new Date().getMonth() + 1
           }/${new Date().getFullYear()}`,
           {
             withCredentials: true,
@@ -201,10 +202,22 @@ export default function Home(props: BillingProps) {
                 </Button>
               </div>
               {
-                <Chip color={pending ? "error" : "primary"}
+                <Chip
+                  color={pending ? "error" : "primary"}
                   className="text-white p-2 py-6"
-                  icon={pending ? <IoIosCloseCircleOutline size={20} /> : <FaCheck />}
-                  label={pending ? "Existen pagos pendientes para este mes" : "No existen pagos pendientes en este mes"} />
+                  icon={
+                    pending ? (
+                      <IoIosCloseCircleOutline size={20} />
+                    ) : (
+                      <FaCheck />
+                    )
+                  }
+                  label={
+                    pending
+                      ? "Existen pagos pendientes para este mes"
+                      : "No existen pagos pendientes en este mes"
+                  }
+                />
               }
             </div>
             <div className="flex justify-between items-center">
@@ -229,15 +242,13 @@ export default function Home(props: BillingProps) {
                   onChange={($e) =>
                     $e.target.checked
                       ? (() => {
-                        setBillingsFiltered(
-                          billingsMonth.filter((billing) => !billing.paid)
-                        );
-                        setName("");
-                      })()
+                          setBillingsFiltered(
+                            billingsFiltered.filter((billing) => !billing.paid)
+                          );
+                        })()
                       : (() => {
-                        setBillingsFiltered(billingsMonth);
-                        setName("");
-                      })()
+                          filterChange(name);
+                        })()
                   }
                 />
               </div>
@@ -303,86 +314,96 @@ export default function Home(props: BillingProps) {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {billingsFiltered.length > 0 ? billingsFiltered.map((row: Billing, idx: number) => (
-                    <TableRow
-                      key={idx}
-                      sx={{
-                        "&:last-child td, &:last-child th": { border: 0 },
-                      }}
-                    >
-                      <TableCell
-                        className="text-sm"
-                        align="center"
-                        sx={{ padding: "1.2rem", fontSize: "1.2rem" }}
+                  {billingsFiltered.length > 0 ? (
+                    billingsFiltered.map((row: Billing, idx: number) => (
+                      <TableRow
+                        key={idx}
+                        sx={{
+                          "&:last-child td, &:last-child th": { border: 0 },
+                        }}
                       >
-                        {row.doctor.user.surname}, {row.doctor.user.name}
-                      </TableCell>
-                      <TableCell
-                        className="text-sm"
-                        align="center"
-                        sx={{ padding: "1.2rem", fontSize: "1.2rem" }}
-                      >
-                        {`${row.doctor.cbu ? row.doctor.cbu : '-'} / ${row.doctor.alias ? row.doctor.alias : '-'}`}
-                      </TableCell>
-                      <TableCell
-                        className="text-sm"
-                        align="center"
-                        sx={{ padding: "1.2rem", fontSize: "1.2rem" }}
-                      >
-                        {row.doctor.user.email}
-                      </TableCell>
-                      <TableCell
-                        className="text-sm"
-                        align="center"
-                        sx={{ padding: "1.2rem", fontSize: "1.2rem" }}
-                      >
-                        {pesos.format(row.price * 0.95)}
-                      </TableCell>
-                      <TableCell
-                        className="text-sm"
-                        align="center"
-                        sx={{ padding: "1.2rem", fontSize: "1.2rem" }}
-                      >
-                        <>
-                          {row.paid ? (
-                            <Tooltip title="Pagado">
-                              <IconButton>
-                                <FaCheck className="text-green-600 size-4" />
+                        <TableCell
+                          className="text-sm"
+                          align="center"
+                          sx={{ padding: "1.2rem", fontSize: "1.2rem" }}
+                        >
+                          {row.doctor.user.surname}, {row.doctor.user.name}
+                        </TableCell>
+                        <TableCell
+                          className="text-sm"
+                          align="center"
+                          sx={{ padding: "1.2rem", fontSize: "1.2rem" }}
+                        >
+                          {`${row.doctor.cbu ? row.doctor.cbu : "-"} / ${
+                            row.doctor.alias ? row.doctor.alias : "-"
+                          }`}
+                        </TableCell>
+                        <TableCell
+                          className="text-sm"
+                          align="center"
+                          sx={{ padding: "1.2rem", fontSize: "1.2rem" }}
+                        >
+                          {row.doctor.user.email}
+                        </TableCell>
+                        <TableCell
+                          className="text-sm"
+                          align="center"
+                          sx={{ padding: "1.2rem", fontSize: "1.2rem" }}
+                        >
+                          {pesos.format(row.price * 0.95)}
+                        </TableCell>
+                        <TableCell
+                          className="text-sm"
+                          align="center"
+                          sx={{ padding: "1.2rem", fontSize: "1.2rem" }}
+                        >
+                          <>
+                            {row.paid ? (
+                              <Tooltip title="Pagado">
+                                <IconButton>
+                                  <FaCheck className="text-green-600 size-4" />
+                                </IconButton>
+                              </Tooltip>
+                            ) : (
+                              <Tooltip title="No pagado">
+                                <IconButton>
+                                  <FaXmark className="text-red-600 size-4" />
+                                </IconButton>
+                              </Tooltip>
+                            )}
+                            <Tooltip
+                              title="Facturación"
+                              onClick={() => {
+                                if (month && year) {
+                                  localStorage.setItem(
+                                    "monthLocal",
+                                    month!.toString()
+                                  );
+                                  localStorage.setItem(
+                                    "yearLocal",
+                                    year!.toString()
+                                  );
+                                }
+                                router.push(
+                                  `/admin/billing/${row.doctor.user.id}`
+                                );
+                              }}
+                            >
+                              <IconButton className="p-0">
+                                <img src="/billing.svg" className="size-6" />
                               </IconButton>
                             </Tooltip>
-                          ) : (
-                            <Tooltip title="No pagado">
-                              <IconButton>
-                                <FaXmark className="text-red-600 size-4" />
-                              </IconButton>
-                            </Tooltip>
-                          )}
-                          <Tooltip
-                            title="Facturación"
-                            onClick={() => {
-                              if (month && year) {
-                                localStorage.setItem(
-                                  "monthLocal",
-                                  month!.toString()
-                                );
-                                localStorage.setItem(
-                                  "yearLocal",
-                                  year!.toString()
-                                );
-                              }
-                              router.push(
-                                `/admin/billing/${row.doctor.user.id}`
-                              );
-                            }}
-                          >
-                            <IconButton className="p-0">
-                              <img src="/billing.svg" className="size-6" />
-                            </IconButton>
-                          </Tooltip>
-                        </>
+                          </>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={5} align="center">
+                        No se encontraron resultados
                       </TableCell>
                     </TableRow>
-                  )) : <TableRow><TableCell colSpan={5} align="center">No se encontraron resultados</TableCell></TableRow>}
+                  )}
                 </TableBody>
               </Table>
             </TableContainer>

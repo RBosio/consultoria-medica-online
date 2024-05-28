@@ -42,7 +42,7 @@ export default function Home(props: any) {
   const [rate, setRate] = React.useState<boolean>(false);
   const [stars, setStars] = React.useState<number>(5);
 
-  const incompleteDoctorData = props.doctor && (!props.doctor.cbu || !props.doctor.alias || !props.doctor.priceMeeting || !props.doctor.durationMeeting);
+  const incompleteDoctorData = props.doctor && (!props.doctor.cbu || !props.doctor.priceMeeting || !props.doctor.durationMeeting);
 
   const markAsRead = async (id: number) => {
     await axios.patch(
@@ -180,7 +180,7 @@ export default function Home(props: any) {
           ) : props.auth.role === "doctor" && !props.doctor.plan ?
             <Alert className="w-full rounded-lg" severity="warning">Para realizar reuniones debes solicitar un plan de trabajo</Alert>
             : incompleteDoctorData ?
-              <Alert className="w-full rounded-lg" severity="warning">Para realizar reuniones debes de completar los datos obligatorios de tu configuración</Alert>
+              <Alert className="w-full rounded-lg" severity="warning">Para realizar reuniones debes de completar los datos obligatorios de tu <Link href="/config">configuración</Link></Alert>
               :
               (
                 <h2 className="mx-auto text-xl flex flex-col md:flex-row items-center gap-4 text-zinc-600">
@@ -415,8 +415,7 @@ export default function Home(props: any) {
             {props.auth.role === "doctor" &&
               (!props.doctor.durationMeeting ||
                 !props.doctor.priceMeeting ||
-                !props.doctor.cbu ||
-                !props.doctor.alias ? (
+                !props.doctor.cbu ? (
                 <>
                   <h2 className="text-3xl text-center text-zinc-600">
                     Complete los datos de su configuración para comenzar

@@ -164,7 +164,7 @@ export default function Config(props: ConfigProps) {
   const [month, setMonth] = useState<number>();
   const [year, setYear] = useState<number>();
 
-  const incompleteDoctorData = !props.doctor.cbu || !props.doctor.alias || !props.doctor.priceMeeting || !props.doctor.durationMeeting;
+  const incompleteDoctorData = !props.doctor.cbu || !props.doctor.priceMeeting || !props.doctor.durationMeeting;
 
   useEffect(() => {
     addEventListener("resize", () => {
@@ -866,7 +866,7 @@ export default function Config(props: ConfigProps) {
                         </div>
                         <div className="w-full xl:w-1/2">
                           <h4 className="text-primary text-xl flex justify-center items-center gap-2">
-                            <FaMoneyBillTransfer /> Alias (*)
+                            <FaMoneyBillTransfer /> Alias
                           </h4>
                           <div className="flex items-center">
                             <Input

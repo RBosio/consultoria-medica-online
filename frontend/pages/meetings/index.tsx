@@ -30,7 +30,7 @@ export default function Meetings(props: Meeting) {
   const [index, setIndex] = useState(0);
   const [position, setPosition] = useState(0);
 
-  const incompleteDoctorData = props.doctor && (!props.doctor.cbu || !props.doctor.alias || !props.doctor.priceMeeting || !props.doctor.durationMeeting);
+  const incompleteDoctorData = props.doctor && (!props.doctor.cbu || !props.doctor.priceMeeting || !props.doctor.durationMeeting);
 
   const isClient = typeof window === "object";
 

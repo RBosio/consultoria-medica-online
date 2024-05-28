@@ -148,7 +148,7 @@ export class DoctorService {
         priceMeeting: Not(IsNull()),
         durationMeeting: Not(IsNull()),
         cbu: Not(IsNull()),
-        alias: Not(IsNull()),
+        // Por el momento haremos que el alias NO sea obligatorio
       },
       order: {
         plan: {

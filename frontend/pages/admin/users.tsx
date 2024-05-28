@@ -48,7 +48,7 @@ import Link from "next/link";
 import Button from "@/components/button";
 import Input from "@/components/input";
 import Avatar from "@/components/avatar";
-import { IoMdMail } from "react-icons/io";
+import { IoIosCloseCircleOutline, IoMdMail } from "react-icons/io";
 import { FaHome, FaPhoneAlt, FaUser } from "react-icons/fa";
 import { BsCurrencyDollar, BsFillCreditCard2FrontFill } from "react-icons/bs";
 import { MdHealthAndSafety } from "react-icons/md";
@@ -509,7 +509,7 @@ export default function Home(props: Speciality) {
                                                                     <div className="flex items-center gap-2">
                                                                         <Chip color={user.doctor?.verified ? "primary" : "error"}
                                                                             className="text-white p-2"
-                                                                            icon={<FaCheck />}
+                                                                            icon={user.doctor?.verified ? <FaCheck /> : <IoIosCloseCircleOutline size={20}/>}
                                                                             label={user.doctor?.verified ? "Verificado" : "No verificado"} />
                                                                         {!user.doctor?.verified && <Button
                                                                             variant="text"

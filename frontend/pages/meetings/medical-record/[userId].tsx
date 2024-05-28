@@ -22,6 +22,7 @@ import {
   FaChevronLeft,
   FaChevronRight,
   FaFile,
+  FaKitMedical,
   FaMars,
   FaPaperclip,
   FaUser,
@@ -45,6 +46,7 @@ import { showDni } from "@/lib/dni";
 import { UserResponseDto } from "@/components/dto/user.dto";
 import Avatar from "@/components/avatar";
 import Input from "@/components/input";
+import { FaEdit } from "react-icons/fa";
 
 interface MedicalRecordI {
   medicalRecords: MedicalRecordResponse[];
@@ -67,23 +69,46 @@ export default function MedicalRecord(props: MedicalRecordI) {
   const [message, setMessage] = useState<string>("");
   const [success, setSuccess] = useState<boolean>(false);
   const [id, setId] = useState<number>();
+  const [medicalRecordId, setMedicalRecordId] = useState<number>();
   const [modal, setModal] = useState<boolean>(false);
+  const [add, setAdd] = useState<boolean>(false);
 
   useEffect(() => {
     moment.locale("es");
   }, []);
 
   const handleClickAdd = async () => {
-    if (detail && meeting) {
-      setModal(false);
-      await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/medicalRecord`,
+    if (add) {
+      if (detail && meeting) {
+        await axios.post(
+          `${process.env.NEXT_PUBLIC_API_URL}/medicalRecord`,
+          {
+            datetime: new Date(),
+            detail,
+            observations,
+            userId: router.query.userId,
+            startDatetime: meeting,
+          },
+          {
+            withCredentials: true,
+            headers: { Authorization: `Bearer ${props.auth.token}` },
+          }
+        );
+
+        setSuccess(true);
+        setMessage("Se ha agregado el registro médico correctamente");
+      } else {
+        setError(true);
+        setMessage(
+          "Por favor, indique la reunión y el detalle de la misma. Las observaciones son opcionales"
+        );
+      }
+    } else {
+      await axios.patch(
+        `${process.env.NEXT_PUBLIC_API_URL}/medicalRecord/${medicalRecordId}`,
         {
-          datetime: new Date(),
           detail,
           observations,
-          userId: router.query.userId,
-          startDatetime: meeting,
         },
         {
           withCredentials: true,
@@ -92,15 +117,13 @@ export default function MedicalRecord(props: MedicalRecordI) {
       );
 
       setSuccess(true);
-      setMessage("Se ha agregado el registro médico correctamente");
-
-      setDetail("");
-      setObservations("");
-      router.push(`/meetings/medical-record/${router.query.userId}`);
-    } else {
-      setError(true);
-      setMessage("Por favor, indique la reunión y el detalle de la misma. Las observaciones son opcionales");
+      setMessage("Se ha actualizado el registro médico correctamente");
     }
+
+    setModal(false);
+    setDetail("");
+    setObservations("");
+    router.push(`/meetings/medical-record/${router.query.userId}`);
   };
 
   const handleClickAddFile = async () => {
@@ -182,14 +205,17 @@ export default function MedicalRecord(props: MedicalRecordI) {
               <h2 className={`text-primary text-3xl ${robotoBold.className}`}>
                 Historia clínica
               </h2>
-              <h3 className="text-primary text-2xl">{props.user.name} {props.user.surname}</h3>
+              <h3 className="text-primary text-2xl">
+                {props.user.name} {props.user.surname}
+              </h3>
               <div className="flex flex-col">
                 <p className="flex items-center gap-2">
                   <FaAddressCard className="text-primary" />{" "}
                   {props.user.dni && showDni(props.user.dni)}
                 </p>
                 <p className="flex items-center gap-2">
-                  <FaCalendarDays className="text-primary" /> {moment().diff(props.user.birthday, "years")} años
+                  <FaCalendarDays className="text-primary" />{" "}
+                  {moment().diff(props.user.birthday, "years")} años
                 </p>
                 <p className="flex items-center gap-2">
                   {props.user.gender ? (
@@ -199,33 +225,73 @@ export default function MedicalRecord(props: MedicalRecordI) {
                   )}
                   {props.user.gender ? "Masculino" : "Femenino"}
                 </p>
+                <div className="flex items-center gap-2">
+                  <FaKitMedical className="text-primary" />
+                  <div className="flex items-center gap-4">
+                    {props.user.healthInsurances.length > 0
+                      ? props.user.healthInsurances.map((hi) => {
+                          return (
+                            <p>
+                              {hi.healthInsurance.name} ({hi.cod})
+                            </p>
+                          );
+                        })
+                      : "-"}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-
         </div>
         <div className="mx-8 mt-8 pb-4">
-          <div className="flex justify-end items-center gap-2 text-primary mb-6">
-            <Button onClick={() => setModal(true)} startIcon={<IoAdd />} className="mr-auto">Nueva historia clínica</Button>
-            <Link
-              href={`/meetings/medical-record/${router.query.userId}?page=${router.query.page && Number(router.query.page) > 1
-                ? Number(router.query.page) - 1
-                : 1
+          <div className="flex justify-between items-center gap-2 text-primary mb-6">
+            <div className="flex items-center gap-2">
+              <Button
+                onClick={() => {
+                  setModal(true);
+                  setAdd(true);
+                }}
+                startIcon={<IoAdd />}
+                className="mr-auto"
+              >
+                Nueva historia clínica
+              </Button>
+              <Button
+                onClick={() => {
+                  const file = document.getElementById("file");
+                  setFiles(false);
+                  file?.click();
+                }}
+                startIcon={<FaPaperclip />}
+                className="mr-auto"
+              >
+                Subir archivo
+              </Button>
+            </div>
+            <div className="flex justify-center items-center gap-1">
+              <Link
+                href={`/meetings/medical-record/${router.query.userId}?page=${
+                  router.query.page && Number(router.query.page) > 1
+                    ? Number(router.query.page) - 1
+                    : 1
                 }`}
-            >
-              <FaChevronLeft className="text-2xl" />
-            </Link>
-            <Link
-              href={`/meetings/medical-record/${router.query.userId}?page=${router.query.page && Number(router.query.page) < props.pages
-                ? Number(router.query.page) + 1
-                : props.pages + 1
+              >
+                <FaChevronLeft className="text-2xl" />
+              </Link>
+              <Link
+                href={`/meetings/medical-record/${router.query.userId}?page=${
+                  router.query.page && Number(router.query.page) < props.pages
+                    ? Number(router.query.page) + 1
+                    : props.pages + 1
                 }`}
-            >
-              <FaChevronRight className="text-2xl" />
-            </Link>
-            <p className="text-md">
-              Página {router.query.page ? router.query.page : 1} - {props.pages === 0 ? 1 : props.pages}
-            </p>
+              >
+                <FaChevronRight className="text-2xl" />
+              </Link>
+              <p className="text-md">
+                Página {router.query.page ? router.query.page : 1} -{" "}
+                {props.pages === 0 ? 1 : props.pages}
+              </p>
+            </div>
           </div>
           <TableContainer component={Paper}>
             <Table aria-label="medical record table">
@@ -332,25 +398,26 @@ export default function MedicalRecord(props: MedicalRecordI) {
                     >
                       <div className="flex justify-center items-center gap-2">
                         {row.detail}
+                        {props.auth.id === row.meeting.doctor.user.id && (
+                          <FaEdit
+                            className="text-primary hover:cursor-pointer hover:opacity-70"
+                            onClick={() => {
+                              setModal(true);
+                              setDetail(row.detail);
+                              setObservations(row.observations!);
+                              setMedicalRecordId(row.id);
+                            }}
+                          />
+                        )}
                         <div className="flex gap-2">
-                          {row.files.length > 0 ? (
+                          {row.files.length > 0 && (
                             <a
                               target="_blank"
                               href={`http://localhost:3000/uploads/medical-record/${row.files[0].url}`}
                             >
                               <FaFile className="text-primary text-lg hover:cursor-pointer" />
                             </a>
-                          ) : <FaPaperclip
-                            onClick={() => {
-                              const file = document.getElementById("file");
-                              setDatetime(row.datetime);
-                              setId(row.id);
-                              setFiles(false);
-                              file?.click();
-                            }}
-                            className="text-primary hover:cursor-pointer hover:opacity-70"
-                          />}
-
+                          )}
                         </div>
                       </div>
                     </TableCell>
@@ -461,7 +528,12 @@ export default function MedicalRecord(props: MedicalRecordI) {
         </Snackbar>
         <Modal
           open={modal}
-          onClose={() => setModal(false)}
+          onClose={() => {
+            setModal(false);
+            setAdd(false);
+            setDetail("");
+            setObservations("");
+          }}
         >
           <Fade in={modal}>
             <Box
@@ -477,25 +549,37 @@ export default function MedicalRecord(props: MedicalRecordI) {
               }}
             >
               <div className="flex flex-col gap-6">
-                <h2 className={`${robotoBold.className} text-primary text-xl mb-4`}>Agregar historia clínica</h2>
-                <Autocomplete
-                  onChange={(event, newValue: any) => setMeeting(newValue ? newValue.id : null)}
-                  disablePortal
-                  noOptionsText="No hay reuniones realizadas"
-                  options={props.meetings.map((meeting: MeetingResponseDto) => ({
-                    id: moment(meeting.startDatetime).format("YYYY-MM-DDTHH:mm:ss"),
-                    label: moment(meeting.startDatetime).format("LLL"),
-                  }))}
-                  renderInput={(params: any) => (
-                    <Input
-                      variant="outlined"
-                      onChange={() => { }}
-                      name="healthInsuranceId"
-                      {...params}
-                      label="Reunión"
-                    />
-                  )}
-                />
+                <h2
+                  className={`${robotoBold.className} text-primary text-xl mb-4`}
+                >
+                  {add ? "Agregar historia clínica" : "Editar historia clínica"}
+                </h2>
+                {add && (
+                  <Autocomplete
+                    onChange={(event, newValue: any) =>
+                      setMeeting(newValue ? newValue.id : null)
+                    }
+                    disablePortal
+                    noOptionsText="No hay reuniones realizadas"
+                    options={props.meetings.map(
+                      (meeting: MeetingResponseDto) => ({
+                        id: moment(meeting.startDatetime).format(
+                          "YYYY-MM-DDTHH:mm:ss"
+                        ),
+                        label: moment(meeting.startDatetime).format("LLL"),
+                      })
+                    )}
+                    renderInput={(params: any) => (
+                      <Input
+                        variant="outlined"
+                        onChange={() => {}}
+                        name="healthInsuranceId"
+                        {...params}
+                        label="Reunión"
+                      />
+                    )}
+                  />
+                )}
                 <Input
                   onChange={($e) => setDetail($e.target.value)}
                   label="Detalle"
@@ -513,11 +597,7 @@ export default function MedicalRecord(props: MedicalRecordI) {
                   value={observations}
                   variant="outlined"
                 />
-                <Button
-                  onClick={handleClickAdd}
-                >
-                  ACEPTAR
-                </Button>
+                <Button onClick={handleClickAdd}>ACEPTAR</Button>
               </div>
             </Box>
           </Fade>

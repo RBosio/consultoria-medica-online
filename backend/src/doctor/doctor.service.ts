@@ -92,7 +92,6 @@ export class DoctorService {
       'uploads',
       'doctor',
       'registration',
-      registrationFilename,
     );
     const titlePath = path.join(
       __dirname,
@@ -102,11 +101,18 @@ export class DoctorService {
       'uploads',
       'doctor',
       'title',
-      titleFilename,
     );
 
-    await fs.promises.writeFile(registrationPath, doctor.registration.buffer);
-    await fs.promises.writeFile(titlePath, doctor.title.buffer);
+    fs.mkdirSync(registrationPath, { recursive: true });
+    fs.mkdirSync(titlePath, { recursive: true });
+    await fs.promises.writeFile(
+      path.join(registrationPath, registrationFilename),
+      doctor.registration.buffer,
+    );
+    await fs.promises.writeFile(
+      path.join(titlePath, titleFilename),
+      doctor.title.buffer,
+    );
 
     const newDoctor = await this.doctorRepository.create(doctor);
 

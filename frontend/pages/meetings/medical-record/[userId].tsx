@@ -433,6 +433,11 @@ export default function MedicalRecord(props: MedicalRecordI) {
               </TableBody>
             </Table>
           </TableContainer>
+          {props.medicalRecords.length === 0 && (
+            <p className="text-center text-xl text-slate-400 mt-4">
+              No se encontraron resultados
+            </p>
+          )}
         </div>
         <input
           type="file"

@@ -59,12 +59,10 @@ export default function ProfileView(props: any) {
 
   const [success, setSuccess] = useState<boolean>(false);
   const [message, setMessage] = useState<string>("");
-  const [confirmVerification, setConfirmVerification] =
-    useState<boolean>(false);
   const [confirmHealthInsurance, setConfirmHealthInsurance] =
     useState<boolean>(false);
   const [healthInsuranceVerify, setHealthInsuranceVerify] = useState<number>();
-  const [cod, setCod] = useState<string>();
+  const [cod, setCod] = useState<string>('');
 
   useEffect(() => {
     moment.locale("es");
@@ -143,9 +141,6 @@ export default function ProfileView(props: any) {
     if (confirm) {
       await changePass.submitForm();
       setConfirm(false);
-    } else if (confirmVerification) {
-      handleClickVerification();
-      setConfirmVerification(false);
     } else if (confirmHealthInsurance) {
       handleClickHealthInsurance();
       setConfirmHealthInsurance(false);
@@ -392,82 +387,69 @@ export default function ProfileView(props: any) {
             </section>
             <section className="bg-white p-12 rounded-lg shadow-lg md:w-full">
               {props.auth.role !== "doctor" && (
-                <div className="flex flex-col md:flex-row md:justify-between">
-                  <div>
-                    <h4 className="text-primary text-3xl mt-2 font-bold">
-                      Obras sociales
-                    </h4>
-                    <div>
-                      {user.healthInsurances.map((h: any, idx: number) => {
-                        return (
-                          <div className="p-1" key={idx}>
-                            {h.healthInsurance?.name ? (
-                              <div className="flex items-center gap-2">
-                                <FaChevronRight className="text-primary text-md size-4" />
-                                <p className="text-xl">
-                                  {h.healthInsurance.name}
-                                </p>
-                              </div>
-                            ) : (
-                              ""
-                            )}
-                          </div>
-                        );
-                      })}
-                    </div>
+                <div className="flex flex-col w-full lg:w-10/12 xl:w-8/12">
+                  <h4 className="text-primary text-3xl mt-2 font-bold">
+                    Obras sociales
+                  </h4>
+                  <div className="flex flex-col lg:flex-row gap-4 my-4 w-full">
+                    <Autocomplete
+                      className={"w-full"}
+                      onChange={(event, newValue: any) => {
+                        setHealthInsurance(newValue?.id);
+                        setHealthInsuranceName(newValue?.label);
+                      }}
+                      value={{
+                        id: -1,
+                        label: healthInsuranceName,
+                      }}
+                      disablePortal
+                      noOptionsText="Especialidad no encontrada"
+                      options={healthInsurances.map((hi: any) => ({
+                        id: hi.id,
+                        label: hi.name,
+                      }))}
+                      renderInput={(params: any) => (
+                        <Input
+                          onChange={() => { }}
+                          name="healthInsuranceId"
+                          {...params}
+                          label="Obra social"
+                        />
+                      )}
+                    />
+                    <Input
+                      className="w-full"
+                      label="Número de afiliado"
+                      onChange={($e) => setCod($e.target.value)}
+                      value={cod}
+                    ></Input>
+                    <Button
+                      className="h-1/2 shrink-0"
+                      startIcon={<FaCheck />}
+                      onClick={() => {
+                        setConfirmHealthInsurance(true);
+                      }}
+                    >
+                      Agregar
+                    </Button>
                   </div>
-                  <div className="md:w-2/3">
-                    <div className="my-4 md:flex gap-4">
-                      <div className="flex items-center gap-4 md:w-full">
-                        <div className="flex items-end gap-2 w-full">
-                          {props.auth.role !== "doctor" && (
-                            <Input
-                              className="w-1/2"
-                              label="Número de afiliado"
-                              onChange={($e) => setCod($e.target.value)}
-                              value={cod}
-                            ></Input>
+                  <div>
+                    {user.healthInsurances.map((h: any, idx: number) => {
+                      return (
+                        <div className="p-1" key={idx}>
+                          {h.healthInsurance?.name ? (
+                            <div className="flex items-center gap-2">
+                              <FaChevronRight className="text-primary text-md size-4" />
+                              <p className="text-md">
+                                {h.healthInsurance.name} (num. {h.cod})
+                              </p>
+                            </div>
+                          ) : (
+                            ""
                           )}
-                          <Autocomplete
-                            className={`${
-                              props.auth.role !== "doctor" ? "w-1/2" : "w-full"
-                            }`}
-                            onChange={(event, newValue: any) => {
-                              setHealthInsurance(newValue?.id);
-                              setHealthInsuranceName(newValue?.label);
-                            }}
-                            value={{
-                              id: -1,
-                              label: healthInsuranceName,
-                            }}
-                            disablePortal
-                            noOptionsText="Especialidad no encontrada"
-                            options={healthInsurances.map((hi: any) => ({
-                              id: hi.id,
-                              label: hi.name,
-                            }))}
-                            renderInput={(params: any) => (
-                              <Input
-                                onChange={() => {}}
-                                name="healthInsuranceId"
-                                {...params}
-                                label="Obra social"
-                              />
-                            )}
-                          />
                         </div>
-                      </div>
-                      <div className="flex justify-center mt-2 md:block">
-                        <Button
-                          startIcon={<FaCheck />}
-                          onClick={() => {
-                            setConfirmHealthInsurance(true);
-                          }}
-                        >
-                          Agregar
-                        </Button>
-                      </div>
-                    </div>
+                      );
+                    })}
                   </div>
                 </div>
               )}
@@ -505,7 +487,7 @@ export default function ProfileView(props: any) {
                           label="Nueva contraseña"
                           error={Boolean(
                             changePass.touched.newPassword &&
-                              changePass.errors.newPassword
+                            changePass.errors.newPassword
                           )}
                           helperText={
                             changePass.errors.newPassword &&
@@ -523,7 +505,7 @@ export default function ProfileView(props: any) {
                           label="Repita la contraseña"
                           error={Boolean(
                             changePass.touched.repeatPassword &&
-                              changePass.errors.repeatPassword
+                            changePass.errors.repeatPassword
                           )}
                           helperText={
                             changePass.errors.repeatPassword &&
@@ -541,10 +523,9 @@ export default function ProfileView(props: any) {
               </div>
             </section>
             <Dialog
-              open={confirm || confirmVerification || confirmHealthInsurance}
+              open={confirm || confirmHealthInsurance}
               onClose={() => {
                 setConfirm(false);
-                setConfirmVerification(false);
                 setConfirmHealthInsurance(false);
               }}
               aria-labelledby="alert-dialog-title"
@@ -553,21 +534,17 @@ export default function ProfileView(props: any) {
               <DialogTitle id="alert-dialog-title">
                 {confirm
                   ? "Confirmar cambio"
-                  : confirmVerification
-                  ? "Confirmar solicitud"
                   : confirmHealthInsurance
-                  ? "Confirmar solicitud"
-                  : ""}
+                    ? "Confirmar solicitud"
+                    : ""}
               </DialogTitle>
               <DialogContent>
                 <DialogContentText id="alert-dialog-description">
                   {confirm
                     ? "¿Estás seguro que deseas cambiar la contraseña?"
-                    : confirmVerification
-                    ? "Estás seguro que deseas solicitar la verificación de la obra social?"
                     : confirmHealthInsurance
-                    ? "Estás seguro que deseas agregar la obra social?"
-                    : ""}
+                      ? "Estás seguro que deseas agregar la obra social?"
+                      : ""}
                 </DialogContentText>
               </DialogContent>
               <DialogActions>
@@ -576,7 +553,6 @@ export default function ProfileView(props: any) {
                   variant="text"
                   onClick={() => {
                     setConfirm(false);
-                    setConfirmVerification(false);
                     setConfirmHealthInsurance(false);
                   }}
                 >

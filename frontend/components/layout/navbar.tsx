@@ -140,8 +140,9 @@ const Navbar: React.FC<NavbarProps> = (props) => {
 
   return (
     <section
-      className={`p-4 bg-white w-full shrink-0 h-20 shadow-md flex items-center justify-between ${props.leftElement ? "" : "md:justify-end"
-        } z-10`}
+      className={`p-4 bg-white w-full shrink-0 h-20 shadow-md flex items-center justify-between ${
+        props.leftElement ? "" : "md:justify-end"
+      } z-10`}
     >
       {props.leftElement}
       {props.renderSidebar && (
@@ -217,35 +218,37 @@ const Navbar: React.FC<NavbarProps> = (props) => {
                         href={
                           n.type === "comment"
                             ? `/meetings/${btoa(
-                              n.meeting.userId +
-                              "." +
-                              moment(n.meeting.startDatetime).format(
-                                "YYYY-MM-DDTHH:mm:ss"
-                              )
-                            )}`
+                                n.meeting.userId +
+                                  "." +
+                                  moment(n.meeting.startDatetime).format(
+                                    "YYYY-MM-DDTHH:mm:ss"
+                                  )
+                              )}`
                             : n.type === "verification hi"
-                              ? `/admin/users`
-                              : n.type === "verificationHi"
-                                ? "/profile"
-                                : n.type === "verificationDoc"
-                                  ? "/profile"
-                                  : n.type === "meeting"
-                                    ? `/meetings/${btoa(
-                                      n.meeting.userId +
-                                      "." +
-                                      moment(n.meeting.startDatetime).format(
-                                        "YYYY-MM-DDTHH:mm:ss"
-                                      )
-                                    )}`
-                                    : n.type === "rdatetime"
-                                      ? `/meetings/${btoa(
-                                        n.userIdSend +
-                                        "." +
-                                        moment(n.mStartDNew).format(
-                                          "YYYY-MM-DDTHH:mm:ss"
-                                        )
-                                      )}`
-                                      : ""
+                            ? `/admin/users`
+                            : n.type === "verification"
+                            ? `/admin/users`
+                            : n.type === "verificationHi"
+                            ? "/profile"
+                            : n.type === "verificationDoc"
+                            ? "/profile"
+                            : n.type === "meeting"
+                            ? `/meetings/${btoa(
+                                n.meeting.userId +
+                                  "." +
+                                  moment(n.meeting.startDatetime).format(
+                                    "YYYY-MM-DDTHH:mm:ss"
+                                  )
+                              )}`
+                            : n.type === "rdatetime"
+                            ? `/meetings/${btoa(
+                                n.userIdSend +
+                                  "." +
+                                  moment(n.mStartDNew).format(
+                                    "YYYY-MM-DDTHH:mm:ss"
+                                  )
+                              )}`
+                            : ""
                         }
                         onClick={() => {
                           markAsRead(n.id);
@@ -257,8 +260,9 @@ const Navbar: React.FC<NavbarProps> = (props) => {
                             <div className="p-2">
                               <div className="flex justify-between items-center">
                                 <div
-                                  className={`w-2 h-2 rounded-full m-2 ${!n.readed ? "bg-primary" : ""
-                                    }`}
+                                  className={`w-2 h-2 rounded-full m-2 ${
+                                    !n.readed ? "bg-primary" : ""
+                                  }`}
                                 ></div>
 
                                 <div className="mr-2 w-full">
@@ -282,16 +286,20 @@ const Navbar: React.FC<NavbarProps> = (props) => {
                                           </span>
                                         </>
                                       ) : n.type === "verificationHiRequest" ? (
-                                        `El ${n.userSend.doctor
-                                          ? "doctor"
-                                          : "usuario"
-                                        } ${n.userSend.surname}, ${n.userSend.name
-                                        } solicitó verificación de la obra social ${n.healthInsurance.name
+                                        `El ${
+                                          n.userSend.doctor
+                                            ? "doctor"
+                                            : "usuario"
+                                        } ${n.userSend.surname}, ${
+                                          n.userSend.name
+                                        } solicitó verificación de la obra social ${
+                                          n.healthInsurance.name
                                         }`
                                       ) : n.type === "verificationHi" ? (
                                         `El administrador ${n.userSend.surname}, ${n.userSend.name} acaba de realizar la verificación de la obra social ${n.healthInsurance.name}`
                                       ) : n.type === "meeting" ? (
-                                        `El usuario ${n.userSend.surname}, ${n.userSend.name
+                                        `El usuario ${n.userSend.surname}, ${
+                                          n.userSend.name
                                         } acaba de solicitar una reunión para el día ${moment(
                                           n.meeting.startDatetime
                                         ).format("LLL")}
@@ -299,7 +307,8 @@ const Navbar: React.FC<NavbarProps> = (props) => {
                                       ) : n.type === "verificationDoc" ? (
                                         `El administrador ${n.userSend.surname}, ${n.userSend.name} acaba de realizar la verificación su cuenta`
                                       ) : n.type === "rdatetime" ? (
-                                        `El paciente ${n.userSend.surname}, ${n.userSend.name
+                                        `El paciente ${n.userSend.surname}, ${
+                                          n.userSend.name
                                         } acaba de realizar la modificación de la reunión del día ${moment(
                                           n.mStartDOld
                                         ).format(
@@ -339,8 +348,9 @@ const Navbar: React.FC<NavbarProps> = (props) => {
             title="Perfil"
           >
             <IconButton
-              className={`rounded-md hover:bg-primary_light ${menuPosition ? "bg-primary" : ""
-                }`}
+              className={`rounded-md hover:bg-primary_light ${
+                menuPosition ? "bg-primary" : ""
+              }`}
               onClick={handleClick}
               size="small"
             >

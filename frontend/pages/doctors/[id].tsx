@@ -33,6 +33,7 @@ import Message from "@/components/message";
 import { pesos } from "@/lib/formatCurrency";
 import { UserHealthInsuranceResponseDto } from "@/components/dto/userHealthInsurance.dto";
 import { HealthInsuranceResponseDto } from "@/components/dto/healthInsurance.dto";
+import { v4 as uuid } from "uuid";
 
 export default function Doctor(props: any) {
   const theme = useTheme();
@@ -41,6 +42,7 @@ export default function Doctor(props: any) {
   const [confirmTurn, setConfirmTurn] = useState(false);
   const [meetingError, setMeetingError] = useState(false);
   const [preferenceId, setPreferenceId] = useState<string>();
+  const [init, setInit] = useState<string>();
   const [mp, setMP] = useState<any>();
   const [paid, setPaid] = useState<boolean>(false);
   const [detail, setDetail] = useState<any>();
@@ -60,7 +62,7 @@ export default function Doctor(props: any) {
     };
 
     initMP().then((res) => {
-      res.initMercadoPago("TEST-42764678-3204-404e-8181-56af419d0dcc");
+      res.initMercadoPago("TEST-e4d600dd-188e-4b56-8f2e-385a4621de19");
     });
 
     try {
@@ -179,6 +181,8 @@ export default function Doctor(props: any) {
           price = props.doctor.priceMeeting;
         }
 
+        const idempotencyKey = uuid();
+
         const response = await axios.post(
           `${process.env.NEXT_PUBLIC_API_URL}/meeting/create-preference/${router.query.id}`,
           {
@@ -188,12 +192,17 @@ export default function Doctor(props: any) {
           },
           {
             withCredentials: true,
-            headers: { Authorization: `Bearer ${props.auth.token}` },
+            headers: {
+              Authorization: `Bearer ${props.auth.token}`,
+              "Content-Type": "application/json",
+              "X-Idempotency-Key": idempotencyKey,
+            },
           }
         );
 
-        const { id } = response.data;
+        const { id, init } = response.data;
         setPreferenceId(id);
+        setInit(init);
       } catch (error) {
         setMessage(
           "Se ha producido un error al crear la reunión, inténtelo nuevamente más tarde"
@@ -465,7 +474,10 @@ export default function Doctor(props: any) {
                   <div className="my-6 flex justify-center items-center xl:-0">
                     {!date ? (
                       <Button
-                        onClick={() => setConfirmTurn(true)}
+                        onClick={() => {
+                          setConfirmTurn(true);
+                          onConfirmClick();
+                        }}
                         disabled={!Boolean(selectedDate)}
                         className="w-40"
                       >
@@ -571,16 +583,12 @@ export default function Doctor(props: any) {
             >
               Cancelar
             </Button>
-            {!preferenceId && (
-              <Button onClick={onConfirmClick} autoFocus>
-                Confirmar
-              </Button>
-            )}
-            {mp?.Wallet && preferenceId && (
-              <mp.Wallet
-                initialization={{ preferenceId, redirectMode: "modal" }}
-              />
-            )}
+            <Button href={init} autoFocus>
+              Confirmar
+            </Button>
+            {/* {mp?.Wallet && preferenceId && (
+              <mp.Wallet initialization={{ preferenceId }} />
+            )} */}
           </DialogActions>
         </Dialog>
         <Snackbar

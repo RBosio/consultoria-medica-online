@@ -467,9 +467,12 @@ export class MeetingService {
     return this.meetingRepository.save(meeting);
   }
 
-  async createPreference(pref: any, doctorId: number) {
+  async createPreference(pref: any, doctorId: number, idempotencyKey: string) {
     const client = new MercadoPagoConfig({
       accessToken: this.configService.get<string>('MP_ACCESS_TOKEN'),
+      options: {
+        idempotencyKey,
+      },
     });
     const doctor = await this.doctorService.findOne(doctorId);
 
@@ -499,9 +502,14 @@ export class MeetingService {
     };
 
     const preference = new Preference(client);
-    const result = await preference.create({ body });
+    const result = await preference.create({
+      body,
+      requestOptions: {
+        idempotencyKey,
+      },
+    });
 
-    return { id: result.id };
+    return { id: result.id, init: result.sandbox_init_point };
   }
 
   async pay(userId: number, startDatetime: Date) {

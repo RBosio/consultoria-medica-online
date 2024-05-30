@@ -11,6 +11,7 @@ import {
   ParseIntPipe,
   Query,
   Res,
+  Headers,
 } from '@nestjs/common';
 import { MeetingService, RequestT } from './meeting.service';
 import { Meeting } from 'src/entities/meeting.entity';
@@ -137,8 +138,13 @@ export class MeetingController {
   createPreference(
     @Body() createPreference: any,
     @Param('doctorId', ParseIntPipe) doctorId: number,
+    @Headers('x-idempotency-key') idKey: string,
   ): Promise<any | HttpException> {
-    return this.meetingService.createPreference(createPreference, doctorId);
+    return this.meetingService.createPreference(
+      createPreference,
+      doctorId,
+      idKey,
+    );
   }
 
   @Patch('pay/:id/:startDatetime')

@@ -16,7 +16,7 @@ export class UserService {
     @InjectRepository(UserHealthInsurance)
     private userHealthInsuranceRepository: Repository<UserHealthInsurance>,
     private healthInsuranceService: HealthInsuranceService,
-  ) {}
+  ) { }
 
   async findAll(): Promise<User[]> {
     const usersFound = await this.userRepository.find({
@@ -243,10 +243,20 @@ export class UserService {
     return 'removed';
   }
 
+  async unsetHI(hi_id: number, req: any) {
+    const result = await this.userHealthInsuranceRepository.delete({ userId: req.user.id, healthInsuranceId: hi_id });
+
+    if (result.affected === 0) {
+      throw new HttpException('No se ha podido eliminar la obra social', HttpStatus.BAD_REQUEST);
+    };
+
+    return result;
+  };
+
   async delete(dni: string) {
     const result = await this.userRepository.delete({ dni });
 
-    if (result.affected == 0) {
+    if (result.affected === 0) {
       throw new HttpException('Usuario no encontrado', HttpStatus.NOT_FOUND);
     }
 

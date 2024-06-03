@@ -234,7 +234,8 @@ INSERT INTO
         planId,
         description,
         planSince,
-        avgRate
+        avgRate,
+        cbu
     )
 VALUES
     (
@@ -249,7 +250,8 @@ VALUES
         1,
         "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Saepe possimus ad ea nisi iusto temporibus cum, voluptatibus fugiat magnam maiores consequatur, architecto harum dignissimos deleniti eius, quisquam natus minus quas. Lorem ipsum dolor sit amet consectetur adipisicing elit. Vel aspernatur repellendus, eos, cupiditate consectetur eum modi laboriosam vero officia quibusdam earum tenetur omnis similique autem ab facilis aut. Laborum, voluptatum. Lorem ipsum dolor sit amet consectetur adipisicing elit. Repudiandae, deleniti deserunt iste corporis possimus, eos facere quis quidem, consequuntur sapiente quae! Quidem repellendus ab nemo praesentium. Sequi modi quis et!",
         '2024-04-15',
-        4.5
+        4.5,
+        0110200099920001234567
     ),
     (
         '5f43eedb-72f2-41a4-86bd-ef0ce831a343.pdf',
@@ -263,7 +265,8 @@ VALUES
         1,
         "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Saepe possimus ad ea nisi iusto temporibus cum, voluptatibus fugiat magnam maiores consequatur, architecto harum dignissimos deleniti eius, quisquam natus minus quas. Lorem ipsum dolor sit amet consectetur adipisicing elit. Vel aspernatur repellendus, eos, cupiditate consectetur eum modi laboriosam vero officia quibusdam earum tenetur omnis similique autem ab facilis aut. Laborum, voluptatum. Lorem ipsum dolor sit amet consectetur adipisicing elit. Repudiandae, deleniti deserunt iste corporis possimus, eos facere quis quidem, consequuntur sapiente quae! Quidem repellendus ab nemo praesentium. Sequi modi quis et!",
         '2024-04-15',
-        4.2
+        4.2,
+        0140200099870007654321
     ),
     (
         '5f43eedb-72f2-41a4-86bd-ef0ce831a343.pdf',
@@ -277,7 +280,8 @@ VALUES
         2,
         "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Saepe possimus ad ea nisi iusto temporibus cum, voluptatibus fugiat magnam maiores consequatur, architecto harum dignissimos deleniti eius, quisquam natus minus quas. Lorem ipsum dolor sit amet consectetur adipisicing elit. Vel aspernatur repellendus, eos, cupiditate consectetur eum modi laboriosam vero officia quibusdam earum tenetur omnis similique autem ab facilis aut. Laborum, voluptatum. Lorem ipsum dolor sit amet consectetur adipisicing elit. Repudiandae, deleniti deserunt iste corporis possimus, eos facere quis quidem, consequuntur sapiente quae! Quidem repellendus ab nemo praesentium. Sequi modi quis et!",
         '2024-04-15',
-        3.9
+        3.9,
+        0170200099780008765432
     ),
     (
         '5f43eedb-72f2-41a4-86bd-ef0ce831a343.pdf',
@@ -291,7 +295,8 @@ VALUES
         2,
         "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Saepe possimus ad ea nisi iusto temporibus cum, voluptatibus fugiat magnam maiores consequatur, architecto harum dignissimos deleniti eius, quisquam natus minus quas. Lorem ipsum dolor sit amet consectetur adipisicing elit. Vel aspernatur repellendus, eos, cupiditate consectetur eum modi laboriosam vero officia quibusdam earum tenetur omnis similique autem ab facilis aut. Laborum, voluptatum. Lorem ipsum dolor sit amet consectetur adipisicing elit. Repudiandae, deleniti deserunt iste corporis possimus, eos facere quis quidem, consequuntur sapiente quae! Quidem repellendus ab nemo praesentium. Sequi modi quis et!",
         '2024-04-15',
-        4.9
+        4.9,
+        0110200099650001122334
     ),
     (
         '5f43eedb-72f2-41a4-86bd-ef0ce831a343.pdf',
@@ -305,7 +310,8 @@ VALUES
         2,
         "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Saepe possimus ad ea nisi iusto temporibus cum, voluptatibus fugiat magnam maiores consequatur, architecto harum dignissimos deleniti eius, quisquam natus minus quas. Lorem ipsum dolor sit amet consectetur adipisicing elit. Vel aspernatur repellendus, eos, cupiditate consectetur eum modi laboriosam vero officia quibusdam earum tenetur omnis similique autem ab facilis aut. Laborum, voluptatum. Lorem ipsum dolor sit amet consectetur adipisicing elit. Repudiandae, deleniti deserunt iste corporis possimus, eos facere quis quidem, consequuntur sapiente quae! Quidem repellendus ab nemo praesentium. Sequi modi quis et!",
         '2024-04-15',
-        4.1
+        4.1,
+        0140200099540004433221
     ),
     (
         '5f43eedb-72f2-41a4-86bd-ef0ce831a343.pdf',
@@ -319,7 +325,8 @@ VALUES
         2,
         "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Saepe possimus ad ea nisi iusto temporibus cum, voluptatibus fugiat magnam maiores consequatur, architecto harum dignissimos deleniti eius, quisquam natus minus quas. Lorem ipsum dolor sit amet consectetur adipisicing elit. Vel aspernatur repellendus, eos, cupiditate consectetur eum modi laboriosam vero officia quibusdam earum tenetur omnis similique autem ab facilis aut. Laborum, voluptatum. Lorem ipsum dolor sit amet consectetur adipisicing elit. Repudiandae, deleniti deserunt iste corporis possimus, eos facere quis quidem, consequuntur sapiente quae! Quidem repellendus ab nemo praesentium. Sequi modi quis et!",
         '2024-04-15',
-        3.3
+        3.3,
+        0170200099430005566778
     ),
     (
         '5f43eedb-72f2-41a4-86bd-ef0ce831a343.pdf',
@@ -333,7 +340,8 @@ VALUES
         1,
         "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Saepe possimus ad ea nisi iusto temporibus cum, voluptatibus fugiat magnam maiores consequatur, architecto harum dignissimos deleniti eius, quisquam natus minus quas. Lorem ipsum dolor sit amet consectetur adipisicing elit. Vel aspernatur repellendus, eos, cupiditate consectetur eum modi laboriosam vero officia quibusdam earum tenetur omnis similique autem ab facilis aut. Laborum, voluptatum. Lorem ipsum dolor sit amet consectetur adipisicing elit. Repudiandae, deleniti deserunt iste corporis possimus, eos facere quis quidem, consequuntur sapiente quae! Quidem repellendus ab nemo praesentium. Sequi modi quis et!",
         '2024-04-15',
-        2.8
+        2.8,
+        0110200099320007788990
     ),
     (
         '5f43eedb-72f2-41a4-86bd-ef0ce831a343.pdf',
@@ -347,7 +355,8 @@ VALUES
         2,
         "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Saepe possimus ad ea nisi iusto temporibus cum, voluptatibus fugiat magnam maiores consequatur, architecto harum dignissimos deleniti eius, quisquam natus minus quas. Lorem ipsum dolor sit amet consectetur adipisicing elit. Vel aspernatur repellendus, eos, cupiditate consectetur eum modi laboriosam vero officia quibusdam earum tenetur omnis similique autem ab facilis aut. Laborum, voluptatum. Lorem ipsum dolor sit amet consectetur adipisicing elit. Repudiandae, deleniti deserunt iste corporis possimus, eos facere quis quidem, consequuntur sapiente quae! Quidem repellendus ab nemo praesentium. Sequi modi quis et!",
         '2024-04-15',
-        4.0
+        4.0,
+        0140200099210009988776
     ),
     (
         '5f43eedb-72f2-41a4-86bd-ef0ce831a343.pdf',
@@ -361,7 +370,8 @@ VALUES
         1,
         "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Saepe possimus ad ea nisi iusto temporibus cum, voluptatibus fugiat magnam maiores consequatur, architecto harum dignissimos deleniti eius, quisquam natus minus quas. Lorem ipsum dolor sit amet consectetur adipisicing elit. Vel aspernatur repellendus, eos, cupiditate consectetur eum modi laboriosam vero officia quibusdam earum tenetur omnis similique autem ab facilis aut. Laborum, voluptatum. Lorem ipsum dolor sit amet consectetur adipisicing elit. Repudiandae, deleniti deserunt iste corporis possimus, eos facere quis quidem, consequuntur sapiente quae! Quidem repellendus ab nemo praesentium. Sequi modi quis et!",
         '2024-04-15',
-        4.7
+        4.7,
+        0170200099100002233445
     ),
     (
         '5f43eedb-72f2-41a4-86bd-ef0ce831a343.pdf',
@@ -375,7 +385,8 @@ VALUES
         2,
         "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Saepe possimus ad ea nisi iusto temporibus cum, voluptatibus fugiat magnam maiores consequatur, architecto harum dignissimos deleniti eius, quisquam natus minus quas. Lorem ipsum dolor sit amet consectetur adipisicing elit. Vel aspernatur repellendus, eos, cupiditate consectetur eum modi laboriosam vero officia quibusdam earum tenetur omnis similique autem ab facilis aut. Laborum, voluptatum. Lorem ipsum dolor sit amet consectetur adipisicing elit. Repudiandae, deleniti deserunt iste corporis possimus, eos facere quis quidem, consequuntur sapiente quae! Quidem repellendus ab nemo praesentium. Sequi modi quis et!",
         '2024-04-15',
-        2.4
+        2.4,
+        0110200099090006677889
     ),
     (
         '5f43eedb-72f2-41a4-86bd-ef0ce831a343.pdf',
@@ -389,7 +400,8 @@ VALUES
         2,
         "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Saepe possimus ad ea nisi iusto temporibus cum, voluptatibus fugiat magnam maiores consequatur, architecto harum dignissimos deleniti eius, quisquam natus minus quas. Lorem ipsum dolor sit amet consectetur adipisicing elit. Vel aspernatur repellendus, eos, cupiditate consectetur eum modi laboriosam vero officia quibusdam earum tenetur omnis similique autem ab facilis aut. Laborum, voluptatum. Lorem ipsum dolor sit amet consectetur adipisicing elit. Repudiandae, deleniti deserunt iste corporis possimus, eos facere quis quidem, consequuntur sapiente quae! Quidem repellendus ab nemo praesentium. Sequi modi quis et!",
         '2024-04-15',
-        4.7
+        4.7,
+        0140200098980003344556
     ),
     (
         '5f43eedb-72f2-41a4-86bd-ef0ce831a343.pdf',
@@ -403,7 +415,8 @@ VALUES
         1,
         "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Saepe possimus ad ea nisi iusto temporibus cum, voluptatibus fugiat magnam maiores consequatur, architecto harum dignissimos deleniti eius, quisquam natus minus quas. Lorem ipsum dolor sit amet consectetur adipisicing elit. Vel aspernatur repellendus, eos, cupiditate consectetur eum modi laboriosam vero officia quibusdam earum tenetur omnis similique autem ab facilis aut. Laborum, voluptatum. Lorem ipsum dolor sit amet consectetur adipisicing elit. Repudiandae, deleniti deserunt iste corporis possimus, eos facere quis quidem, consequuntur sapiente quae! Quidem repellendus ab nemo praesentium. Sequi modi quis et!",
         '2024-04-15',
-        4.5
+        4.5,
+        0170200098870005566443
     ),
     (
         '5f43eedb-72f2-41a4-86bd-ef0ce831a343.pdf',
@@ -417,7 +430,8 @@ VALUES
         2,
         "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Saepe possimus ad ea nisi iusto temporibus cum, voluptatibus fugiat magnam maiores consequatur, architecto harum dignissimos deleniti eius, quisquam natus minus quas. Lorem ipsum dolor sit amet consectetur adipisicing elit. Vel aspernatur repellendus, eos, cupiditate consectetur eum modi laboriosam vero officia quibusdam earum tenetur omnis similique autem ab facilis aut. Laborum, voluptatum. Lorem ipsum dolor sit amet consectetur adipisicing elit. Repudiandae, deleniti deserunt iste corporis possimus, eos facere quis quidem, consequuntur sapiente quae! Quidem repellendus ab nemo praesentium. Sequi modi quis et!",
         '2024-04-15',
-        5
+        5,
+        0110200098760006677554
     ),
     (
         '5f43eedb-72f2-41a4-86bd-ef0ce831a343.pdf',
@@ -431,7 +445,8 @@ VALUES
         1,
         "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Saepe possimus ad ea nisi iusto temporibus cum, voluptatibus fugiat magnam maiores consequatur, architecto harum dignissimos deleniti eius, quisquam natus minus quas. Lorem ipsum dolor sit amet consectetur adipisicing elit. Vel aspernatur repellendus, eos, cupiditate consectetur eum modi laboriosam vero officia quibusdam earum tenetur omnis similique autem ab facilis aut. Laborum, voluptatum. Lorem ipsum dolor sit amet consectetur adipisicing elit. Repudiandae, deleniti deserunt iste corporis possimus, eos facere quis quidem, consequuntur sapiente quae! Quidem repellendus ab nemo praesentium. Sequi modi quis et!",
         '2024-04-15',
-        3.8
+        3.8,
+        0140200098650001122443
     ),
     (
         '5f43eedb-72f2-41a4-86bd-ef0ce831a343.pdf',
@@ -445,7 +460,8 @@ VALUES
         2,
         "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Saepe possimus ad ea nisi iusto temporibus cum, voluptatibus fugiat magnam maiores consequatur, architecto harum dignissimos deleniti eius, quisquam natus minus quas. Lorem ipsum dolor sit amet consectetur adipisicing elit. Vel aspernatur repellendus, eos, cupiditate consectetur eum modi laboriosam vero officia quibusdam earum tenetur omnis similique autem ab facilis aut. Laborum, voluptatum. Lorem ipsum dolor sit amet consectetur adipisicing elit. Repudiandae, deleniti deserunt iste corporis possimus, eos facere quis quidem, consequuntur sapiente quae! Quidem repellendus ab nemo praesentium. Sequi modi quis et!",
         '2024-04-15',
-        4.4
+        4.4,
+        0170200098540004433556
     ),
     (
         '5f43eedb-72f2-41a4-86bd-ef0ce831a343.pdf',
@@ -459,7 +475,8 @@ VALUES
         1,
         "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Saepe possimus ad ea nisi iusto temporibus cum, voluptatibus fugiat magnam maiores consequatur, architecto harum dignissimos deleniti eius, quisquam natus minus quas. Lorem ipsum dolor sit amet consectetur adipisicing elit. Vel aspernatur repellendus, eos, cupiditate consectetur eum modi laboriosam vero officia quibusdam earum tenetur omnis similique autem ab facilis aut. Laborum, voluptatum. Lorem ipsum dolor sit amet consectetur adipisicing elit. Repudiandae, deleniti deserunt iste corporis possimus, eos facere quis quidem, consequuntur sapiente quae! Quidem repellendus ab nemo praesentium. Sequi modi quis et!",
         '2024-04-15',
-        4.1
+        4.1,
+        0110200098430005566887
     ),
     (
         '5f43eedb-72f2-41a4-86bd-ef0ce831a343.pdf',
@@ -473,7 +490,8 @@ VALUES
         2,
         "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Saepe possimus ad ea nisi iusto temporibus cum, voluptatibus fugiat magnam maiores consequatur, architecto harum dignissimos deleniti eius, quisquam natus minus quas. Lorem ipsum dolor sit amet consectetur adipisicing elit. Vel aspernatur repellendus, eos, cupiditate consectetur eum modi laboriosam vero officia quibusdam earum tenetur omnis similique autem ab facilis aut. Laborum, voluptatum. Lorem ipsum dolor sit amet consectetur adipisicing elit. Repudiandae, deleniti deserunt iste corporis possimus, eos facere quis quidem, consequuntur sapiente quae! Quidem repellendus ab nemo praesentium. Sequi modi quis et!",
         '2024-04-15',
-        3.2
+        3.2,
+        0140200098320007788991
     ),
     (
         '5f43eedb-72f2-41a4-86bd-ef0ce831a343.pdf',
@@ -487,7 +505,8 @@ VALUES
         1,
         "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Saepe possimus ad ea nisi iusto temporibus cum, voluptatibus fugiat magnam maiores consequatur, architecto harum dignissimos deleniti eius, quisquam natus minus quas. Lorem ipsum dolor sit amet consectetur adipisicing elit. Vel aspernatur repellendus, eos, cupiditate consectetur eum modi laboriosam vero officia quibusdam earum tenetur omnis similique autem ab facilis aut. Laborum, voluptatum. Lorem ipsum dolor sit amet consectetur adipisicing elit. Repudiandae, deleniti deserunt iste corporis possimus, eos facere quis quidem, consequuntur sapiente quae! Quidem repellendus ab nemo praesentium. Sequi modi quis et!",
         '2024-04-15',
-        4.8
+        4.8,
+        0170200098210009988772
     ),
         (
         '5f43eedb-72f2-41a4-86bd-ef0ce831a343.pdf',
@@ -501,7 +520,8 @@ VALUES
         1,
         "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Saepe possimus ad ea nisi iusto temporibus cum, voluptatibus fugiat magnam maiores consequatur, architecto harum dignissimos deleniti eius, quisquam natus minus quas. Lorem ipsum dolor sit amet consectetur adipisicing elit. Vel aspernatur repellendus, eos, cupiditate consectetur eum modi laboriosam vero officia quibusdam earum tenetur omnis similique autem ab facilis aut. Laborum, voluptatum. Lorem ipsum dolor sit amet consectetur adipisicing elit. Repudiandae, deleniti deserunt iste corporis possimus, eos facere quis quidem, consequuntur sapiente quae! Quidem repellendus ab nemo praesentium. Sequi modi quis et!",
         '2024-04-15',
-        4.3
+        4.3,
+        0110200098100002233446
     ),
     (
         '5f43eedb-72f2-41a4-86bd-ef0ce831a343.pdf',
@@ -515,7 +535,8 @@ VALUES
         1,
         "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Saepe possimus ad ea nisi iusto temporibus cum, voluptatibus fugiat magnam maiores consequatur, architecto harum dignissimos deleniti eius, quisquam natus minus quas. Lorem ipsum dolor sit amet consectetur adipisicing elit. Vel aspernatur repellendus, eos, cupiditate consectetur eum modi laboriosam vero officia quibusdam earum tenetur omnis similique autem ab facilis aut. Laborum, voluptatum. Lorem ipsum dolor sit amet consectetur adipisicing elit. Repudiandae, deleniti deserunt iste corporis possimus, eos facere quis quidem, consequuntur sapiente quae! Quidem repellendus ab nemo praesentium. Sequi modi quis et!",
         '2024-04-15',
-        3.5
+        3.5,
+        0140200098090006677888
     );
 
 INSERT INTO user_health_insurance 

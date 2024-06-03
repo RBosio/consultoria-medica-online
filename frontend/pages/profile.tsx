@@ -12,6 +12,7 @@ import {
   FaLocationDot,
   FaMars,
   FaPhone,
+  FaTrash,
   FaUser,
   FaVenus,
 } from "react-icons/fa6";
@@ -31,6 +32,7 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
+  IconButton,
   Snackbar,
 } from "@mui/material";
 import { useRouter } from "next/router";
@@ -48,21 +50,19 @@ export default function ProfileView(props: any) {
   const [updated, setUpdated] = useState(false);
   const [error, setError] = useState(false);
   const [user, setUser] = useState<any>(null);
-  const [request, setRequest] = useState<boolean>(false);
   const [healthInsurances, setHealthInsurances] = useState<
     HealthInsuranceResponseDto[]
   >([]);
   const [healthInsurance, setHealthInsurance] = useState<number>(-1);
   const [healthInsuranceName, setHealthInsuranceName] = useState<string>("");
-  const [imageFile, setImageFile] = useState<any>();
-  const [type, setType] = useState<any>("");
 
   const [success, setSuccess] = useState<boolean>(false);
   const [message, setMessage] = useState<string>("");
+  const [confirmDeleteHi, setConfirmDeleteHi] = useState<boolean>(false);
   const [confirmHealthInsurance, setConfirmHealthInsurance] =
     useState<boolean>(false);
-  const [healthInsuranceVerify, setHealthInsuranceVerify] = useState<number>();
   const [cod, setCod] = useState<string>('');
+  const [hiToDelete, setHiToDelete] = useState<number>(-1);
 
   useEffect(() => {
     moment.locale("es");
@@ -87,8 +87,6 @@ export default function ProfileView(props: any) {
 
   function handleChangeFile($e: any) {
     if ($e.target.files && $e.target.files[0]) {
-      setImageFile($e.target.files[0]);
-      setType($e.target.files[0].type);
       handleChange($e);
     }
   }
@@ -137,6 +135,22 @@ export default function ProfileView(props: any) {
     },
   });
 
+  const handleClickDeleteHi = async () => {
+
+    await axios.delete(
+      `${process.env.NEXT_PUBLIC_API_URL}/user/unsetHI/${hiToDelete}`,
+      {
+        withCredentials: true,
+        headers: { Authorization: `Bearer ${props.auth.token}` },
+      }
+    );
+
+    setMessage("Obra social eliminada con éxito!");
+    setSuccess(true);
+
+    setHiToDelete(-1);
+  };
+
   const onConfirmClick = async () => {
     if (confirm) {
       await changePass.submitForm();
@@ -144,7 +158,10 @@ export default function ProfileView(props: any) {
     } else if (confirmHealthInsurance) {
       handleClickHealthInsurance();
       setConfirmHealthInsurance(false);
-    }
+    } else if (confirmDeleteHi) {
+      handleClickDeleteHi();
+      setConfirmDeleteHi(false);
+    };
   };
 
   function handleClickFile($e: any, hi?: boolean) {
@@ -231,51 +248,7 @@ export default function ProfileView(props: any) {
 
     fetchUser();
 
-    const request = async () => {
-      const request = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/notification/${props.auth.id}`,
-        {
-          withCredentials: true,
-          headers: { Authorization: `Bearer ${props.auth.token}` },
-        }
-      );
-
-      if (request.data.lenth > 0) {
-        setRequest(true);
-      }
-    };
-
-    request();
-  }, [healthInsurance]);
-
-  const handleClickVerification = async () => {
-    const user = await axios.get(
-      `${process.env.NEXT_PUBLIC_API_URL}/user/admin`,
-      {
-        withCredentials: true,
-        headers: { Authorization: `Bearer ${props.auth.token}` },
-      }
-    );
-
-    await axios.post(
-      `${process.env.NEXT_PUBLIC_API_URL}/notification`,
-      {
-        userIdSend: props.auth.id,
-        userIdReceive: user.data.id,
-        type: "verificationHiRequest",
-        healthInsuranceId: healthInsuranceVerify,
-      },
-      {
-        withCredentials: true,
-        headers: { Authorization: `Bearer ${props.auth.token}` },
-      }
-    );
-
-    setMessage("Solicitud realizada con éxito!");
-    setSuccess(true);
-
-    router.push(router.pathname);
-  };
+  }, [healthInsurance, hiToDelete]);
 
   const handleClickHealthInsurance = async () => {
     if (healthInsurance === -1) {
@@ -306,7 +279,6 @@ export default function ProfileView(props: any) {
     setSuccess(true);
 
     setHealthInsurance(-1);
-    setType(null);
     setCod("");
     setHealthInsuranceName("");
   };
@@ -438,11 +410,14 @@ export default function ProfileView(props: any) {
                       return (
                         <div className="p-1" key={idx}>
                           {h.healthInsurance?.name ? (
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-1">
                               <FaChevronRight className="text-primary text-md size-4" />
                               <p className="text-md">
                                 {h.healthInsurance.name} (num. {h.cod})
                               </p>
+                              <IconButton size="small" onClick={() => { setHiToDelete(h.healthInsurance.id); setConfirmDeleteHi(true) }}>
+                                <FaTrash className="text-error" size={15} />
+                              </IconButton>
                             </div>
                           ) : (
                             ""
@@ -523,10 +498,11 @@ export default function ProfileView(props: any) {
               </div>
             </section>
             <Dialog
-              open={confirm || confirmHealthInsurance}
+              open={confirm || confirmHealthInsurance || confirmDeleteHi}
               onClose={() => {
                 setConfirm(false);
                 setConfirmHealthInsurance(false);
+                setConfirmDeleteHi(true);
               }}
               aria-labelledby="alert-dialog-title"
               aria-describedby="alert-dialog-description"
@@ -535,8 +511,8 @@ export default function ProfileView(props: any) {
                 {confirm
                   ? "Confirmar cambio"
                   : confirmHealthInsurance
-                    ? "Confirmar solicitud"
-                    : ""}
+                    ? "Confirmar obra social"
+                    : confirmDeleteHi ? 'Confirmar eliminación' : ''}
               </DialogTitle>
               <DialogContent>
                 <DialogContentText id="alert-dialog-description">
@@ -544,7 +520,7 @@ export default function ProfileView(props: any) {
                     ? "¿Estás seguro que deseas cambiar la contraseña?"
                     : confirmHealthInsurance
                       ? "Estás seguro que deseas agregar la obra social?"
-                      : ""}
+                      : confirmDeleteHi ? 'Estás seguro que deseas eliminar esta obra social?' : ''}
                 </DialogContentText>
               </DialogContent>
               <DialogActions>
@@ -554,6 +530,7 @@ export default function ProfileView(props: any) {
                   onClick={() => {
                     setConfirm(false);
                     setConfirmHealthInsurance(false);
+                    setConfirmDeleteHi(false);
                   }}
                 >
                   Cancelar

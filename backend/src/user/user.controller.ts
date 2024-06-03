@@ -80,6 +80,12 @@ export class UserController {
     return this.userService.clearHI(id);
   }
 
+  @Delete('unsetHI/:hi_id')
+  @UseGuards(AuthGuard)
+  unsetHI(@Param('hi_id', ParseIntPipe) hi_id: number, @Req() req) {
+    return this.userService.unsetHI(hi_id, req);
+  };
+
   @Delete(':dni')
   @Roles(RoleEnum.Admin)
   deleteUser(@Param('dni') dni: string) {

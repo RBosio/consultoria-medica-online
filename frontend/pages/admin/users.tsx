@@ -81,8 +81,6 @@ export default function Home(props: Speciality) {
 
   const theme = useTheme();
 
-  console.log(user);
-
   useEffect(() => {
     async function updateDepartment() {
       if (!o || !user?.city) return;

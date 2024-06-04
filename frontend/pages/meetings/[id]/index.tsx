@@ -2,7 +2,7 @@ import withAuth from "@/lib/withAuth";
 import { Auth } from "@/../shared/types";
 import axios from "axios";
 import Layout from "@/components/layout";
-import { Fab, useTheme } from "@mui/material";
+import { Alert, Box, Fab, Fade, Modal, Rating, Snackbar, Typography, useTheme } from "@mui/material";
 import { useRouter } from "next/router";
 import { MeetingResponseDto } from "@/components/dto/meeting.dto";
 import { SpecialityResponseDto } from "@/components/dto/speciality.dto";
@@ -16,6 +16,7 @@ import {
   FaPaperPlane,
   FaPaperclip,
   FaPlay,
+  FaStar,
   FaXmark,
 } from "react-icons/fa6";
 import { useEffect, useState } from "react";
@@ -25,6 +26,7 @@ import { robotoBold } from "@/lib/fonts";
 import Button from "@/components/button";
 import UserCard from "@/components/userCard";
 import DoctorCard from "@/components/doctorCard";
+import Rate from "@/components/rate";
 
 interface MeetingI {
   meeting: MeetingResponseDto;
@@ -34,19 +36,16 @@ interface MeetingI {
 }
 
 export default function DetailMeeting(props: MeetingI) {
-  const theme = useTheme();
   const router = useRouter();
 
   const [text, setText] = useState("");
   const [file, setFile] = useState<any>();
   const [type, setType] = useState<string>("");
-  const [motive, setMotive] = useState<string>("");
-  const [showMotive, setShowMotive] = useState<boolean>(false);
   const [openedChat, setOpenedChat] = useState(false);
-
-  useEffect(() => {
-    moment.locale("es");
-  }, []);
+  const [rate, setRate] = useState<number>(props.meeting.rate ?? 0);
+  const [rateModal, setRateModal] = useState<boolean>(false);
+  const [successfulRated, setSuccessfulRated] = useState<boolean>(false);
+  const [rated,setRated] = useState<boolean>(false);
 
   const handleOnClose = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     const target = e.target as HTMLDivElement;
@@ -183,21 +182,51 @@ export default function DetailMeeting(props: MeetingI) {
     setFile("");
   }
 
-  function showMotiveHandleClick() {
-    setShowMotive(!showMotive);
-  }
-
   function handleSubmit(e: any) {
     e.preventDefault();
     handleClickComment();
   }
 
   useEffect(() => {
+
+    moment.locale("es");
+
     const scrollBar = document.getElementById("scroll");
     if (scrollBar) {
       scrollBar.scrollTop = 20000;
     }
+
+    if (props.meeting.status === "Finalizada" && !props.meeting.rate) {
+      setRateModal(true);
+    };
+
   }, []);
+
+  const handleRateClick = async () => {
+
+    const { id } = router.query;
+
+    if (id && typeof id === "string") {
+
+      const startDatetime = atob(id).split(".")[1];
+      
+      await axios.patch(
+        `${process.env.NEXT_PUBLIC_API_URL}/meeting/${props.auth.id}/${startDatetime}`,
+        {
+          rate: rate,
+        },
+        {
+          withCredentials: true,
+          headers: { Authorization: `Bearer ${props.auth.token}` },
+        }
+      );
+
+      setRateModal(false);
+      setRated(true);
+      setSuccessfulRated(true);
+
+    }
+  };
 
   return (
     <Layout auth={props.auth} className="flex flex-col justify-center relative">
@@ -243,8 +272,9 @@ export default function DetailMeeting(props: MeetingI) {
                   {moment(props.meeting.startDatetime).format("LLLL")}
                 </p>
               </div>
-              <div className="flex items-center m-2">
+              <div className="flex gap-2 items-center m-2">
                 <p className="text-zinc-800">{props.meeting.status}</p>
+                {props.meeting.rate && props.meeting.status === 'Finalizada' || rated ? <>(<Rate size="small" rate={rate} />)</> : ''}
               </div>
               <div className="w-3/4 h-2 border-t-2 border-emerald-200 mb-3"></div>
               <div className="flex justify-end items-center w-full mb-2">
@@ -264,13 +294,13 @@ export default function DetailMeeting(props: MeetingI) {
                             .getTime()
                         ) &&
                           Date.now() <
-                            moment(props.meeting.startDatetime)
-                              .add(
-                                props.meeting.doctor.durationMeeting + 10,
-                                "minutes"
-                              )
-                              .toDate()
-                              .getTime())
+                          moment(props.meeting.startDatetime)
+                            .add(
+                              props.meeting.doctor.durationMeeting + 10,
+                              "minutes"
+                            )
+                            .toDate()
+                            .getTime())
                       }
                       onClick={() =>
                         router.push(`/meetings/${router.query.id}/videocall`)
@@ -278,6 +308,15 @@ export default function DetailMeeting(props: MeetingI) {
                     >
                       Unirse
                     </Button>
+                    {props.meeting.status === "Finalizada" && !props.meeting.rate && !rated ? <Button
+                      className="hover:bg-green-800 mr-2"
+                      size="small"
+                      startIcon={<FaStar />}
+                      onClick={() => { setRateModal(true) }}
+                    >
+                      Calificar
+                    </Button> : null}
+
                     {props.meeting.status === "Pagada" && (
                       <Button
                         size="small"
@@ -311,13 +350,13 @@ export default function DetailMeeting(props: MeetingI) {
                           .getTime()
                       ) &&
                         Date.now() <
-                          moment(props.meeting.startDatetime)
-                            .add(
-                              props.meeting.doctor.durationMeeting + 10,
-                              "minutes"
-                            )
-                            .toDate()
-                            .getTime())
+                        moment(props.meeting.startDatetime)
+                          .add(
+                            props.meeting.doctor.durationMeeting + 10,
+                            "minutes"
+                          )
+                          .toDate()
+                          .getTime())
                     }
                     onClick={() =>
                       router.push(`/meetings/${router.query.id}/videocall`)
@@ -343,20 +382,18 @@ export default function DetailMeeting(props: MeetingI) {
             onClick={handleOnClose}
             id="container"
             className={`
-            ${
-              openedChat
+            ${openedChat
                 ? "fixed z-50 inset-0 backdrop-blur-sm bg-black bg-opacity-30"
                 : "w-[100%] sm:w-[40%] bg-white rounded-lg mt-5 sm:mt-0 hidden md:inline h-[600px]"
-            }
+              }
               `}
           >
             <section
               className={`
-              ${
-                openedChat
+              ${openedChat
                   ? "flex flex-col h-5/6 bg-white"
                   : "w-[100%] sm:w-[40%] rounded-lg mt-5 sm:mt-0 hidden md:inline"
-              }
+                }
               `}
             >
               <div className="overflow-y-scroll h-[85%]" id="scroll">
@@ -381,9 +418,8 @@ export default function DetailMeeting(props: MeetingI) {
               >
                 {file ? (
                   <div
-                    className={`w-full py-1 px-2 bg-primary rounded-md text-white flex justify-between items-center overflow-x-hidden h-8 ${
-                      file.name.length > 60 ? "overflow-y-scroll" : ""
-                    }`}
+                    className={`w-full py-1 px-2 bg-primary rounded-md text-white flex justify-between items-center overflow-x-hidden h-8 ${file.name.length > 60 ? "overflow-y-scroll" : ""
+                      }`}
                   >
                     <div className={`${robotoBold.className}`}>{file.name}</div>
                     <FaXmark
@@ -417,9 +453,53 @@ export default function DetailMeeting(props: MeetingI) {
               </form>
             </section>
           </div>
+          <Modal
+            open={rateModal}
+            onClose={() => {
+              setRateModal(false)
+            }}
+          >
+            <Fade in={rateModal}>
+              <Box sx={{
+                position: "absolute" as "absolute",
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+                bgcolor: "background.paper",
+                outline: "none",
+                boxShadow: 24,
+                px: 4,
+                py: 2,
+              }}>
+                <Typography
+                  variant="h6"
+                  component="h6"
+                  className={`text-center text-primary text-md ${robotoBold.className}`}
+                >
+                  Califica tu experiencia con {props.meeting.doctor.user.name} {props.meeting.doctor.user.surname}
+                </Typography>
+                <div className="flex flex-col">
+                  <Rate size="large" rate={rate} onChange={(e, v: any) => { setRate(v) }} readOnly={false} hideNumber className="my-4" precision={0.5} />
+                  <Button onClick={handleRateClick} disabled={!Boolean(rate)} className="w-4/12 self-end">Aceptar</Button>
+                </div>
+              </Box>
+            </Fade>
+          </Modal>
+          <Snackbar
+            open={successfulRated}
+            anchorOrigin={{ vertical: "top", horizontal: "center" }}
+            autoHideDuration={4000}
+            onClose={() => {
+              setSuccessfulRated(false);
+            }}
+          >
+            <Alert elevation={6} variant="filled" severity="success">
+              Has calificado la reunión con éxito!
+            </Alert>
+          </Snackbar>
         </main>
       </>
-    </Layout>
+    </Layout >
   );
 }
 

@@ -104,6 +104,12 @@ export default function MedicalRecord(props: MedicalRecordI) {
         );
       }
     } else {
+      if (detail.length === 0) {
+        setMessage("El detalle es requerido");
+        setError(true);
+        return;
+      }
+
       if (detail.length > 60) {
         setMessage("El detalle debe tener como máximo 60 caracteres");
         setError(true);
@@ -360,6 +366,16 @@ export default function MedicalRecord(props: MedicalRecordI) {
                   >
                     Observaciones
                   </TableCell>
+                  <TableCell
+                    align="center"
+                    sx={{
+                      color: "#fff",
+                      padding: "1.2rem",
+                      fontSize: "1.2rem",
+                    }}
+                  >
+                    Operaciones
+                  </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -410,17 +426,6 @@ export default function MedicalRecord(props: MedicalRecordI) {
                     >
                       <div className="flex justify-center items-center gap-2">
                         {row.detail}
-                        {props.auth.id === row.meeting.doctor.user.id && (
-                          <FaEdit
-                            className="text-primary hover:cursor-pointer hover:opacity-70"
-                            onClick={() => {
-                              setModal(true);
-                              setDetail(row.detail);
-                              setObservations(row.observations!);
-                              setMedicalRecordId(row.id);
-                            }}
-                          />
-                        )}
                         <div className="flex gap-2">
                           {row.files.length > 0 && (
                             <a
@@ -439,6 +444,26 @@ export default function MedicalRecord(props: MedicalRecordI) {
                       sx={{ padding: "1.2rem", fontSize: "1.2rem" }}
                     >
                       {row.observations ? row.observations : "-"}
+                    </TableCell>
+                    <TableCell
+                      className="text-sm"
+                      align="center"
+                      sx={{ padding: "1.2rem", fontSize: "1.2rem" }}
+                    >
+                      {props.auth.id === row.meeting.doctor.user.id && (
+                        <div className="flex justify-center items-center gap-2">
+                          <FaEdit
+                            className="text-primary text-lg hover:cursor-pointer hover:opacity-70"
+                            onClick={() => {
+                              setModal(true);
+                              setDetail(row.detail);
+                              setObservations(row.observations!);
+                              setMedicalRecordId(row.id);
+                            }}
+                          />
+                          <FaPaperclip className="text-primary text-lg hover:cursor-pointer hover:opacity-70" />
+                        </div>
+                      )}
                     </TableCell>
                   </TableRow>
                 ))}

@@ -16,7 +16,6 @@ import "moment/locale/es";
 import axios from "axios";
 import { useRouter } from "next/router";
 import { Chip, Divider, Rating, useTheme } from "@mui/material";
-import Rate from "@/components/rate";
 import { GoDotFill } from "react-icons/go";
 import { DoctorResponseDto } from "@/components/dto/doctor.dto";
 import Avatar from "@/components/avatar";
@@ -27,8 +26,8 @@ import { PlanResponseDto } from "@/components/dto/plan.dto";
 import { BenefitResponseDto } from "@/components/dto/benefit.dto";
 import { MdOutlineAdminPanelSettings } from "react-icons/md";
 import { pesos } from "@/lib/formatCurrency";
-import { styled } from "@mui/material/styles";
 import Alert from '@mui/material/Alert';
+import Rate from "@/components/rate";
 
 export default function Home(props: any) {
   const router = useRouter();
@@ -39,8 +38,6 @@ export default function Home(props: any) {
   }, []);
 
   const [plans, setPlans] = React.useState<PlanResponseDto[]>([]);
-  const [rate, setRate] = React.useState<boolean>(false);
-  const [stars, setStars] = React.useState<number>(5);
 
   const incompleteDoctorData = props.doctor && (!props.doctor.cbu || !props.doctor.priceMeeting || !props.doctor.durationMeeting);
 
@@ -61,69 +58,11 @@ export default function Home(props: any) {
         props.plans.filter((plan: any) => plan.id > props.doctor.planId)
       );
     }
-
-    if (localStorage.getItem("startDatetime")) {
-      setRate(true);
-    }
-
-    return () => {
-      localStorage.removeItem("startDatetime");
-    };
   }, []);
-
-  const rateMeeting = async () => {
-    const startDatetime = localStorage.getItem("startDatetime");
-    if (startDatetime) {
-      await axios.patch(
-        `${process.env.NEXT_PUBLIC_API_URL}/meeting/${props.auth.id}/${startDatetime}`,
-        {
-          rate: stars,
-        },
-        {
-          withCredentials: true,
-          headers: { Authorization: `Bearer ${props.auth.token}` },
-        }
-      );
-
-      setRate(false);
-      localStorage.removeItem("startDatetime");
-    }
-  };
-
-  const StyledRating = styled(Rating)({
-    "& .MuiRating-iconFilled": {
-      color: "#ff6d75",
-    },
-    "& .MuiRating-iconHover": {
-      color: "#ff3d47",
-    },
-  });
 
   return (
     <Layout auth={props.auth}>
       <section>
-        {rate &&
-          (props.auth.role === "user" || props.auth.role === "admin") && (
-            <>
-              <div className="w-full h-full bg-gray-600 absolute z-30 opacity-40"></div>
-              <div className="absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 bg-white z-40 shadow-2xl">
-                <div className="flex flex-col justify-center items-center gap-4 p-4">
-                  <h1 className="text-2xl text-primary">
-                    Calificar la videollamada
-                  </h1>
-                  <div className="flex gap-5">
-                    <Rating
-                      name="customized-10"
-                      defaultValue={5}
-                      max={5}
-                      onClick={(e: any) => setStars(Number(e.target.value))}
-                    />
-                  </div>
-                  <Button onClick={rateMeeting}>Aceptar</Button>
-                </div>
-              </div>
-            </>
-          )}
         <h1 className="text-3xl p-4 text-zinc-600">
           ¡Hola de nuevo{" "}
           <span className="text-primary font-semibold">

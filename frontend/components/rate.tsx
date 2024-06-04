@@ -1,8 +1,7 @@
 import React from "react";
 import { useTheme } from "@mui/material";
-import Rating from "@mui/material/Rating";
-
-interface RateProps {
+import Rating, {RatingProps} from "@mui/material/Rating";
+interface RateProps extends RatingProps{
   rate: number;
   count?: number;
   hideNumber?: boolean;
@@ -29,6 +28,7 @@ const Rate: React.FC<RateProps> = (props) => {
         value={Number(props.rate)}
         precision={0.5}
         readOnly
+        {...props}
       />
       {!props.hideNumber && (
         <div className="text-md md:ml-2 select-none flex items-center gap-2">

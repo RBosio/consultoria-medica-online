@@ -23,7 +23,7 @@ export class Meeting {
   @PrimaryColumn()
   startDatetime: Date;
 
-  @Column({ nullable: true })
+  @Column({ type:'decimal', precision: 2, scale: 1 , nullable: true })
   rate: number;
 
   @Column()

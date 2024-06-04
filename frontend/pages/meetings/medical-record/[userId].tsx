@@ -104,6 +104,18 @@ export default function MedicalRecord(props: MedicalRecordI) {
         );
       }
     } else {
+      if (detail.length > 60) {
+        setMessage("El detalle debe tener como máximo 60 caracteres");
+        setError(true);
+        return;
+      }
+
+      if (observations.length > 100) {
+        setMessage("Las observaciones deben tener como máximo 100 caracteres");
+        setError(true);
+        return;
+      }
+
       await axios.patch(
         `${process.env.NEXT_PUBLIC_API_URL}/medicalRecord/${medicalRecordId}`,
         {

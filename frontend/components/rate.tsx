@@ -32,7 +32,7 @@ const Rate: React.FC<RateProps> = (props) => {
       />
       {!props.hideNumber && (
         <div className="text-md md:ml-2 select-none flex items-center gap-2">
-          <p className="text-primary font-semibold">{props.rate}</p>
+          <p className="text-primary font-semibold">{Number(props.rate)}</p>
           {props.count! >= 0 && <span>({props.count} valoraciones)</span>}
         </div>
       )}

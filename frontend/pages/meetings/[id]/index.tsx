@@ -196,7 +196,7 @@ export default function DetailMeeting(props: MeetingI) {
       scrollBar.scrollTop = 20000;
     }
 
-    if (props.meeting.status === "Finalizada" && !props.meeting.rate) {
+    if (props.auth.role === 'user' && props.meeting.status === "Finalizada" && !props.meeting.rate) {
       setRateModal(true);
     };
 
@@ -274,7 +274,7 @@ export default function DetailMeeting(props: MeetingI) {
               </div>
               <div className="flex gap-2 items-center m-2">
                 <p className="text-zinc-800">{props.meeting.status}</p>
-                {props.meeting.rate && props.meeting.status === 'Finalizada' || rated ? <>(<Rate size="small" rate={rate} />)</> : ''}
+                {(props.auth.role === 'user' && props.meeting.rate && props.meeting.status === 'Finalizada') || rated ? <>(<Rate size="small" rate={rate} />)</> : ''}
               </div>
               <div className="w-3/4 h-2 border-t-2 border-emerald-200 mb-3"></div>
               <div className="flex justify-end items-center w-full mb-2">

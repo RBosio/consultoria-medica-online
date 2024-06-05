@@ -63,12 +63,12 @@ const Doctor: React.FC<DoctorProps> = (props) => {
           <Rate rate={props.rate} count={props.count} />
           <p className="flex items-center gap-2 text-md">
             <FaBriefcaseMedical className="text-primary" />
-            {moment(props.experience).format("MMMM YYYY")} {
+            desde {moment(props.experience).format("YYYY")} {
               yearsOfExperience > 0 ?
                 yearsOfExperience === 1 ?
-                  `(${yearsOfExperience} año)`
+                  `(${yearsOfExperience} año exp.)`
                   :
-                  `(${yearsOfExperience} años)`
+                  `(${yearsOfExperience} años exp.)`
                 :
                 ''
             }

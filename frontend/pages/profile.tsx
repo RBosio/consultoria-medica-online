@@ -53,8 +53,7 @@ export default function ProfileView(props: any) {
   const [healthInsurances, setHealthInsurances] = useState<
     HealthInsuranceResponseDto[]
   >([]);
-  const [healthInsurance, setHealthInsurance] = useState<number>(-1);
-  const [healthInsuranceName, setHealthInsuranceName] = useState<string>("");
+  const [healthInsurance, setHealthInsurance] = useState<any>(null);
 
   const [success, setSuccess] = useState<boolean>(false);
   const [message, setMessage] = useState<string>("");
@@ -251,7 +250,7 @@ export default function ProfileView(props: any) {
   }, [healthInsurance, hiToDelete]);
 
   const handleClickHealthInsurance = async () => {
-    if (healthInsurance === -1) {
+    if (!healthInsurance) {
       setMessage("Debes seleccionar una obra social!");
       setError(true);
       return;
@@ -278,9 +277,8 @@ export default function ProfileView(props: any) {
     setMessage("Obra social agregada con éxito!");
     setSuccess(true);
 
-    setHealthInsurance(-1);
+    setHealthInsurance(null);
     setCod("");
-    setHealthInsuranceName("");
   };
 
   return (
@@ -368,11 +366,6 @@ export default function ProfileView(props: any) {
                       className={"w-full"}
                       onChange={(event, newValue: any) => {
                         setHealthInsurance(newValue?.id);
-                        setHealthInsuranceName(newValue?.label);
-                      }}
-                      value={{
-                        id: -1,
-                        label: healthInsuranceName,
                       }}
                       disablePortal
                       noOptionsText="Especialidad no encontrada"

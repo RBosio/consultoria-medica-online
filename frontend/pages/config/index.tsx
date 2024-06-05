@@ -139,7 +139,6 @@ export default function Config(props: ConfigProps) {
   ]);
   const [minutesTo, setMinutesTo] = useState<string[]>([]);
   const [healthInsurance, setHealthInsurance] = useState<number>(0);
-  const [healthInsuranceName, setHealthInsuranceName] = useState<string>("");
   const [duration, setDuration] = useState<number>(
     props.doctor.durationMeeting ?? ''
   );
@@ -529,11 +528,6 @@ export default function Config(props: ConfigProps) {
                       className="w-1/2"
                       onChange={(event, newValue: any) => {
                         setHealthInsurance(newValue?.id);
-                        setHealthInsuranceName(newValue?.label);
-                      }}
-                      value={{
-                        id: -1,
-                        label: healthInsuranceName,
                       }}
                       disablePortal
                       noOptionsText="Especialidad no encontrada"

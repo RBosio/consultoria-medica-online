@@ -4,6 +4,7 @@ import withAuth from "@/lib/withAuth";
 import { Auth } from "../../shared/types";
 import Button from "@/components/button";
 import {
+  FaAddressCard,
   FaAngleRight,
   FaCalendarDays,
   FaChevronRight,
@@ -24,7 +25,7 @@ import { NotificationResponseDto } from "@/components/dto/notification.dto";
 import { PiGearSix } from "react-icons/pi";
 import { PlanResponseDto } from "@/components/dto/plan.dto";
 import { BenefitResponseDto } from "@/components/dto/benefit.dto";
-import { MdOutlineAdminPanelSettings } from "react-icons/md";
+import { MdDiscount, MdOutlineAdminPanelSettings } from "react-icons/md";
 import { pesos } from "@/lib/formatCurrency";
 import Alert from '@mui/material/Alert';
 import Rate from "@/components/rate";
@@ -262,12 +263,12 @@ export default function Home(props: any) {
             {props.auth.role === "user" &&
               (props.lastMeeting?.user?.healthInsurances.length === 0 ? (
                 <>
-                  <h2 className="text-3xl text-center text-zinc-600">
-                    Es necesario que cargue sus obras sociales activas
+                  <h2 className="text-2xl text-center text-zinc-600">
+                    Si tienes una obra social, podrás acceder a los descuentos disponibles para los profesionales
                   </h2>
-                  <FaCircleExclamation className="text-primary text-9xl" />
+                  <MdDiscount className="text-primary text-9xl" />
                   <Button onClick={() => router.push("/profile")}>
-                    Cargar obras sociales
+                    Ir a perfil de usuario
                   </Button>
                 </>
               ) : (

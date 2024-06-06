@@ -19,7 +19,7 @@ import "moment/locale/es";
 import { FaChevronLeft, FaChevronRight, FaFile, FaUser } from "react-icons/fa6";
 import { useRouter } from "next/router";
 import Link from "next/link";
-import { Chip } from "@mui/material";
+import { Box, Chip, Fade, Modal } from "@mui/material";
 import Button from "@/components/button";
 import { MeetingResponseDto } from "@/components/dto/meeting.dto";
 import { UserResponseDto } from "@/components/dto/user.dto";
@@ -35,6 +35,8 @@ interface MedicalRecordI {
 
 export default function MedicalRecord(props: MedicalRecordI) {
   const router = useRouter();
+  const [modal, setModal] = useState<boolean>(false);
+  const [filesU, setFilesU] = useState<any[]>([]);
 
   useEffect(() => {
     moment.locale("es");
@@ -156,6 +158,16 @@ export default function MedicalRecord(props: MedicalRecordI) {
                   >
                     Observaciones
                   </TableCell>
+                  <TableCell
+                    align="center"
+                    sx={{
+                      color: "#fff",
+                      padding: "1.2rem",
+                      fontSize: "1.2rem",
+                    }}
+                  >
+                    Archivos
+                  </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -225,6 +237,21 @@ export default function MedicalRecord(props: MedicalRecordI) {
                     >
                       {row.observations ? row.observations : "-"}
                     </TableCell>
+                    <TableCell
+                      className="text-sm"
+                      align="center"
+                      sx={{ padding: "1.2rem", fontSize: "1.2rem" }}
+                    >
+                      <div className="flex justify-center">
+                        <FaFile
+                          onClick={() => {
+                            setFilesU(row.files);
+                            setModal(true);
+                          }}
+                          className="text-primary text-lg hover:cursor-pointer hover:opacity-70"
+                        />
+                      </div>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -236,6 +263,56 @@ export default function MedicalRecord(props: MedicalRecordI) {
             </p>
           )}
         </div>
+        <Modal
+          open={modal}
+          onClose={() => {
+            setModal(false);
+          }}
+        >
+          <Fade in={modal}>
+            <Box
+              className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-4/12"
+              sx={{
+                position: "absolute" as "absolute",
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+                bgcolor: "background.paper",
+                boxShadow: 24,
+                p: 4,
+              }}
+            >
+              <div className="flex flex-col gap-6">
+                <h2
+                  className={`${robotoBold.className} text-primary text-xl mb-2`}
+                >
+                  Archivos
+                </h2>
+                <div>
+                  <div className="flex flex-wrap gap-2 mt-4">
+                    {filesU.length > 0 &&
+                      filesU.map((f) => {
+                        return (
+                          <a
+                            target="_blank"
+                            href={`http://localhost:3000/uploads/medical-record/${f.url}`}
+                          >
+                            <Chip
+                              size="medium"
+                              variant="outlined"
+                              color="primary"
+                              className={`${robotoBold.className} hover:bg-primary hover:text-white`}
+                              label={f.name}
+                            />
+                          </a>
+                        );
+                      })}
+                  </div>
+                </div>
+              </div>
+            </Box>
+          </Fade>
+        </Modal>
       </section>
     </Layout>
   );

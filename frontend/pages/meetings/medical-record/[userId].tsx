@@ -62,9 +62,9 @@ export default function MedicalRecord(props: MedicalRecordI) {
   const [detail, setDetail] = useState<string>("");
   const [observations, setObservations] = useState<string>("");
   const [meeting, setMeeting] = useState<any>();
-  const [datetime, setDatetime] = useState<any>();
   const [file, setFile] = useState<any>();
   const [files, setFiles] = useState<boolean>(false);
+  const [filesU, setFilesU] = useState<any[]>([]);
   const [error, setError] = useState<boolean>(false);
   const [message, setMessage] = useState<string>("");
   const [success, setSuccess] = useState<boolean>(false);
@@ -72,6 +72,7 @@ export default function MedicalRecord(props: MedicalRecordI) {
   const [medicalRecordId, setMedicalRecordId] = useState<number>();
   const [modal, setModal] = useState<boolean>(false);
   const [add, setAdd] = useState<boolean>(false);
+  const [upload, setUpload] = useState<boolean>(false);
 
   useEffect(() => {
     moment.locale("es");
@@ -167,8 +168,13 @@ export default function MedicalRecord(props: MedicalRecordI) {
         }
       );
 
+      console.log(file);
+
       setSuccess(true);
       setMessage("Se ha agregado el archivo correctamente");
+      setModal(false);
+      setFile(false);
+      setUpload(false);
     } else {
       setError(true);
       setMessage("Por favor, seleccione un archivo valido");
@@ -268,22 +274,12 @@ export default function MedicalRecord(props: MedicalRecordI) {
                 onClick={() => {
                   setModal(true);
                   setAdd(true);
+                  setUpload(false);
                 }}
                 startIcon={<IoAdd />}
                 className="mr-auto"
               >
                 Nueva historia clínica
-              </Button>
-              <Button
-                onClick={() => {
-                  const file = document.getElementById("file");
-                  setFiles(false);
-                  file?.click();
-                }}
-                startIcon={<FaPaperclip />}
-                className="mr-auto"
-              >
-                Subir archivo
               </Button>
             </div>
             <div className="flex justify-center items-center gap-1">
@@ -426,16 +422,6 @@ export default function MedicalRecord(props: MedicalRecordI) {
                     >
                       <div className="flex justify-center items-center gap-2">
                         {row.detail}
-                        <div className="flex gap-2">
-                          {row.files.length > 0 && (
-                            <a
-                              target="_blank"
-                              href={`http://localhost:3000/uploads/medical-record/${row.files[0].url}`}
-                            >
-                              <FaFile className="text-primary text-lg hover:cursor-pointer" />
-                            </a>
-                          )}
-                        </div>
                       </div>
                     </TableCell>
                     <TableCell
@@ -456,12 +442,22 @@ export default function MedicalRecord(props: MedicalRecordI) {
                             className="text-primary text-lg hover:cursor-pointer hover:opacity-70"
                             onClick={() => {
                               setModal(true);
+                              setUpload(false);
                               setDetail(row.detail);
                               setObservations(row.observations!);
                               setMedicalRecordId(row.id);
                             }}
                           />
-                          <FaPaperclip className="text-primary text-lg hover:cursor-pointer hover:opacity-70" />
+                          <FaFile
+                            onClick={() => {
+                              setId(row.id);
+                              setModal(true);
+                              setUpload(true);
+                              setAdd(false);
+                              setFilesU(row.files);
+                            }}
+                            className="text-primary text-lg hover:cursor-pointer hover:opacity-70"
+                          />
                         </div>
                       )}
                     </TableCell>
@@ -483,40 +479,8 @@ export default function MedicalRecord(props: MedicalRecordI) {
           className="hidden"
           onChange={($e: any) => {
             setFile($e?.target?.files[0]);
-            setTimeout(() => {
-              const div = document.querySelector(".overflow-y-auto");
-              if (div) {
-                div.scrollTop = 1200;
-              }
-            }, 240);
           }}
         />
-        <div className="flex justify-center md:justify-normal">
-          {file ? (
-            <div className="md:w-1/2 p-8">
-              <div className="flex items-center gap-2">
-                {file?.type.includes("office") ? (
-                  <p className="text-primary mt-[2px] p-[2px] rounded-sm underline">
-                    {file?.name}
-                  </p>
-                ) : (
-                  <p className="text-primary mt-[2px] p-[2px] rounded-sm underline">
-                    {file?.name}
-                  </p>
-                )}
-                <Button
-                  startIcon={<FaPaperclip />}
-                  className="bg-primary text-white"
-                  onClick={handleClickAddFile}
-                >
-                  Agregar
-                </Button>
-              </div>
-            </div>
-          ) : (
-            ""
-          )}
-        </div>
         {files && (
           <div className="flex justify-center items-center gap-2 text-xl p-4">
             {props.medicalRecords.map((mr, idx) => {
@@ -592,54 +556,117 @@ export default function MedicalRecord(props: MedicalRecordI) {
             >
               <div className="flex flex-col gap-6">
                 <h2
-                  className={`${robotoBold.className} text-primary text-xl mb-4`}
+                  className={`${robotoBold.className} text-primary text-xl mb-2`}
                 >
-                  {add ? "Agregar historia clínica" : "Editar historia clínica"}
+                  {!upload
+                    ? add
+                      ? "Agregar historia clínica"
+                      : "Editar historia clínica"
+                    : "Archivos"}
                 </h2>
-                {add && (
-                  <Autocomplete
-                    onChange={(event, newValue: any) =>
-                      setMeeting(newValue ? newValue.id : null)
-                    }
-                    disablePortal
-                    noOptionsText="No hay reuniones realizadas"
-                    options={props.meetings.map(
-                      (meeting: MeetingResponseDto) => ({
-                        id: moment(meeting.startDatetime).format(
-                          "YYYY-MM-DDTHH:mm:ss"
-                        ),
-                        label: moment(meeting.startDatetime).format("LLL"),
-                      })
-                    )}
-                    renderInput={(params: any) => (
-                      <Input
-                        variant="outlined"
-                        onChange={() => {}}
-                        name="healthInsuranceId"
-                        {...params}
-                        label="Reunión"
+                {!upload ? (
+                  <>
+                    {add && (
+                      <Autocomplete
+                        onChange={(event, newValue: any) =>
+                          setMeeting(newValue ? newValue.id : null)
+                        }
+                        disablePortal
+                        noOptionsText="No hay reuniones realizadas"
+                        options={props.meetings.map(
+                          (meeting: MeetingResponseDto) => ({
+                            id: moment(meeting.startDatetime).format(
+                              "YYYY-MM-DDTHH:mm:ss"
+                            ),
+                            label: moment(meeting.startDatetime).format("LLL"),
+                          })
+                        )}
+                        renderInput={(params: any) => (
+                          <Input
+                            variant="outlined"
+                            onChange={() => {}}
+                            name="healthInsuranceId"
+                            {...params}
+                            label="Reunión"
+                          />
+                        )}
                       />
                     )}
-                  />
+                    <Input
+                      onChange={($e) => setDetail($e.target.value)}
+                      label="Detalle"
+                      multiline
+                      rows={4}
+                      fullWidth
+                      color="primary"
+                      variant="outlined"
+                      value={detail}
+                    />
+                    <Input
+                      onChange={($e) => setObservations($e.target.value)}
+                      label="Observaciones"
+                      fullWidth
+                      value={observations}
+                      variant="outlined"
+                    />
+                    <Button onClick={handleClickAdd}>ACEPTAR</Button>
+                  </>
+                ) : (
+                  <div>
+                    <div>
+                      <div className="flex justify-between items-center gap-2">
+                        <Button
+                          onClick={() => {
+                            const file = document.getElementById("file");
+                            setFiles(false);
+                            file?.click();
+                          }}
+                        >
+                          SUBIR ARCHIVO
+                        </Button>
+                        {file && (
+                          <div className="flex items-center gap-2">
+                            {file?.type.includes("office") ? (
+                              <p className="text-primary mt-[2px] p-[2px] rounded-sm underline">
+                                {file?.name}
+                              </p>
+                            ) : (
+                              <p className="text-primary mt-[2px] p-[2px] rounded-sm underline">
+                                {file?.name}
+                              </p>
+                            )}
+                            <Button
+                              startIcon={<FaPaperclip />}
+                              className="bg-primary text-white"
+                              onClick={handleClickAddFile}
+                            >
+                              Agregar
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex flex-wrap gap-2 mt-4">
+                      {filesU.length > 0 &&
+                        filesU.map((f) => {
+                          return (
+                            <a
+                              target="_blank"
+                              href={`http://localhost:3000/uploads/medical-record/${f.url}`}
+                            >
+                              <Chip
+                                size="medium"
+                                variant="outlined"
+                                color="primary"
+                                className={`${robotoBold.className} hover:bg-primary hover:text-white`}
+                                label={f.name}
+                              />
+                            </a>
+                          );
+                        })}
+                    </div>
+                  </div>
                 )}
-                <Input
-                  onChange={($e) => setDetail($e.target.value)}
-                  label="Detalle"
-                  multiline
-                  rows={4}
-                  fullWidth
-                  color="primary"
-                  variant="outlined"
-                  value={detail}
-                />
-                <Input
-                  onChange={($e) => setObservations($e.target.value)}
-                  label="Observaciones"
-                  fullWidth
-                  value={observations}
-                  variant="outlined"
-                />
-                <Button onClick={handleClickAdd}>ACEPTAR</Button>
               </div>
             </Box>
           </Fade>

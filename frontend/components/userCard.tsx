@@ -19,6 +19,7 @@ import "moment/locale/es";
 import Button from "./button";
 import Link from "next/link";
 import { showDni } from "@/lib/dni";
+import HealthInsurance from "./healthInsurance";
 
 const UserCard: React.FC<MeetingResponseDto> = (props) => {
   const theme = useTheme();
@@ -70,7 +71,14 @@ const UserCard: React.FC<MeetingResponseDto> = (props) => {
               <FaVenus className="text-primary" />
             )}
 
-            <p className="px-2">{props.user.gender ? "Masculino" : "Femenino"}</p>
+            <p className="px-2">
+              {props.user.gender ? "Masculino" : "Femenino"}
+            </p>
+          </div>
+          <div className="mt-4">
+            <HealthInsurance
+              healthInsurances={props.user.healthInsurances}
+            ></HealthInsurance>
           </div>
         </div>
         <div className="w-3/4 h-2 border-b-2 border-emerald-200"></div>

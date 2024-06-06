@@ -47,6 +47,7 @@ import { UserResponseDto } from "@/components/dto/user.dto";
 import Avatar from "@/components/avatar";
 import Input from "@/components/input";
 import { FaEdit } from "react-icons/fa";
+import HealthInsurance from "@/components/healthInsurance";
 
 interface MedicalRecordI {
   medicalRecords: MedicalRecordResponse[];
@@ -79,7 +80,6 @@ export default function MedicalRecord(props: MedicalRecordI) {
   }, []);
 
   const handleClickAdd = async () => {
-
     let success = false;
 
     if (add) {
@@ -109,7 +109,6 @@ export default function MedicalRecord(props: MedicalRecordI) {
           "Por favor, indique la reunión y el detalle de la misma. Las observaciones son opcionales"
         );
       }
-
     } else {
       if (detail.length === 0) {
         setMessage("El detalle es requerido");
@@ -151,8 +150,7 @@ export default function MedicalRecord(props: MedicalRecordI) {
       setDetail("");
       setObservations("");
       router.push(`/meetings/medical-record/${router.query.userId}`);
-    };
-
+    }
   };
 
   const handleClickAddFile = async () => {
@@ -242,7 +240,7 @@ export default function MedicalRecord(props: MedicalRecordI) {
               <h3 className="text-primary text-2xl">
                 {props.user.name} {props.user.surname}
               </h3>
-              <div className="flex flex-col">
+              <div className="flex items-center flex-col">
                 <p className="flex items-center gap-2">
                   <FaAddressCard className="text-primary" />{" "}
                   {props.user.dni && showDni(props.user.dni)}
@@ -259,19 +257,10 @@ export default function MedicalRecord(props: MedicalRecordI) {
                   )}
                   {props.user.gender ? "Masculino" : "Femenino"}
                 </p>
-                <div className="flex items-center gap-2">
-                  <FaKitMedical className="text-primary" />
-                  <div className="flex items-center gap-4">
-                    {props.user.healthInsurances.length > 0
-                      ? props.user.healthInsurances.map((hi) => {
-                        return (
-                          <p>
-                            {hi.healthInsurance.name} ({hi.cod})
-                          </p>
-                        );
-                      })
-                      : "-"}
-                  </div>
+                <div className="mt-4">
+                  <HealthInsurance
+                    healthInsurances={props.user.healthInsurances}
+                  ></HealthInsurance>
                 </div>
               </div>
             </div>
@@ -294,18 +283,20 @@ export default function MedicalRecord(props: MedicalRecordI) {
             </div>
             <div className="flex justify-center items-center gap-1">
               <Link
-                href={`/meetings/medical-record/${router.query.userId}?page=${router.query.page && Number(router.query.page) > 1
+                href={`/meetings/medical-record/${router.query.userId}?page=${
+                  router.query.page && Number(router.query.page) > 1
                     ? Number(router.query.page) - 1
                     : 1
-                  }`}
+                }`}
               >
                 <FaChevronLeft className="text-2xl" />
               </Link>
               <Link
-                href={`/meetings/medical-record/${router.query.userId}?page=${router.query.page && Number(router.query.page) < props.pages
+                href={`/meetings/medical-record/${router.query.userId}?page=${
+                  router.query.page && Number(router.query.page) < props.pages
                     ? Number(router.query.page) + 1
                     : props.pages + 1
-                  }`}
+                }`}
               >
                 <FaChevronRight className="text-2xl" />
               </Link>
@@ -452,7 +443,7 @@ export default function MedicalRecord(props: MedicalRecordI) {
                               setModal(true);
                               setUpload(false);
                               setDetail(row.detail);
-                              setObservations(row.observations ?? '');
+                              setObservations(row.observations ?? "");
                               setMedicalRecordId(row.id);
                             }}
                           />

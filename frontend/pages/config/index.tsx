@@ -140,7 +140,7 @@ export default function Config(props: ConfigProps) {
   const [minutesTo, setMinutesTo] = useState<string[]>([]);
   const [healthInsurance, setHealthInsurance] = useState<number>(0);
   const [duration, setDuration] = useState<number>(
-    props.doctor.durationMeeting ?? ''
+    props.doctor.durationMeeting ?? ""
   );
   const [day, setDay] = useState<number>(-1);
   const [from, setFrom] = useState<string>("");
@@ -163,22 +163,25 @@ export default function Config(props: ConfigProps) {
   const [month, setMonth] = useState<number>();
   const [year, setYear] = useState<number>();
 
-  const incompleteDoctorData = !props.doctor.cbu || !props.doctor.priceMeeting || !props.doctor.durationMeeting;
+  const incompleteDoctorData =
+    !props.doctor.cbu ||
+    !props.doctor.priceMeeting ||
+    !props.doctor.durationMeeting;
 
   useEffect(() => {
     addEventListener("resize", () => {
       setModify(false);
     });
-    setDescription(props.doctor.description ?? '');
+    setDescription(props.doctor.description ?? "");
   }, []);
 
   const updateForm = useFormik({
     initialValues: {
       durationMeeting: duration,
-      priceMeeting: props.doctor.priceMeeting ?? '',
-      phone: props.doctor.user.phone ?? '',
-      cbu: props.doctor.cbu ?? '',
-      alias: props.doctor.alias ?? '',
+      priceMeeting: props.doctor.priceMeeting ?? "",
+      phone: props.doctor.user.phone ?? "",
+      cbu: props.doctor.cbu ?? "",
+      alias: props.doctor.alias ?? "",
     },
     onSubmit: async (values, { setSubmitting }) => {
       if (values.priceMeeting.toString().length === 0) {
@@ -422,9 +425,10 @@ export default function Config(props: ConfigProps) {
                       Descripción
                     </h2>
                     <p
-                      className={`text-justify line-clamp-[8] ${!props.doctor.description &&
+                      className={`text-justify line-clamp-[8] ${
+                        !props.doctor.description &&
                         "text-red-400 font-semibold"
-                        }`}
+                      }`}
                     >
                       {props.doctor.description || "No posee descripción"}
                     </p>
@@ -458,7 +462,9 @@ export default function Config(props: ConfigProps) {
                           <FaStopwatch size={15} /> Duración de reunión
                         </h4>
                         <p>
-                          {props.doctor.durationMeeting ? `${props.doctor.durationMeeting} minutos` : '-'}
+                          {props.doctor.durationMeeting
+                            ? `${props.doctor.durationMeeting} minutos`
+                            : "-"}
                         </p>
                       </div>
                       <div className="hidden md:block">
@@ -478,8 +484,9 @@ export default function Config(props: ConfigProps) {
           </div>
           <div className="overflow-hidden w-full md:min-w-[70%] lg:h-full">
             <div
-              className={`flex flex-col h-full md:flex-row md:flex-nowrap items-center transition-all ease-in duration-500 ${modify ? "-translate-x-full" : ""
-                } gap-6`}
+              className={`flex flex-col h-full md:flex-row md:flex-nowrap items-center transition-all ease-in duration-500 ${
+                modify ? "-translate-x-full" : ""
+              } gap-6`}
             >
               <div className="bg-white w-full h-full rounded-md p-4 flex flex-col">
                 <div className="flex justify-between items-center">
@@ -539,7 +546,7 @@ export default function Config(props: ConfigProps) {
                       )}
                       renderInput={(params: any) => (
                         <Input
-                          onChange={() => { }}
+                          onChange={() => {}}
                           name="healthInsuranceId"
                           {...params}
                           label="Obra social"
@@ -557,16 +564,23 @@ export default function Config(props: ConfigProps) {
                     />
                     <a
                       href={`
-                      ${!month || !year
-                          ? `${process.env.NEXT_PUBLIC_API_URL
-                          }/meeting/report/${props.auth.id}/${new Date().getMonth() + 1
-                          }/${new Date().getFullYear()}/${healthInsurance === 0 ? 0 : healthInsurance
-                          }`
-                          : `${process.env.NEXT_PUBLIC_API_URL
-                          }/meeting/report/${props.auth.id
-                          }/${month}/${year}/${healthInsurance === 0 ? 0 : healthInsurance
-                          }`
-                        }`}
+                      ${
+                        !month || !year
+                          ? `${
+                              process.env.NEXT_PUBLIC_API_URL
+                            }/meeting/report/${props.auth.id}/${
+                              new Date().getMonth() + 1
+                            }/${new Date().getFullYear()}/${
+                              healthInsurance === 0 ? 0 : healthInsurance
+                            }`
+                          : `${
+                              process.env.NEXT_PUBLIC_API_URL
+                            }/meeting/report/${
+                              props.auth.id
+                            }/${month}/${year}/${
+                              healthInsurance === 0 ? 0 : healthInsurance
+                            }`
+                      }`}
                       target="_blank"
                     >
                       <Button>Generar reporte</Button>
@@ -613,21 +627,21 @@ export default function Config(props: ConfigProps) {
                     <p>
                       {props.doctor.plan
                         ? props.doctor.planSince &&
-                        `Miembro desde ${moment(
-                          props.doctor.planSince
-                        ).format("LL")}`
+                          `Miembro desde ${moment(
+                            props.doctor.planSince
+                          ).format("LL")}`
                         : "Actualmente se encuentra sin plan de trabajo, solicite uno para comenzar"}
                     </p>
                     {props.doctor.plan ? (
                       <ButtonGroup>
                         {Math.max(...props.plans.map((a) => a.id)) !==
                           props.doctor.plan.id && (
-                            <Link href={"/"}>
-                              <Button startIcon={<FaCircleUp />} color="info">
-                                Actualizar
-                              </Button>
-                            </Link>
-                          )}
+                          <Link href={"/"}>
+                            <Button startIcon={<FaCircleUp />} color="info">
+                              Actualizar
+                            </Button>
+                          </Link>
+                        )}
                         <Button
                           sx={{
                             "&.MuiButton-contained": {
@@ -743,43 +757,47 @@ export default function Config(props: ConfigProps) {
                         <p className="text-primary text-xl">Hasta</p>
                       </div>
                     </div>
-                    {days.map((day, idx) => {
-                      return (
-                        <div key={idx}>
-                          {day.day >= 0 ? (
-                            <p className="text-primary text-xl text-center border-y-2 border-primary px-10 py-2">
-                              {day.d}
-                            </p>
-                          ) : (
-                            ""
-                          )}
-                          <div className="flex justify-center items-center mx-4">
-                            {props.schedules.map((s) => {
-                              return (
-                                <div key={s.id}>
-                                  {s.day === day.day ? (
-                                    <div className="bg-primary text-xl text-white m-1 my-2 rounded-md border border-slate-600">
-                                      <p className="text-center p-2 border-b border-slate-600">
-                                        {s.start_hour < 10
-                                          ? "0".concat(s.start_hour.toString())
-                                          : s.start_hour}
-                                      </p>
-                                      <p className="text-center p-2">
-                                        {s.end_hour < 10
-                                          ? "0".concat(s.end_hour.toString())
-                                          : s.end_hour}
-                                      </p>
-                                    </div>
-                                  ) : (
-                                    ""
-                                  )}
-                                </div>
-                              );
-                            })}
+                    <div className="flex">
+                      {days.map((day, idx) => {
+                        return (
+                          <div key={idx}>
+                            {day.day >= 0 ? (
+                              <p className="text-primary text-xl text-center border-y-2 border-primary px-10 py-2">
+                                {day.d}
+                              </p>
+                            ) : (
+                              ""
+                            )}
+                            <div className="flex justify-center items-center mx-4">
+                              {props.schedules.map((s) => {
+                                return (
+                                  <div key={s.id}>
+                                    {s.day === day.day ? (
+                                      <div className="bg-primary text-xl text-white m-1 my-2 rounded-md border border-slate-600">
+                                        <p className="text-center p-2 border-b border-slate-600">
+                                          {s.start_hour < 10
+                                            ? "0".concat(
+                                                s.start_hour.toString()
+                                              )
+                                            : s.start_hour}
+                                        </p>
+                                        <p className="text-center p-2">
+                                          {s.end_hour < 10
+                                            ? "0".concat(s.end_hour.toString())
+                                            : s.end_hour}
+                                        </p>
+                                      </div>
+                                    ) : (
+                                      ""
+                                    )}
+                                  </div>
+                                );
+                              })}
+                            </div>
                           </div>
-                        </div>
-                      );
-                    })}
+                        );
+                      })}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -797,9 +815,15 @@ export default function Config(props: ConfigProps) {
                       >
                         Parámetros
                       </h3>
-                      {incompleteDoctorData &&
-                        <Alert className="w-full rounded-lg my-2" severity="warning">Para realizar reuniones debes de completar los datos obligatorios de tu configuración (*)</Alert>
-                      }
+                      {incompleteDoctorData && (
+                        <Alert
+                          className="w-full rounded-lg my-2"
+                          severity="warning"
+                        >
+                          Para realizar reuniones debes de completar los datos
+                          obligatorios de tu configuración (*)
+                        </Alert>
+                      )}
                       <div className="flex flex-col md:flex-row gap-10 mt-4 md:mt-0 justify-between items-center">
                         <div className="w-full xl:w-1/2">
                           <h4 className="text-primary text-lg flex justify-center items-center gap-2">
@@ -905,32 +929,32 @@ export default function Config(props: ConfigProps) {
               {confirmSchedule
                 ? "Rango horario"
                 : confirmUpdate
-                  ? "Datos personales"
-                  : confirmVerification
-                    ? "Verificacion de cuenta"
-                    : confirmVerificationHI
-                      ? "Verificacion de obra social"
-                      : confirmCancelPlan
-                        ? "Cancelar plan"
-                        : confirmHealthInsurance
-                          ? "Confirmar obra social"
-                          : ""}
+                ? "Datos personales"
+                : confirmVerification
+                ? "Verificacion de cuenta"
+                : confirmVerificationHI
+                ? "Verificacion de obra social"
+                : confirmCancelPlan
+                ? "Cancelar plan"
+                : confirmHealthInsurance
+                ? "Confirmar obra social"
+                : ""}
             </DialogTitle>
             <DialogContent>
               <DialogContentText id="alert-dialog-description">
                 {confirmSchedule
                   ? "¿Desea agregar el rango horario?"
                   : confirmUpdate
-                    ? "¿Desea actualizar los datos?"
-                    : confirmVerification
-                      ? "¿Desea solicitar la verificacion de la cuenta?"
-                      : confirmVerificationHI
-                        ? "¿Desea solicitar la verificacion de la obra social?"
-                        : confirmCancelPlan
-                          ? "¿Desea cancelar su plan actual?"
-                          : confirmHealthInsurance
-                            ? "¿Desea agregar la obra social?"
-                            : ""}
+                  ? "¿Desea actualizar los datos?"
+                  : confirmVerification
+                  ? "¿Desea solicitar la verificacion de la cuenta?"
+                  : confirmVerificationHI
+                  ? "¿Desea solicitar la verificacion de la obra social?"
+                  : confirmCancelPlan
+                  ? "¿Desea cancelar su plan actual?"
+                  : confirmHealthInsurance
+                  ? "¿Desea agregar la obra social?"
+                  : ""}
               </DialogContentText>
             </DialogContent>
             <DialogActions>

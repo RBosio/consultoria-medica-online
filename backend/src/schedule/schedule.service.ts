@@ -29,8 +29,8 @@ export class ScheduleService {
       },
       order: {
         day: 'ASC',
-        start_hour: 'ASC'
-      }
+        start_hour: 'ASC',
+      },
     });
   }
 
@@ -140,7 +140,8 @@ export class ScheduleService {
     const query = `
         select * from schedule 
         where ((start_hour < ${schedule.end_hour} and start_hour >= ${schedule.start_hour}) 
-        or (end_hour <= ${schedule.end_hour} and end_hour > ${schedule.start_hour})) 
+        or (end_hour <= ${schedule.end_hour} and end_hour > ${schedule.start_hour})
+        or (end_hour >= ${schedule.end_hour} and start_hour <= ${schedule.start_hour}))
         and day = ${schedule.day} 
         and doctorId = ${schedule.doctorId};
         `;

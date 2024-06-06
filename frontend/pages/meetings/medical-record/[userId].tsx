@@ -62,7 +62,6 @@ export default function MedicalRecord(props: MedicalRecordI) {
   const [detail, setDetail] = useState<string>("");
   const [observations, setObservations] = useState<string>("");
   const [meeting, setMeeting] = useState<any>();
-  const [datetime, setDatetime] = useState<any>();
   const [file, setFile] = useState<any>();
   const [files, setFiles] = useState<boolean>(false);
   const [error, setError] = useState<boolean>(false);
@@ -78,6 +77,9 @@ export default function MedicalRecord(props: MedicalRecordI) {
   }, []);
 
   const handleClickAdd = async () => {
+
+    let success = false;
+
     if (add) {
       if (detail && meeting) {
         await axios.post(
@@ -95,14 +97,17 @@ export default function MedicalRecord(props: MedicalRecordI) {
           }
         );
 
+        success = true;
         setSuccess(true);
         setMessage("Se ha agregado el registro médico correctamente");
+        setAdd(false);
       } else {
         setError(true);
         setMessage(
           "Por favor, indique la reunión y el detalle de la misma. Las observaciones son opcionales"
         );
       }
+
     } else {
       if (detail.length === 0) {
         setMessage("El detalle es requerido");
@@ -134,14 +139,18 @@ export default function MedicalRecord(props: MedicalRecordI) {
         }
       );
 
+      success = true;
       setSuccess(true);
       setMessage("Se ha actualizado el registro médico correctamente");
     }
 
-    setModal(false);
-    setDetail("");
-    setObservations("");
-    router.push(`/meetings/medical-record/${router.query.userId}`);
+    if (success) {
+      setModal(false);
+      setDetail("");
+      setObservations("");
+      router.push(`/meetings/medical-record/${router.query.userId}`);
+    };
+
   };
 
   const handleClickAddFile = async () => {
@@ -248,12 +257,12 @@ export default function MedicalRecord(props: MedicalRecordI) {
                   <div className="flex items-center gap-4">
                     {props.user.healthInsurances.length > 0
                       ? props.user.healthInsurances.map((hi) => {
-                          return (
-                            <p>
-                              {hi.healthInsurance.name} ({hi.cod})
-                            </p>
-                          );
-                        })
+                        return (
+                          <p>
+                            {hi.healthInsurance.name} ({hi.cod})
+                          </p>
+                        );
+                      })
                       : "-"}
                   </div>
                 </div>
@@ -288,20 +297,18 @@ export default function MedicalRecord(props: MedicalRecordI) {
             </div>
             <div className="flex justify-center items-center gap-1">
               <Link
-                href={`/meetings/medical-record/${router.query.userId}?page=${
-                  router.query.page && Number(router.query.page) > 1
+                href={`/meetings/medical-record/${router.query.userId}?page=${router.query.page && Number(router.query.page) > 1
                     ? Number(router.query.page) - 1
                     : 1
-                }`}
+                  }`}
               >
                 <FaChevronLeft className="text-2xl" />
               </Link>
               <Link
-                href={`/meetings/medical-record/${router.query.userId}?page=${
-                  router.query.page && Number(router.query.page) < props.pages
+                href={`/meetings/medical-record/${router.query.userId}?page=${router.query.page && Number(router.query.page) < props.pages
                     ? Number(router.query.page) + 1
                     : props.pages + 1
-                }`}
+                  }`}
               >
                 <FaChevronRight className="text-2xl" />
               </Link>
@@ -457,7 +464,7 @@ export default function MedicalRecord(props: MedicalRecordI) {
                             onClick={() => {
                               setModal(true);
                               setDetail(row.detail);
-                              setObservations(row.observations!);
+                              setObservations(row.observations ?? '');
                               setMedicalRecordId(row.id);
                             }}
                           />
@@ -614,7 +621,7 @@ export default function MedicalRecord(props: MedicalRecordI) {
                     renderInput={(params: any) => (
                       <Input
                         variant="outlined"
-                        onChange={() => {}}
+                        onChange={() => { }}
                         name="healthInsuranceId"
                         {...params}
                         label="Reunión"

@@ -48,6 +48,7 @@ import Avatar from "@/components/avatar";
 import Input from "@/components/input";
 import { FaEdit } from "react-icons/fa";
 import HealthInsurance from "@/components/healthInsurance";
+import Paginator from "@/components/paginator";
 
 interface MedicalRecordI {
   medicalRecords: MedicalRecordResponse[];
@@ -254,9 +255,9 @@ export default function MedicalRecord(props: MedicalRecordI) {
                   )}
                   {props.user.gender ? "Masculino" : "Femenino"}
                 </p>
-                  <HealthInsurance
-                    healthInsurances={props.user.healthInsurances}
-                  ></HealthInsurance>
+                <HealthInsurance
+                  healthInsurances={props.user.healthInsurances}
+                ></HealthInsurance>
               </div>
             </div>
           </div>
@@ -276,28 +277,10 @@ export default function MedicalRecord(props: MedicalRecordI) {
                 Nueva historia clínica
               </Button>
             </div>
-            <div className="flex justify-center items-center gap-1">
-              <Link
-                href={`/meetings/medical-record/${router.query.userId}?page=${router.query.page && Number(router.query.page) > 1
-                  ? Number(router.query.page) - 1
-                  : 1
-                  }`}
-              >
-                <FaChevronLeft className="text-2xl" />
-              </Link>
-              <Link
-                href={`/meetings/medical-record/${router.query.userId}?page=${router.query.page && Number(router.query.page) < props.pages
-                  ? Number(router.query.page) + 1
-                  : props.pages + 1
-                  }`}
-              >
-                <FaChevronRight className="text-2xl" />
-              </Link>
-              <p className="text-md">
-                Página {router.query.page ? router.query.page : 1} -{" "}
-                {props.pages === 0 ? 1 : props.pages}
-              </p>
-            </div>
+            <Paginator
+              pages={props.pages}
+              route={`/meetings/medical-record/${router.query.userId}`}
+            ></Paginator>
           </div>
           <TableContainer component={Paper}>
             <Table aria-label="medical record table">
@@ -548,7 +531,7 @@ export default function MedicalRecord(props: MedicalRecordI) {
                 p: 4,
               }}
             >
-              <div className={`flex flex-col ${upload ? 'gap-2' : 'gap-6'}`}>
+              <div className={`flex flex-col ${upload ? "gap-2" : "gap-6"}`}>
                 <h2
                   className={`${robotoBold.className} text-primary text-xl mb-2`}
                 >
@@ -578,7 +561,7 @@ export default function MedicalRecord(props: MedicalRecordI) {
                         renderInput={(params: any) => (
                           <Input
                             variant="outlined"
-                            onChange={() => { }}
+                            onChange={() => {}}
                             name="healthInsuranceId"
                             {...params}
                             label="Reunión"
@@ -643,7 +626,7 @@ export default function MedicalRecord(props: MedicalRecordI) {
                       </div>
                     </div>
                     <div className="flex flex-col gap-3 mt-2">
-                      {filesU.length > 0 ?
+                      {filesU.length > 0 ? (
                         filesU.map((f, idx) => {
                           return (
                             <a
@@ -660,7 +643,13 @@ export default function MedicalRecord(props: MedicalRecordI) {
                               />
                             </a>
                           );
-                        }) : <p>Aún no has cargado ningún archivo a esta historia clínica</p>}
+                        })
+                      ) : (
+                        <p>
+                          Aún no has cargado ningún archivo a esta historia
+                          clínica
+                        </p>
+                      )}
                     </div>
                   </>
                 )}

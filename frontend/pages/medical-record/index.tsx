@@ -24,6 +24,7 @@ import Button from "@/components/button";
 import { MeetingResponseDto } from "@/components/dto/meeting.dto";
 import { UserResponseDto } from "@/components/dto/user.dto";
 import Avatar from "@/components/avatar";
+import Paginator from "@/components/paginator";
 
 interface MedicalRecordI {
   medicalRecords: MedicalRecordResponse[];
@@ -77,29 +78,8 @@ export default function MedicalRecord(props: MedicalRecordI) {
           </div>
         </div>
         <div className="mx-8 mt-8 pb-4">
-          <div className="flex justify-end items-center gap-2 text-primary mb-4">
-            <Link
-              href={`/medical-record?page=${
-                router.query.page && Number(router.query.page) > 1
-                  ? Number(router.query.page) - 1
-                  : 1
-              }`}
-            >
-              <FaChevronLeft className="text-2xl" />
-            </Link>
-            <Link
-              href={`/medical-record?page=${
-                router.query.page && Number(router.query.page) < props.pages
-                  ? Number(router.query.page) + 1
-                  : props.pages
-              }`}
-            >
-              <FaChevronRight className="text-2xl" />
-            </Link>
-            <p className="text-md">
-              Página {router.query.page ? router.query.page : 1} -{" "}
-              {props.pages === 0 ? 1 : props.pages}
-            </p>
+          <div className="mb-4">
+            <Paginator pages={props.pages} route="/medical-record"></Paginator>
           </div>
           <TableContainer component={Paper}>
             <Table aria-label="medical record table">
@@ -218,16 +198,6 @@ export default function MedicalRecord(props: MedicalRecordI) {
                     >
                       <div className="flex justify-center items-center gap-2">
                         {row.detail}
-                        <div className="flex gap-2">
-                          {row.files.length > 0 && (
-                            <a
-                              target="_blank"
-                              href={`http://localhost:3000/uploads/medical-record/${row.files[0].url}`}
-                            >
-                              <FaFile className="text-primary text-lg hover:cursor-pointer" />
-                            </a>
-                          )}
-                        </div>
                       </div>
                     </TableCell>
                     <TableCell
@@ -290,7 +260,7 @@ export default function MedicalRecord(props: MedicalRecordI) {
                 </h2>
                 <div>
                   <div className="flex flex-wrap gap-2 mt-4">
-                    {filesU.length > 0 &&
+                    {filesU.length > 0 ? (
                       filesU.map((f) => {
                         return (
                           <a
@@ -306,7 +276,13 @@ export default function MedicalRecord(props: MedicalRecordI) {
                             />
                           </a>
                         );
-                      })}
+                      })
+                    ) : (
+                      <p>
+                        Aún no has cargado ningún archivo a esta historia
+                        clínica
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>

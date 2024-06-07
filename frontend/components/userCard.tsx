@@ -75,11 +75,9 @@ const UserCard: React.FC<MeetingResponseDto> = (props) => {
               {props.user.gender ? "Masculino" : "Femenino"}
             </p>
           </div>
-          <div className="mt-4">
             <HealthInsurance
               healthInsurances={props.user.healthInsurances}
             ></HealthInsurance>
-          </div>
         </div>
         <div className="w-3/4 h-2 border-b-2 border-emerald-200"></div>
         <Link href={`/meetings/medical-record/${props.user.id}`}>

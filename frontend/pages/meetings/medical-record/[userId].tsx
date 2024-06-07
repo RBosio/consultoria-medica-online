@@ -254,11 +254,9 @@ export default function MedicalRecord(props: MedicalRecordI) {
                   )}
                   {props.user.gender ? "Masculino" : "Femenino"}
                 </p>
-                <div className="mt-4">
                   <HealthInsurance
                     healthInsurances={props.user.healthInsurances}
                   ></HealthInsurance>
-                </div>
               </div>
             </div>
           </div>

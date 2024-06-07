@@ -179,8 +179,10 @@ export default function MedicalRecord(props: MedicalRecordI) {
 
       setSuccess(true);
       setMessage("Se ha agregado el archivo correctamente");
-      setFile(false);
+      setFile(null);
       setModal(false);
+      const f = document.querySelector("#file") as HTMLInputElement;
+      f.value = "";
     } else {
       setError(true);
       setMessage("Por favor, seleccione un archivo válido");

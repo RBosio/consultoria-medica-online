@@ -176,16 +176,13 @@ export default function MedicalRecord(props: MedicalRecordI) {
         }
       );
 
-      console.log(file);
-
       setSuccess(true);
       setMessage("Se ha agregado el archivo correctamente");
-      setModal(false);
       setFile(false);
-      setUpload(false);
+      setModal(false);
     } else {
       setError(true);
-      setMessage("Por favor, seleccione un archivo valido");
+      setMessage("Por favor, seleccione un archivo válido");
     }
 
     setFile(null);
@@ -283,20 +280,18 @@ export default function MedicalRecord(props: MedicalRecordI) {
             </div>
             <div className="flex justify-center items-center gap-1">
               <Link
-                href={`/meetings/medical-record/${router.query.userId}?page=${
-                  router.query.page && Number(router.query.page) > 1
-                    ? Number(router.query.page) - 1
-                    : 1
-                }`}
+                href={`/meetings/medical-record/${router.query.userId}?page=${router.query.page && Number(router.query.page) > 1
+                  ? Number(router.query.page) - 1
+                  : 1
+                  }`}
               >
                 <FaChevronLeft className="text-2xl" />
               </Link>
               <Link
-                href={`/meetings/medical-record/${router.query.userId}?page=${
-                  router.query.page && Number(router.query.page) < props.pages
-                    ? Number(router.query.page) + 1
-                    : props.pages + 1
-                }`}
+                href={`/meetings/medical-record/${router.query.userId}?page=${router.query.page && Number(router.query.page) < props.pages
+                  ? Number(router.query.page) + 1
+                  : props.pages + 1
+                  }`}
               >
                 <FaChevronRight className="text-2xl" />
               </Link>
@@ -537,6 +532,7 @@ export default function MedicalRecord(props: MedicalRecordI) {
             setModal(false);
             setAdd(false);
             setDetail("");
+            setFile(false);
             setObservations("");
           }}
         >
@@ -547,13 +543,14 @@ export default function MedicalRecord(props: MedicalRecordI) {
                 position: "absolute" as "absolute",
                 top: "50%",
                 left: "50%",
+                outline: "none",
                 transform: "translate(-50%, -50%)",
                 bgcolor: "background.paper",
                 boxShadow: 24,
                 p: 4,
               }}
             >
-              <div className="flex flex-col gap-6">
+              <div className={`flex flex-col ${upload ? 'gap-2' : 'gap-6'}`}>
                 <h2
                   className={`${robotoBold.className} text-primary text-xl mb-2`}
                 >
@@ -583,7 +580,7 @@ export default function MedicalRecord(props: MedicalRecordI) {
                         renderInput={(params: any) => (
                           <Input
                             variant="outlined"
-                            onChange={() => {}}
+                            onChange={() => { }}
                             name="healthInsuranceId"
                             {...params}
                             label="Reunión"
@@ -611,10 +608,11 @@ export default function MedicalRecord(props: MedicalRecordI) {
                     <Button onClick={handleClickAdd}>ACEPTAR</Button>
                   </>
                 ) : (
-                  <div>
+                  <>
                     <div>
-                      <div className="flex justify-between items-center gap-2">
+                      <div className="flex flex-col gap-2 flex-wrap xl:flex-nowrap items-start xl:justify-between xl:items-center xl:flex-row xl:gap-0">
                         <Button
+                          startIcon={<IoAdd />}
                           onClick={() => {
                             const file = document.getElementById("file");
                             setFiles(false);
@@ -624,32 +622,34 @@ export default function MedicalRecord(props: MedicalRecordI) {
                           SUBIR ARCHIVO
                         </Button>
                         {file && (
-                          <div className="flex items-center gap-2">
+                          <>
                             {file?.type.includes("office") ? (
-                              <p className="text-primary mt-[2px] p-[2px] rounded-sm underline">
+                              <p className="text-primary mt-[2px] p-[2px] rounded-sm underline text-center">
                                 {file?.name}
                               </p>
                             ) : (
-                              <p className="text-primary mt-[2px] p-[2px] rounded-sm underline">
+                              <p className="text-primary mt-[2px] p-[2px] rounded-sm underline text-center">
                                 {file?.name}
                               </p>
                             )}
                             <Button
+                              size="small"
+                              variant="outlined"
                               startIcon={<FaPaperclip />}
-                              className="bg-primary text-white"
                               onClick={handleClickAddFile}
                             >
                               Agregar
                             </Button>
-                          </div>
+                          </>
                         )}
                       </div>
                     </div>
-                    <div className="flex flex-wrap gap-2 mt-4">
-                      {filesU.length > 0 &&
-                        filesU.map((f) => {
+                    <div className="flex flex-col gap-3 mt-2">
+                      {filesU.length > 0 ?
+                        filesU.map((f, idx) => {
                           return (
                             <a
+                              key={idx}
                               target="_blank"
                               href={`http://localhost:3000/uploads/medical-record/${f.url}`}
                             >
@@ -662,9 +662,9 @@ export default function MedicalRecord(props: MedicalRecordI) {
                               />
                             </a>
                           );
-                        })}
+                        }) : <p>Aún no has cargado ningún archivo a esta historia clínica</p>}
                     </div>
-                  </div>
+                  </>
                 )}
               </div>
             </Box>

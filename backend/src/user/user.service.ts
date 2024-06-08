@@ -317,6 +317,7 @@ export class UserService {
       birthday: new Date('1993-04-01'),
       gender: true,
       city: 82084,
+      image: "user.jpg"
     });
 
     await this.create({
@@ -345,6 +346,7 @@ export class UserService {
       birthday: new Date('1993-04-01'),
       gender: false,
       city: 82084,
+      image: "user2.jpg"
     });
   }
 }

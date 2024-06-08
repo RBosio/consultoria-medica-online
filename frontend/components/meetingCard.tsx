@@ -27,10 +27,10 @@ const MeetingCard: React.FC<MeetingResponseDto> = (props) => {
           <img
             src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/user/images/${props.doctor.user.image}`}
             alt="Profile photo"
-            className="max-h-48 sm:h-56 object-cover object-center w-full"
+            className="min-h-60 max-h-80 sm:h-56 object-cover object-center w-full"
           />
         ) : (
-          <div className="w-full bg-primary flex items-center justify-center p-6">
+          <div className="min-h-60 w-full bg-primary flex items-center justify-center p-6">
             <FaUserDoctor color="#ffffff" size={80} />
           </div>
         )

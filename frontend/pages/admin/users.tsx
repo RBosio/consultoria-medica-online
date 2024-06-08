@@ -8,6 +8,8 @@ import { SpecialityResponseDto } from "@/components/dto/speciality.dto";
 import {
   Alert,
   Box,
+  Chip,
+  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
@@ -29,34 +31,45 @@ import {
   useTheme,
 } from "@mui/material";
 import {
+  FaBriefcaseMedical,
   FaChevronLeft,
   FaChevronRight,
   FaCircleInfo,
+  FaClock,
+  FaFile,
   FaSort,
   FaUserDoctor,
   FaXmark,
 } from "react-icons/fa6";
 import { FaCheck } from "react-icons/fa";
-import { useRouter } from "next/router";
 import { PRIMARY_COLOR } from "@/constants";
 import { UserResponseDto } from "@/components/dto/user.dto";
-import { UserHealthInsuranceResponseDto } from "@/components/dto/userHealthInsurance.dto";
 import Link from "next/link";
 import Button from "@/components/button";
 import Input from "@/components/input";
+import Avatar from "@/components/avatar";
+import { IoIosCloseCircleOutline, IoMdMail } from "react-icons/io";
+import { FaHome, FaPhoneAlt, FaUser } from "react-icons/fa";
+import { BsCurrencyDollar, BsFillCreditCard2FrontFill } from "react-icons/bs";
+import { MdHealthAndSafety } from "react-icons/md";
+import { pesos } from "@/lib/formatCurrency";
+import { CiMedicalClipboard } from "react-icons/ci";
 
 interface Speciality {
   auth: Auth;
   users: UserResponseDto[];
 }
 
+interface UserResponseDtoExt extends UserResponseDto {
+  province: string;
+  cityStr: string;
+}
+
 export default function Home(props: Speciality) {
   const [error, setError] = useState<boolean>(false);
   const [success, setSuccess] = useState<boolean>(false);
   const [message, setMessage] = useState<string>("");
-  const [confirm, setConfirm] = useState<boolean>(false);
-  const [user, setUser] = useState<UserResponseDto | null>();
-  const [info, setInfo] = useState<boolean>(false);
+  const [user, setUser] = useState<UserResponseDtoExt | null>();
   const [users, setUsers] = useState<any[]>([]);
   const [usersFiltered, setUsersFiltered] = useState<any[]>([]);
   const [page, setPage] = useState<any>();
@@ -64,9 +77,27 @@ export default function Home(props: Speciality) {
   const [verify, setVerify] = useState<boolean>(false);
   const [name, setName] = useState<string>("");
   const [directionName, setDirectionName] = useState<string>("asc");
+  const [cityLoading, setCityLoading] = useState(false);
 
   const theme = useTheme();
-  const router = useRouter();
+
+  useEffect(() => {
+    async function updateDepartment() {
+      if (!o || !user?.city) return;
+      setCityLoading(true);
+      const depReq = await axios.get(
+        `https://apis.datos.gob.ar/georef/api/departamentos?id=${user?.city}`
+      );
+      const data = depReq.data.departamentos[0];
+      setUser({
+        ...user,
+        province: data.provincia.nombre,
+        cityStr: data.nombre,
+      });
+      setCityLoading(false);
+    }
+    updateDepartment();
+  }, [o]);
 
   useEffect(() => {
     setPage(1);
@@ -89,62 +120,6 @@ export default function Home(props: Speciality) {
         sp.filter((s, idx) => idx >= 10 * (p - 1) && idx < 10 * p)
       );
     }
-  };
-
-  const onConfirmClick = async () => {
-    if (confirm) {
-      handleHealthInsurance();
-    }
-    if (verify) {
-      const doctorId = Number(localStorage.getItem("doctorId"));
-      handleVerification(doctorId);
-    }
-  };
-
-  const handleHealthInsurance = async () => {
-    const healthInsuranceId = Number(localStorage.getItem("healthInsuranceId"));
-    const userHIId = Number(localStorage.getItem("userHIId"));
-
-    await axios.patch(
-      `${process.env.NEXT_PUBLIC_API_URL}/user/${userHIId}`,
-      {
-        healthInsuranceId,
-        verify: true,
-      },
-      {
-        withCredentials: true,
-        headers: { Authorization: `Bearer ${props.auth.token}` },
-      }
-    );
-
-    setSuccess(true);
-    setMessage("Obra social validada correctamente");
-
-    const user = props.users.find((u) => u.id === userHIId);
-    user?.healthInsurances.map(
-      (hi) =>
-        hi.healthInsurance.id === healthInsuranceId && (hi.verified = true)
-    );
-
-    setUsers(props.users.map((u) => (u.id === userHIId ? user : u)));
-    setUser(null);
-
-    setO(false);
-    setConfirm(false);
-
-    await axios.post(
-      `${process.env.NEXT_PUBLIC_API_URL}/notification`,
-      {
-        userIdSend: props.auth.id,
-        userIdReceive: userHIId,
-        type: "verificationHi",
-        healthInsuranceId: healthInsuranceId,
-      },
-      {
-        withCredentials: true,
-        headers: { Authorization: `Bearer ${props.auth.token}` },
-      }
-    );
   };
 
   const handleVerification = async (doctorId: number) => {
@@ -244,46 +219,48 @@ export default function Home(props: Speciality) {
               sidebarOpened
             />
           </div>
-          <div className="bg-white p-4 w-full h-full">
+          <div className="bg-white p-4 w-full h-full rounded-lg shadow-lg">
             <section className="w-full rounded-md flex flex-col items-center relative">
-              <div className="flex justify-between items-center gap-4 w-5/6">
-                <Input
-                  name="name"
-                  value={name}
-                  onChange={($e: any) => {
-                    setName($e.target.value.toLowerCase());
-                    filterChange($e.target.value.toLowerCase());
-                  }}
-                  startadornment={
-                    <FaUserDoctor color={theme.palette.primary.main} />
-                  }
-                  className="w-1/2"
-                  label="Paciente"
-                />
-              </div>
               <div className="w-5/6">
                 {
-                  <div className="flex justify-end items-center gap-2 text-primary py-4">
-                    <FaChevronLeft
-                      className="text-2xl hover:cursor-pointer"
-                      onClick={() => {
-                        pagination(page - 1);
-                        setName("");
+                  <div className="flex justify-between items-center py-4">
+                    <Input
+                      name="name"
+                      value={name}
+                      placeholder="Buscar por usuario..."
+                      variant="outlined"
+                      onChange={($e: any) => {
+                        setName($e.target.value.toLowerCase());
+                        filterChange($e.target.value.toLowerCase());
                       }}
+                      startadornment={
+                        <FaUserDoctor color={theme.palette.primary.main} />
+                      }
+                      className="w-4/12"
+                      label="Usuario"
                     />
+                    <div className="flex gap-2 text-primary">
+                      <FaChevronLeft
+                        className="text-2xl hover:cursor-pointer"
+                        onClick={() => {
+                          pagination(page - 1);
+                          setName("");
+                        }}
+                      />
 
-                    <FaChevronRight
-                      className="text-2xl hover:cursor-pointer"
-                      onClick={() => {
-                        pagination(page + 1);
-                        setName("");
-                      }}
-                    />
+                      <FaChevronRight
+                        className="text-2xl hover:cursor-pointer"
+                        onClick={() => {
+                          pagination(page + 1);
+                          setName("");
+                        }}
+                      />
 
-                    <p className="text-md">
-                      Página {page ? page : 1} -{" "}
-                      {Math.ceil(props.users.length / 10)}
-                    </p>
+                      <p className="text-md">
+                        Página {page ? page : 1} -
+                        {Math.ceil(props.users.length / 10)}
+                      </p>
+                    </div>
                   </div>
                 }
                 <TableContainer component={Paper}>
@@ -350,6 +327,16 @@ export default function Home(props: Speciality) {
                             fontSize: "1.2rem",
                           }}
                         >
+                          Plan
+                        </TableCell>
+                        <TableCell
+                          align="center"
+                          sx={{
+                            color: "#fff",
+                            padding: "1.2rem",
+                            fontSize: "1.2rem",
+                          }}
+                        >
                           Operaciones
                         </TableCell>
                       </TableRow>
@@ -389,27 +376,20 @@ export default function Home(props: Speciality) {
                             sx={{ padding: "1.2rem", fontSize: "1.2rem" }}
                           >
                             <div className="flex justify-center items-center gap-2">
-                              {row.healthInsurances.map(
-                                (
-                                  hi: UserHealthInsuranceResponseDto,
-                                  idx: number
-                                ) => {
-                                  return (
-                                    <div key={idx}>
-                                      {hi.healthInsurance && (
-                                        <div className="flex justify-center gap-1">
-                                          {hi.healthInsurance.name}
-                                          {hi.verified ? (
-                                            <FaCheck className="text-green-500" />
-                                          ) : (
-                                            <FaXmark className="text-red-500" />
-                                          )}
-                                        </div>
-                                      )}
-                                    </div>
-                                  );
-                                }
-                              )}
+                              {row.healthInsurances.length > 0
+                                ? row.healthInsurances
+                                    ?.map((hi: any) => hi.healthInsurance.name)
+                                    .join(", ")
+                                : "-"}
+                            </div>
+                          </TableCell>
+                          <TableCell
+                            className="text-sm"
+                            align="center"
+                            sx={{ padding: "1.2rem", fontSize: "1.2rem" }}
+                          >
+                            <div className="flex justify-center items-center gap-2">
+                              {row.doctor?.plan ? row.doctor.plan.name : "-"}
                             </div>
                           </TableCell>
                           <TableCell
@@ -423,8 +403,6 @@ export default function Home(props: Speciality) {
                                 onClick={() => {
                                   setUser(row);
                                   setO(true);
-
-                                  setInfo(true);
                                 }}
                               />
                               {row?.doctor ? (
@@ -472,14 +450,27 @@ export default function Home(props: Speciality) {
                         p: 4,
                       }}
                     >
-                      <Typography
-                        id="modal-modal-title"
-                        variant="h6"
-                        component="h2"
-                        className="text-center text-primary text-2xl"
-                      >
-                        Información del usuario
-                      </Typography>
+                      <div className="flex items-center justify-center gap-4">
+                        {user?.image && (
+                          <Avatar
+                            labelProps={{
+                              className: "hidden",
+                            }}
+                            name={user?.name ?? ""}
+                            surname={user?.surname ?? ""}
+                            className="bg-white"
+                            size={70}
+                            photo={user?.image ? user.image : undefined}
+                          />
+                        )}
+                        <Typography
+                          variant="h6"
+                          component="h2"
+                          className="text-center text-primary text-2xl"
+                        >
+                          {user?.name} {user?.surname}
+                        </Typography>
+                      </div>
                       <Typography
                         id="modal-modal-description"
                         component={"span"}
@@ -488,222 +479,163 @@ export default function Home(props: Speciality) {
                       >
                         {user && (
                           <div
-                            className={`mt-4 p-4 mx-auto ${
+                            className={`p-4 mx-auto ${
                               !user?.doctor && "flex flex-col items-center"
                             }`}
                           >
-                            <div className="flex flex-col md:flex-row gap-4 md:gap-0 justify-between">
+                            <div className="flex flex-col gap-4">
                               <div className="flex flex-col gap-2">
-                                <div className="flex items-center gap-2">
-                                  <p className="text-primary text-lg">
-                                    Nombre:
-                                  </p>{" "}
-                                  {user.name}
+                                <div className="text-primary text-xl py-2 flex gap-2 items-center">
+                                  <FaUser size={18} />
+                                  <h3>Datos personales</h3>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                  <p className="text-primary text-lg">
-                                    Apellido:
-                                  </p>{" "}
-                                  {user.surname}
-                                </div>
-                                <div className="flex items-center gap-2">
-                                  <p className="text-primary text-lg">Email:</p>{" "}
+                                  <div className="flex items-center text-primary text-[16px] gap-1">
+                                    <IoMdMail />
+                                    Email:
+                                  </div>
                                   {user.email}
                                 </div>
                                 <div className="flex items-center gap-2">
-                                  <p className="text-primary text-lg">
+                                  <div className="flex items-center text-primary text-[16px] gap-1">
+                                    <FaHome />
                                     Dirección:
-                                  </p>{" "}
-                                  {user.address || "-"}
+                                  </div>
+                                  {cityLoading ? (
+                                    <CircularProgress size={15} />
+                                  ) : user.address ? (
+                                    `${user.address} - ${user.cityStr}, ${user.province}`
+                                  ) : (
+                                    "-"
+                                  )}
                                 </div>
                                 <div className="flex items-center gap-2">
-                                  <p className="text-primary text-lg">
+                                  <div className="flex items-center text-primary text-[16px] gap-1">
+                                    <FaPhoneAlt />
                                     Teléfono:
-                                  </p>{" "}
+                                  </div>
                                   {user.phone || "-"}
                                 </div>
                                 <div className="flex items-center gap-2">
-                                  <p className="text-primary text-lg">DNI:</p>{" "}
+                                  <div className="flex items-center text-primary text-[16px] gap-1">
+                                    <BsFillCreditCard2FrontFill />
+                                    DNI:
+                                  </div>
                                   {user.dni}
                                 </div>
-                                <div className="flex items-center gap-2">
-                                  <p className="text-primary text-lg">
-                                    Obras sociales:
-                                  </p>{" "}
-                                  {user.healthInsurances.map((hi, idx) => {
-                                    return (
-                                      hi.healthInsurance && (
-                                        <div
-                                          className="flex items-center gap-2"
-                                          key={idx}
-                                        >
-                                          <p
-                                            className={`${
-                                              hi.verified
-                                                ? "text-green-600"
-                                                : "text-red-600"
-                                            }
-                                  hover:cursor-pointer hover:underline`}
-                                            onClick={() => {
-                                              if (hi.verified) return;
-
-                                              localStorage.setItem(
-                                                "healthInsuranceId",
-                                                hi.healthInsurance.id.toString()
-                                              );
-                                              localStorage.setItem(
-                                                "userHIId",
-                                                user.id.toString()
-                                              );
-
-                                              setConfirm(true);
-                                            }}
-                                          >
-                                            {hi.healthInsurance.name}{" "}
-                                          </p>
-                                          {hi.verified ? (
-                                            <FaCheck className="text-green-500" />
-                                          ) : (
-                                            <FaXmark className="text-red-500" />
-                                          )}
-                                        </div>
-                                      )
-                                    );
-                                  })}
-                                </div>
-                                <div className="flex items-center gap-2">
-                                  <p className="text-primary text-lg">
-                                    Archivos:
-                                  </p>{" "}
-                                  {user?.healthInsurances.map((hi, idx) => {
-                                    if (hi.file_url) {
-                                      return (
-                                        <Link
-                                          key={idx}
-                                          target="_blank"
-                                          href={`http://localhost:3000/uploads/user/healthInsurances/${hi.file_url}`}
-                                          className="flex justify-center gap-2 text-sm text-cyan-600 hover:underline"
-                                        >
-                                          {hi.file_name}
-                                        </Link>
-                                      );
-                                    }
-                                  })}
-                                  {user.doctor?.registration && (
-                                    <Link
-                                      target="_blank"
-                                      href={`http://localhost:3000/uploads/doctor/registration/${user.doctor.registration}`}
-                                      className="flex justify-center gap-2 text-sm text-cyan-600 hover:underline"
-                                    >
-                                      Matrícula
-                                    </Link>
-                                  )}
-                                  {user.doctor?.title && (
-                                    <Link
-                                      target="_blank"
-                                      href={`http://localhost:3000/uploads/doctor/title/${user.doctor.title}`}
-                                      className="flex justify-center gap-2 text-sm text-cyan-600 hover:underline"
-                                    >
-                                      Título
-                                    </Link>
-                                  )}
-                                </div>
-                              </div>
-                              <div
-                                className={`${
-                                  user.doctor && "ml-24"
-                                } hidden md:block`}
-                              >
-                                {user?.doctor && (
-                                  <div className="flex flex-col gap-2">
-                                    <div className="flex items-center gap-2">
-                                      <p className="text-primary text-lg">
-                                        Verificado:
-                                      </p>
-                                      {user.doctor?.verified ? (
-                                        <FaCheck className="text-green-400" />
-                                      ) : (
-                                        user.doctor.id && (
-                                          <>
-                                            <FaXmark className="text-red-400" />
-                                            <Button
-                                              onClick={() => {
-                                                localStorage.setItem(
-                                                  "doctorId",
-                                                  Number(
-                                                    user.doctor?.id
-                                                  ).toString()
-                                                );
-                                                setVerify(true);
-                                              }}
-                                            >
-                                              Verificar
-                                            </Button>
-                                          </>
-                                        )
-                                      )}
+                                {!user.doctor && (
+                                  <div className="flex items-center gap-2">
+                                    <div className="flex items-center text-primary text-[16px] gap-1">
+                                      <MdHealthAndSafety />
+                                      Obras Sociales:
                                     </div>
-                                    <div className="flex items-center gap-2">
-                                      <p className="text-primary text-lg">
-                                        Duración de la reunión:
-                                      </p>
-                                      {user.doctor?.durationMeeting} min
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                      <p className="text-primary text-lg">
-                                        Especialidades:{" "}
-                                      </p>
-                                      {user.doctor?.specialities
-                                        .map((s) => s.name)
-                                        .join(", ")}
-                                    </div>
+                                    {user.healthInsurances.length > 0
+                                      ? user.healthInsurances
+                                          ?.map((hi) => hi.healthInsurance.name)
+                                          .join(", ")
+                                      : "-"}
                                   </div>
                                 )}
                               </div>
-                            </div>
-                            <div className="my-4 md:hidden">
                               {user?.doctor && (
                                 <div className="flex flex-col gap-2">
+                                  <div className="text-primary text-xl py-2 flex gap-2 items-center">
+                                    <FaBriefcaseMedical size={18} />
+                                    <h3>Datos del profesional</h3>
+                                  </div>
                                   <div className="flex items-center gap-2">
-                                    <p className="text-primary text-lg">
-                                      Verificado:
-                                    </p>
-                                    {user.doctor?.verified ? (
-                                      <FaCheck className="text-green-400" />
-                                    ) : (
-                                      user.doctor.id && (
-                                        <>
-                                          <FaXmark className="text-red-400" />
-                                          <Button
-                                            onClick={() => {
-                                              localStorage.setItem(
-                                                "doctorId",
-                                                Number(
-                                                  user.doctor?.id
-                                                ).toString()
-                                              );
-                                              setVerify(true);
-                                            }}
-                                          >
-                                            Verificar
-                                          </Button>
-                                        </>
-                                      )
+                                    <Chip
+                                      color={
+                                        user.doctor?.verified
+                                          ? "primary"
+                                          : "error"
+                                      }
+                                      className="text-white p-2"
+                                      icon={
+                                        user.doctor?.verified ? (
+                                          <FaCheck />
+                                        ) : (
+                                          <IoIosCloseCircleOutline size={20} />
+                                        )
+                                      }
+                                      label={
+                                        user.doctor?.verified
+                                          ? "Verificado"
+                                          : "No verificado"
+                                      }
+                                    />
+                                    {!user.doctor?.verified && (
+                                      <Button
+                                        variant="text"
+                                        onClick={() => {
+                                          setVerify(true);
+                                        }}
+                                      >
+                                        Verificar profesional
+                                      </Button>
                                     )}
                                   </div>
                                   <div className="flex items-center gap-2">
-                                    <p className="text-primary text-lg">
-                                      Duración de la reunión:
-                                    </p>
-                                    {user.doctor?.durationMeeting} min
+                                    <div className="flex items-center text-primary text-[16px] gap-1">
+                                      <FaFile />
+                                      Archivos:
+                                    </div>
+                                    {user.doctor?.registration && (
+                                      <Link
+                                        target="_blank"
+                                        href={`http://localhost:3000/uploads/doctor/registration/${user.doctor.registration}`}
+                                        className="flex justify-center gap-2 text-sm text-cyan-600 hover:underline"
+                                      >
+                                        Matrícula profesional
+                                      </Link>
+                                    )}
+                                    {user.doctor?.title && (
+                                      <Link
+                                        target="_blank"
+                                        href={`http://localhost:3000/uploads/doctor/title/${user.doctor.title}`}
+                                        className="flex justify-center gap-2 text-sm text-cyan-600 hover:underline"
+                                      >
+                                        Título universitario
+                                      </Link>
+                                    )}
                                   </div>
                                   <div className="flex items-center gap-2">
-                                    <p className="text-primary text-lg">
-                                      Especialidades:{" "}
-                                    </p>
+                                    <div className="flex items-center text-primary text-[16px] gap-1">
+                                      <FaClock />
+                                      Duración de reuniones:
+                                    </div>
+                                    {user.doctor?.durationMeeting
+                                      ? `${user.doctor?.durationMeeting} min`
+                                      : "-"}
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <div className="flex items-center text-primary text-[16px] gap-1">
+                                      <BsCurrencyDollar />
+                                      Costo de reuniones:
+                                    </div>
+                                    {user.doctor?.priceMeeting
+                                      ? pesos.format(user.doctor.priceMeeting)
+                                      : "-"}
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <div className="flex items-center text-primary text-[16px] gap-1">
+                                      <CiMedicalClipboard size={18} />
+                                      Especialidades:
+                                    </div>
                                     {user.doctor?.specialities
                                       .map((s) => s.name)
                                       .join(", ")}
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <div className="flex items-center text-primary text-[16px] gap-1">
+                                      <MdHealthAndSafety />
+                                      Obras Sociales:
+                                    </div>
+                                    {user.healthInsurances.length > 0
+                                      ? user.healthInsurances
+                                          ?.map((hi) => hi.healthInsurance.name)
+                                          .join(", ")
+                                      : "-"}
                                   </div>
                                 </div>
                               )}
@@ -719,24 +651,19 @@ export default function Home(props: Speciality) {
           </div>
         </div>
         <Dialog
-          open={confirm || verify}
+          open={verify}
           onClose={() => {
-            setConfirm(false);
             setVerify(false);
           }}
           aria-labelledby="alert-dialog-title"
           aria-describedby="alert-dialog-description"
         >
           <DialogTitle id="alert-dialog-title" className="text-center">
-            {confirm ? "Validar obra social" : verify ? "Validar doctor" : ""}
+            Validar doctor
           </DialogTitle>
           <DialogContent>
             <DialogContentText id="alert-dialog-description">
-              {confirm
-                ? "¿Desea validar la obra social?"
-                : verify
-                ? "¿Desea verificar al doctor?"
-                : ""}
+              ¿Desea verificar al doctor?
             </DialogContentText>
           </DialogContent>
           <DialogActions>
@@ -744,13 +671,15 @@ export default function Home(props: Speciality) {
               color="error"
               variant="text"
               onClick={() => {
-                setConfirm(false);
                 setVerify(false);
               }}
             >
               Cancelar
             </Button>
-            <Button onClick={onConfirmClick} autoFocus>
+            <Button
+              onClick={() => handleVerification(user?.doctor?.id ?? 0)}
+              autoFocus
+            >
               Confirmar
             </Button>
           </DialogActions>

@@ -15,4 +15,5 @@ export interface MeetingResponseDto {
   motive?: string;
   repr?: boolean;
   auth?: Auth;
+  rate?: number;
 }

@@ -1,6 +1,6 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, MoreThan, Repository } from 'typeorm';
+import { In, IsNull, MoreThan, Not, Repository } from 'typeorm';
 import { updateDoctorDto } from './dto/update-doctor.dto';
 import { Doctor } from 'src/entities/doctor.entity';
 import { UserService } from 'src/user/user.service';
@@ -92,7 +92,6 @@ export class DoctorService {
       'uploads',
       'doctor',
       'registration',
-      registrationFilename,
     );
     const titlePath = path.join(
       __dirname,
@@ -102,11 +101,18 @@ export class DoctorService {
       'uploads',
       'doctor',
       'title',
-      titleFilename,
     );
 
-    await fs.promises.writeFile(registrationPath, doctor.registration.buffer);
-    await fs.promises.writeFile(titlePath, doctor.title.buffer);
+    fs.mkdirSync(registrationPath, { recursive: true });
+    fs.mkdirSync(titlePath, { recursive: true });
+    await fs.promises.writeFile(
+      path.join(registrationPath, registrationFilename),
+      doctor.registration.buffer,
+    );
+    await fs.promises.writeFile(
+      path.join(titlePath, titleFilename),
+      doctor.title.buffer,
+    );
 
     const newDoctor = await this.doctorRepository.create(doctor);
 
@@ -144,6 +150,11 @@ export class DoctorService {
     doctorsFound = await this.doctorRepository.find({
       where: {
         verified: true,
+        planId: Not(IsNull()),
+        priceMeeting: Not(IsNull()),
+        durationMeeting: Not(IsNull()),
+        cbu: Not(IsNull()),
+        // Por el momento haremos que el alias NO sea obligatorio
       },
       order: {
         plan: {

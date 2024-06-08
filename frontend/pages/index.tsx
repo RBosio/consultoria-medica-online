@@ -4,6 +4,7 @@ import withAuth from "@/lib/withAuth";
 import { Auth } from "../../shared/types";
 import Button from "@/components/button";
 import {
+  FaAddressCard,
   FaAngleRight,
   FaCalendarDays,
   FaChevronRight,
@@ -16,7 +17,6 @@ import "moment/locale/es";
 import axios from "axios";
 import { useRouter } from "next/router";
 import { Chip, Divider, Rating, useTheme } from "@mui/material";
-import Rate from "@/components/rate";
 import { GoDotFill } from "react-icons/go";
 import { DoctorResponseDto } from "@/components/dto/doctor.dto";
 import Avatar from "@/components/avatar";
@@ -25,9 +25,10 @@ import { NotificationResponseDto } from "@/components/dto/notification.dto";
 import { PiGearSix } from "react-icons/pi";
 import { PlanResponseDto } from "@/components/dto/plan.dto";
 import { BenefitResponseDto } from "@/components/dto/benefit.dto";
-import { MdOutlineAdminPanelSettings } from "react-icons/md";
+import { MdDiscount, MdOutlineAdminPanelSettings } from "react-icons/md";
 import { pesos } from "@/lib/formatCurrency";
-import { styled } from "@mui/material/styles";
+import Alert from '@mui/material/Alert';
+import Rate from "@/components/rate";
 
 export default function Home(props: any) {
   const router = useRouter();
@@ -38,8 +39,8 @@ export default function Home(props: any) {
   }, []);
 
   const [plans, setPlans] = React.useState<PlanResponseDto[]>([]);
-  const [rate, setRate] = React.useState<boolean>(false);
-  const [stars, setStars] = React.useState<number>(5);
+
+  const incompleteDoctorData = props.doctor && (!props.doctor.cbu || !props.doctor.priceMeeting || !props.doctor.durationMeeting);
 
   const markAsRead = async (id: number) => {
     await axios.patch(
@@ -58,69 +59,11 @@ export default function Home(props: any) {
         props.plans.filter((plan: any) => plan.id > props.doctor.planId)
       );
     }
-
-    if (localStorage.getItem("startDatetime")) {
-      setRate(true);
-    }
-
-    return () => {
-      localStorage.removeItem("startDatetime");
-    };
   }, []);
-
-  const rateMeeting = async () => {
-    const startDatetime = localStorage.getItem("startDatetime");
-    if (startDatetime) {
-      await axios.patch(
-        `${process.env.NEXT_PUBLIC_API_URL}/meeting/${props.auth.id}/${startDatetime}`,
-        {
-          rate: stars,
-        },
-        {
-          withCredentials: true,
-          headers: { Authorization: `Bearer ${props.auth.token}` },
-        }
-      );
-
-      setRate(false);
-      localStorage.removeItem("startDatetime");
-    }
-  };
-
-  const StyledRating = styled(Rating)({
-    "& .MuiRating-iconFilled": {
-      color: "#ff6d75",
-    },
-    "& .MuiRating-iconHover": {
-      color: "#ff3d47",
-    },
-  });
 
   return (
     <Layout auth={props.auth}>
       <section>
-        {rate &&
-          (props.auth.role === "user" || props.auth.role === "admin") && (
-            <>
-              <div className="w-full h-full bg-gray-600 absolute z-30 opacity-40"></div>
-              <div className="absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 bg-white z-40 shadow-2xl">
-                <div className="flex flex-col justify-center items-center gap-4 p-4">
-                  <h1 className="text-2xl text-primary">
-                    Calificar la videollamada
-                  </h1>
-                  <div className="flex gap-5">
-                    <Rating
-                      name="customized-10"
-                      defaultValue={5}
-                      max={5}
-                      onClick={(e: any) => setStars(Number(e.target.value))}
-                    />
-                  </div>
-                  <Button onClick={rateMeeting}>Aceptar</Button>
-                </div>
-              </div>
-            </>
-          )}
         <h1 className="text-3xl p-4 text-zinc-600">
           ¡Hola de nuevo{" "}
           <span className="text-primary font-semibold">
@@ -139,11 +82,11 @@ export default function Home(props: any) {
                 <h2 className="text-xl text-center text-zinc-600">
                   {props.auth.role === "user"
                     ? props.lastMeeting?.doctor.user.surname +
-                      ", " +
-                      props.lastMeeting?.doctor.user.name
+                    ", " +
+                    props.lastMeeting?.doctor.user.name
                     : props.lastMeeting?.user.surname +
-                      ", " +
-                      props.lastMeeting?.user.name}
+                    ", " +
+                    props.lastMeeting?.user.name}
                 </h2>
                 <div className="text-white bg-primary flex justify-center items-center p-2 rounded-lg">
                   <FaCalendarDays />
@@ -157,15 +100,15 @@ export default function Home(props: any) {
                   const route = `meetings/${btoa(
                     props.auth.role === "user"
                       ? props.auth.id +
-                          "." +
-                          moment(props.lastMeeting?.startDatetime).format(
-                            "YYYY-MM-DDTHH:mm:ss"
-                          )
+                      "." +
+                      moment(props.lastMeeting?.startDatetime).format(
+                        "YYYY-MM-DDTHH:mm:ss"
+                      )
                       : props.lastMeeting?.user.id +
-                          "." +
-                          moment(props.lastMeeting?.startDatetime).format(
-                            "YYYY-MM-DDTHH:mm:ss"
-                          )
+                      "." +
+                      moment(props.lastMeeting?.startDatetime).format(
+                        "YYYY-MM-DDTHH:mm:ss"
+                      )
                   )}`;
                   router.push(route);
                 }}
@@ -174,19 +117,24 @@ export default function Home(props: any) {
                 Ver reunión
               </Button>
             </>
-          ) : (
-            <h2 className="mx-auto text-xl flex flex-col md:flex-row items-center gap-4 text-zinc-600">
-              Actualmente no tiene reuniones pendientes{" "}
-              {(props.auth.role === "user" || props.auth.role === "admin") && (
-                <Button
-                  onClick={() => router.push("/doctors")}
-                  startIcon={<FaChevronRight />}
-                >
-                  Solicite una
-                </Button>
+          ) : props.auth.role === "doctor" && !props.doctor.plan ?
+            <Alert className="w-full rounded-lg" severity="warning">Para realizar reuniones debes solicitar un plan de trabajo</Alert>
+            : incompleteDoctorData ?
+              <Alert className="w-full rounded-lg" severity="warning">Para realizar reuniones debes de completar los datos obligatorios de tu <Link href="/config">configuración</Link></Alert>
+              :
+              (
+                <h2 className="mx-auto text-xl flex flex-col md:flex-row items-center gap-4 text-zinc-600">
+                  Actualmente no tiene reuniones pendientes{" "}
+                  {(props.auth.role === "user" || props.auth.role === "admin") && (
+                    <Button
+                      onClick={() => router.push("/doctors")}
+                      startIcon={<FaChevronRight />}
+                    >
+                      Solicite una
+                    </Button>
+                  )}
+                </h2>
               )}
-            </h2>
-          )}
         </div>
         <div className="flex flex-col lg:flex-row justify-between items-center gap-4 w-5/6 mx-auto mt-4 mb-4">
           <div className="bg-gray-100 w-full lg:w-2/3 p-4 rounded-3xl shadow-lg">
@@ -263,13 +211,13 @@ export default function Home(props: any) {
                 <h2 className="text-3xl text-center text-zinc-600 mb-4">
                   {props.doctor.plan
                     ? "¿Desea actualizar su plan?"
-                    : "Solicite un plan para comenzar a trabajar"}
+                    : "Solicite un plan de trabajo para comenzar"}
                 </h2>
                 <div className="flex flex-col md:flex-row justify-center items-center gap-8">
                   {plans.map((p: PlanResponseDto) => (
                     <div
                       key={p.id}
-                      className="bg-white flex flex-col items-center shadow-xl"
+                      className="bg-white flex flex-col items-center shadow-xl rounded-md"
                     >
                       <h2 className="text-3xl text-primary font-semibold text-center pt-4">
                         {p.name}
@@ -287,7 +235,7 @@ export default function Home(props: any) {
                       >
                         <GoDotFill color={theme.palette.primary.main} />
                       </Divider>
-                      <ul className="my-4">
+                      <ul className="my-4 p-4 min-h-28">
                         {p.benefits.map((b: BenefitResponseDto) => (
                           <li key={b.id} className="flex items-center gap-2">
                             <div className="w-2 h-2 bg-primary rounded-full"></div>
@@ -315,19 +263,18 @@ export default function Home(props: any) {
             {props.auth.role === "user" &&
               (props.lastMeeting?.user?.healthInsurances.length === 0 ? (
                 <>
-                  <h2 className="text-3xl text-center text-zinc-600">
-                    Es necesario que cargue sus obras sociales activas
+                  <h2 className="text-2xl text-center text-zinc-600">
+                    Si tienes una obra social, podrás acceder a los descuentos disponibles para los profesionales
                   </h2>
-                  <FaCircleExclamation className="text-primary text-9xl" />
+                  <MdDiscount className="text-primary text-9xl" />
                   <Button onClick={() => router.push("/profile")}>
-                    Cargar obras sociales
+                    Ir a perfil de usuario
                   </Button>
                 </>
               ) : (
                 <div
-                  className={`flex flex-col items-center ${
-                    props.notifications.length > 0 && "overflow-y-scroll"
-                  }`}
+                  className={`flex flex-col items-center ${props.notifications.length > 0 && "overflow-y-scroll"
+                    }`}
                 >
                   <h2 className="text-3xl text-center text-zinc-600">
                     Ultimas notificaciones no leídas
@@ -380,15 +327,15 @@ export default function Home(props: any) {
                                 href={
                                   n.type === "comment"
                                     ? `/meetings/${btoa(
-                                        n.meeting.userId +
-                                          "." +
-                                          moment(
-                                            n.meeting.startDatetime
-                                          ).format("YYYY-MM-DDTHH:mm:ss")
-                                      )}`
+                                      n.meeting.userId +
+                                      "." +
+                                      moment(
+                                        n.meeting.startDatetime
+                                      ).format("YYYY-MM-DDTHH:mm:ss")
+                                    )}`
                                     : n.type === "verificationHi"
-                                    ? "/profile"
-                                    : ""
+                                      ? "/profile"
+                                      : ""
                                 }
                                 onClick={() => {
                                   markAsRead(n.id);
@@ -407,12 +354,11 @@ export default function Home(props: any) {
               ))}
             {props.auth.role === "doctor" &&
               (!props.doctor.durationMeeting ||
-              !props.doctor.priceMeeting ||
-              !props.doctor.cbu ||
-              !props.doctor.alias ? (
+                !props.doctor.priceMeeting ||
+                !props.doctor.cbu ? (
                 <>
                   <h2 className="text-3xl text-center text-zinc-600">
-                    Termine de configurar su perfil
+                    Complete los datos de su configuración para comenzar
                   </h2>
                   <PiGearSix className="text-primary text-9xl" />
                   <Button onClick={() => router.push("/config")}>
@@ -421,9 +367,8 @@ export default function Home(props: any) {
                 </>
               ) : (
                 <div
-                  className={`flex flex-col items-center ${
-                    props.notifications.length > 0 && "overflow-y-scroll"
-                  }`}
+                  className={`flex flex-col items-center ${props.notifications.length > 0 && "overflow-y-scroll"
+                    }`}
                 >
                   <h2 className="text-3xl text-center text-zinc-600">
                     Ultimas notificaciones no leidas
@@ -463,16 +408,14 @@ export default function Home(props: any) {
                                   ) : n.type === "verificationHi" ? (
                                     `El administrador ${n.userSend.surname}, ${n.userSend.name} acaba de realizar la verificación de la obra social ${n.healthInsurance.name}`
                                   ) : n.type === "meeting" && n.meeting ? (
-                                    `El usuario ${n.userSend.surname}, ${
-                                      n.userSend.name
+                                    `El usuario ${n.userSend.surname}, ${n.userSend.name
                                     } acaba de solicitar una reunión para el día ${moment(
                                       n.meeting.startDatetime
                                     ).format("LLL")}`
                                   ) : n.type === "verificationDoc" ? (
                                     `El administrador ${n.userSend.surname}, ${n.userSend.name} acaba de realizar la verificación su cuenta`
                                   ) : n.type === "rdatetime" ? (
-                                    `El paciente ${n.userSend.surname}, ${
-                                      n.userSend.name
+                                    `El paciente ${n.userSend.surname}, ${n.userSend.name
                                     } acaba de realizar la modificación de la reunión del día ${moment(
                                       n.mStartDOld
                                     ).format("LLLL")} hs para el día ${moment(
@@ -492,33 +435,33 @@ export default function Home(props: any) {
                                 href={
                                   n.type === "comment"
                                     ? `/meetings/${btoa(
-                                        n.meeting.userId +
-                                          "." +
-                                          moment(
-                                            n.meeting.startDatetime
-                                          ).format("YYYY-MM-DDTHH:mm:ss")
-                                      )}`
+                                      n.meeting.userId +
+                                      "." +
+                                      moment(
+                                        n.meeting.startDatetime
+                                      ).format("YYYY-MM-DDTHH:mm:ss")
+                                    )}`
                                     : n.type === "verificationHi"
-                                    ? "/profile"
-                                    : n.type === "meeting" && n.meeting
-                                    ? `/meetings/${btoa(
-                                        n.meeting.userId +
+                                      ? "/profile"
+                                      : n.type === "meeting" && n.meeting
+                                        ? `/meetings/${btoa(
+                                          n.meeting.userId +
                                           "." +
                                           moment(
                                             n.meeting.startDatetime
                                           ).format("YYYY-MM-DDTHH:mm:ss")
-                                      )}`
-                                    : n.type === "verificationDoc"
-                                    ? "/profile"
-                                    : n.type === "rdatetime"
-                                    ? `/meetings/${btoa(
-                                        n.userIdSend +
-                                          "." +
-                                          moment(n.mStartDNew).format(
-                                            "YYYY-MM-DDTHH:mm:ss"
-                                          )
-                                      )}`
-                                    : ""
+                                        )}`
+                                        : n.type === "verificationDoc"
+                                          ? "/profile"
+                                          : n.type === "rdatetime"
+                                            ? `/meetings/${btoa(
+                                              n.userIdSend +
+                                              "." +
+                                              moment(n.mStartDNew).format(
+                                                "YYYY-MM-DDTHH:mm:ss"
+                                              )
+                                            )}`
+                                            : ""
                                 }
                                 onClick={() => {
                                   markAsRead(n.id);

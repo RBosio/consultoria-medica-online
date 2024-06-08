@@ -172,7 +172,7 @@ const Navbar: React.FC<NavbarProps> = (props) => {
                 color="primary"
                 className="text-secondary text-2xl mx-4 hover:cursor-pointer hover:opacity-70"
               >
-                <FaBell className={openN ? "text-primary" : ""} />
+                <FaBell size={20} className={openN ? "text-primary" : ""} />
               </Badge>
             </IconButton>
           </Tooltip>
@@ -203,7 +203,7 @@ const Navbar: React.FC<NavbarProps> = (props) => {
                     Leer todos
                   </p>
                 ) : (
-                  <p className="text-xl text-white p-4">
+                  <p className="text-md text-white p-4">
                     Por el momento no existen notificaciones a mostrar
                   </p>
                 )}
@@ -225,6 +225,8 @@ const Navbar: React.FC<NavbarProps> = (props) => {
                                   )
                               )}`
                             : n.type === "verification hi"
+                            ? `/admin/users`
+                            : n.type === "verification"
                             ? `/admin/users`
                             : n.type === "verificationHi"
                             ? "/profile"

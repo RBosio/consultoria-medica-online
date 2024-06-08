@@ -13,13 +13,14 @@ import {
   FaMoneyBillTransfer,
   FaPlus,
   FaStopwatch,
-  FaSuitcaseMedical,
   FaUserDoctor,
 } from "react-icons/fa6";
+import { IoIosAddCircleOutline } from "react-icons/io";
 import { robotoBold } from "@/lib/fonts";
 import Button from "@/components/button";
 import {
   Alert,
+  Autocomplete,
   ButtonGroup,
   Chip,
   Dialog,
@@ -28,6 +29,7 @@ import {
   DialogContentText,
   DialogTitle,
   Divider,
+  IconButton,
   MenuItem,
   Select,
   Snackbar,
@@ -48,6 +50,11 @@ import { NotificationResponseDto } from "@/components/dto/notification.dto";
 import moment from "moment";
 import "moment/locale/es";
 import { pesos } from "@/lib/formatCurrency";
+import LinkMUI from "@mui/material/Link";
+import { PlanResponseDto } from "@/components/dto/plan.dto";
+import DatePicker from "@/components/dateInput";
+import { UserHealthInsuranceResponseDto } from "@/components/dto/userHealthInsurance.dto";
+import { validCBU } from "@/lib/cbuValidator";
 
 interface ConfigProps {
   user: UserResponseDto;
@@ -55,6 +62,7 @@ interface ConfigProps {
   schedules: ScheduleResponseDto[];
   healthInsurances: HealthInsuranceResponseDto[];
   notification: NotificationResponseDto;
+  plans: PlanResponseDto[];
   auth: Auth;
   token: string;
 }
@@ -132,7 +140,7 @@ export default function Config(props: ConfigProps) {
   const [minutesTo, setMinutesTo] = useState<string[]>([]);
   const [healthInsurance, setHealthInsurance] = useState<number>(0);
   const [duration, setDuration] = useState<number>(
-    props.doctor.durationMeeting
+    props.doctor.durationMeeting ?? ""
   );
   const [day, setDay] = useState<number>(-1);
   const [from, setFrom] = useState<string>("");
@@ -152,30 +160,43 @@ export default function Config(props: ConfigProps) {
   const [confirmHealthInsurance, setConfirmHealthInsurance] =
     useState<boolean>(false);
   const [description, setDescription] = useState<string>("");
+  const [month, setMonth] = useState<number>();
+  const [year, setYear] = useState<number>();
+
+  const incompleteDoctorData =
+    !props.doctor.cbu ||
+    !props.doctor.priceMeeting ||
+    !props.doctor.durationMeeting;
 
   useEffect(() => {
     addEventListener("resize", () => {
       setModify(false);
     });
-    setDescription(props.doctor.description);
+    setDescription(props.doctor.description ?? "");
   }, []);
 
   const updateForm = useFormik({
     initialValues: {
       durationMeeting: duration,
-      priceMeeting: props.doctor.priceMeeting,
-      phone: props.doctor.user.phone,
-      cbu: props.doctor.cbu,
-      alias: props.doctor.alias,
+      priceMeeting: props.doctor.priceMeeting ?? "",
+      phone: props.doctor.user.phone ?? "",
+      cbu: props.doctor.cbu ?? "",
+      alias: props.doctor.alias ?? "",
     },
     onSubmit: async (values, { setSubmitting }) => {
       if (values.priceMeeting.toString().length === 0) {
-        setMessage("Ingrese un valor al precio de la reunión");
+        setMessage("Ingrese un valor para el precio de la reunión");
         setError(true);
         return;
       }
 
-      if (values.cbu.length !== 0 && values.cbu.length !== 22) {
+      if (!duration) {
+        setMessage("Ingrese un valor para la duración de la reunión");
+        setError(true);
+        return;
+      }
+
+      if (values.cbu && !validCBU(values.cbu)) {
         setMessage("CBU inválido");
         setError(true);
         return;
@@ -349,7 +370,7 @@ export default function Config(props: ConfigProps) {
     <Layout auth={props.auth}>
       <section className="flex px-8 mt-8">
         <div className="w-full flex flex-col items-center lg:flex-row gap-6 relative">
-          <div className="rounded-md w-full md:w-[calc(100%-15rem)] xl:shadow-md bg-white relative">
+          <div className="rounded-md w-full bg-white relative lg:h-full shadow-md">
             <Avatar
               labelProps={{ className: "hidden" }}
               name={props.doctor.user.name}
@@ -428,7 +449,7 @@ export default function Config(props: ConfigProps) {
                       </div>
                       <div className="flex flex-col items-center">
                         <h4 className="flex gap-2 text-primary items-center font-bold">
-                          <FaMoneyBill1Wave size={15} /> Precio
+                          <FaMoneyBill1Wave size={15} /> Precio de reunión
                         </h4>
                         <p>
                           {props.doctor.priceMeeting
@@ -438,40 +459,17 @@ export default function Config(props: ConfigProps) {
                       </div>
                       <div className="flex flex-col items-center">
                         <h4 className="flex gap-2 text-primary items-center font-bold">
-                          <FaStopwatch size={15} /> Duración
+                          <FaStopwatch size={15} /> Duración de reunión
                         </h4>
                         <p>
-                          {props.doctor.durationMeeting + " duración" || "-"}
-                        </p>
-                      </div>
-                      <div className="flex flex-col items-center">
-                        <h4 className="flex gap-2 text-primary items-center font-bold">
-                          <FaSuitcaseMedical size={15} /> Obras sociales
-                        </h4>
-                        <div className="px-2">
-                          {props.doctor.user.healthInsurances.length > 0
-                            ? props.doctor.user.healthInsurances.map(
-                                (hi: any) => {
-                                  return (
-                                    <p
-                                      key={hi.healthInsurance.id}
-                                      className="flex items-center gap-2"
-                                    >
-                                      {hi.healthInsurance.name}{" "}
-                                      {hi.verified ? (
-                                        <FaCircleCheck className="text-green-600" />
-                                      ) : (
-                                        <FaCircleXmark className="text-red-600" />
-                                      )}
-                                    </p>
-                                  );
-                                }
-                              )
+                          {props.doctor.durationMeeting
+                            ? `${props.doctor.durationMeeting} minutos`
                             : "-"}
-                        </div>
+                        </p>
                       </div>
                       <div className="hidden md:block">
                         <Button
+                          className="m-2"
                           startIcon={<FaEdit />}
                           onClick={() => setModify(!modify)}
                         >
@@ -484,73 +482,166 @@ export default function Config(props: ConfigProps) {
               </div>
             </div>
           </div>
-          <div className="overflow-hidden w-full md:min-w-[70%] pb-6">
+          <div className="overflow-hidden w-full md:min-w-[70%] lg:h-full">
             <div
-              className={`flex flex-col md:flex-row md:flex-nowrap items-center transition-all ease-in duration-500 ${
+              className={`flex flex-col h-full md:flex-row md:flex-nowrap items-center transition-all ease-in duration-500 ${
                 modify ? "-translate-x-full" : ""
               } gap-6`}
             >
-              <div className="bg-white sm:w-1/4 md:min-w-[99%] h-full rounded-md shadow-md p-4 flex flex-col justify-center">
-                <div className="flex flex-col">
-                  <h3 className="text-primary text-xl text-center">Reunión</h3>
-                  <div className="flex justify-center gap-12">
-                    <div className="flex flex-col justify-center items-center">
-                      <h4 className="text-primary text-lg flex justify-center items-center gap-2">
-                        <FaStopwatch /> Duración
-                      </h4>
-                      <p>{props.doctor.durationMeeting} min</p>
+              <div className="bg-white w-full h-full rounded-md p-4 flex flex-col">
+                <div className="flex justify-between items-center">
+                  <div className="flex flex-col">
+                    <div className="flex items-center mb-4">
+                      <h3
+                        className={`text-primary text-xl ${robotoBold.className}`}
+                      >
+                        Obras sociales
+                      </h3>
+                      {props.doctor.user.healthInsurances.length > 0 && (
+                        <Link href={"/profile"}>
+                          <IconButton
+                            color="secondary"
+                            aria-label="add an alarm"
+                          >
+                            <IoIosAddCircleOutline
+                              color={theme.palette.primary.main}
+                            />
+                          </IconButton>
+                        </Link>
+                      )}
                     </div>
-                    <div className="flex flex-col justify-center items-center">
-                      <h4 className="text-primary text-lg flex justify-center items-center gap-2">
-                        <FaMoneyBill1Wave /> Precio
-                      </h4>
-                      <p>{pesos.format(props.doctor.priceMeeting)}</p>
-                    </div>
+                    {props.doctor.user.healthInsurances.length > 0 ? (
+                      props.doctor.user.healthInsurances.map((hi: any) => {
+                        return (
+                          <p
+                            key={hi.healthInsurance.id}
+                            className="flex items-center gap-2"
+                          >
+                            {hi.healthInsurance.name}
+                          </p>
+                        );
+                      })
+                    ) : (
+                      <p>
+                        No estás verificado en ninguna obra social.{" "}
+                        <LinkMUI href="/profile">
+                          Puedes cargar una aquí
+                        </LinkMUI>
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <Autocomplete
+                      className="w-1/2"
+                      onChange={(event, newValue: any) => {
+                        setHealthInsurance(newValue?.id);
+                      }}
+                      disablePortal
+                      noOptionsText="Especialidad no encontrada"
+                      options={props.doctor.user.healthInsurances.map(
+                        (hi: UserHealthInsuranceResponseDto) => ({
+                          id: hi.healthInsurance.id,
+                          label: hi.healthInsurance.name,
+                        })
+                      )}
+                      renderInput={(params: any) => (
+                        <Input
+                          onChange={() => {}}
+                          name="healthInsuranceId"
+                          {...params}
+                          label="Obra social"
+                        />
+                      )}
+                    />
+                    <DatePicker
+                      label="Fecha de facturación"
+                      name="meetingsDate"
+                      views={["year", "month"]}
+                      onChange={(date: any) => {
+                        setMonth(+moment(new Date(date.$d)).format("MM"));
+                        setYear(+moment(new Date(date.$d)).format("YYYY"));
+                      }}
+                    />
+                    <a
+                      href={`
+                      ${
+                        !month || !year
+                          ? `${
+                              process.env.NEXT_PUBLIC_API_URL
+                            }/meeting/report/${props.auth.id}/${
+                              new Date().getMonth() + 1
+                            }/${new Date().getFullYear()}/${
+                              healthInsurance === 0 ? 0 : healthInsurance
+                            }`
+                          : `${
+                              process.env.NEXT_PUBLIC_API_URL
+                            }/meeting/report/${
+                              props.auth.id
+                            }/${month}/${year}/${
+                              healthInsurance === 0 ? 0 : healthInsurance
+                            }`
+                      }`}
+                      target="_blank"
+                    >
+                      <Button>Generar reporte</Button>
+                    </a>
                   </div>
                 </div>
                 <Divider
                   variant="middle"
                   sx={{
-                    "&": {
-                      width: "90%",
-                    },
                     "&::before, &::after": {
                       borderTop: `thin solid ${theme.palette.primary.main}`,
                     },
                   }}
-                  className="w-1/6 m-auto md:w-full mx-auto my-4"
+                  className="w-full mx-auto my-4"
                 >
                   <GoDotFill color={theme.palette.primary.main} />
                 </Divider>
-                <div className="p-4">
-                  <h3 className="text-primary text-xl text-center">
+                <div>
+                  <h3
+                    className={`text-primary text-xl mb-4 ${robotoBold.className}`}
+                  >
                     Plan actual
                   </h3>
+                  {props.auth.role === "doctor" && !props.doctor.plan && (
+                    <Alert
+                      className="w-full rounded-lg mb-4"
+                      severity="warning"
+                    >
+                      Para realizar reuniones debes solicitar un plan de trabajo
+                    </Alert>
+                  )}
                   <div
-                    className={`w-1/4 m-auto md:w-full bg-secondary flex flex-col md:flex-row md:justify-between items-center text-white px-8 py-2 mt-2 rounded-md ${robotoBold.className}`}
+                    className={`m-auto w-full bg-secondary flex flex-col gap-2 md:gap-0 md:flex-row sm:justify-between items-center text-white px-8 py-2 mt-2 rounded-md`}
                   >
-                    <div className="flex flex-col md:flex-row justify-center items-center gap-4 md:justify-between md:gap-0 md:w-2/3">
-                      <p>
-                        {props.doctor.plan
-                          ? props.doctor.plan.name
-                          : "Sin plan"}
-                      </p>
-                      <p>
-                        {props.doctor.plan
-                          ? props.doctor.planSince &&
-                            `Miembro desde ${moment(
-                              props.doctor.planSince
-                            ).format("LL")}`
-                          : "Actualmente se encuentra sin plan, solicite uno para comenzar a trabajar"}
-                      </p>
-                    </div>
+                    <Chip
+                      size="medium"
+                      variant="filled"
+                      color="primary"
+                      className={`${robotoBold.className}`}
+                      label={
+                        props.doctor.plan ? props.doctor.plan.name : "Sin plan"
+                      }
+                    />
+                    <p>
+                      {props.doctor.plan
+                        ? props.doctor.planSince &&
+                          `Miembro desde ${moment(
+                            props.doctor.planSince
+                          ).format("LL")}`
+                        : "Actualmente se encuentra sin plan de trabajo, solicite uno para comenzar"}
+                    </p>
                     {props.doctor.plan ? (
-                      <ButtonGroup className="mt-4 md:mt-0">
-                        <Link href={"/"}>
-                          <Button startIcon={<FaCircleUp />} color="info">
-                            Actualizar
-                          </Button>
-                        </Link>
+                      <ButtonGroup>
+                        {Math.max(...props.plans.map((a) => a.id)) !==
+                          props.doctor.plan.id && (
+                          <Link href={"/"}>
+                            <Button startIcon={<FaCircleUp />} color="info">
+                              Actualizar
+                            </Button>
+                          </Link>
+                        )}
                         <Button
                           sx={{
                             "&.MuiButton-contained": {
@@ -580,19 +671,18 @@ export default function Config(props: ConfigProps) {
                 <Divider
                   variant="middle"
                   sx={{
-                    "&": {
-                      width: "90%",
-                    },
                     "&::before, &::after": {
                       borderTop: `thin solid ${theme.palette.primary.main}`,
                     },
                   }}
-                  className="w-1/6 m-auto md:w-full mx-auto my-4"
+                  className="w-full mx-auto my-4"
                 >
                   <GoDotFill color={theme.palette.primary.main} />
                 </Divider>
-                <div className="p-4">
-                  <h3 className="text-primary text-xl text-center">
+                <div>
+                  <h3
+                    className={`text-primary text-xl mb-4 ${robotoBold.className}`}
+                  >
                     Rangos horarios
                   </h3>
                   <div className="flex flex-col md:flex-row items-center">
@@ -604,10 +694,10 @@ export default function Config(props: ConfigProps) {
                       }}
                     >
                       <div className="md:my-4">
-                        <p className="text-primary text-xl">Dia</p>
+                        <p className="text-primary text-xl">Día</p>
                       </div>
                       <Select
-                        className="w-1/4 outline outline-1 outline-primary hover:outline-green-600"
+                        className="w-full md:w-1/4 outline outline-1 outline-primary hover:outline-green-600"
                         value={day}
                         onChange={($e: any) => setDay($e.target.value)}
                       >
@@ -621,7 +711,7 @@ export default function Config(props: ConfigProps) {
                         <p className="text-primary text-xl">Desde</p>
                       </div>
                       <Select
-                        className="w-1/4 outline outline-1 outline-primary"
+                        className="w-full md:w-1/4 outline outline-1 outline-primary"
                         value={from}
                         onChange={handleChange}
                       >
@@ -637,7 +727,7 @@ export default function Config(props: ConfigProps) {
                         <p className="text-primary text-xl">Hasta</p>
                       </div>
                       <Select
-                        className="w-1/4 outline outline-1 outline-primary hover:outline-green-600"
+                        className="w-full md:w-1/4 outline outline-1 outline-primary hover:outline-green-600"
                         value={to}
                         onChange={($e: any) => setTo($e.target.value)}
                       >
@@ -649,12 +739,16 @@ export default function Config(props: ConfigProps) {
                           );
                         })}
                       </Select>
-                      <Button type="submit" startIcon={<FaPlus />}>
+                      <Button
+                        className="mx-4"
+                        type="submit"
+                        startIcon={<FaPlus />}
+                      >
                         Agregar
                       </Button>
                     </form>
                   </div>
-                  <div className="flex w-1/4 m-auto items-center mt-2 overflow-x-scroll p-4 md:w-full">
+                  <div className="flex items-center mt-2 overflow-x-scroll p-4 w-full">
                     <div className="mt-8">
                       <div className="my-4">
                         <p className="text-primary text-xl">Desde</p>
@@ -663,43 +757,47 @@ export default function Config(props: ConfigProps) {
                         <p className="text-primary text-xl">Hasta</p>
                       </div>
                     </div>
-                    {days.map((day, idx) => {
-                      return (
-                        <div key={idx}>
-                          {day.day >= 0 ? (
-                            <p className="text-primary text-xl text-center border-y-2 border-primary px-10 py-2">
-                              {day.d}
-                            </p>
-                          ) : (
-                            ""
-                          )}
-                          <div className="flex justify-center items-center mx-4">
-                            {props.schedules.map((s) => {
-                              return (
-                                <div key={s.id}>
-                                  {s.day === day.day ? (
-                                    <div className="bg-primary text-xl text-white m-1 my-2 rounded-md border border-slate-600">
-                                      <p className="text-center p-2 border-b border-slate-600">
-                                        {s.start_hour < 10
-                                          ? "0".concat(s.start_hour.toString())
-                                          : s.start_hour}
-                                      </p>
-                                      <p className="text-center p-2">
-                                        {s.end_hour < 10
-                                          ? "0".concat(s.end_hour.toString())
-                                          : s.end_hour}
-                                      </p>
-                                    </div>
-                                  ) : (
-                                    ""
-                                  )}
-                                </div>
-                              );
-                            })}
+                    <div className="flex">
+                      {days.map((day, idx) => {
+                        return (
+                          <div key={idx}>
+                            {day.day >= 0 ? (
+                              <p className="text-primary text-xl text-center border-y-2 border-primary px-10 py-2">
+                                {day.d}
+                              </p>
+                            ) : (
+                              ""
+                            )}
+                            <div className="flex justify-center items-center mx-4">
+                              {props.schedules.map((s) => {
+                                return (
+                                  <div key={s.id}>
+                                    {s.day === day.day ? (
+                                      <div className="bg-primary text-xl text-white m-1 my-2 rounded-md border border-slate-600">
+                                        <p className="text-center p-2 border-b border-slate-600">
+                                          {s.start_hour < 10
+                                            ? "0".concat(
+                                                s.start_hour.toString()
+                                              )
+                                            : s.start_hour}
+                                        </p>
+                                        <p className="text-center p-2">
+                                          {s.end_hour < 10
+                                            ? "0".concat(s.end_hour.toString())
+                                            : s.end_hour}
+                                        </p>
+                                      </div>
+                                    ) : (
+                                      ""
+                                    )}
+                                  </div>
+                                );
+                              })}
+                            </div>
                           </div>
-                        </div>
-                      );
-                    })}
+                        );
+                      })}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -711,14 +809,25 @@ export default function Config(props: ConfigProps) {
                   }}
                 >
                   <div className="flex justify-center">
-                    <div className="md:w-1/2 p-4">
-                      <h3 className="text-primary text-xl text-center">
-                        Reunión
+                    <div className="px-10 py-4 w-full">
+                      <h3
+                        className={`text-primary text-xl text-center ${robotoBold.className}`}
+                      >
+                        Parámetros
                       </h3>
-                      <div className="flex flex-col md:flex-row gap-4 md:gap-0 mt-4 md:mt-0 justify-between items-center">
-                        <div>
+                      {incompleteDoctorData && (
+                        <Alert
+                          className="w-full rounded-lg my-2"
+                          severity="warning"
+                        >
+                          Para realizar reuniones debes de completar los datos
+                          obligatorios de tu configuración (*)
+                        </Alert>
+                      )}
+                      <div className="flex flex-col md:flex-row gap-10 mt-4 md:mt-0 justify-between items-center">
+                        <div className="w-full xl:w-1/2">
                           <h4 className="text-primary text-lg flex justify-center items-center gap-2">
-                            <FaStopwatch /> Duración
+                            <FaStopwatch /> Duración (*)
                           </h4>
                           <Select
                             className="w-full"
@@ -732,20 +841,18 @@ export default function Config(props: ConfigProps) {
                             ))}
                           </Select>
                         </div>
-                        <div>
+                        <div className="w-full xl:w-1/2">
                           <h4 className="text-primary text-xl flex justify-center items-center gap-2">
-                            <FaMoneyBill1Wave /> Precio
+                            <FaMoneyBill1Wave /> Precio (*)
                           </h4>
-                          <div className="flex items-center">
-                            <Input
-                              className="w-28"
-                              type="text"
-                              name="priceMeeting"
-                              onChange={updateForm.handleChange}
-                              onBlur={updateForm.handleBlur}
-                              value={updateForm.values.priceMeeting}
-                            />
-                          </div>
+                          <Input
+                            className="w-full"
+                            type="text"
+                            name="priceMeeting"
+                            onChange={updateForm.handleChange}
+                            onBlur={updateForm.handleBlur}
+                            value={updateForm.values.priceMeeting}
+                          />
                         </div>
                       </div>
                       <div className="my-4">
@@ -754,19 +861,19 @@ export default function Config(props: ConfigProps) {
                         </h3>
                         <textarea
                           onChange={($e) => setDescription($e.target.value)}
-                          rows={4}
-                          className="border border-primary rounded-lg w-full resize-none focus:outline-none p-2"
+                          rows={8}
+                          className="border border-primary rounded-sm w-full resize-none focus:outline-none p-2"
                           value={description}
                         ></textarea>
                       </div>
-                      <div className="flex flex-col md:flex-row gap-4 md:gap-0 mt-4 md:mt-0 justify-between items-center">
-                        <div>
+                      <div className="flex flex-col md:flex-row gap-10 mt-4 md:mt-0 justify-between items-center">
+                        <div className="w-full xl:w-1/2">
                           <h4 className="text-primary text-xl flex justify-center items-center gap-2">
-                            <FaBuildingColumns /> CBU / CVU
+                            <FaBuildingColumns /> CBU/CVU (*)
                           </h4>
                           <div className="flex items-center">
                             <Input
-                              className="w-28"
+                              className="w-full"
                               type="text"
                               name="cbu"
                               onChange={updateForm.handleChange}
@@ -775,13 +882,13 @@ export default function Config(props: ConfigProps) {
                             />
                           </div>
                         </div>
-                        <div>
+                        <div className="w-full xl:w-1/2">
                           <h4 className="text-primary text-xl flex justify-center items-center gap-2">
                             <FaMoneyBillTransfer /> Alias
                           </h4>
                           <div className="flex items-center">
                             <Input
-                              className="w-28"
+                              className="w-full"
                               type="text"
                               name="alias"
                               onChange={updateForm.handleChange}
@@ -934,6 +1041,13 @@ export const getServerSideProps = withAuth(
 
     notification = notification.data;
 
+    let plans = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/plan`, {
+      withCredentials: true,
+      headers: { Authorization: `Bearer ${auth?.token}` },
+    });
+
+    plans = plans.data;
+
     return {
       props: {
         doctor,
@@ -941,6 +1055,7 @@ export const getServerSideProps = withAuth(
         healthInsurances,
         notification,
         auth,
+        plans,
       },
     };
   },

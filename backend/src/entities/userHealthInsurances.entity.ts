@@ -10,11 +10,8 @@ export class UserHealthInsurance {
   @PrimaryColumn()
   healthInsuranceId: number;
 
-  @Column()
+  @Column({ nullable: true })
   cod: string;
-
-  @Column({ default: false })
-  verified: boolean;
 
   @Column({ nullable: true })
   date_verified: Date;

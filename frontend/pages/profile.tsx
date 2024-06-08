@@ -4,20 +4,17 @@ import Avatar from "@/components/avatar";
 import {
   FaAddressCard,
   FaCalendarDays,
-  FaCertificate,
   FaCheck,
   FaChevronRight,
-  FaCircleCheck,
-  FaCircleXmark,
   FaCity,
   FaEnvelope,
   FaKey,
+  FaLocationDot,
   FaMars,
-  FaPaperclip,
   FaPhone,
+  FaTrash,
   FaUser,
   FaVenus,
-  FaXmark,
 } from "react-icons/fa6";
 import { robotoBold } from "@/lib/fonts";
 import moment from "moment";
@@ -35,6 +32,7 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
+  IconButton,
   Snackbar,
 } from "@mui/material";
 import { useRouter } from "next/router";
@@ -43,7 +41,6 @@ import { HealthInsuranceResponseDto } from "../components/dto/healthInsurance.dt
 import withAuth from "@/lib/withAuth";
 import Layout from "@/components/layout";
 import { roboto } from "@/lib/fonts";
-import DatePicker from "@/components/dateInput";
 
 export default function ProfileView(props: any) {
   const router = useRouter();
@@ -53,27 +50,20 @@ export default function ProfileView(props: any) {
   const [updated, setUpdated] = useState(false);
   const [error, setError] = useState(false);
   const [user, setUser] = useState<any>(null);
-  const [request, setRequest] = useState<boolean>(false);
   const [healthInsurances, setHealthInsurances] = useState<
     HealthInsuranceResponseDto[]
   >([]);
-  const [healthInsurance, setHealthInsurance] = useState<number>(-1);
-  const [file, setFile] = useState<any>();
-  const [imageFile, setImageFile] = useState<any>();
-  const [type, setType] = useState<any>("");
+  const [healthInsurance, setHealthInsurance] = useState<any>(null);
 
   const [success, setSuccess] = useState<boolean>(false);
   const [message, setMessage] = useState<string>("");
-  const [confirmVerification, setConfirmVerification] =
-    useState<boolean>(false);
+  const [confirmDeleteHi, setConfirmDeleteHi] = useState<boolean>(false);
   const [confirmHealthInsurance, setConfirmHealthInsurance] =
     useState<boolean>(false);
-  const [healthInsuranceVerify, setHealthInsuranceVerify] = useState<number>();
-  const [month, setMonth] = useState<number>();
-  const [year, setYear] = useState<number>();
+  const [cod, setCod] = useState<string>('');
+  const [hiToDelete, setHiToDelete] = useState<number>(-1);
 
   useEffect(() => {
-    console.log(props.auth);
     moment.locale("es");
   }, []);
 
@@ -96,43 +86,9 @@ export default function ProfileView(props: any) {
 
   function handleChangeFile($e: any) {
     if ($e.target.files && $e.target.files[0]) {
-      setImageFile($e.target.files[0]);
-      setType($e.target.files[0].type);
       handleChange($e);
     }
   }
-
-  const handleChangeHI = ($e: any) => {
-    if (
-      $e.target.files &&
-      $e.target.files[0] &&
-      ($e.target.files[0].type.includes("jpg") ||
-        $e.target.files[0].type.includes("jpeg") ||
-        $e.target.files[0].type.includes("pdf") ||
-        $e.target.files[0].type.includes("png"))
-    ) {
-      setFile($e.target.files[0]);
-    } else {
-      setError(true);
-      setMessage("Debes seleccionar un archivo válido!");
-      setFile(null);
-    }
-  };
-
-  const uploadFile = async () => {
-    const fd = new FormData();
-    fd.append("file", file);
-    fd.append("healthInsuranceId", healthInsurance.toString());
-
-    await axios.post(
-      `${process.env.NEXT_PUBLIC_API_URL}/user/${user.dni}/healthInsurance`,
-      fd,
-      {
-        withCredentials: true,
-        headers: { Authorization: `Bearer ${props.auth.token}` },
-      }
-    );
-  };
 
   const changePass = useFormik({
     initialValues: {
@@ -178,17 +134,33 @@ export default function ProfileView(props: any) {
     },
   });
 
+  const handleClickDeleteHi = async () => {
+
+    await axios.delete(
+      `${process.env.NEXT_PUBLIC_API_URL}/user/unsetHI/${hiToDelete}`,
+      {
+        withCredentials: true,
+        headers: { Authorization: `Bearer ${props.auth.token}` },
+      }
+    );
+
+    setMessage("Obra social eliminada con éxito!");
+    setSuccess(true);
+
+    setHiToDelete(-1);
+  };
+
   const onConfirmClick = async () => {
     if (confirm) {
       await changePass.submitForm();
       setConfirm(false);
-    } else if (confirmVerification) {
-      handleClickVerification();
-      setConfirmVerification(false);
     } else if (confirmHealthInsurance) {
       handleClickHealthInsurance();
       setConfirmHealthInsurance(false);
-    }
+    } else if (confirmDeleteHi) {
+      handleClickDeleteHi();
+      setConfirmDeleteHi(false);
+    };
   };
 
   function handleClickFile($e: any, hi?: boolean) {
@@ -275,55 +247,17 @@ export default function ProfileView(props: any) {
 
     fetchUser();
 
-    const request = async () => {
-      const request = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/notification/${props.auth.id}`,
-        {
-          withCredentials: true,
-          headers: { Authorization: `Bearer ${props.auth.token}` },
-        }
-      );
-
-      if (request.data.lenth > 0) {
-        setRequest(true);
-      }
-    };
-
-    request();
-  }, [healthInsurance]);
-
-  const handleClickVerification = async () => {
-    const user = await axios.get(
-      `${process.env.NEXT_PUBLIC_API_URL}/user/admin`,
-      {
-        withCredentials: true,
-        headers: { Authorization: `Bearer ${props.auth.token}` },
-      }
-    );
-
-    await axios.post(
-      `${process.env.NEXT_PUBLIC_API_URL}/notification`,
-      {
-        userIdSend: props.auth.id,
-        userIdReceive: user.data.id,
-        type: "verificationHiRequest",
-        healthInsuranceId: healthInsuranceVerify,
-      },
-      {
-        withCredentials: true,
-        headers: { Authorization: `Bearer ${props.auth.token}` },
-      }
-    );
-
-    setMessage("Solicitud realizada con éxito!");
-    setSuccess(true);
-
-    router.push(router.pathname);
-  };
+  }, [healthInsurance, hiToDelete]);
 
   const handleClickHealthInsurance = async () => {
-    if (!file || !healthInsurance) {
-      setMessage("Debes seleccionar una obra social y un archivo!");
+    if (!healthInsurance) {
+      setMessage("Debes seleccionar una obra social!");
+      setError(true);
+      return;
+    }
+
+    if (props.auth.role !== "doctor" && !cod) {
+      setMessage("Debes ingresar un número de afiliado!");
       setError(true);
       return;
     }
@@ -332,6 +266,7 @@ export default function ProfileView(props: any) {
       `${process.env.NEXT_PUBLIC_API_URL}/user/healthInsurance/${props.auth.id}`,
       {
         healthInsuranceId: healthInsurance,
+        cod,
       },
       {
         withCredentials: true,
@@ -339,14 +274,11 @@ export default function ProfileView(props: any) {
       }
     );
 
-    await uploadFile();
-
     setMessage("Obra social agregada con éxito!");
     setSuccess(true);
 
-    setHealthInsurance(-1);
-    setFile(null);
-    setType(null);
+    setHealthInsurance(null);
+    setCod("");
   };
 
   return (
@@ -392,6 +324,10 @@ export default function ProfileView(props: any) {
                       </p>
                     </div>
                     <div className="flex items-center">
+                      <FaLocationDot className="text-primary size-4" />
+                      <p className="mx-2 text-xl">{user.address}</p>
+                    </div>
+                    <div className="flex items-center">
                       <FaAddressCard className="text-primary size-4" />
                       <p className="mx-2 text-xl">{showDni()}</p>
                     </div>
@@ -420,39 +356,61 @@ export default function ProfileView(props: any) {
               </div>
             </section>
             <section className="bg-white p-12 rounded-lg shadow-lg md:w-full">
-              <div className="flex flex-col md:flex-row md:justify-between">
-                <div>
+              {props.auth.role !== "doctor" && (
+                <div className="flex flex-col w-full lg:w-10/12 xl:w-8/12">
                   <h4 className="text-primary text-3xl mt-2 font-bold">
                     Obras sociales
                   </h4>
+                  <div className="flex flex-col lg:flex-row gap-4 my-4 w-full">
+                    <Autocomplete
+                      className={"w-full"}
+                      onChange={(event, newValue: any) => {
+                        setHealthInsurance(newValue?.id);
+                      }}
+                      disablePortal
+                      noOptionsText="Especialidad no encontrada"
+                      options={healthInsurances.map((hi: any) => ({
+                        id: hi.id,
+                        label: hi.name,
+                      }))}
+                      renderInput={(params: any) => (
+                        <Input
+                          onChange={() => { }}
+                          name="healthInsuranceId"
+                          {...params}
+                          label="Obra social"
+                        />
+                      )}
+                    />
+                    <Input
+                      className="w-full"
+                      label="Número de afiliado"
+                      onChange={($e) => setCod($e.target.value)}
+                      value={cod}
+                    ></Input>
+                    <Button
+                      className="h-1/2 shrink-0"
+                      startIcon={<FaCheck />}
+                      onClick={() => {
+                        setConfirmHealthInsurance(true);
+                      }}
+                    >
+                      Agregar
+                    </Button>
+                  </div>
                   <div>
                     {user.healthInsurances.map((h: any, idx: number) => {
                       return (
-                        <div className="p-4" key={idx}>
+                        <div className="p-1" key={idx}>
                           {h.healthInsurance?.name ? (
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-1">
                               <FaChevronRight className="text-primary text-md size-4" />
-                              <p className="text-xl">
-                                {h.healthInsurance.name}
+                              <p className="text-md">
+                                {h.healthInsurance.name} (num. {h.cod})
                               </p>
-                              {h.verified ? (
-                                <FaCircleCheck className="text-green-600 text-lg size-4" />
-                              ) : (
-                                <div className="flex items-center gap-4">
-                                  <FaCircleXmark className="text-red-600 text-lg size-4" />
-                                  {!request && (
-                                    <FaCertificate
-                                      className="text-primary text-lg hover:cursor-pointer hover:opacity-70 size-6"
-                                      onClick={() => {
-                                        setHealthInsuranceVerify(
-                                          h.healthInsurance.id
-                                        );
-                                        setConfirmVerification(true);
-                                      }}
-                                    />
-                                  )}
-                                </div>
-                              )}
+                              <IconButton size="small" onClick={() => { setHiToDelete(h.healthInsurance.id); setConfirmDeleteHi(true) }}>
+                                <FaTrash className="text-error" size={15} />
+                              </IconButton>
                             </div>
                           ) : (
                             ""
@@ -462,72 +420,8 @@ export default function ProfileView(props: any) {
                     })}
                   </div>
                 </div>
-                <div className="md:w-2/3">
-                  <div className="my-4 md:flex gap-4">
-                    <div className="flex items-center gap-4 md:w-full">
-                      <div className="w-full">
-                        <Autocomplete
-                          onChange={(event, newValue: any) => {
-                            setHealthInsurance(newValue?.id);
-                          }}
-                          disablePortal
-                          noOptionsText="Especialidad no encontrada"
-                          options={healthInsurances.map((hi: any) => ({
-                            id: hi.id,
-                            label: hi.name,
-                          }))}
-                          renderInput={(params: any) => (
-                            <Input
-                              onChange={() => {}}
-                              name="healthInsuranceId"
-                              {...params}
-                              label="Obra social"
-                            />
-                          )}
-                        />
-                      </div>
-                      <input
-                        type="file"
-                        id="file2"
-                        className="hidden"
-                        onChange={handleChangeHI}
-                      />
-                      <FaPaperclip
-                        className="text-primary text-xl hover:cursor-pointer hover:opacity-70"
-                        onClick={($e: any) => handleClickFile($e, true)}
-                      />
-                    </div>
-                    <div className="flex justify-center mt-2 md:block">
-                      <Button
-                        startIcon={<FaCheck />}
-                        onClick={() => {
-                          setConfirmHealthInsurance(true);
-                        }}
-                      >
-                        Agregar
-                      </Button>
-                    </div>
-                  </div>
-                  {file && (
-                    <div
-                      className={`w-full py-1 px-2 bg-primary rounded-md text-white flex justify-between items-center overflow-x-hidden h-8 ${
-                        file.name.length > 60 ? "overflow-y-scroll" : ""
-                      }`}
-                    >
-                      <div className={`${robotoBold.className}`}>
-                        {file.name}
-                      </div>
-                      <FaXmark
-                        className="hover:cursor-pointer hover:opacity-70"
-                        onClick={() => {
-                          setFile("");
-                        }}
-                      />
-                    </div>
-                  )}
-                </div>
-              </div>
-              <div className="mt-12">
+              )}
+              <div className={`${props.auth.role !== "doctor" && "mt-12"}`}>
                 <h4 className="text-primary text-3xl mt-2 font-bold">
                   Contraseña
                 </h4>
@@ -561,7 +455,7 @@ export default function ProfileView(props: any) {
                           label="Nueva contraseña"
                           error={Boolean(
                             changePass.touched.newPassword &&
-                              changePass.errors.newPassword
+                            changePass.errors.newPassword
                           )}
                           helperText={
                             changePass.errors.newPassword &&
@@ -579,7 +473,7 @@ export default function ProfileView(props: any) {
                           label="Repita la contraseña"
                           error={Boolean(
                             changePass.touched.repeatPassword &&
-                              changePass.errors.repeatPassword
+                            changePass.errors.repeatPassword
                           )}
                           helperText={
                             changePass.errors.repeatPassword &&
@@ -593,41 +487,15 @@ export default function ProfileView(props: any) {
                       </form>
                     </div>
                   )}
-                  <div className="mt-12 flex items-center gap-2">
-                    <DatePicker
-                      label="Fecha de facturación"
-                      name="meetingsDate"
-                      views={["year", "month"]}
-                      onChange={(date: any) => {
-                        setMonth(+moment(new Date(date.$d)).format("MM"));
-                        setYear(+moment(new Date(date.$d)).format("YYYY"));
-                      }}
-                    />
-                    <a
-                      href={`
-                      ${
-                        !month || !year
-                          ? `${
-                              process.env.NEXT_PUBLIC_API_URL
-                            }/meeting/report/${props.auth.id}/${
-                              new Date().getMonth() + 1
-                            }/${new Date().getFullYear()}`
-                          : `${process.env.NEXT_PUBLIC_API_URL}/meeting/report/${props.auth.id}/${month}/${year}`
-                      }`}
-                      target="_blank"
-                    >
-                      <Button>Generar reporte</Button>
-                    </a>
-                  </div>
                 </div>
               </div>
             </section>
             <Dialog
-              open={confirm || confirmVerification || confirmHealthInsurance}
+              open={confirm || confirmHealthInsurance || confirmDeleteHi}
               onClose={() => {
                 setConfirm(false);
-                setConfirmVerification(false);
                 setConfirmHealthInsurance(false);
+                setConfirmDeleteHi(true);
               }}
               aria-labelledby="alert-dialog-title"
               aria-describedby="alert-dialog-description"
@@ -635,21 +503,17 @@ export default function ProfileView(props: any) {
               <DialogTitle id="alert-dialog-title">
                 {confirm
                   ? "Confirmar cambio"
-                  : confirmVerification
-                  ? "Confirmar solicitud"
                   : confirmHealthInsurance
-                  ? "Confirmar solicitud"
-                  : ""}
+                    ? "Confirmar obra social"
+                    : confirmDeleteHi ? 'Confirmar eliminación' : ''}
               </DialogTitle>
               <DialogContent>
                 <DialogContentText id="alert-dialog-description">
                   {confirm
                     ? "¿Estás seguro que deseas cambiar la contraseña?"
-                    : confirmVerification
-                    ? "Estás seguro que deseas solicitar la verificación de la obra social?"
                     : confirmHealthInsurance
-                    ? "Estás seguro que deseas agregar la obra social?"
-                    : ""}
+                      ? "Estás seguro que deseas agregar la obra social?"
+                      : confirmDeleteHi ? 'Estás seguro que deseas eliminar esta obra social?' : ''}
                 </DialogContentText>
               </DialogContent>
               <DialogActions>
@@ -658,8 +522,8 @@ export default function ProfileView(props: any) {
                   variant="text"
                   onClick={() => {
                     setConfirm(false);
-                    setConfirmVerification(false);
                     setConfirmHealthInsurance(false);
+                    setConfirmDeleteHi(false);
                   }}
                 >
                   Cancelar

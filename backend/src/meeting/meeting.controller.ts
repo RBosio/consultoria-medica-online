@@ -11,6 +11,7 @@ import {
   ParseIntPipe,
   Query,
   Res,
+  Headers,
 } from '@nestjs/common';
 import { MeetingService, RequestT } from './meeting.service';
 import { Meeting } from 'src/entities/meeting.entity';
@@ -82,14 +83,15 @@ export class MeetingController {
     return this.meetingService.findLastMeeting(id, req.user.role);
   }
 
-  @Get('report/:userId/:month/:year')
+  @Get('report/:userId/:month/:year/:hi')
   reports(
     @Param('userId', ParseIntPipe) userId: number,
     @Res() res: Response,
     @Param('month', ParseIntPipe) month: number,
     @Param('year', ParseIntPipe) year: number,
+    @Param('hi', ParseIntPipe) hi: number,
   ) {
-    return this.meetingService.generateReport(userId, res, month, year);
+    return this.meetingService.generateReport(userId, res, month, year, hi);
   }
 
   @Get(':id/:startDatetime')
@@ -100,6 +102,13 @@ export class MeetingController {
     @Param('startDatetime') startDatetime: Date,
   ): Promise<Meeting | HttpException> {
     return this.meetingService.findOne(id, startDatetime);
+  }
+
+  @Get('charts')
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(RoleEnum.Admin)
+  charts() {
+    return this.meetingService.charts();
   }
 
   @Post()
@@ -129,8 +138,13 @@ export class MeetingController {
   createPreference(
     @Body() createPreference: any,
     @Param('doctorId', ParseIntPipe) doctorId: number,
+    @Headers('x-idempotency-key') idKey: string,
   ): Promise<any | HttpException> {
-    return this.meetingService.createPreference(createPreference, doctorId);
+    return this.meetingService.createPreference(
+      createPreference,
+      doctorId,
+      idKey,
+    );
   }
 
   @Patch('pay/:id/:startDatetime')

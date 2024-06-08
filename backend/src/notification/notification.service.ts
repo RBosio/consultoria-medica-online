@@ -53,7 +53,7 @@ export class NotificationService {
     });
 
     if (notification) {
-      delete notification.userSend.password;
+      delete notification.userSend?.password;
     }
 
     return notification;

@@ -4,12 +4,7 @@ import { robotoBold } from "@/lib/fonts";
 import {
   FaAddressCard,
   FaCalendarDays,
-  FaCircleCheck,
-  FaCircleXmark,
-  FaEnvelope,
   FaMars,
-  FaPhone,
-  FaSuitcaseMedical,
   FaUser,
   FaVenus,
 } from "react-icons/fa6";
@@ -19,6 +14,7 @@ import "moment/locale/es";
 import Button from "./button";
 import Link from "next/link";
 import { showDni } from "@/lib/dni";
+import HealthInsurance from "./healthInsurance";
 
 const UserCard: React.FC<MeetingResponseDto> = (props) => {
   const theme = useTheme();
@@ -70,12 +66,17 @@ const UserCard: React.FC<MeetingResponseDto> = (props) => {
               <FaVenus className="text-primary" />
             )}
 
-            <p className="px-2">{props.user.gender ? "Masculino" : "Femenino"}</p>
+            <p className="px-2">
+              {props.user.gender ? "Masculino" : "Femenino"}
+            </p>
           </div>
+            <HealthInsurance
+              healthInsurances={props.user.healthInsurances}
+            ></HealthInsurance>
         </div>
         <div className="w-3/4 h-2 border-b-2 border-emerald-200"></div>
         <Link href={`/meetings/medical-record/${props.user.id}`}>
-          <Button className="w-full m-4">Historia clínica</Button>
+          <Button className="m-4">Historia clínica</Button>
         </Link>
       </div>
     </div>

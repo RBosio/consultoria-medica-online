@@ -5,6 +5,7 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { Alert, Snackbar } from "@mui/material";
+import { robotoBold } from "@/lib/fonts";
 
 export default function Login(props: any) {
   const router = useRouter();
@@ -24,13 +25,14 @@ export default function Login(props: any) {
     };
 
     initMP().then((res) => {
-      res.initMercadoPago("TEST-42764678-3204-404e-8181-56af419d0dcc");
+      res.initMercadoPago("TEST-42764678-3204-404e-8181-56af419d0dcc", { locale: 'es-AR' });
     });
   }, []);
 
   return (
     <Layout auth={props.auth}>
-      <div className="w-2/3 mx-auto mt-12">
+      <div className="p-10">
+        <h2 className={`text-primary text-2xl mb-4 ${robotoBold.className}`}>Adquirir plan de trabajo - {props.plan.name}</h2>
         {mp?.CardPayment && (
           <mp.CardPayment
             initialization={{ amount: 2000 }}
@@ -55,16 +57,16 @@ export default function Login(props: any) {
 
               setSuccess(true);
               setMessage("Plan adquirido con éxito");
-              router.push("/");
             }}
           />
         )}
         <Snackbar
           open={success}
           anchorOrigin={{ vertical: "top", horizontal: "center" }}
-          autoHideDuration={4000}
+          autoHideDuration={2500}
           onClose={() => {
             setSuccess(false);
+            if(success) router.push("/")
           }}
         >
           <Alert
@@ -82,17 +84,25 @@ export default function Login(props: any) {
 
 export const getServerSideProps = withAuth(
   async (auth: Auth | null, context: any) => {
-    let plans = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/plan`, {
+
+    if (!context.query.id) return {
+      redirect: {
+        destination: "/config",
+        permanent: false,
+      },
+    };
+
+    let plan = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/plan/${context.query.id}`, {
       withCredentials: true,
       headers: { Authorization: `Bearer ${context.req.cookies.token}` },
     });
 
-    plans = plans.data;
+    plan = plan.data;
 
     return {
       props: {
         auth,
-        plans,
+        plan,
       },
     };
   },

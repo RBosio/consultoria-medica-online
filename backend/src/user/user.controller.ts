@@ -59,9 +59,10 @@ export class UserController {
   @Roles(RoleEnum.User, RoleEnum.Doctor, RoleEnum.Admin)
   addHealthInsurance(
     @Param('id', ParseIntPipe) id: number,
-    @Body() { healthInsuranceId }: { healthInsuranceId: number },
+    @Body()
+    { healthInsuranceId, cod }: { healthInsuranceId: number; cod: string },
   ) {
-    return this.userService.addHealthInsurance(id, healthInsuranceId);
+    return this.userService.addHealthInsurance(id, healthInsuranceId, cod);
   }
 
   @Patch(':id')
@@ -78,6 +79,12 @@ export class UserController {
   clearHI(@Param('id', ParseIntPipe) id: number) {
     return this.userService.clearHI(id);
   }
+
+  @Delete('unsetHI/:hi_id')
+  @UseGuards(AuthGuard)
+  unsetHI(@Param('hi_id', ParseIntPipe) hi_id: number, @Req() req) {
+    return this.userService.unsetHI(hi_id, req);
+  };
 
   @Delete(':dni')
   @Roles(RoleEnum.Admin)

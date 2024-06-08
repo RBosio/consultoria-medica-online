@@ -27,6 +27,8 @@ import { Cron } from '@nestjs/schedule';
 import { Workbook } from 'exceljs';
 import { HealthInsuranceService } from 'src/health-insurance/health-insurance.service';
 import { Doctor } from 'src/entities/doctor.entity';
+import { SpecialityService } from 'src/speciality/speciality.service';
+import { HealthInsurance } from 'src/entities/health-insurance.entity';
 
 export interface RequestT extends Request {
   user: {
@@ -43,6 +45,7 @@ export class MeetingService {
     private userService: UserService,
     private doctorService: DoctorService,
     private healthInsruanceService: HealthInsuranceService,
+    private specialityService: SpecialityService,
     private configService: ConfigService,
   ) {}
 
@@ -424,6 +427,9 @@ export class MeetingService {
     newMeeting.healthInsurance = await this.healthInsruanceService.findOne(
       meeting.healthInsuranceId,
     );
+    newMeeting.speciality = await this.specialityService.findOne(
+      meeting.specialityId,
+    );
     newMeeting.tpc = uuidv4();
 
     return this.meetingRepository.save(newMeeting);
@@ -461,9 +467,12 @@ export class MeetingService {
     return this.meetingRepository.save(meeting);
   }
 
-  async createPreference(pref: any, doctorId: number) {
+  async createPreference(pref: any, doctorId: number, idempotencyKey: string) {
     const client = new MercadoPagoConfig({
       accessToken: this.configService.get<string>('MP_ACCESS_TOKEN'),
+      options: {
+        idempotencyKey,
+      },
     });
     const doctor = await this.doctorService.findOne(doctorId);
 
@@ -493,9 +502,14 @@ export class MeetingService {
     };
 
     const preference = new Preference(client);
-    const result = await preference.create({ body });
+    const result = await preference.create({
+      body,
+      requestOptions: {
+        idempotencyKey,
+      },
+    });
 
-    return { id: result.id };
+    return { id: result.id, init: result.sandbox_init_point };
   }
 
   async pay(userId: number, startDatetime: Date) {
@@ -613,6 +627,7 @@ export class MeetingService {
     doctor: Doctor,
     month: number,
     year: number,
+    hi: number,
   ): Promise<DataList[]> {
     const meetings = await this.meetingRepository.find({
       where: {
@@ -620,6 +635,9 @@ export class MeetingService {
           user: {
             id: doctor.user.id,
           },
+        },
+        healthInsurance: {
+          id: hi === 0 ? null : hi,
         },
       },
       relations: {
@@ -689,6 +707,7 @@ export class MeetingService {
     res: Response,
     month: number,
     year: number,
+    hi: number,
   ) {
     const workbook = new Workbook();
     const worksheet = workbook.addWorksheet('0');
@@ -729,7 +748,7 @@ export class MeetingService {
     const header = ['A', 'B', 'C', 'D', 'E'];
 
     const doctor = await this.doctorService.findOneByUserId(userId);
-    const data: DataList[] = await this.getData(doctor, month, year);
+    const data: DataList[] = await this.getData(doctor, month, year, hi);
 
     data.forEach((val, i, _) => {
       worksheet.addRow(val);
@@ -771,12 +790,81 @@ export class MeetingService {
 
     const buffer = await workbook.xlsx.writeBuffer();
 
+    let h: HealthInsurance;
+    if (hi !== 0) {
+      h = await this.healthInsruanceService.findOne(hi);
+    }
+
     return res
       .set(
         'Content-Disposition',
-        `attachment; filename=${year}-${month}_${doctor.user.surname}-${doctor.user.name}.xlsx`,
+        `attachment; filename=${year}-${month}_${doctor.user.surname}-${
+          doctor.user.name
+        }${h !== undefined ? '-' + h.name.replace(' ', '-') : ''}.xlsx`,
       )
       .send(buffer);
+  }
+
+  async charts() {
+    const response = [];
+    const meetings = await this.meetingRepository.find({
+      relations: {
+        speciality: true,
+      },
+    });
+    const specialities = await this.specialityService.findAll();
+
+    const specialitiesResponse = specialities
+      .map((sp) => {
+        return {
+          x: sp.name,
+          y: meetings.filter((meeting) => meeting.speciality.id === sp.id)
+            .length,
+        };
+      })
+      .filter((sp) => sp.y !== 0)
+      .sort((a, b) => {
+        if (a.y > b.y) return -1;
+      });
+
+    const years = new Set(
+      meetings.map((meeting) => meeting.startDatetime.getFullYear()),
+    );
+    const resp = [];
+    years.forEach((year) => {
+      resp.push({
+        x: year,
+        y: meetings.filter(
+          (meeting) => meeting.startDatetime.getFullYear() === year,
+        ).length,
+      });
+    });
+
+    const resp2 = [];
+    years.forEach((year) => {
+      resp2.push({
+        x: year,
+        y: meetings
+          .filter((meeting) => meeting.startDatetime.getFullYear() === year)
+          .map((meeting) => +meeting.price)
+          .reduce((prev, curr) => prev + curr, 0),
+      });
+    });
+
+    response.push(
+      specialitiesResponse,
+      resp.sort((a, b) => {
+        if (a.x < b.x) {
+          return -1;
+        }
+      }),
+      resp2.sort((a, b) => {
+        if (a.x < b.x) {
+          return -1;
+        }
+      }),
+    );
+    return response;
   }
 }
 

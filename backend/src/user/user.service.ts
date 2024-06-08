@@ -16,7 +16,7 @@ export class UserService {
     @InjectRepository(UserHealthInsurance)
     private userHealthInsuranceRepository: Repository<UserHealthInsurance>,
     private healthInsuranceService: HealthInsuranceService,
-  ) {}
+  ) { }
 
   async findAll(): Promise<User[]> {
     const usersFound = await this.userRepository.find({
@@ -26,6 +26,7 @@ export class UserService {
         },
         doctor: {
           specialities: true,
+          plan: true,
         },
       },
       where: {
@@ -156,24 +157,10 @@ export class UserService {
 
     newUser = await this.userRepository.save(newUser);
 
-    //TODO: REVISAR LA LÓGICA DE ABAJO SI SE PUEDE HACER EN OTROS ENDPOINTS SEPARADOS (Health Insurances)
-
-    // newUser.healthInsurances = []
-
-    // user.his.map(async hi => {
-    //     const healthInsurance = await this.healthInsuranceService.findOne(hi)
-
-    //     const userHI = this.userHealthInsuranceRepository.create({
-    //         user: newUser,
-    //         healthInsurance
-    //     })
-    //     await this.userHealthInsuranceRepository.save(userHI)
-    // })
-
     return newUser;
   }
 
-  async addHealthInsurance(id: number, healthInsuranceId: number) {
+  async addHealthInsurance(id: number, healthInsuranceId: number, cod: string) {
     const user = await this.userRepository.findOne({
       where: {
         id,
@@ -189,6 +176,7 @@ export class UserService {
     const userHI = this.userHealthInsuranceRepository.create({
       user,
       healthInsurance,
+      cod,
     });
     await this.userHealthInsuranceRepository.save(userHI);
 
@@ -216,38 +204,20 @@ export class UserService {
       await updateUser.hashPassword();
     }
 
-    if (user.verify) {
-      const hi = await this.userHealthInsuranceRepository.findOne({
-        where: {
-          userId: id,
-          healthInsuranceId: user.healthInsuranceId,
-        },
+    if (user.healthInsuranceId) {
+      const hi = await this.healthInsuranceService.findOne(
+        user.healthInsuranceId,
+      );
+
+      const newHi = this.userHealthInsuranceRepository.create({
+        userId: updateUser.id,
+        healthInsurance: hi,
+        user: updateUser,
       });
-      if (!hi) {
-        throw new HttpException(
-          'Obra social no encontrada',
-          HttpStatus.NOT_FOUND,
-        );
-      }
 
-      hi.verified = true;
-
-      this.userHealthInsuranceRepository.save(hi);
-    } else {
-      if (user.healthInsuranceId) {
-        const hi = await this.healthInsuranceService.findOne(
-          user.healthInsuranceId,
-        );
-
-        const newHi = this.userHealthInsuranceRepository.create({
-          userId: updateUser.id,
-          healthInsurance: hi,
-          user: updateUser,
-        });
-
-        await this.userHealthInsuranceRepository.save(newHi);
-      }
+      await this.userHealthInsuranceRepository.save(newHi);
     }
+
     const hiUser = await this.userHealthInsuranceRepository.find({
       where: {
         userId: id,
@@ -267,16 +237,26 @@ export class UserService {
         },
       },
     });
-    
+
     await this.userHealthInsuranceRepository.remove(entities);
 
     return 'removed';
   }
 
+  async unsetHI(hi_id: number, req: any) {
+    const result = await this.userHealthInsuranceRepository.delete({ userId: req.user.id, healthInsuranceId: hi_id });
+
+    if (result.affected === 0) {
+      throw new HttpException('No se ha podido eliminar la obra social', HttpStatus.BAD_REQUEST);
+    };
+
+    return result;
+  };
+
   async delete(dni: string) {
     const result = await this.userRepository.delete({ dni });
 
-    if (result.affected == 0) {
+    if (result.affected === 0) {
       throw new HttpException('Usuario no encontrado', HttpStatus.NOT_FOUND);
     }
 

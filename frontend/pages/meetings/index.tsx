@@ -13,10 +13,14 @@ import { MeetingResponseDto } from "@/components/dto/meeting.dto";
 import { SpecialityResponseDto } from "@/components/dto/speciality.dto";
 import Button from "@/components/button";
 import { IoMdSearch } from "react-icons/io";
+import Alert from '@mui/material/Alert';
+import Link from "@mui/material/Link";
+
 interface Meeting {
   auth: Auth;
   meetings: MeetingResponseDto[];
   specialities: SpecialityResponseDto[];
+  doctor: any;
 }
 
 export default function Meetings(props: Meeting) {
@@ -25,6 +29,8 @@ export default function Meetings(props: Meeting) {
 
   const [index, setIndex] = useState(0);
   const [position, setPosition] = useState(0);
+
+  const incompleteDoctorData = props.doctor && (!props.doctor.cbu || !props.doctor.priceMeeting || !props.doctor.durationMeeting);
 
   const isClient = typeof window === "object";
 
@@ -82,9 +88,8 @@ export default function Meetings(props: Meeting) {
           key={page.toString()}
           onClick={handleClick}
           id={page.toString()}
-          className={`w-4 h-4 rounded-full ${
-            page == index ? "bg-secondary" : "bg-primary"
-          } m-2 hover:cursor-pointer`}
+          className={`w-4 h-4 rounded-full ${page == index ? "bg-secondary" : "bg-primary"
+            } m-2 hover:cursor-pointer`}
         ></div>
       );
     }
@@ -138,9 +143,8 @@ export default function Meetings(props: Meeting) {
           onSubmit={filtersForm.handleSubmit}
         >
           <div
-            className={`${
-              props.auth.role === "user" ? "w-full sm:w-1/3" : "w-full sm:w-1/2"
-            }`}
+            className={`${props.auth.role === "user" ? "w-full sm:w-1/3" : "w-full sm:w-1/2"
+              }`}
           >
             <Input
               name="name"
@@ -153,9 +157,8 @@ export default function Meetings(props: Meeting) {
             />
           </div>
           <div
-            className={`${
-              props.auth.role === "user" ? "w-full sm:w-1/3" : "hidden"
-            }`}
+            className={`${props.auth.role === "user" ? "w-full sm:w-1/3" : "hidden"
+              }`}
           >
             <Autocomplete
               onChange={(event, newValue: any) => {
@@ -181,9 +184,8 @@ export default function Meetings(props: Meeting) {
             />
           </div>
           <div
-            className={`${
-              props.auth.role === "user" ? "w-full sm:w-1/3" : "w-full sm:w-1/2"
-            }`}
+            className={`${props.auth.role === "user" ? "w-full sm:w-1/3" : "w-full sm:w-1/2"
+              }`}
           >
             <Autocomplete
               onChange={(event, newValue: any) => {
@@ -214,6 +216,12 @@ export default function Meetings(props: Meeting) {
         </form>
         <section>
           <div className="w-[95%] overflow-hidden m-auto relative px-[14px] sm:mt-8">
+            {props.auth.role === "doctor" && !props.doctor.plan ?
+              <Alert className="w-full rounded-lg" severity="warning">Para realizar reuniones debes solicitar un <Link href="/">plan de trabajo</Link></Alert>
+              : incompleteDoctorData ?
+                <Alert className="w-full rounded-lg" severity="warning">Para realizar reuniones debes de completar los datos obligatorios de tu <Link href="/config">configuración</Link></Alert> :
+                ""
+            }
             <div
               className="flex flex-nowrap items-center transition-all ease-in "
               style={{ transitionDuration: ".5s" }}
@@ -247,9 +255,8 @@ export default function Meetings(props: Meeting) {
                 <div
                   onClick={handleClick}
                   id={page.toString()}
-                  className={`w-4 h-4 rounded-full ${
-                    page === index ? "bg-secondary" : "bg-primary"
-                  } m-2 hover:cursor-pointer`}
+                  className={`w-4 h-4 rounded-full ${page === index ? "bg-secondary" : "bg-primary"
+                    } m-2 hover:cursor-pointer`}
                 ></div>
               ) : (
                 ""
@@ -257,8 +264,8 @@ export default function Meetings(props: Meeting) {
 
               {props.meetings.length / (isDesktop ? 4 : 2) > 1
                 ? props.meetings.map((m, i) => {
-                    return points(i);
-                  })
+                  return points(i);
+                })
                 : ""}
             </div>
             {props.meetings.length / (isDesktop ? 4 : 2) > 1 ? (
@@ -299,11 +306,22 @@ export const getServerSideProps = withAuth(
     let { query } = context;
 
     try {
+      let doctor = null;
+      if (auth?.role === "doctor") {
+        doctor = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}/doctor/user/${auth?.id}`,
+          {
+            withCredentials: true,
+            headers: { Authorization: `Bearer ${context.req.cookies.token}` },
+          }
+        );
+        doctor = doctor.data;
+      }
+
       let meetings;
       if (auth?.role !== "doctor") {
         meetings = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}/meeting/user/${
-            auth?.id
+          `${process.env.NEXT_PUBLIC_API_URL}/meeting/user/${auth?.id
           }?${new URLSearchParams(query).toString()}`,
           {
             withCredentials: true,
@@ -312,8 +330,7 @@ export const getServerSideProps = withAuth(
         );
       } else {
         meetings = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}/meeting/doctor/${
-            auth?.id
+          `${process.env.NEXT_PUBLIC_API_URL}/meeting/doctor/${auth?.id
           }?${new URLSearchParams(query).toString()}`,
           {
             withCredentials: true,
@@ -339,6 +356,7 @@ export const getServerSideProps = withAuth(
           meetings,
           specialities,
           auth,
+          doctor
         },
       };
     } catch {

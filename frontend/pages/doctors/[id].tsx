@@ -583,9 +583,15 @@ export default function Doctor(props: any) {
             >
               Cancelar
             </Button>
-            <Button href={init} autoFocus>
-              Confirmar
-            </Button>
+            {repr ? (
+              <Button onClick={onConfirmClick} autoFocus>
+                Confirmar
+              </Button>
+            ) : (
+              <Button href={init} autoFocus>
+                Confirmar
+              </Button>
+            )}
             {/* {mp?.Wallet && preferenceId && (
               <mp.Wallet initialization={{ preferenceId }} />
             )} */}

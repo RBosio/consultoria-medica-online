@@ -69,7 +69,7 @@ export class ScheduleService {
         };
       });
 
-      if (schedule.day === dayAnt) {
+      if (schedule.day === dayAnt && response[dayAnt]) {
         response[dayAnt].schedule = response[dayAnt].schedule.concat(s);
       } else {
         response.push({

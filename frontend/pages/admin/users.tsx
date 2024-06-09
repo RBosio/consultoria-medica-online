@@ -7,6 +7,7 @@ import axios from "axios";
 import { SpecialityResponseDto } from "@/components/dto/speciality.dto";
 import {
   Alert,
+  Autocomplete,
   Box,
   Chip,
   CircularProgress,
@@ -77,6 +78,7 @@ export default function Home(props: Speciality) {
   const [o, setO] = useState(false);
   const [verify, setVerify] = useState<boolean>(false);
   const [name, setName] = useState<string>("");
+  const [role, setRole] = useState<any>({ id: 0, label: "" });
   const [directionName, setDirectionName] = useState<string>("asc");
   const [cityLoading, setCityLoading] = useState(false);
 
@@ -227,26 +229,62 @@ export default function Home(props: Speciality) {
           <div className="bg-white p-4 w-full h-full rounded-lg shadow-lg">
             <section className="w-full rounded-md flex flex-col items-center relative">
               <div className="w-5/6">
-                <div className="flex justify-between items-center py-4">
-                  <Input
-                    name="name"
-                    value={name}
-                    placeholder="Buscar por usuario..."
-                    variant="outlined"
-                    onChange={($e: any) => {
-                      setName($e.target.value.toLowerCase());
-                      filterChange($e.target.value.toLowerCase());
-                      router.push(
-                        "/admin/users?page=1&name=" +
-                          $e.target.value.toLowerCase()
-                      );
-                    }}
-                    startadornment={
-                      <FaUserDoctor color={theme.palette.primary.main} />
-                    }
-                    className="w-4/12"
-                    label="Usuario"
-                  />
+                <div className="flex justify-between items-end md:items-center py-4 gap-4">
+                  <div className="flex flex-col md:flex-row md:items-center gap-4 w-full">
+                    <Input
+                      name="name"
+                      value={name}
+                      placeholder="Buscar por usuario..."
+                      variant="outlined"
+                      onChange={($e: any) => {
+                        setName($e.target.value.toLowerCase());
+                        filterChange($e.target.value.toLowerCase());
+                        setRole({ id: 0, label: "" });
+                        router.push(
+                          "/admin/users?page=1&name=" +
+                            $e.target.value.toLowerCase()
+                        );
+                      }}
+                      startadornment={
+                        <FaUserDoctor color={theme.palette.primary.main} />
+                      }
+                      className="md:w-4/12"
+                      label="Usuario"
+                    />
+                    <div className="md:w-1/3">
+                      <Autocomplete
+                        value={role}
+                        className={"w-full"}
+                        onChange={(event, newValue: any) => {
+                          setName("");
+                          setRole(newValue);
+                          if (newValue) {
+                            router.push(
+                              "/admin/users?page=1&name=&role=" + newValue.id
+                            );
+                          } else {
+                            router.push("/admin/users?page=1&name=");
+                          }
+                        }}
+                        disablePortal
+                        options={[
+                          { id: 1, name: "Paciente" },
+                          { id: 2, name: "Doctor" },
+                        ].map((hi: any) => ({
+                          id: hi.id,
+                          label: hi.name,
+                        }))}
+                        renderInput={(params: any) => (
+                          <Input
+                            onChange={() => {}}
+                            name="roleId"
+                            {...params}
+                            label="Rol"
+                          />
+                        )}
+                      />
+                    </div>
+                  </div>
                   <Paginator
                     pages={Math.ceil(props.count / 10)}
                     route="/admin/users"
@@ -707,9 +745,9 @@ export const getServerSideProps = withAuth(
       };
     }
 
-    const { page, name } = context.query;
+    const { page, name, role } = context.query;
     let users = await axios.get(
-      `${process.env.NEXT_PUBLIC_API_URL}/user?page=${page}&name=${name}`,
+      `${process.env.NEXT_PUBLIC_API_URL}/user?page=${page}&name=${name}&role=${role}`,
       {
         withCredentials: true,
         headers: { Authorization: `Bearer ${context.req.cookies.token}` },

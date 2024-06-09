@@ -4,7 +4,6 @@ import { Like, Repository } from 'typeorm';
 import { createUserDto } from './dto/create-user.dto';
 import { updateUserDto } from './dto/update-user.dto';
 import { User } from 'src/entities/user.entity';
-import { Doctor } from 'src/entities/doctor.entity';
 import { HealthInsuranceService } from 'src/health-insurance/health-insurance.service';
 import { UserHealthInsurance } from 'src/entities/userHealthInsurances.entity';
 
@@ -12,13 +11,12 @@ import { UserHealthInsurance } from 'src/entities/userHealthInsurances.entity';
 export class UserService {
   constructor(
     @InjectRepository(User) private userRepository: Repository<User>,
-    @InjectRepository(Doctor) private doctorRepository: Repository<Doctor>,
     @InjectRepository(UserHealthInsurance)
     private userHealthInsuranceRepository: Repository<UserHealthInsurance>,
     private healthInsuranceService: HealthInsuranceService,
   ) {}
 
-  async findAll(page: number, name: any): Promise<User[]> {
+  async findAll(page: number, name: any, role: number): Promise<User[]> {
     const usersFound = await this.userRepository.find({
       relations: {
         healthInsurances: {
@@ -38,6 +36,14 @@ export class UserService {
     });
 
     usersFound.map((user) => (user.password = ''));
+    
+    if (role) {
+      if (role === 1) {
+        return usersFound.filter((user) => !user.doctor);
+      } else if (role === 2) {
+        return usersFound.filter((user) => user.doctor);
+      }
+    }
 
     return usersFound;
   }

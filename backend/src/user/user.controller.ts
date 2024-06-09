@@ -32,16 +32,16 @@ export class UserController {
   @Get()
   @Roles(RoleEnum.Admin)
   getUsers(@Req() req: Request): Promise<User[]> {
-    const { page, name } = req.query;
+    const { page, name, role } = req.query;
 
-    return this.userService.findAll(+page, name);
+    return this.userService.findAll(+page, name, +role);
   }
 
   @Get('count')
   @Roles(RoleEnum.Admin)
   count(@Req() req: Request) {
     const { name } = req.query;
-    
+
     return this.userService.count(name);
   }
 

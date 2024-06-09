@@ -20,7 +20,7 @@ import { Chip, Divider, Rating, useTheme } from "@mui/material";
 import { GoDotFill } from "react-icons/go";
 import { DoctorResponseDto } from "@/components/dto/doctor.dto";
 import Avatar from "@/components/avatar";
-import Link from "next/link";
+import Link from "@mui/material/Link";
 import { NotificationResponseDto } from "@/components/dto/notification.dto";
 import { PiGearSix } from "react-icons/pi";
 import { PlanResponseDto } from "@/components/dto/plan.dto";

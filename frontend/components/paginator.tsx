@@ -6,6 +6,7 @@ import { FaChevronLeft, FaChevronRight } from "react-icons/fa6";
 interface PaginatorProps {
   pages: number;
   route: string;
+  users?: boolean;
 }
 
 const Paginator: React.FC<PaginatorProps> = (props) => {
@@ -18,7 +19,7 @@ const Paginator: React.FC<PaginatorProps> = (props) => {
           router.query.page && Number(router.query.page) > 1
             ? Number(router.query.page) - 1
             : 1
-        }`}
+        }${props.users && "&name="}`}
       >
         <FaChevronLeft className="text-2xl" />
       </Link>
@@ -27,7 +28,7 @@ const Paginator: React.FC<PaginatorProps> = (props) => {
           router.query.page && Number(router.query.page) < props.pages
             ? Number(router.query.page) + 1
             : props.pages
-        }`}
+        }${props.users && "&name="}`}
       >
         <FaChevronRight className="text-2xl" />
       </Link>

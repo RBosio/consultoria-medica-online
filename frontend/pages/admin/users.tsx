@@ -32,8 +32,6 @@ import {
 } from "@mui/material";
 import {
   FaBriefcaseMedical,
-  FaChevronLeft,
-  FaChevronRight,
   FaCircleInfo,
   FaClock,
   FaFile,
@@ -54,10 +52,13 @@ import { BsCurrencyDollar, BsFillCreditCard2FrontFill } from "react-icons/bs";
 import { MdHealthAndSafety } from "react-icons/md";
 import { pesos } from "@/lib/formatCurrency";
 import { CiMedicalClipboard } from "react-icons/ci";
+import Paginator from "@/components/paginator";
+import { useRouter } from "next/router";
 
 interface Speciality {
   auth: Auth;
-  users: UserResponseDto[];
+  users: UserResponseDtoExt[];
+  count: number;
 }
 
 interface UserResponseDtoExt extends UserResponseDto {
@@ -79,9 +80,14 @@ export default function Home(props: Speciality) {
   const [directionName, setDirectionName] = useState<string>("asc");
   const [cityLoading, setCityLoading] = useState(false);
 
+  const router = useRouter();
   const theme = useTheme();
 
   useEffect(() => {
+    if (!router.query.page || !router.query.name) {
+      router.push("/admin/users?page=1&name=");
+    }
+
     async function updateDepartment() {
       if (!o || !user?.city) return;
       setCityLoading(true);
@@ -101,9 +107,8 @@ export default function Home(props: Speciality) {
 
   useEffect(() => {
     setPage(1);
-    const filter = props.users.filter((sp, idx) => idx >= 10 * 0 && idx < 10);
     setUsers(props.users);
-    setUsersFiltered(filter);
+    setUsersFiltered(props.users);
   }, []);
 
   const pagination = (p: number, sp?: SpecialityResponseDto[]) => {
@@ -222,47 +227,32 @@ export default function Home(props: Speciality) {
           <div className="bg-white p-4 w-full h-full rounded-lg shadow-lg">
             <section className="w-full rounded-md flex flex-col items-center relative">
               <div className="w-5/6">
-                {
-                  <div className="flex justify-between items-center py-4">
-                    <Input
-                      name="name"
-                      value={name}
-                      placeholder="Buscar por usuario..."
-                      variant="outlined"
-                      onChange={($e: any) => {
-                        setName($e.target.value.toLowerCase());
-                        filterChange($e.target.value.toLowerCase());
-                      }}
-                      startadornment={
-                        <FaUserDoctor color={theme.palette.primary.main} />
-                      }
-                      className="w-4/12"
-                      label="Usuario"
-                    />
-                    <div className="flex gap-2 text-primary">
-                      <FaChevronLeft
-                        className="text-2xl hover:cursor-pointer"
-                        onClick={() => {
-                          pagination(page - 1);
-                          setName("");
-                        }}
-                      />
-
-                      <FaChevronRight
-                        className="text-2xl hover:cursor-pointer"
-                        onClick={() => {
-                          pagination(page + 1);
-                          setName("");
-                        }}
-                      />
-
-                      <p className="text-md">
-                        Página {page ? page : 1} -
-                        {Math.ceil(props.users.length / 10)}
-                      </p>
-                    </div>
-                  </div>
-                }
+                <div className="flex justify-between items-center py-4">
+                  <Input
+                    name="name"
+                    value={name}
+                    placeholder="Buscar por usuario..."
+                    variant="outlined"
+                    onChange={($e: any) => {
+                      setName($e.target.value.toLowerCase());
+                      filterChange($e.target.value.toLowerCase());
+                      router.push(
+                        "/admin/users?page=1&name=" +
+                          $e.target.value.toLowerCase()
+                      );
+                    }}
+                    startadornment={
+                      <FaUserDoctor color={theme.palette.primary.main} />
+                    }
+                    className="w-4/12"
+                    label="Usuario"
+                  />
+                  <Paginator
+                    pages={Math.ceil(props.count / 10)}
+                    route="/admin/users"
+                    users={true}
+                  ></Paginator>
+                </div>
                 <TableContainer component={Paper}>
                   <Table aria-label="medical record table">
                     <TableHead sx={{ bgcolor: PRIMARY_COLOR }}>
@@ -342,7 +332,7 @@ export default function Home(props: Speciality) {
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {usersFiltered.map((row) => (
+                      {props.users.map((row) => (
                         <TableRow
                           key={row.id}
                           sx={{
@@ -378,7 +368,7 @@ export default function Home(props: Speciality) {
                             <div className="flex justify-center items-center gap-2">
                               {row.healthInsurances.length > 0
                                 ? row.healthInsurances
-                                    ?.map((hi: any) => hi.healthInsurance.name)
+                                    ?.map((hi: any) => hi.healthInsurance?.name)
                                     .join(", ")
                                 : "-"}
                             </div>
@@ -717,17 +707,34 @@ export const getServerSideProps = withAuth(
       };
     }
 
-    let users = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/user`, {
-      withCredentials: true,
-      headers: { Authorization: `Bearer ${context.req.cookies.token}` },
-    });
+    const { page, name } = context.query;
+    let users = await axios.get(
+      `${process.env.NEXT_PUBLIC_API_URL}/user?page=${page}&name=${name}`,
+      {
+        withCredentials: true,
+        headers: { Authorization: `Bearer ${context.req.cookies.token}` },
+      }
+    );
 
     users = users.data;
+
+    let count = await axios.get(
+      `${process.env.NEXT_PUBLIC_API_URL}/user/count?name=${name}`,
+      {
+        withCredentials: true,
+        headers: { Authorization: `Bearer ${context.req.cookies.token}` },
+      }
+    );
+
+    count = count.data;
+
+    console.log(count);
 
     return {
       props: {
         auth,
         users,
+        count,
       },
     };
   },

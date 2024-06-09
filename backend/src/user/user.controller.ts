@@ -31,8 +31,18 @@ export class UserController {
 
   @Get()
   @Roles(RoleEnum.Admin)
-  getUsers(): Promise<User[]> {
-    return this.userService.findAll();
+  getUsers(@Req() req: Request): Promise<User[]> {
+    const { page, name } = req.query;
+
+    return this.userService.findAll(+page, name);
+  }
+
+  @Get('count')
+  @Roles(RoleEnum.Admin)
+  count(@Req() req: Request) {
+    const { name } = req.query;
+    
+    return this.userService.count(name);
   }
 
   @Get('admin')
@@ -84,7 +94,7 @@ export class UserController {
   @UseGuards(AuthGuard)
   unsetHI(@Param('hi_id', ParseIntPipe) hi_id: number, @Req() req) {
     return this.userService.unsetHI(hi_id, req);
-  };
+  }
 
   @Delete(':dni')
   @Roles(RoleEnum.Admin)

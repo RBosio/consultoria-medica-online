@@ -1,6 +1,6 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { createUserDto } from './dto/create-user.dto';
 import { updateUserDto } from './dto/update-user.dto';
 import { User } from 'src/entities/user.entity';
@@ -16,9 +16,9 @@ export class UserService {
     @InjectRepository(UserHealthInsurance)
     private userHealthInsuranceRepository: Repository<UserHealthInsurance>,
     private healthInsuranceService: HealthInsuranceService,
-  ) { }
+  ) {}
 
-  async findAll(): Promise<User[]> {
+  async findAll(page: number, name: any): Promise<User[]> {
     const usersFound = await this.userRepository.find({
       relations: {
         healthInsurances: {
@@ -31,11 +31,28 @@ export class UserService {
       },
       where: {
         admin: false,
+        name: Like(`%${name}%`),
       },
+      skip: page ? (page - 1) * 10 : 0,
+      take: 10,
     });
+
     usersFound.map((user) => (user.password = ''));
 
     return usersFound;
+  }
+
+  async count(name: any) {
+    console.log(name);
+    if (name && name !== '') {
+      return this.userRepository.count({
+        where: {
+          name: Like(`%${name}%`),
+        },
+      });
+    }
+
+    return this.userRepository.count();
   }
 
   async findOne(id: number) {
@@ -244,14 +261,20 @@ export class UserService {
   }
 
   async unsetHI(hi_id: number, req: any) {
-    const result = await this.userHealthInsuranceRepository.delete({ userId: req.user.id, healthInsuranceId: hi_id });
+    const result = await this.userHealthInsuranceRepository.delete({
+      userId: req.user.id,
+      healthInsuranceId: hi_id,
+    });
 
     if (result.affected === 0) {
-      throw new HttpException('No se ha podido eliminar la obra social', HttpStatus.BAD_REQUEST);
-    };
+      throw new HttpException(
+        'No se ha podido eliminar la obra social',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
 
     return result;
-  };
+  }
 
   async delete(dni: string) {
     const result = await this.userRepository.delete({ dni });
@@ -314,7 +337,7 @@ export class UserService {
       birthday: new Date('1993-04-01'),
       gender: true,
       city: 82084,
-      image: "user.jpg"
+      image: 'user.jpg',
     });
 
     await this.create({
@@ -343,7 +366,7 @@ export class UserService {
       birthday: new Date('1993-04-01'),
       gender: false,
       city: 82084,
-      image: "user2.jpg"
+      image: 'user2.jpg',
     });
   }
 }

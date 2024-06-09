@@ -26,10 +26,7 @@ import {
   Typography,
   useTheme,
 } from "@mui/material";
-import {
-  FaPlus,
-  FaXmark,
-} from "react-icons/fa6";
+import { FaPlus, FaXmark } from "react-icons/fa6";
 import { FaEdit } from "react-icons/fa";
 import Button from "@/components/button";
 import Input from "@/components/input";

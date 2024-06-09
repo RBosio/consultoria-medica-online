@@ -371,7 +371,7 @@ export default function Home(props: HealthInsurance) {
                             align="center"
                             sx={{ padding: "1.2rem", fontSize: "1.2rem" }}
                           >
-                            {row.discount * 100} %
+                            {Math.floor(row.discount * 100)} %
                           </TableCell>
                           <TableCell
                             className="text-sm"

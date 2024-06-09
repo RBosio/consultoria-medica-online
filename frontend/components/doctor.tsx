@@ -32,7 +32,7 @@ const Doctor: React.FC<DoctorProps> = (props) => {
         <img
           src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/user/images/${props.photo}`}
           alt="Profile photo"
-          className="h-64 sm:h-56 object-cover w-48"
+          className="h-64 sm:h-56 object-cover min-w-64 w-64"
         />
       ) : (
         <div className="w-[14.5rem] bg-primary flex items-center justify-center">

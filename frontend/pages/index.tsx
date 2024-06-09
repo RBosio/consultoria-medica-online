@@ -34,8 +34,6 @@ export default function Home(props: any) {
   const router = useRouter();
   const theme = useTheme();
 
-  console.log(props);
-
   useEffect(() => {
     moment.locale("es");
   }, []);

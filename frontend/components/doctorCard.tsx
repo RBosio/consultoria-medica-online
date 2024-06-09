@@ -23,7 +23,7 @@ const DoctorCard: React.FC<MeetingResponseDto> = (props) => {
           <img
             src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/user/images/${props.doctor.user.image}`}
             alt="Profile photo"
-            className="max-h-32 sm:h-56 object-cover object-center w-full"
+            className="min-h-96 sm:h-56 object-cover object-center w-full"
           />
         ) : (
           <>

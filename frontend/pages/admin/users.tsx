@@ -728,8 +728,6 @@ export const getServerSideProps = withAuth(
 
     count = count.data;
 
-    console.log(count);
-
     return {
       props: {
         auth,

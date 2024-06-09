@@ -43,7 +43,6 @@ export class UserService {
   }
 
   async count(name: any) {
-    console.log(name);
     if (name && name !== '') {
       return this.userRepository.count({
         where: {

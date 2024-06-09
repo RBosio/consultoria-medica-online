@@ -132,11 +132,22 @@ export class ScheduleService {
       });
     }
 
-    response = response.sort((a, b) => a.day - b.day);
+    const test = [];
+    let r = [];
+    response.map((re) => {
+      if (test.includes(re.day)) {
+        r[re.day - 1].schedule = [...r[re.day - 1].schedule, ...re.schedule];
+      } else {
+        r.push(re);
+        test.push(re.day);
+      }
+    });
+
+    r = r.sort((a, b) => a.day - b.day);
 
     moment.locale('es');
     let day = 0;
-    response = response.map((res) => {
+    r = r.map((res) => {
       const d = moment(new Date()).add(day, 'd').format('LLLL').split(' ')[0];
       return {
         formattedDate: d + ' ' + moment(new Date()).add(day, 'd').format('LL'),
@@ -145,7 +156,7 @@ export class ScheduleService {
       };
     });
 
-    return response;
+    return r;
   }
 
   isAvailable(meetings: Meeting[], time: string, day: number): boolean {

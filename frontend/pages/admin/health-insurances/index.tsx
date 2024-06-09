@@ -24,13 +24,9 @@ import {
   TableHead,
   TableRow,
   Typography,
-  styled,
-  tableCellClasses,
   useTheme,
 } from "@mui/material";
 import {
-  FaChevronLeft,
-  FaChevronRight,
   FaPlus,
   FaXmark,
 } from "react-icons/fa6";
@@ -40,10 +36,12 @@ import Input from "@/components/input";
 import { useFormik } from "formik";
 import { useRouter } from "next/router";
 import { PRIMARY_COLOR } from "@/constants";
+import Paginator from "@/components/paginator";
 
 interface HealthInsurance {
   auth: Auth;
   healthInsurances: HealthInsuranceResponseDto[];
+  count: number;
 }
 
 export default function Home(props: HealthInsurance) {
@@ -64,9 +62,12 @@ export default function Home(props: HealthInsurance) {
 
   useEffect(() => {
     setPage(1);
-    setHealthInsurances(
-      props.healthInsurances.filter((hi, idx) => idx >= 4 * 0 && idx < 4)
-    );
+
+    if (!router.query.page) {
+      router.push("/admin/health-insurances?page=1");
+    }
+
+    setHealthInsurances(props.healthInsurances);
   }, []);
 
   const addHealthInsurance = useFormik({
@@ -126,7 +127,7 @@ export default function Home(props: HealthInsurance) {
       setHealthInsurances(healthInsurances.data);
       pagination(page, healthInsurances.data);
 
-      router.push(`/admin/health-insurances`);
+      router.push(`/admin/health-insurances?page=${router.query.page}`);
     },
   });
 
@@ -183,7 +184,7 @@ export default function Home(props: HealthInsurance) {
       setHealthInsurances(healthInsurances.data);
       pagination(page, healthInsurances.data);
 
-      router.push(`/admin/health-insurances`);
+      router.push(`/admin/health-insurances?page=${router.query.page}`);
     },
   });
 
@@ -212,7 +213,7 @@ export default function Home(props: HealthInsurance) {
       props.healthInsurances.filter((hi) => hi.id != Number(id))
     );
 
-    router.push(`/admin/health-insurances`);
+    router.push(`/admin/health-insurances?page=${router.query.page}`);
   };
 
   const onConfirmClick = () => {
@@ -294,25 +295,11 @@ export default function Home(props: HealthInsurance) {
                     Agregar
                   </Button>
                 </div>
-                <div className="flex justify-end items-center gap-2 text-primary py-4">
-                  <FaChevronLeft
-                    className="text-2xl hover:cursor-pointer"
-                    onClick={() => {
-                      pagination(page - 1);
-                    }}
-                  />
-
-                  <FaChevronRight
-                    className="text-2xl hover:cursor-pointer"
-                    onClick={() => {
-                      pagination(page + 1);
-                    }}
-                  />
-
-                  <p className="text-md">
-                    Página {page ? page : 1} -{" "}
-                    {Math.ceil(props.healthInsurances.length / 4)}
-                  </p>
+                <div className="my-4">
+                  <Paginator
+                    pages={Math.ceil(props.count / 10)}
+                    route="/admin/health-insurances"
+                  ></Paginator>
                 </div>
                 <TableContainer component={Paper}>
                   <Table aria-label="medical record table">
@@ -361,7 +348,7 @@ export default function Home(props: HealthInsurance) {
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {healthInsurances.map((row) => (
+                      {props.healthInsurances.map((row) => (
                         <TableRow
                           key={row.id}
                           sx={{
@@ -599,8 +586,9 @@ export const getServerSideProps = withAuth(
       };
     }
 
+    const { page } = context.query;
     let healthInsurances = await axios.get(
-      `${process.env.NEXT_PUBLIC_API_URL}/healthInsurance`,
+      `${process.env.NEXT_PUBLIC_API_URL}/healthInsurance?page=${page}`,
       {
         withCredentials: true,
         headers: { Authorization: `Bearer ${context.req.cookies.token}` },
@@ -609,10 +597,21 @@ export const getServerSideProps = withAuth(
 
     healthInsurances = healthInsurances.data;
 
+    let count = await axios.get(
+      `${process.env.NEXT_PUBLIC_API_URL}/healthInsurance/count`,
+      {
+        withCredentials: true,
+        headers: { Authorization: `Bearer ${context.req.cookies.token}` },
+      }
+    );
+
+    count = count.data;
+
     return {
       props: {
         auth,
         healthInsurances,
+        count,
       },
     };
   },

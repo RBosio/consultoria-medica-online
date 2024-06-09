@@ -36,7 +36,7 @@ export class UserService {
     });
 
     usersFound.map((user) => (user.password = ''));
-    
+
     if (role) {
       if (role === 1) {
         return usersFound.filter((user) => !user.doctor);
@@ -351,6 +351,7 @@ export class UserService {
       name: 'Sebastián',
       surname: 'López',
       password: '123456',
+      image: 'doctor8m.jpg',
       phone: '3416712356',
       address: 'Corrientes 2351',
       cuit: '20-38233911-1',

@@ -35,7 +35,7 @@ const Doctor: React.FC<DoctorProps> = (props) => {
           className="lg:h-64 sm:h-96 object-cover w-48 lg:min-w-64 lg:w-64"
         />
       ) : (
-        <div className="lg:min-w-64 lg:w-64 min-w-48 bg-primary flex items-center justify-center">
+        <div className="lg:min-w-64 lg:w-64 min-w-48 lg:h-64 sm:h-96 bg-primary flex items-center justify-center">
           <FaUserDoctor color="#ffffff" size={80} />
         </div>
       )}

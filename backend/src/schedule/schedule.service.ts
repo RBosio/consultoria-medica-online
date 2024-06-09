@@ -83,6 +83,56 @@ export class ScheduleService {
     const temp = response.filter((s) => s.day >= new Date().getDay());
     const temp2 = response.filter((s) => s.day < new Date().getDay());
     response = temp.concat(temp2);
+    if (!response.map((res) => res.day).includes(0)) {
+      response.push({
+        day: 0,
+        schedule: [],
+      });
+    }
+
+    if (!response.map((res) => res.day).includes(1)) {
+      response.push({
+        day: 1,
+        schedule: [],
+      });
+    }
+
+    if (!response.map((res) => res.day).includes(2)) {
+      response.push({
+        day: 2,
+        schedule: [],
+      });
+    }
+
+    if (!response.map((res) => res.day).includes(3)) {
+      response.push({
+        day: 3,
+        schedule: [],
+      });
+    }
+
+    if (!response.map((res) => res.day).includes(4)) {
+      response.push({
+        day: 4,
+        schedule: [],
+      });
+    }
+
+    if (!response.map((res) => res.day).includes(5)) {
+      response.push({
+        day: 5,
+        schedule: [],
+      });
+    }
+
+    if (!response.map((res) => res.day).includes(6)) {
+      response.push({
+        day: 6,
+        schedule: [],
+      });
+    }
+
+    response = response.sort((a, b) => a.day - b.day);
 
     moment.locale('es');
     let day = 0;

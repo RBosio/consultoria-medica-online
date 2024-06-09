@@ -240,7 +240,6 @@ export default function DetailMeeting(props: MeetingI) {
                 user={props.meeting.user}
                 specialities={props.specialities}
                 status={props.meeting.status}
-                motive={props.meeting.motive}
                 tpc={props.meeting.tpc}
                 price={props.meeting.price}
               />
@@ -251,7 +250,6 @@ export default function DetailMeeting(props: MeetingI) {
                 user={props.meeting.user}
                 specialities={props.specialities}
                 status={props.meeting.status}
-                motive={props.meeting.motive}
                 tpc={props.meeting.tpc}
                 price={props.meeting.price}
               />

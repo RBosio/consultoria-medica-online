@@ -24,7 +24,7 @@ export interface DoctorProps {
 const Doctor: React.FC<DoctorProps> = (props) => {
   const router = useRouter();
 
-  const yearsOfExperience = moment().diff(moment(props.experience), 'years');
+  const yearsOfExperience = moment().diff(moment(props.experience), "years");
 
   return (
     <div className="bg-white w-full rounded-md shadow-md flex">
@@ -35,7 +35,7 @@ const Doctor: React.FC<DoctorProps> = (props) => {
           className="h-64 sm:h-56 object-cover min-w-64 w-64"
         />
       ) : (
-        <div className="w-[14.5rem] bg-primary flex items-center justify-center">
+        <div className=" min-w-64 w-64 bg-primary flex items-center justify-center">
           <FaUserDoctor color="#ffffff" size={80} />
         </div>
       )}
@@ -63,15 +63,12 @@ const Doctor: React.FC<DoctorProps> = (props) => {
           <Rate rate={props.rate} count={props.count} />
           <p className="flex items-center gap-2 text-md">
             <FaBriefcaseMedical className="text-primary" />
-            desde {moment(props.experience).format("YYYY")} {
-              yearsOfExperience > 0 ?
-                yearsOfExperience === 1 ?
-                  `(${yearsOfExperience} año exp.)`
-                  :
-                  `(${yearsOfExperience} años exp.)`
-                :
-                ''
-            }
+            desde {moment(props.experience).format("YYYY")}{" "}
+            {yearsOfExperience > 0
+              ? yearsOfExperience === 1
+                ? `(${yearsOfExperience} año exp.)`
+                : `(${yearsOfExperience} años exp.)`
+              : ""}
           </p>
           <Button
             onClick={() => router.push(`${router.pathname}/${props.id}`)}

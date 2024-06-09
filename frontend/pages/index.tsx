@@ -34,6 +34,8 @@ export default function Home(props: any) {
   const router = useRouter();
   const theme = useTheme();
 
+  console.log(props);
+
   useEffect(() => {
     moment.locale("es");
   }, []);
@@ -117,7 +119,7 @@ export default function Home(props: any) {
                 Ver reunión
               </Button>
             </>
-          ) : props.auth.role === "doctor" && !props.doctor.plan ?
+          ) : props.auth.role === "doctor" && props.doctor && !props.doctor.plan ?
             <Alert className="w-full rounded-lg" severity="warning">Para realizar reuniones debes solicitar un plan de trabajo</Alert>
             : incompleteDoctorData ?
               <Alert className="w-full rounded-lg" severity="warning">Para realizar reuniones debes de completar los datos obligatorios de tu <Link href="/config">configuración</Link></Alert>

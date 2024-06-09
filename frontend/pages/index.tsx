@@ -20,7 +20,7 @@ import { Chip, Divider, Rating, useTheme } from "@mui/material";
 import { GoDotFill } from "react-icons/go";
 import { DoctorResponseDto } from "@/components/dto/doctor.dto";
 import Avatar from "@/components/avatar";
-import Link from "next/link";
+import Link from "@mui/material/Link";
 import { NotificationResponseDto } from "@/components/dto/notification.dto";
 import { PiGearSix } from "react-icons/pi";
 import { PlanResponseDto } from "@/components/dto/plan.dto";
@@ -33,6 +33,8 @@ import Rate from "@/components/rate";
 export default function Home(props: any) {
   const router = useRouter();
   const theme = useTheme();
+
+  console.log(props);
 
   useEffect(() => {
     moment.locale("es");
@@ -117,7 +119,7 @@ export default function Home(props: any) {
                 Ver reunión
               </Button>
             </>
-          ) : props.auth.role === "doctor" && !props.doctor.plan ?
+          ) : props.auth.role === "doctor" && props.doctor && !props.doctor.plan ?
             <Alert className="w-full rounded-lg" severity="warning">Para realizar reuniones debes solicitar un plan de trabajo</Alert>
             : incompleteDoctorData ?
               <Alert className="w-full rounded-lg" severity="warning">Para realizar reuniones debes de completar los datos obligatorios de tu <Link href="/config">configuración</Link></Alert>

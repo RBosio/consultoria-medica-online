@@ -298,9 +298,6 @@ export class UserService {
       );
     }
 
-    hi.file_url = url;
-    hi.file_name = name;
-
     await this.userHealthInsuranceRepository.save(hi);
   }
 

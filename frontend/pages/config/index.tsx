@@ -748,7 +748,7 @@ export default function Config(props: ConfigProps) {
                       </Button>
                     </form>
                   </div>
-                  <div className="flex items-center mt-2 overflow-x-scroll p-4 w-full">
+                  <div className="flex mt-2 overflow-x-scroll p-4 w-full">
                     <div className="mt-8">
                       <div className="my-4">
                         <p className="text-primary text-xl">Desde</p>

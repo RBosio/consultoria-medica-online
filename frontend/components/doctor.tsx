@@ -32,15 +32,15 @@ const Doctor: React.FC<DoctorProps> = (props) => {
         <img
           src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/user/images/${props.photo}`}
           alt="Profile photo"
-          className="h-64 sm:h-56 object-cover min-w-64 w-64"
+          className="lg:h-64 sm:h-96 object-cover w-48 lg:min-w-64 lg:w-64"
         />
       ) : (
-        <div className=" min-w-64 w-64 bg-primary flex items-center justify-center">
+        <div className="lg:min-w-64 lg:w-64 min-w-48 bg-primary flex items-center justify-center">
           <FaUserDoctor color="#ffffff" size={80} />
         </div>
       )}
-      <div className="py-4 px-8 w-full flex flex-col sm:flex-row justify-between">
-        <div className="w-full sm:w-7/12 h-full">
+      <div className="py-4 px-2 lg:px-8 w-full flex flex-col justify-center lg:flex-row lg:justify-between">
+        <div className="w-full lg:w-7/12 h-full">
           <h2 className={`${robotoBold.className} text-2xl text-primary`}>
             {props.fullName}
           </h2>
@@ -55,11 +55,11 @@ const Doctor: React.FC<DoctorProps> = (props) => {
               />
             ))}
           </div>
-          <p className="mt-4 line-clamp-3 lg:line-clamp-5">
+          <p className="mt-4 line-clamp-3 sm:line-clamp-4 lg:line-clamp-5 w-full">
             {props.description}
           </p>
         </div>
-        <div className="shrink-0 flex flex-col items-center justify-between sm:h-full sm:items-center sm:justify-center gap-4">
+        <div className="flex flex-col items-center justify-between sm:h-full sm:items-center sm:justify-center gap-4">
           <Rate rate={props.rate} count={props.count} />
           <p className="flex items-center gap-2 text-md">
             <FaBriefcaseMedical className="text-primary" />

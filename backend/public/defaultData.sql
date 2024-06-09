@@ -305,30 +305,6 @@ VALUES
     ('2026-06-15T09:30:00', 'Consulta por infección de oído', 'El paciente presenta otitis media. Se prescribe antibiótico y analgésico.'),
     ('2026-07-20T14:15:00', 'Consulta por pérdida de peso', 'El paciente ha perdido peso de manera involuntaria. Se sugiere evaluación metabólica y seguimiento nutricional.');
 
-INSERT INTO
-    meeting (
-        userId,
-        startDatetime,
-        doctorId,
-        medicalRecordId,
-        status,
-        price,
-        healthInsuranceId,
-        specialityId
-    )
-VALUES
-    (1, "2024-02-10T09:00:00", 1, 1, "Finalizada", 3000, 1, 2),
-    (1, "2024-03-15T11:00:00", 1, 2, "Finalizada", 3699, 2, 3),
-    (1, "2023-04-24T16:30:06", 1, null, "Finalizada", 3699, 2, 3),
-    (2, "2023-04-24T16:30:05", 1, null, "Finalizada", 3699, 2, 4),
-    (3, "2022-04-24T16:30:04", 1, null, "Finalizada", 3699, 2, 5),
-    (3, "2024-05-24T16:30:03", 1, null, "Finalizada", 3699, 2, 5),
-    (4, "2024-05-24T16:30:02", 1, null, "Finalizada", 3699, 1, 1),
-    (5, "2024-05-24T16:30:01", 1, null, "Finalizada", 3699, 1, 6),
-    (5, "2021-04-24T16:30:40", 1, null, "Finalizada", 3699, 1, 7),
-    (1, "2024-05-02T13:45:00", 17, 4, "Finalizada", 1500, 3, 7),
-    (1, "2024-05-03T12:00:00", 1, null, "Finalizada", 2500, 1, 7);
-
 INSERT INTO meeting (
     userId,
     startDatetime, 
@@ -344,45 +320,36 @@ INSERT INTO meeting (
     specialityId
     )
 VALUES
-    (1, '2024-07-03 10:00:00', 3, 1, 'Pagada', NULL, 50, NULL, 0, NULL, 1, 1),
+    (1, "2024-02-10T09:00:00", 4, 1, "Finalizada", NULL, 3000, NULL, 0, NULL, 1, 2),
+    (1, "2024-03-15T11:00:00", 3, 1, "Finalizada", NULL, 3699, NULL, 0, NULL, 2, 3),
+    (1, "2023-04-24T16:30:06", 4, 1, "Finalizada", NULL, 3699, NULL, 0, NULL, 2, 3),
+    (2, "2023-04-24T16:30:05", 5, 1, "Finalizada", NULL, 3699, NULL, 0, NULL, 2, 4),
+    (3, "2022-04-24T16:30:04", 2, 1, "Finalizada", NULL, 3699, NULL, 0, NULL, 2, 5),
+    (3, "2024-05-24T16:30:03", 1, 1, "Finalizada", NULL, 3699, NULL, 0, NULL, 2, 5),
+    (4, "2024-05-24T16:30:02", 5, 1, "Finalizada", NULL, 3699, NULL, 0, NULL, 1, 1),
+    (5, "2024-05-24T16:30:01", 3, 1, "Finalizada", NULL, 3699, NULL, 0, NULL, 1, 6),
+    (5, "2021-04-24T16:30:40", 5, 1, "Finalizada", NULL, 3699, NULL, 0, NULL, 1, 7),
+    (1, "2024-05-02T13:45:00", 4, 17, "Finalizada", NULL, 1500, NULL, 0, NULL, 3, 7),
+    (1, "2024-05-03T12:00:00", 1, 2, "Finalizada", NULL, 2500, NULL, 0, NULL, 1, 7),
     (1, '2024-06-04 11:00:00', 4, 2, 'Finalizada', NULL, 60, NULL, 0, 11, 2, 2),
-    (1, '2024-07-05 12:00:00', 5, 3, 'Pagada', NULL, 70, NULL, 0, NULL, 3, 3),
     (1, '2024-06-06 13:00:00', 2, 4, 'Finalizada', NULL, 80, NULL, 0, 3, 4, 4),
-    (1, '2024-07-07 14:00:00', 1, 5, 'Pagada', NULL, 90, NULL, 0, NULL, 5, 5),
     (1, '2024-06-08 15:00:00', 3, 6, 'Finalizada', NULL, 100, NULL, 0, NULL, 6, 6),
-    (1, '2024-07-09 16:00:00', 4, 7, 'Pagada', NULL, 110, NULL, 0, NULL, 7, 7),
     (1, '2024-06-08 17:00:00', 5, 8, 'Finalizada', NULL, 120, NULL, 0, 9, 8, 8),
-    (23, '2024-07-11 18:00:00', 2, 1, 'Pagada', NULL, 130, NULL, 0, NULL, 9, 9),
     (1, '2024-05-12 19:00:00', 1, 10, 'Finalizada', NULL, 140, NULL, 0, 7, 10, 10),
-    (26, '2024-07-13 20:00:00', 3, 1, 'Pagada', NULL, 150, NULL, 0, NULL, 11, 11),
     (1, '2024-05-14 21:00:00', 4, 12, 'Finalizada', NULL, 160, NULL, 0, NULL, 12, 12),
-    (28, '2024-07-15 22:00:00', 5, 1, 'Pagada', NULL, 170, NULL, 0, NULL, 13, 13),
     (1, '2024-05-16 23:00:00', 2, 14, 'Finalizada', NULL, 180, NULL, 0, NULL, 14, 14),
-    (26, '2024-07-17 10:00:00', 1, 1, 'Pagada', NULL, 190, NULL, 0, NULL, 15, 15),
     (1, '2024-05-18 11:00:00', 3, 16, 'Finalizada', NULL, 200, NULL, 0, 14, 16, 16),
-    (32, '2024-07-19 12:00:00', 4, 1, 'Pagada', NULL, 210, NULL, 0, NULL, 12, 17),
     (1, '2024-05-20 13:00:00', 5, 18, 'Finalizada', NULL, 220, NULL, 0, NULL, 11, 18),
-    (33, '2024-07-21 14:00:00', 2, 1, 'Pagada', NULL, 230, NULL, 0, NULL, 11, 19),
     (1, '2024-05-22 15:00:00', 1, 20, 'Finalizada', NULL, 240, NULL, 0, 20, 10, 20),
-    (36, '2024-07-23 16:00:00', 3, 1, 'Pagada', NULL, 250, NULL, 0, NULL, 1, 21),
     (1, '2024-05-24 17:00:00', 4, 2, 'Finalizada', NULL, 260, NULL, 0, NULL, 2, 1),
-    (38, '2024-07-25 18:00:00', 5, 1, 'Pagada', NULL, 270, NULL, 0, NULL, 3, 2),
     (1, '2024-05-26 19:00:00', 2, 4, 'Finalizada', NULL, 280, NULL, 0, NULL, 4, 3),
-    (40, '2024-07-27 20:00:00', 1, 1, 'Pagada', NULL, 290, NULL, 0, NULL, 5, 4),
     (1, '2024-05-28 21:00:00', 3, 6, 'Finalizada', NULL, 300, NULL, 0, 24, 6, 5),
-    (40, '2024-07-29 22:00:00', 4, 1, 'Pagada', NULL, 310, NULL, 0, NULL, 7, 6),
     (1, '2024-05-30 23:00:00', 5, 8, 'Finalizada', NULL, 320, NULL, 0, 19, 8, 7),
-    (42, '2024-07-01 10:00:00', 2, 1, 'Pagada', NULL, 330, NULL, 0, NULL, 9, 8),
     (1, '2024-05-02 11:00:00', 1, 10, 'Finalizada', NULL, 340, NULL, 0, NULL, 10, 9),
-    (46, '2024-07-03 12:00:00', 3, 1, 'Pagada', NULL, 350, NULL, 0, NULL, 11, 10),
     (1, '2024-05-04 13:00:00', 4, 12, 'Finalizada', NULL, 360, NULL, 0, NULL, 12, 11),
-    (50, '2024-07-05 14:00:00', 5, 1, 'Pagada', NULL, 370, NULL, 0, NULL, 13, 12),
     (1, '2024-05-06 15:00:00', 2, 14, 'Finalizada', NULL, 380, NULL, 0, NULL, 14, 13),
-    (52, '2024-07-07 16:00:00', 1, 1, 'Pagada', NULL, 390, NULL, 0, NULL, 15, 14),
     (1, '2024-05-08 17:00:00', 3, 16, 'Finalizada', NULL, 400, NULL, 0, NULL, 16, 15),
-    (53, '2024-07-09 18:00:00', 4, 1, 'Pagada', NULL, 410, NULL, 0, NULL, 12, 16),
     (1, '2024-05-10 19:00:00', 5, 18, 'Finalizada', NULL, 420, NULL, 0, 34, 14, 17),
-    (54, '2024-07-11 20:00:00', 2, 1, 'Pagada', NULL, 430, NULL, 0, NULL, 9, 14),
     (1, '2024-05-12 21:00:00', 1, 20, 'Finalizada', NULL, 440, NULL, 0, 30, 15, 19);
 
 

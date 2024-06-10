@@ -685,6 +685,15 @@ export default function Config(props: ConfigProps) {
                   >
                     Rangos horarios
                   </h3>
+                  {props.schedules.length === 0 && (
+                    <Alert
+                      className="w-full rounded-lg mb-4"
+                      severity="warning"
+                    >
+                      Para realizar reuniones debes registrar al menos un rango
+                      horario
+                    </Alert>
+                  )}
                   <div className="flex flex-col md:flex-row items-center">
                     <form
                       className="w-full flex flex-col md:flex-row justify-between items-center my-4 gap-4"

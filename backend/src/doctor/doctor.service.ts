@@ -383,6 +383,7 @@ export class DoctorService {
         },
         specialities: true,
         plan: true,
+        schedules: true,
       },
     });
 

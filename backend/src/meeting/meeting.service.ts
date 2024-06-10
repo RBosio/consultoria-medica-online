@@ -164,6 +164,7 @@ export class MeetingService {
         doctor: {
           user: true,
           specialities: true,
+          schedules: true,
         },
       },
       where: {

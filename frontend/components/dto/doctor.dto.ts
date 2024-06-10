@@ -1,4 +1,5 @@
 import { PlanResponseDto } from "./plan.dto";
+import { ScheduleResponseDto } from "./schedule.dto";
 import { SpecialityResponseDto } from "./speciality.dto";
 import { UserResponseDto } from "./user.dto";
 
@@ -12,6 +13,7 @@ export interface DoctorResponseDto {
   planId?: number;
   user: UserResponseDto;
   specialities: SpecialityResponseDto[];
+  schedules: ScheduleResponseDto[];
   verified: boolean;
   verifiedSince: Date;
   plan: PlanResponseDto;

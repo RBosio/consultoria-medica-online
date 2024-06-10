@@ -1,10 +1,10 @@
-import { Chip } from "@mui/material";
+import { Chip, IconButton, Tooltip } from "@mui/material";
 import React from "react";
 import { IoIosArrowForward } from "react-icons/io";
 import Rate from "./rate";
 import { robotoBold } from "@/lib/fonts";
 import Button from "./button";
-import { FaUserDoctor } from "react-icons/fa6";
+import { FaStar, FaUserDoctor } from "react-icons/fa6";
 import { useRouter } from "next/router";
 import moment from "moment";
 import { FaBriefcaseMedical } from "react-icons/fa6";
@@ -41,8 +41,17 @@ const Doctor: React.FC<DoctorProps> = (props) => {
       )}
       <div className="py-4 px-2 lg:px-8 w-full flex flex-col justify-center lg:flex-row lg:justify-between">
         <div className="w-full lg:w-7/12 h-full">
-          <h2 className={`${robotoBold.className} text-2xl text-primary`}>
-            {props.fullName}
+          <h2
+            className={`flex items-center gap-2 ${robotoBold.className} text-2xl text-primary`}
+          >
+            <p>{props.fullName}</p>
+            {props.planId === 3 && (
+              <Tooltip title="Premiun">
+                <IconButton>
+                  <FaStar className="text-yellow-600 size-6" />
+                </IconButton>
+              </Tooltip>
+            )}
           </h2>
           <div className="flex gap-2">
             {props.specialities.map((spec) => (

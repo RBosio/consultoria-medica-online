@@ -81,6 +81,7 @@ export default function Doctors(props: any) {
                 photo={doctor.user.image}
                 seniority={doctor.seniority}
                 experience={doctor.employmentDate}
+                planId={doctor.planId}
               />
             ))
           )}

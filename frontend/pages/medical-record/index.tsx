@@ -212,15 +212,17 @@ export default function MedicalRecord(props: MedicalRecordI) {
                       align="center"
                       sx={{ padding: "1.2rem", fontSize: "1.2rem" }}
                     >
-                      <div className="flex justify-center">
-                        <FaFile
-                          onClick={() => {
-                            setFilesU(row.files);
-                            setModal(true);
-                          }}
-                          className="text-primary text-lg hover:cursor-pointer hover:opacity-70"
-                        />
-                      </div>
+                      {row.files.length > 0 && (
+                        <div className="flex justify-center">
+                          <FaFile
+                            onClick={() => {
+                              setFilesU(row.files);
+                              setModal(true);
+                            }}
+                            className="text-primary text-lg hover:cursor-pointer hover:opacity-70"
+                          />
+                        </div>
+                      )}
                     </TableCell>
                   </TableRow>
                 ))}
@@ -260,29 +262,22 @@ export default function MedicalRecord(props: MedicalRecordI) {
                 </h2>
                 <div>
                   <div className="flex flex-wrap gap-2 mt-4">
-                    {filesU.length > 0 ? (
-                      filesU.map((f) => {
-                        return (
-                          <a
-                            target="_blank"
-                            href={`http://localhost:3000/uploads/medical-record/${f.url}`}
-                          >
-                            <Chip
-                              size="medium"
-                              variant="outlined"
-                              color="primary"
-                              className={`${robotoBold.className} hover:bg-primary hover:text-white`}
-                              label={f.name}
-                            />
-                          </a>
-                        );
-                      })
-                    ) : (
-                      <p>
-                        Aún no has cargado ningún archivo a esta historia
-                        clínica
-                      </p>
-                    )}
+                    {filesU.map((f) => {
+                      return (
+                        <a
+                          target="_blank"
+                          href={`http://localhost:3000/uploads/medical-record/${f.url}`}
+                        >
+                          <Chip
+                            size="medium"
+                            variant="outlined"
+                            color="primary"
+                            className={`${robotoBold.className} hover:bg-primary hover:text-white`}
+                            label={f.name}
+                          />
+                        </a>
+                      );
+                    })}
                   </div>
                 </div>
               </div>

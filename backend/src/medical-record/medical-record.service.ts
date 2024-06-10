@@ -69,7 +69,7 @@ export class MedicalRecordService {
         },
       },
     });
-    return Math.round(count / 10);
+    return Math.ceil(count / 10);
   }
 
   async create(

@@ -183,25 +183,36 @@ export default function Home(props: Speciality) {
   const handleOrderChange = (filter: string) => {
     setName("");
     if (filter === "name") {
-      setUsersFiltered(
-        usersFiltered.sort((a, b) => {
-          if (directionName === "asc") {
-            return a.name.localeCompare(b.name);
-          } else {
-            return b.name.localeCompare(a.name);
-          }
-        })
-      );
+      if (+router.query.ascName! === 2 || !router.query.ascName) {
+        router.push(
+          `/admin/users?page=1&name=${router.query.name}&role=${
+            router.query.role ? router.query.role : ""
+          }&ascName=1`
+        );
+      }
+
+      if (+router.query.ascName! === 1) {
+        router.push(
+          `/admin/users?page=1&name=${router.query.name}&role=${
+            router.query.role ? router.query.role : ""
+          }&ascName=2`
+        );
+      }
     } else {
-      setUsersFiltered(
-        usersFiltered.sort((a, b) => {
-          if (directionName === "asc") {
-            return a.surname.localeCompare(b.surname);
-          } else {
-            return b.surname.localeCompare(a.surname);
-          }
-        })
-      );
+      if (+router.query.ascSurname! === 2 || !router.query.ascSurname) {
+        router.push(
+          `/admin/users?page=1&name=${router.query.name}&role=${
+            router.query.role ? router.query.role : ""
+          }&ascSurname=1`
+        );
+      }
+      if (+router.query.ascSurname! === 1) {
+        router.push(
+          `/admin/users?page=1&name=${router.query.name}&role=${
+            router.query.role ? router.query.role : ""
+          }&ascSurname=2`
+        );
+      }
     }
 
     if (directionName === "asc") {
@@ -226,7 +237,7 @@ export default function Home(props: Speciality) {
             <section className="w-full rounded-md flex flex-col items-center relative">
               <div className="w-5/6">
                 <div className="flex justify-between items-end md:items-center py-4 gap-4">
-                  <div className="flex flex-col md:flex-row md:items-center gap-4 w-full">
+                  <div className="flex flex-col md:flex-row md:items-center gap-4 md:w-full">
                     <Input
                       name="name"
                       value={name}
@@ -235,10 +246,10 @@ export default function Home(props: Speciality) {
                       onChange={($e: any) => {
                         setName($e.target.value.toLowerCase());
                         filterChange($e.target.value.toLowerCase());
-                        setRole({ id: 0, label: "" });
                         router.push(
-                          "/admin/users?page=1&name=" +
-                            $e.target.value.toLowerCase()
+                          `/admin/users?page=1&name=${$e.target.value.toLowerCase()}&role=${
+                            router.query.role ? router.query.role : ""
+                          }`
                         );
                       }}
                       startadornment={
@@ -252,14 +263,15 @@ export default function Home(props: Speciality) {
                         value={role}
                         className={"w-full"}
                         onChange={(event, newValue: any) => {
-                          setName("");
                           setRole(newValue);
                           if (newValue) {
                             router.push(
-                              "/admin/users?page=1&name=&role=" + newValue.id
+                              `/admin/users?page=1&name=${router.query.name}&role=${newValue.id}`
                             );
                           } else {
-                            router.push("/admin/users?page=1&name=");
+                            router.push(
+                              `/admin/users?page=1&name=${router.query.name}`
+                            );
                           }
                         }}
                         disablePortal
@@ -274,6 +286,7 @@ export default function Home(props: Speciality) {
                           <Input
                             onChange={() => {}}
                             name="roleId"
+                            variant="outlined"
                             {...params}
                             label="Rol"
                           />
@@ -281,11 +294,14 @@ export default function Home(props: Speciality) {
                       />
                     </div>
                   </div>
-                  <Paginator
-                    pages={Math.ceil(props.count / 10)}
-                    route="/admin/users"
-                    users={true}
-                  ></Paginator>
+                  <div className="w-full md:w-1/3">
+                    <Paginator
+                      pages={Math.ceil(props.count / 10)}
+                      route="/admin/users"
+                      users={true}
+                      role={Number(router.query.role)}
+                    ></Paginator>
+                  </div>
                 </div>
                 <TableContainer component={Paper}>
                   <Table aria-label="medical record table">
@@ -455,6 +471,13 @@ export default function Home(props: Speciality) {
                     </TableBody>
                   </Table>
                 </TableContainer>
+                {props.users.length === 0 && (
+                  <div className="flex justify-center items-center mt-4">
+                    <p className="text-lg">
+                      No se encontraron resultados para la búsqueda
+                    </p>
+                  </div>
+                )}
                 <Modal
                   open={o}
                   onClose={() => setO(false)}
@@ -741,9 +764,9 @@ export const getServerSideProps = withAuth(
       };
     }
 
-    const { page, name, role } = context.query;
+    const { page, name, role, ascName, ascSurname } = context.query;
     let users = await axios.get(
-      `${process.env.NEXT_PUBLIC_API_URL}/user?page=${page}&name=${name}&role=${role}`,
+      `${process.env.NEXT_PUBLIC_API_URL}/user?page=${page}&name=${name}&role=${role}&ascName=${ascName}&ascSurname=${ascSurname}`,
       {
         withCredentials: true,
         headers: { Authorization: `Bearer ${context.req.cookies.token}` },
@@ -753,7 +776,7 @@ export const getServerSideProps = withAuth(
     users = users.data;
 
     let count = await axios.get(
-      `${process.env.NEXT_PUBLIC_API_URL}/user/count?name=${name}`,
+      `${process.env.NEXT_PUBLIC_API_URL}/user/count?name=${name}&role=${role}`,
       {
         withCredentials: true,
         headers: { Authorization: `Bearer ${context.req.cookies.token}` },

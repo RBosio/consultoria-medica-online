@@ -1,6 +1,6 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Like, Repository } from 'typeorm';
+import { IsNull, Like, Not, Repository } from 'typeorm';
 import { createUserDto } from './dto/create-user.dto';
 import { updateUserDto } from './dto/update-user.dto';
 import { User } from 'src/entities/user.entity';
@@ -16,7 +16,13 @@ export class UserService {
     private healthInsuranceService: HealthInsuranceService,
   ) {}
 
-  async findAll(page: number, name: any, role: number): Promise<User[]> {
+  async findAll(
+    page: number,
+    name: any,
+    role: number,
+    ascName: number,
+    ascSurname: number,
+  ): Promise<User[]> {
     const usersFound = await this.userRepository.find({
       relations: {
         healthInsurances: {
@@ -30,6 +36,19 @@ export class UserService {
       where: {
         admin: false,
         name: Like(`%${name}%`),
+        doctor: {
+          id: (() => {
+            if (role) {
+              if (role === 1) {
+                return IsNull();
+              }
+
+              if (role === 2) {
+                return Not(IsNull());
+              }
+            }
+          })(),
+        },
       },
       skip: page ? (page - 1) * 10 : 0,
       take: 10,
@@ -37,22 +56,70 @@ export class UserService {
 
     usersFound.map((user) => (user.password = ''));
 
-    if (role) {
-      if (role === 1) {
-        return usersFound.filter((user) => !user.doctor);
-      } else if (role === 2) {
-        return usersFound.filter((user) => user.doctor);
-      }
+    if (ascName === 1) {
+      return usersFound.sort((a, b) => (a.name > b.name ? 1 : -1));
+    } else if (ascName === 2) {
+      return usersFound.sort((a, b) => (a.name < b.name ? 1 : -1));
+    }
+
+    if (ascSurname === 1) {
+      return usersFound.sort((a, b) => (a.surname > b.surname ? 1 : -1));
+    } else if (ascSurname === 2) {
+      return usersFound.sort((a, b) => (a.surname < b.surname ? 1 : -1));
     }
 
     return usersFound;
   }
 
-  async count(name: any) {
+  async count(name: any, role: number) {
+    if (name && name !== '' && role) {
+      if (role === 1) {
+        return this.userRepository.count({
+          where: {
+            name: Like(`%${name}%`),
+            doctor: {
+              id: IsNull(),
+            },
+          },
+        });
+      }
+
+      if (role === 2) {
+        return this.userRepository.count({
+          where: {
+            name: Like(`%${name}%`),
+            doctor: {
+              id: Not(IsNull()),
+            },
+          },
+        });
+      }
+    }
+
     if (name && name !== '') {
       return this.userRepository.count({
         where: {
           name: Like(`%${name}%`),
+        },
+      });
+    }
+
+    if (role && role === 1) {
+      return this.userRepository.count({
+        where: {
+          doctor: {
+            id: IsNull(),
+          },
+        },
+      });
+    }
+
+    if (role && role === 2) {
+      return this.userRepository.count({
+        where: {
+          doctor: {
+            id: Not(IsNull()),
+          },
         },
       });
     }

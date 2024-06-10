@@ -212,7 +212,7 @@ export default function MedicalRecord(props: MedicalRecordI) {
                       align="center"
                       sx={{ padding: "1.2rem", fontSize: "1.2rem" }}
                     >
-                      {row.files.length > 0 && (
+                      {row.files.length > 0 ? (
                         <div className="flex justify-center">
                           <FaFile
                             onClick={() => {
@@ -222,7 +222,7 @@ export default function MedicalRecord(props: MedicalRecordI) {
                             className="text-primary text-lg hover:cursor-pointer hover:opacity-70"
                           />
                         </div>
-                      )}
+                      ) : '-'}
                     </TableCell>
                   </TableRow>
                 ))}
@@ -254,14 +254,14 @@ export default function MedicalRecord(props: MedicalRecordI) {
                 p: 4,
               }}
             >
-              <div className="flex flex-col gap-6">
+              <div className="flex flex-col gap-2">
                 <h2
                   className={`${robotoBold.className} text-primary text-xl mb-2`}
                 >
                   Archivos
                 </h2>
                 <div>
-                  <div className="flex flex-wrap gap-2 mt-4">
+                  <div className="flex flex-col gap-3">
                     {filesU.map((f) => {
                       return (
                         <a

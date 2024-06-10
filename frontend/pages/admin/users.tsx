@@ -142,10 +142,6 @@ export default function Home(props: Speciality) {
     setSuccess(true);
     setMessage("Doctor verificado con éxito");
 
-    const userAux = users.filter((u) => u.doctor?.id === doctorId)[0];
-    userAux.doctor.verified = true;
-    setUsers(props.users.map((u) => (u.doctor?.id === doctorId ? userAux : u)));
-
     setO(false);
     setVerify(false);
 

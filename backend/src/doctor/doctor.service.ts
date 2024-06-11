@@ -145,7 +145,7 @@ export class DoctorService {
     } = query;
     const moment = extendMoment(Moment);
 
-    let doctorsFound = [];
+    let doctorsFound: Doctor[] = [];
 
     doctorsFound = await this.doctorRepository.find({
       where: {
@@ -154,14 +154,24 @@ export class DoctorService {
         priceMeeting: Not(IsNull()),
         durationMeeting: Not(IsNull()),
         cbu: Not(IsNull()),
-        // Por el momento haremos que el alias NO sea obligatorio
       },
       order: {
         plan: {
           price: 'DESC',
         },
       },
-      relations: ['user', 'specialities', 'plan', 'user.healthInsurances'],
+      relations: {
+        user: {
+          healthInsurances: true,
+        },
+        specialities: true,
+        plan: true,
+        schedules: true,
+      },
+    });
+
+    doctorsFound = doctorsFound.filter((doctor) => {
+      return doctor.schedules.length > 0;
     });
 
     // FILTER

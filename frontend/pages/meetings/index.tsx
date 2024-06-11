@@ -234,7 +234,8 @@ export default function Meetings(props: Meeting) {
                 Para realizar reuniones debes de completar los datos
                 obligatorios de tu <Link href="/config">configuración</Link>
               </Alert>
-            ) : props.auth.role === "doctor" && props.meetings[0].doctor.schedules.length === 0 ? (
+            ) : props.auth.role === "doctor" &&
+              props.doctor.schedules.length === 0 ? (
               <Alert className="w-full rounded-lg" severity="warning">
                 Para realizar reuniones debes registrar al menos un rango
                 horario en <Link href="/config">configuración</Link>
@@ -248,7 +249,7 @@ export default function Meetings(props: Meeting) {
               id="carouselInner"
             >
               {props.meetings.length === 0 ? (
-                <h2 className="text-xl">No se encontraron resultados</h2>
+                <h2 className="text-xl mt-4">No se encontraron resultados</h2>
               ) : (
                 ""
               )}

@@ -65,7 +65,7 @@ const Doctor: React.FC<DoctorProps> = (props) => {
             ))}
           </div>
           <p className="mt-4 line-clamp-3 sm:line-clamp-4 lg:line-clamp-5 w-full">
-            {props.description}
+            {props.description || "No posee descripción"}
           </p>
         </div>
         <div className="flex flex-col items-center justify-between sm:h-full sm:items-center sm:justify-center gap-4">

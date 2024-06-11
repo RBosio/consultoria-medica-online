@@ -257,7 +257,7 @@ export default function Home(props: Plan) {
   return (
     <Layout auth={props.auth}>
       <div className="flex justify-center items-start">
-        <div className="flex flex-col md:flex-row justify-center gap-4 w-[90%] mt-12">
+        <div className="flex flex-col xl:flex-row justify-center gap-4 w-[90%] mt-12">
           <div>
             <SidebarAdmin
               auth={props.auth}

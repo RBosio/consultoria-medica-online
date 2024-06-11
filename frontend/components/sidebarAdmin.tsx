@@ -68,10 +68,10 @@ const SidebarAdmin: React.FC<SidebarAdminProps> = (props) => {
   return (
     <section
       className={`
-        w-full md:w-60
+        w-full xl:w-60
         bg-white
-        shadow-lg md:static
-        mt-4 md:mt-0 rounded-lg`}
+        shadow-lg xl:static
+        mt-4 xl:mt-0 rounded-lg`}
     >
       <div className="flex flex-col h-[calc(100%-5rem)] items-center md:justify-between">
         <Avatar

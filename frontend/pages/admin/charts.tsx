@@ -88,7 +88,7 @@ export default function Admin(props: any) {
 
   return (
     <Layout auth={props.auth}>
-      <div className="flex flex-col md:flex-row justify-center gap-4 w-[90%] mt-12 mx-auto">
+      <div className="flex flex-col xl:flex-row justify-center gap-4 w-[90%] mt-12 mx-auto">
         <div>
           <SidebarAdmin
             auth={props.auth}

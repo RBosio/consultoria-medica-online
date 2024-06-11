@@ -27,7 +27,11 @@ const Doctor: React.FC<DoctorProps> = (props) => {
   const yearsOfExperience = moment().diff(moment(props.experience), "years");
 
   return (
-    <div className="bg-white w-full rounded-md shadow-md flex">
+    <div
+      className={`bg-white w-full rounded-md flex ${
+        props.planId === 3 && "animate-gold"
+      }`}
+    >
       {props.photo ? (
         <img
           src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/user/images/${props.photo}`}
@@ -42,13 +46,13 @@ const Doctor: React.FC<DoctorProps> = (props) => {
       <div className="py-4 px-2 lg:px-8 w-full flex flex-col justify-center lg:flex-row lg:justify-between">
         <div className="w-full lg:w-7/12 h-full">
           <h2
-            className={`flex items-center gap-2 ${robotoBold.className} text-2xl text-primary`}
+            className={`flex items-center ${robotoBold.className} text-2xl text-primary`}
           >
             <p>{props.fullName}</p>
             {props.planId === 3 && (
               <Tooltip title="Premiun">
                 <IconButton>
-                  <FaStar className="text-yellow-600 size-6" />
+                  <FaStar className="text-yellow-400 size-6" />
                 </IconButton>
               </Tooltip>
             )}

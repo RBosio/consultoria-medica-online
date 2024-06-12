@@ -29,7 +29,7 @@ const Doctor: React.FC<DoctorProps> = (props) => {
   return (
     <div
       className={`bg-white w-full rounded-md flex ${
-        props.planId === 3 && "animate-gold"
+        props.planId === 3 && "gold-glow"
       }`}
     >
       {props.photo ? (

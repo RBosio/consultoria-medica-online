@@ -14,6 +14,7 @@ const DatePicker: React.FC<any> = (props) => {
       <DatePickerMUI
         {...props}
         defaultValue={dayjs()}
+        maxDate={props.max || null}
         views={props.views ? props.views : ["year", "month", "day"]}
         sx={{
           "& label": {

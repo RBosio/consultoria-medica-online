@@ -187,6 +187,7 @@ const RegisterDoctorForm: React.FC<any> = (props) => {
                     label="Año de inicio de actividades"
                     name="employmentDate"
                     views={["year"]}
+                    max={dayjs()}
                     onChange={(date: Dayjs) =>
                         registerDoctorForm.setFieldValue("employmentDate", date)
                     }

@@ -6,16 +6,16 @@ import axios from "axios";
 import Avatar from "@/components/avatar";
 import {
   FaBuildingColumns,
-  FaCircleCheck,
+  FaChevronRight,
   FaCircleUp,
   FaCircleXmark,
   FaMoneyBill1Wave,
   FaMoneyBillTransfer,
   FaPlus,
   FaStopwatch,
+  FaTrash,
   FaUserDoctor,
 } from "react-icons/fa6";
-import { IoIosAddCircleOutline } from "react-icons/io";
 import { robotoBold } from "@/lib/fonts";
 import Button from "@/components/button";
 import {
@@ -50,11 +50,11 @@ import { NotificationResponseDto } from "@/components/dto/notification.dto";
 import moment from "moment";
 import "moment/locale/es";
 import { pesos } from "@/lib/formatCurrency";
-import LinkMUI from "@mui/material/Link";
 import { PlanResponseDto } from "@/components/dto/plan.dto";
 import DatePicker from "@/components/dateInput";
 import { UserHealthInsuranceResponseDto } from "@/components/dto/userHealthInsurance.dto";
 import { validCBU } from "@/lib/cbuValidator";
+import { IoAdd } from "react-icons/io5";
 
 interface ConfigProps {
   user: UserResponseDto;
@@ -68,9 +68,6 @@ interface ConfigProps {
 }
 
 export default function Config(props: ConfigProps) {
-  useEffect(() => {
-    moment.locale("es");
-  }, []);
 
   const theme = useTheme();
   const router = useRouter();
@@ -109,8 +106,7 @@ export default function Config(props: ConfigProps) {
     },
   ];
 
-  const [modify, setModify] = useState(false);
-  const [minutesFrom, setMinutesFrom] = useState([
+  const minutesFrom = [
     "",
     "01:00",
     "02:00",
@@ -136,7 +132,10 @@ export default function Config(props: ConfigProps) {
     "22:00",
     "23:00",
     "24:00",
-  ]);
+  ];
+
+
+  const [modify, setModify] = useState(false);
   const [minutesTo, setMinutesTo] = useState<string[]>([]);
   const [healthInsurance, setHealthInsurance] = useState<number>(0);
   const [duration, setDuration] = useState<number>(
@@ -152,28 +151,41 @@ export default function Config(props: ConfigProps) {
 
   const [confirmSchedule, setConfirmSchedule] = useState<boolean>(false);
   const [confirmUpdate, setConfirmUpdate] = useState<boolean>(false);
-  const [confirmVerification, setConfirmVerification] =
-    useState<boolean>(false);
-  const [confirmVerificationHI, setConfirmVerificationHI] =
-    useState<boolean>(false);
   const [confirmCancelPlan, setConfirmCancelPlan] = useState<boolean>(false);
   const [confirmHealthInsurance, setConfirmHealthInsurance] =
     useState<boolean>(false);
   const [description, setDescription] = useState<string>("");
   const [month, setMonth] = useState<number>();
   const [year, setYear] = useState<number>();
+  const [hiToDelete, setHiToDelete] = useState<number>(-1);
+  const [confirmDeleteHi, setConfirmDeleteHi] = useState<boolean>(false);
+
+  const healthInsurances = props.healthInsurances.filter((hi: any) => {
+    return !props.doctor.user.healthInsurances
+      .map((h: any) => h.healthInsuranceId)
+      .includes(hi.id);
+  });
+
+  useEffect(() => {
+    moment.locale("es");
+
+    addEventListener("resize", () => {
+      setModify(false);
+    });
+
+    setDescription(props.doctor.description ?? "");
+  }, []);
+
+  // useEffect(() => {
+  //   setHealthInsurances(
+
+  //   );
+  // }, []);
 
   const incompleteDoctorData =
     !props.doctor.cbu ||
     !props.doctor.priceMeeting ||
     !props.doctor.durationMeeting;
-
-  useEffect(() => {
-    addEventListener("resize", () => {
-      setModify(false);
-    });
-    setDescription(props.doctor.description ?? "");
-  }, []);
 
   const updateForm = useFormik({
     initialValues: {
@@ -310,42 +322,32 @@ export default function Config(props: ConfigProps) {
     } else if (confirmUpdate) {
       updateForm.handleSubmit();
       setConfirmUpdate(false);
-    } else if (confirmVerification) {
-      handleClickVerification();
-      setConfirmVerification(false);
     } else if (confirmCancelPlan) {
       handleClickCancelPlan();
       setConfirmCancelPlan(false);
     } else if (confirmHealthInsurance) {
       handleClickHealthInsurance();
       setConfirmHealthInsurance(false);
-    }
+    } else if (confirmDeleteHi) {
+      handleClickDeleteHi();
+      setConfirmDeleteHi(false);
+    };
   };
 
-  const handleClickVerification = async () => {
-    const user = await axios.get(
-      `${process.env.NEXT_PUBLIC_API_URL}/user/admin`,
+  const handleClickDeleteHi = async () => {
+
+    await axios.delete(
+      `${process.env.NEXT_PUBLIC_API_URL}/user/unsetHI/${hiToDelete}`,
       {
         withCredentials: true,
         headers: { Authorization: `Bearer ${props.auth.token}` },
       }
     );
 
-    await axios.post(
-      `${process.env.NEXT_PUBLIC_API_URL}/notification`,
-      {
-        userIdSend: props.auth.id,
-        userIdReceive: user.data.id,
-        type: "verification",
-      },
-      {
-        withCredentials: true,
-        headers: { Authorization: `Bearer ${props.auth.token}` },
-      }
-    );
-
-    setMessage("Solicitud realizada con éxito!");
+    setMessage("Obra social eliminada con éxito!");
     setSuccess(true);
+
+    setHiToDelete(-1);
 
     router.push("/config");
   };
@@ -425,10 +427,9 @@ export default function Config(props: ConfigProps) {
                       Descripción
                     </h2>
                     <p
-                      className={`text-justify line-clamp-[8] ${
-                        !props.doctor.description &&
+                      className={`text-justify line-clamp-[8] ${!props.doctor.description &&
                         "text-red-400 font-semibold"
-                      }`}
+                        }`}
                     >
                       {props.doctor.description || "No posee descripción"}
                     </p>
@@ -484,52 +485,66 @@ export default function Config(props: ConfigProps) {
           </div>
           <div className="overflow-hidden w-full md:min-w-[70%] lg:h-full">
             <div
-              className={`flex flex-col h-full md:flex-row md:flex-nowrap items-center transition-all ease-in duration-500 ${
-                modify ? "-translate-x-full" : ""
-              } gap-6`}
+              className={`flex flex-col h-full md:flex-row md:flex-nowrap items-center transition-all ease-in duration-500 ${modify ? "-translate-x-full" : ""
+                } gap-6`}
             >
               <div className="bg-white w-full h-full rounded-md p-4 flex flex-col">
-                <div className="flex justify-between items-center">
-                  <div className="flex flex-col">
-                    <div className="flex items-center mb-4">
-                      <h3
-                        className={`text-primary text-xl ${robotoBold.className}`}
-                      >
-                        Obras sociales
-                      </h3>
-                      {props.doctor.user.healthInsurances.length > 0 && (
-                        <Link href={"/profile"}>
-                          <IconButton
-                            color="secondary"
-                            aria-label="add an alarm"
-                          >
-                            <IoIosAddCircleOutline
-                              color={theme.palette.primary.main}
-                            />
-                          </IconButton>
-                        </Link>
+                <div className="flex flex-col">
+                  <h3
+                    className={`text-primary text-xl mb-4 ${robotoBold.className}`}
+                  >
+                    Obras sociales
+                  </h3>
+                  <div className="mb-4 flex gap-4 items-center">
+                    <Autocomplete
+                      className={"min-w-32 w-3/12"}
+                      onChange={(event, newValue: any) => {
+                        setHealthInsurance(newValue?.id);
+                      }}
+                      disablePortal
+                      noOptionsText="Obra social no encontrada"
+                      options={healthInsurances.map((hi: any) => ({
+                        id: hi.id,
+                        label: hi.name,
+                      }))}
+                      renderInput={(params: any) => (
+                        <Input
+                          onChange={() => { }}
+                          name="healthInsuranceId"
+                          variant="outlined"
+                          {...params}
+                          label="Obra social"
+                        />
                       )}
-                    </div>
-                    {props.doctor.user.healthInsurances.length > 0 ? (
-                      props.doctor.user.healthInsurances.map((hi: any) => {
-                        return (
-                          <p
-                            key={hi.healthInsurance.id}
-                            className="flex items-center gap-2"
-                          >
+                    />
+                    <Button
+                      onClick={() => setConfirmHealthInsurance(true)}
+                      startIcon={<FaPlus />}
+                    >
+                      Agregar
+                    </Button>
+                  </div>
+                  {props.doctor.user.healthInsurances.length > 0 ? (
+                    props.doctor.user.healthInsurances.map((hi: any) => {
+                      return (
+                        <div key={hi.healthInsurance.id} className="flex items-center gap-1">
+                          <FaChevronRight className="text-primary text-md size-4" />
+                          <p className="text-md">
                             {hi.healthInsurance.name}
                           </p>
-                        );
-                      })
-                    ) : (
-                      <p>
-                        No estás verificado en ninguna obra social.{" "}
-                        <LinkMUI href="/profile">
-                          Puedes cargar una aquí
-                        </LinkMUI>
-                      </p>
-                    )}
-                  </div>
+                          <IconButton size="small" onClick={() => { setHiToDelete(hi.healthInsurance.id); setConfirmDeleteHi(true) }}>
+                            <FaTrash className="text-error" size={15} />
+                          </IconButton>
+                        </div>
+                      );
+                    })
+                  ) : (
+                    <p>
+                      Actualmente no estás trabajando para ninguna obra social{" "}
+                    </p>
+                  )}
+                  {/* 
+                  ----------------REPORTE DE OBRA SOCIAL (VER DE PASAR A SECCIÓN ESPECÍFICA DE REPORTES) ------------------------
                   <div className="flex items-center gap-4">
                     <Autocomplete
                       className="w-1/2"
@@ -537,7 +552,7 @@ export default function Config(props: ConfigProps) {
                         setHealthInsurance(newValue?.id);
                       }}
                       disablePortal
-                      noOptionsText="Especialidad no encontrada"
+                      noOptionsText="Obra social no encontrada"
                       options={props.doctor.user.healthInsurances.map(
                         (hi: UserHealthInsuranceResponseDto) => ({
                           id: hi.healthInsurance.id,
@@ -546,7 +561,7 @@ export default function Config(props: ConfigProps) {
                       )}
                       renderInput={(params: any) => (
                         <Input
-                          onChange={() => {}}
+                          onChange={() => { }}
                           name="healthInsuranceId"
                           {...params}
                           label="Obra social"
@@ -564,28 +579,21 @@ export default function Config(props: ConfigProps) {
                     />
                     <a
                       href={`
-                      ${
-                        !month || !year
-                          ? `${
-                              process.env.NEXT_PUBLIC_API_URL
-                            }/meeting/report/${props.auth.id}/${
-                              new Date().getMonth() + 1
-                            }/${new Date().getFullYear()}/${
-                              healthInsurance === 0 ? 0 : healthInsurance
-                            }`
-                          : `${
-                              process.env.NEXT_PUBLIC_API_URL
-                            }/meeting/report/${
-                              props.auth.id
-                            }/${month}/${year}/${
-                              healthInsurance === 0 ? 0 : healthInsurance
-                            }`
-                      }`}
+                      ${!month || !year
+                          ? `${process.env.NEXT_PUBLIC_API_URL
+                          }/meeting/report/${props.auth.id}/${new Date().getMonth() + 1
+                          }/${new Date().getFullYear()}/${healthInsurance === 0 ? 0 : healthInsurance
+                          }`
+                          : `${process.env.NEXT_PUBLIC_API_URL
+                          }/meeting/report/${props.auth.id
+                          }/${month}/${year}/${healthInsurance === 0 ? 0 : healthInsurance
+                          }`
+                        }`}
                       target="_blank"
                     >
                       <Button>Generar reporte</Button>
                     </a>
-                  </div>
+                  </div> */}
                 </div>
                 <Divider
                   variant="middle"
@@ -627,21 +635,21 @@ export default function Config(props: ConfigProps) {
                     <p>
                       {props.doctor.plan
                         ? props.doctor.planSince &&
-                          `Miembro desde ${moment(
-                            props.doctor.planSince
-                          ).format("LL")}`
+                        `Miembro desde ${moment(
+                          props.doctor.planSince
+                        ).format("LL")}`
                         : "Actualmente se encuentra sin plan de trabajo, solicite uno para comenzar"}
                     </p>
                     {props.doctor.plan ? (
                       <ButtonGroup>
                         {Math.max(...props.plans.map((a) => a.id)) !==
                           props.doctor.plan.id && (
-                          <Link href={"/"}>
-                            <Button startIcon={<FaCircleUp />} color="info">
-                              Actualizar
-                            </Button>
-                          </Link>
-                        )}
+                            <Link href={"/"}>
+                              <Button startIcon={<FaCircleUp />} color="info">
+                                Actualizar
+                              </Button>
+                            </Link>
+                          )}
                         <Button
                           sx={{
                             "&.MuiButton-contained": {
@@ -786,8 +794,8 @@ export default function Config(props: ConfigProps) {
                                         <p className="text-center p-2 border-b border-slate-600">
                                           {s.start_hour < 10
                                             ? "0".concat(
-                                                s.start_hour.toString()
-                                              )
+                                              s.start_hour.toString()
+                                            )
                                             : s.start_hour}
                                         </p>
                                         <p className="text-center p-2">
@@ -920,50 +928,46 @@ export default function Config(props: ConfigProps) {
             open={
               confirmSchedule ||
               confirmUpdate ||
-              confirmVerification ||
               confirmCancelPlan ||
-              confirmHealthInsurance
+              confirmHealthInsurance ||
+              confirmDeleteHi
             }
             onClose={() => {
               setConfirmSchedule(false);
               setConfirmUpdate(false);
-              setConfirmVerification(false);
               setConfirmCancelPlan(false);
               setConfirmHealthInsurance(false);
+              setConfirmDeleteHi(false);
             }}
             aria-labelledby="alert-dialog-title"
             aria-describedby="alert-dialog-description"
           >
-            <DialogTitle id="alert-dialog-title" className="text-center">
+            <DialogTitle id="alert-dialog-title" className={`${robotoBold.className} text-primary text-lg`}>
               {confirmSchedule
                 ? "Rango horario"
                 : confirmUpdate
-                ? "Datos personales"
-                : confirmVerification
-                ? "Verificacion de cuenta"
-                : confirmVerificationHI
-                ? "Verificacion de obra social"
-                : confirmCancelPlan
-                ? "Cancelar plan"
-                : confirmHealthInsurance
-                ? "Confirmar obra social"
-                : ""}
+                  ? "Datos personales"
+                  : confirmCancelPlan
+                    ? "Cancelar plan"
+                    : confirmHealthInsurance
+                      ? "Confirmar obra social"
+                      : confirmDeleteHi
+                        ? "Eliminar obra social"
+                        : ""}
             </DialogTitle>
             <DialogContent>
               <DialogContentText id="alert-dialog-description">
                 {confirmSchedule
                   ? "¿Desea agregar el rango horario?"
                   : confirmUpdate
-                  ? "¿Desea actualizar los datos?"
-                  : confirmVerification
-                  ? "¿Desea solicitar la verificacion de la cuenta?"
-                  : confirmVerificationHI
-                  ? "¿Desea solicitar la verificacion de la obra social?"
-                  : confirmCancelPlan
-                  ? "¿Desea cancelar su plan actual?"
-                  : confirmHealthInsurance
-                  ? "¿Desea agregar la obra social?"
-                  : ""}
+                    ? "¿Desea actualizar los datos?"
+                    : confirmCancelPlan
+                      ? "¿Desea cancelar su plan actual?"
+                      : confirmHealthInsurance
+                        ? "¿Desea agregar la obra social?"
+                        : confirmDeleteHi
+                          ? "¿Estás seguro que deseas eliminar la obra social?"
+                          : ""}
               </DialogContentText>
             </DialogContent>
             <DialogActions>
@@ -973,9 +977,9 @@ export default function Config(props: ConfigProps) {
                 onClick={() => {
                   setConfirmSchedule(false);
                   setConfirmUpdate(false);
-                  setConfirmVerification(false);
                   setConfirmCancelPlan(false);
                   setConfirmHealthInsurance(false);
+                  setConfirmDeleteHi(false);
                 }}
               >
                 Cancelar

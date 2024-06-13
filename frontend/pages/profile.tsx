@@ -368,7 +368,7 @@ export default function ProfileView(props: any) {
                         setHealthInsurance(newValue?.id);
                       }}
                       disablePortal
-                      noOptionsText="Especialidad no encontrada"
+                      noOptionsText="Obra social no encontrada"
                       options={healthInsurances.map((hi: any) => ({
                         id: hi.id,
                         label: hi.name,

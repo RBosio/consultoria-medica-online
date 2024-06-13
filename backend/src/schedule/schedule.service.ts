@@ -36,6 +36,15 @@ export class ScheduleService {
 
   async findByDoctor(doctorId: number): Promise<ScheduleResponseDto[]> {
     let response: ScheduleResponseDto[] = [];
+    response.push(
+      { schedule: [], day: 0 },
+      { schedule: [], day: 1 },
+      { schedule: [], day: 2 },
+      { schedule: [], day: 3 },
+      { schedule: [], day: 4 },
+      { schedule: [], day: 5 },
+      { schedule: [], day: 6 },
+    );
     const moment = extendMoment(Moment);
 
     const schedulesFound = await this.scheduleRepository.find({
@@ -51,7 +60,6 @@ export class ScheduleService {
 
     const meetingsFound = await this.meetingService.findByDoctor(doctorId);
 
-    let dayAnt = -1;
     schedulesFound.map((schedule) => {
       const day_start = moment().startOf('day').hours(schedule.start_hour);
       const day_end = moment().startOf('day').hours(schedule.end_hour);
@@ -64,90 +72,24 @@ export class ScheduleService {
 
       const s = test.map((time) => {
         return {
+          day: schedule.day,
           time,
           available: this.isAvailable(meetingsFound, time, schedule.day),
         };
       });
 
-      if (schedule.day === dayAnt && response[dayAnt]) {
-        response[dayAnt].schedule = response[dayAnt].schedule.concat(s);
-      } else {
-        response.push({
-          day: schedule.day,
-          schedule: s,
-        });
-      }
-      dayAnt = schedule.day;
+      response[s[0].day].schedule = response[s[0].day].schedule.concat(s);
     });
 
     const temp = response.filter((s) => s.day >= new Date().getDay());
     const temp2 = response.filter((s) => s.day < new Date().getDay());
+
     response = temp.concat(temp2);
-    if (!response.map((res) => res.day).includes(0)) {
-      response.push({
-        day: 0,
-        schedule: [],
-      });
-    }
-
-    if (!response.map((res) => res.day).includes(1)) {
-      response.push({
-        day: 1,
-        schedule: [],
-      });
-    }
-
-    if (!response.map((res) => res.day).includes(2)) {
-      response.push({
-        day: 2,
-        schedule: [],
-      });
-    }
-
-    if (!response.map((res) => res.day).includes(3)) {
-      response.push({
-        day: 3,
-        schedule: [],
-      });
-    }
-
-    if (!response.map((res) => res.day).includes(4)) {
-      response.push({
-        day: 4,
-        schedule: [],
-      });
-    }
-
-    if (!response.map((res) => res.day).includes(5)) {
-      response.push({
-        day: 5,
-        schedule: [],
-      });
-    }
-
-    if (!response.map((res) => res.day).includes(6)) {
-      response.push({
-        day: 6,
-        schedule: [],
-      });
-    }
-
-    const test = [];
-    let r = [];
-    response.map((re) => {
-      if (test.includes(re.day)) {
-        r[re.day - 1].schedule = [...r[re.day - 1].schedule, ...re.schedule];
-      } else {
-        r.push(re);
-        test.push(re.day);
-      }
-    });
-
-    r = r.sort((a, b) => a.day - b.day);
 
     moment.locale('es');
+
     let day = 0;
-    r = r.map((res) => {
+    return response.map((res) => {
       const d = moment(new Date()).add(day, 'd').format('LLLL').split(' ')[0];
       return {
         formattedDate: d + ' ' + moment(new Date()).add(day, 'd').format('LL'),
@@ -155,8 +97,6 @@ export class ScheduleService {
         date: moment(new Date()).add(day++, 'd').local().format('YYYY-MM-DD'),
       };
     });
-
-    return r;
   }
 
   isAvailable(meetings: Meeting[], time: string, day: number): boolean {

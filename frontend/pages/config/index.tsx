@@ -68,7 +68,6 @@ interface ConfigProps {
 }
 
 export default function Config(props: ConfigProps) {
-
   const theme = useTheme();
   const router = useRouter();
   const days = [
@@ -134,10 +133,12 @@ export default function Config(props: ConfigProps) {
     "24:00",
   ];
 
-
   const [modify, setModify] = useState(false);
   const [minutesTo, setMinutesTo] = useState<string[]>([]);
-  const [healthInsurance, setHealthInsurance] = useState<number>(0);
+  const [healthInsurance, setHealthInsurance] = useState<any>({
+    id: 0,
+    label: "",
+  });
   const [duration, setDuration] = useState<number>(
     props.doctor.durationMeeting ?? ""
   );
@@ -301,7 +302,7 @@ export default function Config(props: ConfigProps) {
     await axios.patch(
       `${process.env.NEXT_PUBLIC_API_URL}/user/healthInsurance/${props.doctor.user.id}`,
       {
-        healthInsuranceId: healthInsurance,
+        healthInsuranceId: healthInsurance.id,
       },
       {
         withCredentials: true,
@@ -311,6 +312,7 @@ export default function Config(props: ConfigProps) {
 
     setMessage("Obra social agregada con éxito!");
     setSuccess(true);
+    setHealthInsurance(null);
 
     router.push("/config");
   };
@@ -331,11 +333,10 @@ export default function Config(props: ConfigProps) {
     } else if (confirmDeleteHi) {
       handleClickDeleteHi();
       setConfirmDeleteHi(false);
-    };
+    }
   };
 
   const handleClickDeleteHi = async () => {
-
     await axios.delete(
       `${process.env.NEXT_PUBLIC_API_URL}/user/unsetHI/${hiToDelete}`,
       {
@@ -427,9 +428,10 @@ export default function Config(props: ConfigProps) {
                       Descripción
                     </h2>
                     <p
-                      className={`text-justify line-clamp-[8] ${!props.doctor.description &&
+                      className={`text-justify line-clamp-[8] ${
+                        !props.doctor.description &&
                         "text-red-400 font-semibold"
-                        }`}
+                      }`}
                     >
                       {props.doctor.description || "No posee descripción"}
                     </p>
@@ -485,8 +487,9 @@ export default function Config(props: ConfigProps) {
           </div>
           <div className="overflow-hidden w-full md:min-w-[70%] lg:h-full">
             <div
-              className={`flex flex-col h-full md:flex-row md:flex-nowrap items-center transition-all ease-in duration-500 ${modify ? "-translate-x-full" : ""
-                } gap-6`}
+              className={`flex flex-col h-full md:flex-row md:flex-nowrap items-center transition-all ease-in duration-500 ${
+                modify ? "-translate-x-full" : ""
+              } gap-6`}
             >
               <div className="bg-white w-full h-full rounded-md p-4 flex flex-col">
                 <div className="flex flex-col">
@@ -498,8 +501,9 @@ export default function Config(props: ConfigProps) {
                   <div className="mb-4 flex gap-4 items-center">
                     <Autocomplete
                       className={"min-w-32 w-3/12"}
+                      value={healthInsurance}
                       onChange={(event, newValue: any) => {
-                        setHealthInsurance(newValue?.id);
+                        setHealthInsurance(newValue);
                       }}
                       disablePortal
                       noOptionsText="Obra social no encontrada"
@@ -509,7 +513,7 @@ export default function Config(props: ConfigProps) {
                       }))}
                       renderInput={(params: any) => (
                         <Input
-                          onChange={() => { }}
+                          onChange={() => {}}
                           name="healthInsuranceId"
                           variant="outlined"
                           {...params}
@@ -527,12 +531,19 @@ export default function Config(props: ConfigProps) {
                   {props.doctor.user.healthInsurances.length > 0 ? (
                     props.doctor.user.healthInsurances.map((hi: any) => {
                       return (
-                        <div key={hi.healthInsurance.id} className="flex items-center gap-1">
+                        <div
+                          key={hi.healthInsurance.id}
+                          className="flex items-center gap-1"
+                        >
                           <FaChevronRight className="text-primary text-md size-4" />
-                          <p className="text-md">
-                            {hi.healthInsurance.name}
-                          </p>
-                          <IconButton size="small" onClick={() => { setHiToDelete(hi.healthInsurance.id); setConfirmDeleteHi(true) }}>
+                          <p className="text-md">{hi.healthInsurance.name}</p>
+                          <IconButton
+                            size="small"
+                            onClick={() => {
+                              setHiToDelete(hi.healthInsurance.id);
+                              setConfirmDeleteHi(true);
+                            }}
+                          >
                             <FaTrash className="text-error" size={15} />
                           </IconButton>
                         </div>
@@ -635,21 +646,21 @@ export default function Config(props: ConfigProps) {
                     <p>
                       {props.doctor.plan
                         ? props.doctor.planSince &&
-                        `Miembro desde ${moment(
-                          props.doctor.planSince
-                        ).format("LL")}`
+                          `Miembro desde ${moment(
+                            props.doctor.planSince
+                          ).format("LL")}`
                         : "Actualmente se encuentra sin plan de trabajo, solicite uno para comenzar"}
                     </p>
                     {props.doctor.plan ? (
                       <ButtonGroup>
                         {Math.max(...props.plans.map((a) => a.id)) !==
                           props.doctor.plan.id && (
-                            <Link href={"/"}>
-                              <Button startIcon={<FaCircleUp />} color="info">
-                                Actualizar
-                              </Button>
-                            </Link>
-                          )}
+                          <Link href={"/"}>
+                            <Button startIcon={<FaCircleUp />} color="info">
+                              Actualizar
+                            </Button>
+                          </Link>
+                        )}
                         <Button
                           sx={{
                             "&.MuiButton-contained": {
@@ -794,8 +805,8 @@ export default function Config(props: ConfigProps) {
                                         <p className="text-center p-2 border-b border-slate-600">
                                           {s.start_hour < 10
                                             ? "0".concat(
-                                              s.start_hour.toString()
-                                            )
+                                                s.start_hour.toString()
+                                              )
                                             : s.start_hour}
                                         </p>
                                         <p className="text-center p-2">
@@ -942,32 +953,35 @@ export default function Config(props: ConfigProps) {
             aria-labelledby="alert-dialog-title"
             aria-describedby="alert-dialog-description"
           >
-            <DialogTitle id="alert-dialog-title" className={`${robotoBold.className} text-primary text-lg`}>
+            <DialogTitle
+              id="alert-dialog-title"
+              className={`${robotoBold.className} text-primary text-lg`}
+            >
               {confirmSchedule
                 ? "Rango horario"
                 : confirmUpdate
-                  ? "Datos personales"
-                  : confirmCancelPlan
-                    ? "Cancelar plan"
-                    : confirmHealthInsurance
-                      ? "Confirmar obra social"
-                      : confirmDeleteHi
-                        ? "Eliminar obra social"
-                        : ""}
+                ? "Datos personales"
+                : confirmCancelPlan
+                ? "Cancelar plan"
+                : confirmHealthInsurance
+                ? "Confirmar obra social"
+                : confirmDeleteHi
+                ? "Eliminar obra social"
+                : ""}
             </DialogTitle>
             <DialogContent>
               <DialogContentText id="alert-dialog-description">
                 {confirmSchedule
                   ? "¿Desea agregar el rango horario?"
                   : confirmUpdate
-                    ? "¿Desea actualizar los datos?"
-                    : confirmCancelPlan
-                      ? "¿Desea cancelar su plan actual?"
-                      : confirmHealthInsurance
-                        ? "¿Desea agregar la obra social?"
-                        : confirmDeleteHi
-                          ? "¿Estás seguro que deseas eliminar la obra social?"
-                          : ""}
+                  ? "¿Desea actualizar los datos?"
+                  : confirmCancelPlan
+                  ? "¿Desea cancelar su plan actual?"
+                  : confirmHealthInsurance
+                  ? "¿Desea agregar la obra social?"
+                  : confirmDeleteHi
+                  ? "¿Estás seguro que deseas eliminar la obra social?"
+                  : ""}
               </DialogContentText>
             </DialogContent>
             <DialogActions>

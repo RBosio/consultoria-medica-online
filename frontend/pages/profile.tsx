@@ -53,14 +53,17 @@ export default function ProfileView(props: any) {
   const [healthInsurances, setHealthInsurances] = useState<
     HealthInsuranceResponseDto[]
   >([]);
-  const [healthInsurance, setHealthInsurance] = useState<any>(null);
+  const [healthInsurance, setHealthInsurance] = useState<any>({
+    id: 0,
+    label: "",
+  });
 
   const [success, setSuccess] = useState<boolean>(false);
   const [message, setMessage] = useState<string>("");
   const [confirmDeleteHi, setConfirmDeleteHi] = useState<boolean>(false);
   const [confirmHealthInsurance, setConfirmHealthInsurance] =
     useState<boolean>(false);
-  const [cod, setCod] = useState<string>('');
+  const [cod, setCod] = useState<string>("");
   const [hiToDelete, setHiToDelete] = useState<number>(-1);
 
   useEffect(() => {
@@ -135,7 +138,6 @@ export default function ProfileView(props: any) {
   });
 
   const handleClickDeleteHi = async () => {
-
     await axios.delete(
       `${process.env.NEXT_PUBLIC_API_URL}/user/unsetHI/${hiToDelete}`,
       {
@@ -160,7 +162,7 @@ export default function ProfileView(props: any) {
     } else if (confirmDeleteHi) {
       handleClickDeleteHi();
       setConfirmDeleteHi(false);
-    };
+    }
   };
 
   function handleClickFile($e: any, hi?: boolean) {
@@ -246,11 +248,10 @@ export default function ProfileView(props: any) {
     };
 
     fetchUser();
-
   }, [healthInsurance, hiToDelete]);
 
   const handleClickHealthInsurance = async () => {
-    if (!healthInsurance) {
+    if (healthInsurance.id === 0) {
       setMessage("Debes seleccionar una obra social!");
       setError(true);
       return;
@@ -265,7 +266,7 @@ export default function ProfileView(props: any) {
     await axios.patch(
       `${process.env.NEXT_PUBLIC_API_URL}/user/healthInsurance/${props.auth.id}`,
       {
-        healthInsuranceId: healthInsurance,
+        healthInsuranceId: healthInsurance.id,
         cod,
       },
       {
@@ -364,8 +365,9 @@ export default function ProfileView(props: any) {
                   <div className="flex flex-col lg:flex-row gap-4 my-4 w-full">
                     <Autocomplete
                       className={"w-full"}
+                      value={healthInsurance}
                       onChange={(event, newValue: any) => {
-                        setHealthInsurance(newValue?.id);
+                        setHealthInsurance(newValue);
                       }}
                       disablePortal
                       noOptionsText="Obra social no encontrada"
@@ -375,7 +377,7 @@ export default function ProfileView(props: any) {
                       }))}
                       renderInput={(params: any) => (
                         <Input
-                          onChange={() => { }}
+                          onChange={() => {}}
                           name="healthInsuranceId"
                           {...params}
                           label="Obra social"
@@ -408,7 +410,13 @@ export default function ProfileView(props: any) {
                               <p className="text-md">
                                 {h.healthInsurance.name} (num. {h.cod})
                               </p>
-                              <IconButton size="small" onClick={() => { setHiToDelete(h.healthInsurance.id); setConfirmDeleteHi(true) }}>
+                              <IconButton
+                                size="small"
+                                onClick={() => {
+                                  setHiToDelete(h.healthInsurance.id);
+                                  setConfirmDeleteHi(true);
+                                }}
+                              >
                                 <FaTrash className="text-error" size={15} />
                               </IconButton>
                             </div>
@@ -455,7 +463,7 @@ export default function ProfileView(props: any) {
                           label="Nueva contraseña"
                           error={Boolean(
                             changePass.touched.newPassword &&
-                            changePass.errors.newPassword
+                              changePass.errors.newPassword
                           )}
                           helperText={
                             changePass.errors.newPassword &&
@@ -473,7 +481,7 @@ export default function ProfileView(props: any) {
                           label="Repita la contraseña"
                           error={Boolean(
                             changePass.touched.repeatPassword &&
-                            changePass.errors.repeatPassword
+                              changePass.errors.repeatPassword
                           )}
                           helperText={
                             changePass.errors.repeatPassword &&
@@ -504,16 +512,20 @@ export default function ProfileView(props: any) {
                 {confirm
                   ? "Confirmar cambio"
                   : confirmHealthInsurance
-                    ? "Confirmar obra social"
-                    : confirmDeleteHi ? 'Confirmar eliminación' : ''}
+                  ? "Confirmar obra social"
+                  : confirmDeleteHi
+                  ? "Confirmar eliminación"
+                  : ""}
               </DialogTitle>
               <DialogContent>
                 <DialogContentText id="alert-dialog-description">
                   {confirm
                     ? "¿Estás seguro que deseas cambiar la contraseña?"
                     : confirmHealthInsurance
-                      ? "Estás seguro que deseas agregar la obra social?"
-                      : confirmDeleteHi ? 'Estás seguro que deseas eliminar esta obra social?' : ''}
+                    ? "Estás seguro que deseas agregar la obra social?"
+                    : confirmDeleteHi
+                    ? "Estás seguro que deseas eliminar esta obra social?"
+                    : ""}
                 </DialogContentText>
               </DialogContent>
               <DialogActions>

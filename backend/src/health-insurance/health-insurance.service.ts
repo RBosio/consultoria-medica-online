@@ -13,6 +13,10 @@ export class HealthInsuranceService {
   ) {}
 
   findAll(page: number): Promise<HealthInsurance[]> {
+    if (!page) {
+      return this.healthInsuranceRepository.find();
+    }
+
     return this.healthInsuranceRepository.find({
       skip: page ? (page - 1) * 10 : 0,
       take: 10,
@@ -20,7 +24,7 @@ export class HealthInsuranceService {
   }
 
   count() {
-    return this.healthInsuranceRepository.count()
+    return this.healthInsuranceRepository.count();
   }
 
   async findOne(id: number): Promise<HealthInsurance> {

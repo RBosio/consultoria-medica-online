@@ -20,3 +20,19 @@ html,body, #__next{
   overflow: hidden;
   height: 100%;
 }
+
+@keyframes gold {
+  0% {
+    box-shadow: 0px 0px 0px 0px rgba(255, 223, 0, 0.7);
+  }
+  50% {
+    box-shadow: 0px 0px 12px 6px rgba(255, 223, 0, 0.7);
+  }
+  100% {
+    box-shadow: 0px 0px 0px 0px rgba(255, 223, 0, 0.7);
+  }
+}
+
+.gold-glow {
+  animation: gold 1.5s ease-out both infinite;
+}

@@ -151,14 +151,14 @@ export default function Home(props: any) {
             </h2>
           )}
         </div>
-        <div className="flex flex-col lg:flex-row justify-between items-center gap-4 w-5/6 mx-auto mt-4 mb-4">
-          <div className="bg-gray-100 w-full lg:w-2/3 p-4 rounded-3xl shadow-lg">
+        <div className="flex flex-col 2xl:flex-row justify-between items-center gap-4 w-full xl:w-5/6 mx-auto mt-4 mb-4">
+          <div className="bg-gray-100 w-5/6 xl:w-full p-4 rounded-3xl shadow-lg">
             {props.auth.role === "user" || props.auth.role === "admin" ? (
               <>
                 <h2 className="text-3xl text-center text-zinc-600">
                   Descubra nuestros profesionales recomendados
                 </h2>
-                <div className="flex flex-col md:flex-row justify-center items-center gap-8 bg-white rounded-3xl">
+                <div className="flex flex-col lg:flex-row justify-center items-center gap-8 bg-white rounded-3xl">
                   {props.doctors.map((doctor: DoctorResponseDto) => (
                     <div
                       key={doctor.id}
@@ -228,7 +228,7 @@ export default function Home(props: any) {
                     ? "¿Desea actualizar su plan?"
                     : "Solicite un plan de trabajo para comenzar"}
                 </h2>
-                <div className="flex flex-col md:flex-row justify-center items-center gap-8">
+                <div className="flex flex-col w-full 2xl:flex-row justify-center items-center gap-8">
                   {plans.map((p: PlanResponseDto) => (
                     <div
                       key={p.id}
@@ -274,7 +274,7 @@ export default function Home(props: any) {
               </>
             )}
           </div>
-          <div className="flex flex-col items-center gap-4 bg-white w-full lg:w-1/3 p-4 rounded-3xl shadow-lg min-h-[200px]">
+          <div className="flex flex-col items-center gap-4 bg-white w-5/6 xl:w-full p-4 rounded-3xl shadow-lg">
             {props.auth.role === "user" &&
               (props.lastMeeting?.user?.healthInsurances.length === 0 ? (
                 <>

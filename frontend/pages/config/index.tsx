@@ -1078,7 +1078,7 @@ export const getServerSideProps = withAuth(
     return {
       props: {
         doctor,
-        schedules: schedules.slice(1).concat(schedules.splice(0, 1)),
+        schedules: schedules,
         healthInsurances,
         notification,
         auth,

@@ -2,7 +2,10 @@ import { roboto } from "@/lib/fonts";
 import Sidebar from "./sidebar";
 import Navbar from "./navbar";
 import { Auth } from "../../../shared/types";
-import { ReactElement, RefObject, useState } from "react";
+import { ReactElement, RefObject, useEffect, useState } from "react";
+import axios from "axios";
+import { useRouter } from "next/router";
+
 interface LayoutProps {
   children: React.ReactElement;
   renderNavbar?: boolean;
@@ -25,6 +28,34 @@ const Layout: React.FC<LayoutProps> = ({
   renderProfile = true,
 }) => {
   const [sidebarOpened, setSidebarOpened] = useState(false);
+  const router = useRouter();
+
+  useEffect(() => {
+    async function refreshSession() {
+      let refresh;
+      try {
+        if(localStorage.getItem('refreshSession') === '0') return;
+        refresh = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/auth/refresh_session`,
+          {
+            withCredentials: true, headers: { Authorization: `Bearer ${auth?.token}` }
+          });
+
+          if(refresh.data.refreshed) router.reload(); 
+      }
+      catch (error: any) {
+        if ([404, 401].includes(error.response.status)) {
+          console.log(error);
+        } else {
+        };
+      }
+      finally {
+        if (refresh?.data.refreshed) {
+          localStorage.setItem('refreshSession', '0');
+        };
+      };
+    };
+    refreshSession();
+  }, []);
 
   return (
     <main className={`h-full ${roboto.className} bg-slate-200 flex`}>

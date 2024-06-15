@@ -34,5 +34,11 @@ export class AuthController {
     getSession(@Req() req) {
         return req.user;
     }
+
+    @Get('refresh_session')
+    @UseGuards(AuthGuard)
+    async refreshSession(@Req() req, @Res() res) {
+        await this.authService.refreshSession(req, res);
+    }
 }
 

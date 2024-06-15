@@ -207,6 +207,8 @@ export default function ProfileView(props: any) {
       setMessage("Imagen actualizada con éxito!");
       setUser({ ...user, image: u.data.image });
 
+      localStorage.setItem('refreshSession', '1');
+      
       router.push(router.pathname);
     } else {
       setError(true);

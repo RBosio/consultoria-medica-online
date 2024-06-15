@@ -81,6 +81,9 @@ const RegisterDoctorForm: React.FC<any> = (props) => {
                     }
                 );
 
+                // Indicar que el token debe ser actualizado
+                localStorage.setItem('refreshSession', '1');
+
                 props.setVerifiedDoctor(true);
 
             } catch (error: any) {

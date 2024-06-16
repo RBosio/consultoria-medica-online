@@ -368,8 +368,8 @@ export default function Doctor(props: any) {
           </div>
           {!paid ? (
             <div className="flex flex-col bg-white p-4 gap-2 shadow-md grow xl:rounded-md relative">
-              <div className="w-full md:w-auto flex items-center justify-center bg-primary absolute right-0 top-0 xl:h-56 xl:rounded-tr-md px-4">
-                <span className="hidden xl:block absolute bottom-0 w-full h-0 border-x-solid border-x-transparent border-x-[4rem] border-b-[3rem] border-b-solid border-b-white" />
+              <div className="w-full h-32 flex items-center justify-center bg-primary absolute right-0 top-0 xl:w-56 xl:h-56 xl:rounded-tr-md">
+                <span className="hidden xl:block absolute bottom-0 w-0 h-0 border-x-solid border-x-transparent border-x-[7rem] border-b-[3rem] border-b-solid border-b-white" />
                 <div className="flex flex-col text-white w-full h-full py-2">
                   <div className="flex items-center gap-1 px-2 pb-1 rounded-tr-md border-b-[1px] border-white">
                     <IoIosPricetag />
@@ -484,7 +484,11 @@ export default function Doctor(props: any) {
                         Aceptar
                       </Button>
                     ) : (
-                      <Button onClick={() => setRepr(true)} className="w-40">
+                      <Button
+                        disabled={!Boolean(selectedDate)}
+                        onClick={() => setRepr(true)}
+                        className="w-40"
+                      >
                         Reprogramar
                       </Button>
                     )}

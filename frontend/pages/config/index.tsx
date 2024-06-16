@@ -299,6 +299,13 @@ export default function Config(props: ConfigProps) {
   };
 
   const handleClickHealthInsurance = async () => {
+    if (!healthInsurance.id) {
+      setMessage("Obra social requerida!");
+      setError(true);
+
+      return;
+    }
+
     await axios.patch(
       `${process.env.NEXT_PUBLIC_API_URL}/user/healthInsurance/${props.doctor.user.id}`,
       {

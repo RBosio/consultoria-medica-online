@@ -28,9 +28,8 @@ const Doctor: React.FC<DoctorProps> = (props) => {
 
   return (
     <div
-      className={`bg-white w-full rounded-md flex ${
-        props.planId === 3 && "gold-glow"
-      }`}
+      className={`bg-white w-full rounded-md flex ${props.planId === 3 && "gold-glow"
+        }`}
     >
       {props.photo ? (
         <img
@@ -50,7 +49,7 @@ const Doctor: React.FC<DoctorProps> = (props) => {
           >
             <p>{props.fullName}</p>
             {props.planId === 3 && (
-              <Tooltip title="Premiun">
+              <Tooltip title="Premium">
                 <IconButton>
                   <FaStar className="text-yellow-400 size-6" />
                 </IconButton>

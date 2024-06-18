@@ -4,7 +4,7 @@ import { RolesGuard } from 'src/auth/roles.guard';
 import { BillingService } from './billing.service';
 import { Roles } from 'src/auth/roles.decorator';
 import { RoleEnum } from 'src/enums/role.enum';
-import { createBillingDto } from './dto/create-billing.dto';
+import { CreateBillingDto } from './dto/create-billing.dto';
 
 @Controller('billing')
 @UseGuards(AuthGuard, RolesGuard)
@@ -32,7 +32,7 @@ export class BillingController {
 
   @Post()
   @Roles(RoleEnum.Admin)
-  async save(@Body() createBillingDto: createBillingDto) {
+  async save(@Body() createBillingDto: CreateBillingDto) {
     return this.billingService.save(createBillingDto);
   }
 }

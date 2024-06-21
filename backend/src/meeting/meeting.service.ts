@@ -24,11 +24,9 @@ import { v4 as uuid } from 'uuid';
 import * as moment from 'moment';
 import { PreferenceRequest } from 'mercadopago/dist/clients/preference/commonTypes';
 import { Cron } from '@nestjs/schedule';
-import { Workbook } from 'exceljs';
 import { HealthInsuranceService } from 'src/health-insurance/health-insurance.service';
 import { Doctor } from 'src/entities/doctor.entity';
 import { SpecialityService } from 'src/speciality/speciality.service';
-import { HealthInsurance } from 'src/entities/health-insurance.entity';
 
 export interface RequestT extends Request {
   user: {
@@ -703,109 +701,6 @@ export class MeetingService {
     return response;
   }
 
-  async generateReport(
-    userId: number,
-    res: Response,
-    month: number,
-    year: number,
-    hi: number,
-  ) {
-    const workbook = new Workbook();
-    const worksheet = workbook.addWorksheet('0');
-
-    worksheet.columns = [
-      {
-        header: 'Paciente',
-        key: 'user',
-        width: 24,
-        outlineLevel: 1,
-      },
-      {
-        header: 'Fecha de la reunión',
-        key: 'date',
-        width: 24,
-        outlineLevel: 1,
-      },
-      {
-        header: 'Dni',
-        key: 'dni',
-        width: 24,
-        outlineLevel: 1,
-      },
-      {
-        header: '# de afiliado',
-        key: 'num',
-        width: 24,
-        outlineLevel: 1,
-      },
-      {
-        header: 'Obra social',
-        key: 'hi',
-        width: 24,
-        outlineLevel: 1,
-      },
-    ];
-
-    const header = ['A', 'B', 'C', 'D', 'E'];
-
-    const doctor = await this.doctorService.findOneByUserId(userId);
-    const data: DataList[] = await this.getData(doctor, month, year, hi);
-
-    data.forEach((val, i, _) => {
-      worksheet.addRow(val);
-    });
-
-    worksheet.eachRow(function (row, rowNumber) {
-      if (rowNumber === 1) {
-        worksheet.columns.map((_, idx: number) => {
-          worksheet.getCell(`${header[idx]}1`).fill = {
-            type: 'pattern',
-            pattern: 'solid',
-            fgColor: { argb: '34d399' },
-          };
-          worksheet.getCell(`${header[idx]}1`).font = {
-            name: 'Arial',
-            color: { argb: 'FFFFFF' },
-            family: 1,
-            size: 14,
-          };
-          worksheet.getCell(`${header[idx]}1`).alignment = {
-            vertical: 'middle',
-            horizontal: 'center',
-          };
-        });
-      } else {
-        worksheet.columns.map((_, idx: number) => {
-          worksheet.getCell(`${header[idx]}${rowNumber}`).font = {
-            name: 'Arial',
-            family: 1,
-            size: 10,
-          };
-          worksheet.getCell(`${header[idx]}${rowNumber}`).alignment = {
-            vertical: 'middle',
-            horizontal: 'center',
-          };
-        });
-      }
-    });
-
-    const buffer = await workbook.xlsx.writeBuffer();
-
-    let h: HealthInsurance;
-    if (hi !== 0) {
-      h = await this.healthInsruanceService.findOne(hi);
-    }
-
-    return res
-      .set(
-        'Content-Disposition',
-        `attachment; filename=${year}-${month}_${doctor.user.surname}-${
-          doctor.user.name
-        }${h !== undefined ? '-' + h.name.replace(' ', '-') : ''}.xlsx`,
-      )
-      .send(buffer);
-  }
-
   async charts() {
     const response = [];
     const meetings = await this.meetingRepository.find({
@@ -869,7 +764,7 @@ export class MeetingService {
   }
 }
 
-interface DataList {
+export interface DataList {
   user: string;
   date: string;
   dni: string;

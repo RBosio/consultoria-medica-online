@@ -83,17 +83,6 @@ export class MeetingController {
     return this.meetingService.findLastMeeting(id, req.user.role);
   }
 
-  @Get('report/:userId/:month/:year/:hi')
-  reports(
-    @Param('userId', ParseIntPipe) userId: number,
-    @Res() res: Response,
-    @Param('month', ParseIntPipe) month: number,
-    @Param('year', ParseIntPipe) year: number,
-    @Param('hi', ParseIntPipe) hi: number,
-  ) {
-    return this.meetingService.generateReport(userId, res, month, year, hi);
-  }
-
   @Get(':id/:startDatetime')
   @UseGuards(AuthGuard, RolesGuard)
   @Roles(RoleEnum.User, RoleEnum.Doctor, RoleEnum.Admin)

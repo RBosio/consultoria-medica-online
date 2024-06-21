@@ -14,6 +14,20 @@ export class BillingService {
     private meetingService: MeetingService,
   ) {}
 
+  async getBillings(month: number, year: number) {
+    return this.billingRepository.find({
+      where: {
+        month,
+        year,
+      },
+      relations: {
+        doctor: {
+          user: true,
+        },
+      },
+    });
+  }
+
   async getBillingsByMonthAndYear(month: number, year: number) {
     const meetings = await this.meetingService.findByMonthAndYear(month, year);
     const doctors = [];

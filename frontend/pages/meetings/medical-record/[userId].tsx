@@ -83,6 +83,24 @@ export default function MedicalRecord(props: MedicalRecordI) {
   const handleClickAdd = async () => {
     let success = false;
 
+    if (detail.length === 0) {
+      setMessage("El detalle es requerido");
+      setError(true);
+      return;
+    }
+
+    if (detail.length > 120) {
+      setMessage("El detalle debe tener como máximo 120 caracteres");
+      setError(true);
+      return;
+    }
+
+    if (observations.length > 500) {
+      setMessage("Las observaciones deben tener como máximo 500 caracteres");
+      setError(true);
+      return;
+    }
+
     if (add) {
       if (detail && meeting) {
         await axios.post(
@@ -111,24 +129,6 @@ export default function MedicalRecord(props: MedicalRecordI) {
         );
       }
     } else {
-      if (detail.length === 0) {
-        setMessage("El detalle es requerido");
-        setError(true);
-        return;
-      }
-
-      if (detail.length > 60) {
-        setMessage("El detalle debe tener como máximo 60 caracteres");
-        setError(true);
-        return;
-      }
-
-      if (observations.length > 100) {
-        setMessage("Las observaciones deben tener como máximo 100 caracteres");
-        setError(true);
-        return;
-      }
-
       await axios.patch(
         `${process.env.NEXT_PUBLIC_API_URL}/medicalRecord/${medicalRecordId}`,
         {

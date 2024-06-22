@@ -685,13 +685,14 @@ export class MeetingService {
         num: '',
       };
 
-      u.meetings.map((meeting) => {
+      u.meetings.map((meeting: Meeting) => {
         response.push({
           hi: u.hi,
           user: meeting.user.surname + ', ' + meeting.user.name,
           date: moment(meeting.startDatetime).format('YYYY-MM-DD HH:mm:ss'),
           dni: meeting.user.dni,
           num: u.cod,
+          price: meeting.price,
         });
 
         return resp;
@@ -770,4 +771,5 @@ export interface DataList {
   dni: string;
   hi: string;
   num: string;
+  price: number;
 }

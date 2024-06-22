@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Workbook } from 'exceljs';
 import { Response } from 'express';
 import { BillingService } from 'src/billing/billing.service';
@@ -134,8 +134,14 @@ export class ReportsService {
     month: number,
     year: number,
     hi: number,
+    user: any,
   ) {
     const doctor = await this.doctorService.findOneByUserId(userId);
+    if (!doctor)
+      throw new NotFoundException(
+        'No existe un médico con el userId: ' + userId,
+      );
+
     const data: DataList[] = await this.meetingService.getData(
       doctor,
       month,
@@ -186,6 +192,17 @@ export class ReportsService {
     ];
 
     const header = ['A', 'B', 'C', 'D', 'E'];
+
+    if (user.role === 'admin') {
+      columns.push({
+        header: 'Precio',
+        key: 'price',
+        width: 24,
+        outlineLevel: 1,
+      });
+
+      header.push('F');
+    }
 
     return this.generateReport({ res, data, filename, columns, header });
   }

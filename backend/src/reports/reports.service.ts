@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { Workbook } from 'exceljs';
 import { Response } from 'express';
 import { BillingService } from 'src/billing/billing.service';
@@ -76,6 +80,12 @@ export class ReportsService {
   }
 
   async billings(res: Response, month: number, year: number) {
+    if ((!month && year) || (month && !year)) {
+      throw new BadRequestException(
+        'El mes y el año son requeridos o bien, ninguno de los 2',
+      );
+    }
+
     const d = await this.billingService.getBillings(month, year);
     const data = d.map((x) => ({
       ...x,

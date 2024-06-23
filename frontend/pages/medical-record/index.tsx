@@ -47,9 +47,8 @@ export default function MedicalRecord(props: MedicalRecordI) {
     <Layout auth={props.auth}>
       <section className="bg-white w-5/6 mx-auto">
         <div
-          className={`flex flex-col md:flex-row ${
-            props.auth.role === "doctor" ? "justify-between" : "justify-center"
-          } items-center px-8 pt-8`}
+          className={`flex flex-col md:flex-row ${props.auth.role === "doctor" ? "justify-between" : "justify-center"
+            } items-center px-8 pt-8`}
         >
           <div className="flex flex-col md:flex-row items-center">
             {props.user.image ? (
@@ -121,7 +120,6 @@ export default function MedicalRecord(props: MedicalRecordI) {
                       color: "#fff",
                       padding: "1.2rem",
                       fontSize: "1.2rem",
-                      width: "30%",
                     }}
                   >
                     <div className="flex justify-center items-center gap-2">
@@ -196,7 +194,7 @@ export default function MedicalRecord(props: MedicalRecordI) {
                       align="center"
                       sx={{ padding: "1.2rem", fontSize: "1.2rem" }}
                     >
-                      <div className="flex justify-center items-center gap-2">
+                      <div className="flex justify-center items-center gap-2 xl:break-words">
                         {row.detail}
                       </div>
                     </TableCell>
@@ -205,7 +203,9 @@ export default function MedicalRecord(props: MedicalRecordI) {
                       align="center"
                       sx={{ padding: "1.2rem", fontSize: "1.2rem" }}
                     >
-                      {row.observations ? row.observations : "-"}
+                      <div className="xl:break-words">
+                        {row.observations ? row.observations : "-"}
+                      </div>
                     </TableCell>
                     <TableCell
                       className="text-sm"

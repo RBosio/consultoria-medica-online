@@ -89,14 +89,14 @@ export default function MedicalRecord(props: MedicalRecordI) {
       return;
     }
 
-    if (detail.length > 120) {
-      setMessage("El detalle debe tener como máximo 120 caracteres");
+    if (detail.length > 500) {
+      setMessage("El detalle debe tener como máximo 500 caracteres");
       setError(true);
       return;
     }
 
-    if (observations.length > 500) {
-      setMessage("Las observaciones deben tener como máximo 500 caracteres");
+    if (observations.length > 120) {
+      setMessage("Las observaciones deben tener como máximo 120 caracteres");
       setError(true);
       return;
     }
@@ -324,7 +324,6 @@ export default function MedicalRecord(props: MedicalRecordI) {
                       color: "#fff",
                       padding: "1.2rem",
                       fontSize: "1.2rem",
-                      width: "30%",
                     }}
                   >
                     Detalle
@@ -397,7 +396,7 @@ export default function MedicalRecord(props: MedicalRecordI) {
                       align="center"
                       sx={{ padding: "1.2rem", fontSize: "1.2rem" }}
                     >
-                      <div className="flex justify-center items-center gap-2">
+                      <div className="flex justify-center items-center gap-2 xl:break-words">
                         {row.detail}
                       </div>
                     </TableCell>
@@ -406,14 +405,16 @@ export default function MedicalRecord(props: MedicalRecordI) {
                       align="center"
                       sx={{ padding: "1.2rem", fontSize: "1.2rem" }}
                     >
-                      {row.observations ? row.observations : "-"}
+                      <div className="xl:break-words">
+                        {row.observations ? row.observations : "-"}
+                      </div>
                     </TableCell>
                     <TableCell
                       className="text-sm"
                       align="center"
                       sx={{ padding: "1.2rem", fontSize: "1.2rem" }}
                     >
-                      {props.auth.id === row.meeting.doctor.user.id && (
+                      {props.auth.id === row.meeting.doctor.user.id ? (
                         <div className="flex justify-center items-center gap-2">
                           <FaEdit
                             className="text-primary text-lg hover:cursor-pointer hover:opacity-70"
@@ -436,7 +437,7 @@ export default function MedicalRecord(props: MedicalRecordI) {
                             className="text-primary text-lg hover:cursor-pointer hover:opacity-70"
                           />
                         </div>
-                      )}
+                      ) : '-'}
                     </TableCell>
                   </TableRow>
                 ))}
@@ -563,7 +564,7 @@ export default function MedicalRecord(props: MedicalRecordI) {
                         renderInput={(params: any) => (
                           <Input
                             variant="outlined"
-                            onChange={() => {}}
+                            onChange={() => { }}
                             name="healthInsuranceId"
                             {...params}
                             label="Reunión"
@@ -571,16 +572,22 @@ export default function MedicalRecord(props: MedicalRecordI) {
                         )}
                       />
                     )}
-                    <Input
-                      onChange={($e) => setDetail($e.target.value)}
-                      label="Detalle"
-                      multiline
-                      rows={4}
-                      fullWidth
-                      color="primary"
-                      variant="outlined"
-                      value={detail}
-                    />
+                    <div className="flex flex-col gap-2">
+                      <Input
+                        onChange={($e) => setDetail($e.target.value)}
+                        label="Detalle"
+                        multiline
+                        inputProps={{
+                          "maxlength": 500,
+                        }}
+                        rows={9}
+                        fullWidth
+                        color="primary"
+                        variant="outlined"
+                        value={detail}
+                      />
+                      <span className={`self-end ${detail.length === 500 ? 'text-error' : ''}`}>{detail.length}/500</span>
+                    </div>
                     <Input
                       onChange={($e) => setObservations($e.target.value)}
                       label="Observaciones"

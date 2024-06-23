@@ -146,11 +146,19 @@ export class ReportsService {
     hi: number,
     user: any,
   ) {
-    const doctor = await this.doctorService.findOneByUserId(userId);
-    if (!doctor)
-      throw new NotFoundException(
-        'No existe un médico con el userId: ' + userId,
-      );
+    let doctor = null;
+
+    if (user.role === 'admin') {
+      if (userId) {
+        doctor = await this.doctorService.findOneByUserId(userId);
+        if (!doctor)
+          throw new NotFoundException(
+            'No existe un médico con el userId: ' + userId,
+          );
+      }
+    } else {
+      doctor = await this.doctorService.findOneByUserId(user.id);
+    }
 
     const data: DataList[] = await this.meetingService.getData(
       doctor,
@@ -160,13 +168,13 @@ export class ReportsService {
     );
 
     let h: HealthInsurance;
-    if (hi !== 0) {
+    if (hi) {
       h = await this.healthInsruanceService.findOne(hi);
     }
 
-    const filename = `${year}-${month}_${doctor.user.surname}-${
-      doctor.user.name
-    }${h !== undefined ? '-' + h.name.replace(' ', '-') : ''}`;
+    const filename = `Reuniones${year && month ? `_${year}-${month}` : ''}${
+      doctor ? `_${doctor.user.surname}-${doctor.user.name}` : ''
+    }${h ? `_${h.name.replace(' ', '-')}` : ''}`;
 
     const columns = [
       {

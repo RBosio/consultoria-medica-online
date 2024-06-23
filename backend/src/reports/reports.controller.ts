@@ -16,6 +16,7 @@ import { AuthGuard } from 'src/auth/auth.guard';
 import { RolesGuard } from 'src/auth/roles.guard';
 import { Roles } from 'src/auth/roles.decorator';
 import { RoleEnum } from 'src/enums/role.enum';
+import { ReportsMeetingQuery } from './dto/reports-meeting-query.dto';
 
 @Controller('reports')
 @UseGuards(AuthGuard, RolesGuard)
@@ -29,16 +30,17 @@ export class ReportsController {
     return this.reportsService.billings(res, month, year);
   }
 
-  @Get('meeting/:userId/:month/:year/:hi')
+  @Get('meeting')
   @Roles(RoleEnum.Doctor, RoleEnum.Admin)
   reports(
-    @Param('userId', ParseIntPipe) userId: number,
     @Res() res: Response,
-    @Param('month', ParseIntPipe) month: number,
-    @Param('year', ParseIntPipe) year: number,
-    @Param('hi', ParseIntPipe) hi: number,
     @GetUser() user: User,
+    @Query() query: ReportsMeetingQuery,
   ) {
+    // El userId sólo se usa con el administrador (sería el id de la tabla user de un médico en específico, puede no enviarse),
+    // para los médicos se toma el id desde el token
+    // Todos los parámetros son opcionales
+    const { userId, month, year, hi } = query;
     return this.reportsService.meetings(userId, res, month, year, hi, user);
   }
 }

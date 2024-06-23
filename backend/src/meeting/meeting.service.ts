@@ -632,11 +632,11 @@ export class MeetingService {
       where: {
         doctor: {
           user: {
-            id: doctor.user.id,
+            id: !doctor ? null : +doctor.user.id,
           },
         },
         healthInsurance: {
-          id: hi === 0 ? null : hi,
+          id: !hi ? null : +hi,
         },
       },
       relations: {
@@ -656,23 +656,36 @@ export class MeetingService {
       },
     });
 
-    const filtered = meetings.filter((meeting) => {
-      return (
-        meeting.startDatetime.getFullYear() === year &&
-        meeting.startDatetime.getMonth() + 1 === month
-      );
-    });
-
-    const users: { hi: string; cod: string; meetings: any[] }[] = [];
-    doctor.user.healthInsurances.map((hi) => {
-      users.push({
-        hi: hi.healthInsurance.name,
-        cod: hi.cod,
-        meetings: filtered.filter(
-          (meeting) => meeting.healthInsurance.id === hi.healthInsurance.id,
-        ),
+    let filtered = meetings;
+    if (month && year) {
+      filtered = meetings.filter((meeting) => {
+        return (
+          meeting.startDatetime.getFullYear() === +year &&
+          meeting.startDatetime.getMonth() + 1 === +month
+        );
       });
-    });
+    }
+
+    const users: { hi: string; meetings: any[] }[] = [];
+    if (doctor) {
+      doctor.user.healthInsurances.map((hi) => {
+        users.push({
+          hi: hi.healthInsurance.name,
+          meetings: filtered.filter(
+            (meeting) => meeting.healthInsurance.id === hi.healthInsurance.id,
+          ),
+        });
+      });
+    } else {
+      meetings.map((meeting) => {
+        users.push({
+          hi: meeting.healthInsurance.name,
+          meetings: filtered.filter(
+            (m) => m.healthInsurance.id === meeting.healthInsurance.id,
+          ),
+        });
+      });
+    }
 
     const response: DataList[] = [];
 
@@ -687,11 +700,23 @@ export class MeetingService {
 
       u.meetings.map((meeting: Meeting) => {
         response.push({
-          hi: u.hi,
+          hi: meeting.user.healthInsurances.filter(
+            (hi) => hi.healthInsurance.id === meeting.healthInsurance.id,
+          )[0]
+            ? meeting.user.healthInsurances.filter(
+                (hi) => hi.healthInsurance.id === meeting.healthInsurance.id,
+              )[0].healthInsurance.name
+            : '',
           user: meeting.user.surname + ', ' + meeting.user.name,
           date: moment(meeting.startDatetime).format('YYYY-MM-DD HH:mm:ss'),
           dni: meeting.user.dni,
-          num: u.cod,
+          num: meeting.user.healthInsurances.filter(
+            (hi) => hi.healthInsurance.id === meeting.healthInsurance.id,
+          )[0]
+            ? meeting.user.healthInsurances.filter(
+                (hi) => hi.healthInsurance.id === meeting.healthInsurance.id,
+              )[0].cod
+            : '',
           price: meeting.price,
         });
 

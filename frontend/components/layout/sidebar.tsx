@@ -18,6 +18,7 @@ import Link from "next/link";
 import { Auth } from "../../../shared/types";
 import { IoIosCloseCircleOutline } from "react-icons/io";
 import Avatar from "../avatar";
+import { TbReportAnalytics } from "react-icons/tb";
 
 interface SidebarProps {
   auth: Auth;
@@ -73,6 +74,12 @@ const Sidebar: React.FC<SidebarProps> = (props) => {
         path: "/register_doctor",
         icon: <FaUserDoctor />,
         hide: props.auth.role !== "user",
+      },
+      {
+        name: "Analítica",
+        path: "/analytics",
+        icon: <TbReportAnalytics />,
+        hide: props.auth.role === 'user',
       },
       {
         name: "Panel administración",

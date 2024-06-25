@@ -392,5 +392,5 @@ export const getServerSideProps = withAuth(
       };
     }
   },
-  { protected: true }
+  { protected: true, roles: ['user', 'doctor', 'admin'] }
 );

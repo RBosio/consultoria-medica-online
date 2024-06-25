@@ -39,6 +39,6 @@ export const getServerSideProps = withAuth(async (auth: Auth | null, context: an
         },
     };
 
-}, {protected: true})
+}, {protected: true, roles: ['user', 'doctor', 'admin']})
 
 export default Logout;

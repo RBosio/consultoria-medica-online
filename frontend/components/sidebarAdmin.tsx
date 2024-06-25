@@ -56,11 +56,6 @@ const SidebarAdmin: React.FC<SidebarAdminProps> = (props) => {
         path: "/admin/billing",
         icon: <FaMoneyBill />,
       },
-      {
-        name: "Estadísticas",
-        path: "/admin/charts",
-        icon: <FaSatelliteDish />,
-      },
     ],
     bottom: [],
   };

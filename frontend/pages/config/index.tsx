@@ -1093,5 +1093,5 @@ export const getServerSideProps = withAuth(
       },
     };
   },
-  { protected: true, role: "doctor" }
+  { protected: true, roles: ['doctor'] }
 );

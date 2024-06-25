@@ -287,7 +287,19 @@ export class DoctorService {
     return d;
   }
 
-  paginate(items, page = 1, perPage = 10) {
+  paginate(items, page, perPage = 10) {
+
+    if(!page) {
+      return {
+        previousPage: null,
+        currentPage: 1,
+        nextPage: null,
+        total: items.length,
+        totalPages: 1,
+        items: items,
+      }
+    };
+
     const offset = perPage * (page - 1);
     const totalPages = Math.ceil(items.length / perPage);
     const paginatedItems = items.slice(offset, perPage * page);

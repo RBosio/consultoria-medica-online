@@ -357,6 +357,8 @@ export const getServerSideProps = withAuth(
 
     let { query } = context;
 
+    query['page'] = query['page'] ?? 1;
+
     try {
       let doctors = await axios.get(
         `${process.env.NEXT_PUBLIC_API_URL}/doctor?${new URLSearchParams(
@@ -407,5 +409,5 @@ export const getServerSideProps = withAuth(
       };
     }
   },
-  { protected: true }
+  { protected: true, roles: ['user', 'admin'] }
 );

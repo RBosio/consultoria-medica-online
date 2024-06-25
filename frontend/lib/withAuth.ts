@@ -6,13 +6,7 @@ const url = process.env.NEXT_PUBLIC_API_URL;
 
 interface withAuthOptions {
   protected: boolean,
-  role?: 'user' | 'doctor' | 'admin',
-};
-
-const RolesValues = {
-  user: 1,
-  doctor: 2,
-  admin: 3,
+  roles?: ('user' | 'doctor' | 'admin')[],
 };
 
 export default function withAuth(
@@ -30,10 +24,9 @@ export default function withAuth(
         },
       });
 
-      const session = {token: context.req.cookies["token"],...loginRequest.data};
-      const userRole = (session.role ?? "user") as keyof typeof RolesValues; 
+      const session = {token: context.req.cookies["token"],...loginRequest.data}; 
 
-      if(options.protected && RolesValues[userRole] < RolesValues[options.role ?? "user"]) {
+      if(options.protected && !options.roles?.includes(session.role)) {
         return {
           redirect: {
             destination: "/",

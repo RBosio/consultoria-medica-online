@@ -5,10 +5,12 @@ import {
 } from '@nestjs/common';
 import { Workbook } from 'exceljs';
 import { Response } from 'express';
+import * as moment from 'moment';
 import { BillingService } from 'src/billing/billing.service';
 import { DoctorService } from 'src/doctor/doctor.service';
 import { HealthInsurance } from 'src/entities/health-insurance.entity';
 import { HealthInsuranceService } from 'src/health-insurance/health-insurance.service';
+import { pesos } from 'src/lib/formatCurrency';
 import { DataList, MeetingService } from 'src/meeting/meeting.service';
 
 interface excelInput {
@@ -17,6 +19,21 @@ interface excelInput {
   filename: string;
   columns: any;
   header: any;
+}
+
+enum Months {
+  'Enero',
+  'Febrero',
+  'Marzo',
+  'Abril',
+  'Mayo',
+  'Junio',
+  'Julio',
+  'Agosto',
+  'Septiembre',
+  'Octubre',
+  'Noviembre',
+  'Diciembre',
 }
 
 @Injectable()
@@ -86,9 +103,14 @@ export class ReportsService {
       );
     }
 
+    moment.locale('es');
+
     const d = await this.billingService.getBillings(month, year);
     const data = d.map((x) => ({
       ...x,
+      month: Months[x.month - 1],
+      total: pesos.format(x.total),
+      date: moment(x.date).subtract(3, 'hours').format('LLL'),
       doctor: x.doctor.user.surname + ', ' + x.doctor.user.name,
     }));
 

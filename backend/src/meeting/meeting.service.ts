@@ -27,6 +27,7 @@ import { Cron } from '@nestjs/schedule';
 import { HealthInsuranceService } from 'src/health-insurance/health-insurance.service';
 import { Doctor } from 'src/entities/doctor.entity';
 import { SpecialityService } from 'src/speciality/speciality.service';
+import { pesos } from 'src/lib/formatCurrency';
 
 export interface RequestT extends Request {
   user: {
@@ -628,6 +629,8 @@ export class MeetingService {
     year: number,
     hi: number,
   ): Promise<DataList[]> {
+    moment.locale('es');
+
     const meetings = await this.meetingRepository.find({
       where: {
         doctor: {
@@ -666,65 +669,40 @@ export class MeetingService {
       });
     }
 
-    const users: { hi: string; meetings: any[] }[] = [];
-    if (doctor) {
-      doctor.user.healthInsurances.map((hi) => {
-        users.push({
-          hi: hi.healthInsurance.name,
-          meetings: filtered.filter(
-            (meeting) => meeting.healthInsurance.id === hi.healthInsurance.id,
-          ),
-        });
-      });
-    } else {
-      meetings.map((meeting) => {
-        users.push({
-          hi: meeting.healthInsurance.name,
-          meetings: filtered.filter(
-            (m) => m.healthInsurance.id === meeting.healthInsurance.id,
-          ),
-        });
-      });
-    }
-
     const response: DataList[] = [];
 
-    users.map((u) => {
-      const resp = {
-        hi: u.hi,
-        user: '',
-        date: '',
-        dni: '',
-        num: '',
-      };
-
-      u.meetings.map((meeting: Meeting) => {
-        response.push({
-          hi: meeting.user.healthInsurances.filter(
-            (hi) => hi.healthInsurance.id === meeting.healthInsurance.id,
-          )[0]
-            ? meeting.user.healthInsurances.filter(
-                (hi) => hi.healthInsurance.id === meeting.healthInsurance.id,
-              )[0].healthInsurance.name
-            : '',
-          user: meeting.user.surname + ', ' + meeting.user.name,
-          date: moment(meeting.startDatetime).format('YYYY-MM-DD HH:mm:ss'),
-          dni: meeting.user.dni,
-          num: meeting.user.healthInsurances.filter(
-            (hi) => hi.healthInsurance.id === meeting.healthInsurance.id,
-          )[0]
-            ? meeting.user.healthInsurances.filter(
-                (hi) => hi.healthInsurance.id === meeting.healthInsurance.id,
-              )[0].cod
-            : '',
-          price: meeting.price,
-        });
-
-        return resp;
+    filtered.map((meeting: Meeting) => {
+      response.push({
+        hi: meeting.user.healthInsurances.filter(
+          (hi) => hi.healthInsurance?.id === meeting.healthInsurance?.id,
+        )[0]
+          ? meeting.user.healthInsurances.filter(
+              (hi) => hi.healthInsurance.id === meeting.healthInsurance.id,
+            )[0].healthInsurance.name
+          : '-',
+        user: meeting.user.surname + ', ' + meeting.user.name,
+        date: moment(meeting.startDatetime).format('LLL'),
+        startDatetime: meeting.startDatetime,
+        dni: meeting.user.dni,
+        num: meeting.user.healthInsurances.filter(
+          (hi) => hi.healthInsurance?.id === meeting.healthInsurance?.id,
+        )[0]
+          ? meeting.user.healthInsurances.filter(
+              (hi) => hi.healthInsurance.id === meeting.healthInsurance.id,
+            )[0].cod
+          : '-',
+        price: pesos.format(meeting.price),
+        doctor: meeting.doctor.user.surname + ', ' + meeting.doctor.user.name,
       });
     });
 
-    return response;
+    return response.sort((a, b) => {
+      if (moment(a.startDatetime).diff(moment(b.startDatetime), 'days') < 0) {
+        return -1;
+      }
+
+      return 1;
+    });
   }
 
   async charts() {
@@ -796,5 +774,7 @@ export interface DataList {
   dni: string;
   hi: string;
   num: string;
-  price: number;
+  price: string;
+  startDatetime: Date;
+  doctor: string;
 }

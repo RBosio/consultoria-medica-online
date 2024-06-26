@@ -234,14 +234,23 @@ export class ReportsService {
     const header = ['A', 'B', 'C', 'D', 'E'];
 
     if (user.role === 'admin') {
-      columns.push({
-        header: 'Precio',
-        key: 'price',
-        width: 24,
-        outlineLevel: 1,
-      });
+      columns.push(
+        {
+          header: 'Precio',
+          key: 'price',
+          width: 24,
+          outlineLevel: 1,
+        },
+        {
+          header: 'Médico',
+          key: 'doctor',
+          width: 24,
+          outlineLevel: 1,
+        },
+      );
 
       header.push('F');
+      header.push('G');
     }
 
     return this.generateReport({ res, data, filename, columns, header });

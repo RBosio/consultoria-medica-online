@@ -43,7 +43,7 @@ export class ReportsService {
     private doctorService: DoctorService,
     private healthInsruanceService: HealthInsuranceService,
     private meetingService: MeetingService,
-  ) {}
+  ) { }
 
   async generateReport({ res, data, filename, columns, header }: excelInput) {
     const workbook = new Workbook();
@@ -188,9 +188,8 @@ export class ReportsService {
       h = await this.healthInsruanceService.findOne(hi);
     }
 
-    const filename = `Reuniones${year && month ? `_${year}-${month}` : ''}${
-      doctor ? `_${doctor.user.surname}-${doctor.user.name}` : ''
-    }${h ? `_${h.name.replace(' ', '-')}` : ''}`;
+    const filename = `Reuniones${year && month ? `_${year}-${month}` : ''}${doctor ? `_${doctor.user.surname}-${doctor.user.name}` : ''
+      }${h ? `_${h.name.replace(' ', '-')}` : ''}`;
 
     const columns = [
       {
@@ -228,16 +227,16 @@ export class ReportsService {
     const header = ['A', 'B', 'C', 'D', 'E'];
 
     if (user.role === 'admin') {
+      columns.unshift({
+        header: 'Médico',
+        key: 'doctor',
+        width: 24,
+        outlineLevel: 1,
+      });
       columns.push(
         {
           header: 'Precio',
           key: 'price',
-          width: 24,
-          outlineLevel: 1,
-        },
-        {
-          header: 'Médico',
-          key: 'doctor',
           width: 24,
           outlineLevel: 1,
         },

@@ -657,6 +657,9 @@ export class MeetingService {
         },
         healthInsurance: true,
       },
+      order: {
+        startDatetime: 'DESC',
+      }
     });
 
     let filtered = meetings;
@@ -697,11 +700,7 @@ export class MeetingService {
     });
 
     return response.sort((a, b) => {
-      if (moment(a.startDatetime).diff(moment(b.startDatetime), 'days') < 0) {
-        return -1;
-      }
-
-      return 1;
+      return moment(b.startDatetime).diff(moment(a.startDatetime));
     });
   }
 

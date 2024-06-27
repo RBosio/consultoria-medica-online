@@ -108,7 +108,7 @@ export class ReportsService {
     const d = await this.billingService.getBillings(month, year);
     const data = d.map((x) => ({
       ...x,
-      month: Months[x.month - 1],
+      period: `${Months[x.month - 1]} ${x.year}`,
       total: pesos.format(x.total),
       date: moment(x.date).subtract(3, 'hours').format('LLL'),
       doctor: x.doctor.user.surname + ', ' + x.doctor.user.name,
@@ -124,14 +124,14 @@ export class ReportsService {
         outlineLevel: 1,
       },
       {
-        header: 'Mes',
-        key: 'month',
+        header: 'CBU',
+        key: 'cbu',
         width: 24,
         outlineLevel: 1,
       },
       {
-        header: 'Año',
-        key: 'year',
+        header: 'Período',
+        key: 'period',
         width: 24,
         outlineLevel: 1,
       },
@@ -144,12 +144,6 @@ export class ReportsService {
       {
         header: 'Total',
         key: 'total',
-        width: 24,
-        outlineLevel: 1,
-      },
-      {
-        header: 'CBU',
-        key: 'cbu',
         width: 24,
         outlineLevel: 1,
       },

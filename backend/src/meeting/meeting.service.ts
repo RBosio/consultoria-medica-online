@@ -491,9 +491,9 @@ export class MeetingService {
         },
       ],
       back_urls: {
-        success: `http://localhost:4200/doctors/${doctorId}`,
-        failure: `http://localhost:4200/doctors/${doctorId}`,
-        pending: `http://localhost:4200/doctors/${doctorId}`,
+        success: `${process.env.FRONTEND_URL}/doctors/${doctorId}`,
+        failure: `${process.env.FRONTEND_URL}/doctors/${doctorId}`,
+        pending: `${process.env.FRONTEND_URL}/doctors/${doctorId}`,
       },
       auto_return: 'approved',
       payment_methods: {

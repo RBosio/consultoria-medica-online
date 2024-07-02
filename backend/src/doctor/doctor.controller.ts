@@ -33,10 +33,10 @@ export class DoctorController {
     return this.doctorService.findAll(query);
   }
 
-  @Get('advanced')
+  @Get('advertised_doctors')
   @Roles(RoleEnum.User, RoleEnum.Doctor, RoleEnum.Admin)
-  getDoctorsAdvanced(@Query() query: getDoctorsDto) {
-    return this.doctorService.findAllAdvanced();
+  getAdvertisedDoctors(@Query() query: getDoctorsDto) {
+    return this.doctorService.findAllAdvertisedDoctors();
   }
 
   @Get(':id')

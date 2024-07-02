@@ -240,11 +240,11 @@ export class DoctorService {
     return paginatedItems;
   }
 
-  async findAllAdvanced() {
+  async findAllAdvertisedDoctors() {
     let doctorsFound = await this.doctorRepository.find({
       where: {
         plan: {
-          id: 2,
+          id: In([2,3]),
         },
         verified: true,
       },

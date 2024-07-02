@@ -549,7 +549,7 @@ export const getServerSideProps = withAuth(
 
     try {
       doctors = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/doctor/advanced`,
+        `${process.env.NEXT_PUBLIC_API_URL}/doctor/advertised_doctors`,
         {
           withCredentials: true,
           headers: { Authorization: `Bearer ${context.req.cookies.token}` },

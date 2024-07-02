@@ -25,6 +25,9 @@ export class BillingService {
           user: true,
         },
       },
+      order:{
+        date: 'DESC',
+      }
     });
   }
 

@@ -194,7 +194,7 @@ export default function MedicalRecord(props: MedicalRecordI) {
 
   async function handleClick(url: string, name: string, type: string) {
     await axios({
-      url: `http://localhost:3000/uploads/medical-record/${url}`,
+      url: `${process.env.NEXT_PUBLIC_API_URL}/uploads/medical-record/${url}`,
       method: "GET",
       responseType: "blob",
     }).then((response) => {
@@ -481,7 +481,7 @@ export default function MedicalRecord(props: MedicalRecordI) {
                     <Link
                       className="flex items-center"
                       target="_blank"
-                      href={`http://localhost:3000/uploads/medical-record/${mr.files[0]?.url}`}
+                      href={`${process.env.NEXT_PUBLIC_API_URL}/uploads/medical-record/${mr.files[0]?.url}`}
                     >
                       <p className="text-primary mt-[2px] p-[2px] rounded-sm hover:cursor-pointer hover:opacity-70 underline">
                         {mr.files[0]?.name}
@@ -641,7 +641,7 @@ export default function MedicalRecord(props: MedicalRecordI) {
                             <a
                               key={idx}
                               target="_blank"
-                              href={`http://localhost:3000/uploads/medical-record/${f.url}`}
+                              href={`${process.env.NEXT_PUBLIC_API_URL}/uploads/medical-record/${f.url}`}
                             >
                               <Chip
                                 size="medium"

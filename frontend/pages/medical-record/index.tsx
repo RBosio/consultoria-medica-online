@@ -266,7 +266,7 @@ export default function MedicalRecord(props: MedicalRecordI) {
                       return (
                         <a
                           target="_blank"
-                          href={`http://localhost:3000/uploads/medical-record/${f.url}`}
+                          href={`${process.env.NEXT_PUBLIC_API_URL}/uploads/medical-record/${f.url}`}
                         >
                           <Chip
                             size="medium"

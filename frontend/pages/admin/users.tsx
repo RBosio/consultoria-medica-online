@@ -630,7 +630,7 @@ export default function Home(props: Speciality) {
                                     {user.doctor?.registration && (
                                       <Link
                                         target="_blank"
-                                        href={`http://localhost:3000/uploads/doctor/registration/${user.doctor.registration}`}
+                                        href={`${process.env.NEXT_PUBLIC_API_URL}/uploads/doctor/registration/${user.doctor.registration}`}
                                         className="flex justify-center gap-2 text-sm text-cyan-600 hover:underline"
                                       >
                                         Matrícula profesional
@@ -639,7 +639,7 @@ export default function Home(props: Speciality) {
                                     {user.doctor?.title && (
                                       <Link
                                         target="_blank"
-                                        href={`http://localhost:3000/uploads/doctor/title/${user.doctor.title}`}
+                                        href={`${process.env.NEXT_PUBLIC_API_URL}/uploads/doctor/title/${user.doctor.title}`}
                                         className="flex justify-center gap-2 text-sm text-cyan-600 hover:underline"
                                       >
                                         Título universitario

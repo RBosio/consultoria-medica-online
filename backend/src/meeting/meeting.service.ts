@@ -491,9 +491,9 @@ export class MeetingService {
         },
       ],
       back_urls: {
-        success: `http://localhost:4200/doctors/${doctorId}`,
-        failure: `http://localhost:4200/doctors/${doctorId}`,
-        pending: `http://localhost:4200/doctors/${doctorId}`,
+        success: `${process.env.FRONTEND_URL}/doctors/${doctorId}`,
+        failure: `${process.env.FRONTEND_URL}/doctors/${doctorId}`,
+        pending: `${process.env.FRONTEND_URL}/doctors/${doctorId}`,
       },
       auto_return: 'approved',
       payment_methods: {
@@ -657,6 +657,9 @@ export class MeetingService {
         },
         healthInsurance: true,
       },
+      order: {
+        startDatetime: 'DESC',
+      }
     });
 
     let filtered = meetings;
@@ -697,11 +700,7 @@ export class MeetingService {
     });
 
     return response.sort((a, b) => {
-      if (moment(a.startDatetime).diff(moment(b.startDatetime), 'days') < 0) {
-        return -1;
-      }
-
-      return 1;
+      return moment(b.startDatetime).diff(moment(a.startDatetime));
     });
   }
 

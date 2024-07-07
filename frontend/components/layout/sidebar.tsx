@@ -19,6 +19,7 @@ import { Auth } from "../../../shared/types";
 import { IoIosCloseCircleOutline } from "react-icons/io";
 import Avatar from "../avatar";
 import { TbReportAnalytics } from "react-icons/tb";
+import { FaQuestionCircle } from "react-icons/fa";
 
 interface SidebarProps {
   auth: Auth;
@@ -76,16 +77,22 @@ const Sidebar: React.FC<SidebarProps> = (props) => {
         hide: props.auth.role !== "user",
       },
       {
+        name: "Panel administración",
+        path: "/admin",
+        icon: <MdOutlineAdminPanelSettings />,
+        hide: props.auth.role !== "admin",
+      },
+      {
         name: "Analítica",
         path: "/analytics",
         icon: <TbReportAnalytics />,
         hide: props.auth.role === 'user',
       },
       {
-        name: "Panel administración",
-        path: "/admin",
-        icon: <MdOutlineAdminPanelSettings />,
-        hide: props.auth.role !== "admin",
+        name: "Preguntas frecuentes",
+        path: "/faq",
+        icon: <FaQuestionCircle/>,
+        hide: false,
       },
       {
         name: "Cerrar sesión",

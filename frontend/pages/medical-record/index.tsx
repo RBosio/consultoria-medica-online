@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Layout from "@/components/layout";
 import withAuth from "@/lib/withAuth";
-import { Auth } from "../../../shared/types";
+import { Auth } from "../../types";
 
 import { robotoBold } from "@/lib/fonts";
 import Table from "@mui/material/Table";

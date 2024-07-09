@@ -9,7 +9,7 @@ import Link from "next/link";
 import { GoDotFill } from "react-icons/go";
 import { Divider } from "@mui/material";
 import withAuth from "@/lib/withAuth";
-import { Auth } from "../../shared/types";
+import { Auth } from "../types";
 import axios from "axios";
 import * as Yup from 'yup';
 import Alert from "@mui/material/Alert";

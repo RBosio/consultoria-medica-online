@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Auth } from "../../shared/types";
+import { Auth } from "../types";
 import withAuth from "@/lib/withAuth";
 import Layout from "@/components/layout";
 import { roboto } from "@/lib/fonts";

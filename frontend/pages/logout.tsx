@@ -1,6 +1,6 @@
 import withAuth from "@/lib/withAuth";
 import React from "react";
-import { Auth } from "../../shared/types";
+import { Auth } from "../types";
 import axios from "axios";
 import { useRouter } from "next/router";
 import { useEffect } from "react";

@@ -36,7 +36,7 @@ import {
   Snackbar,
 } from "@mui/material";
 import { useRouter } from "next/router";
-import { Auth } from "../../shared/types";
+import { Auth } from "../types";
 import { HealthInsuranceResponseDto } from "../components/dto/healthInsurance.dto";
 import withAuth from "@/lib/withAuth";
 import Layout from "@/components/layout";

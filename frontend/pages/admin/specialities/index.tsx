@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import Layout from "@/components/layout";
 import withAuth from "@/lib/withAuth";
 import SidebarAdmin from "@/components/sidebarAdmin";
-import { Auth } from "../../../../shared/types";
+import { Auth } from "../../../types";
 import axios from "axios";
 import { SpecialityResponseDto } from "@/components/dto/speciality.dto";
 import {

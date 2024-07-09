@@ -1,4 +1,4 @@
-import { Auth } from "../../../shared/types"
+import { Auth } from "../../types"
 import { FileResponseDto } from "./file.dto"
 import { UserResponseDto } from "./user.dto"
 

@@ -1,7 +1,7 @@
 import Layout from "@/components/layout";
 import withAuth from "@/lib/withAuth";
 import React, { useEffect, useState } from "react";
-import { Auth } from "../../../shared/types";
+import { Auth } from "../../types";
 import axios from "axios";
 import Avatar from "@/components/avatar";
 import { FaUserDoctor } from "react-icons/fa6";

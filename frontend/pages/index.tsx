@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import Layout from "@/components/layout";
 import withAuth from "@/lib/withAuth";
-import { Auth } from "../../shared/types";
+import { Auth } from "../types";
 import Button from "@/components/button";
 import {
   FaAddressCard,

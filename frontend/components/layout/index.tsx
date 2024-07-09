@@ -1,7 +1,7 @@
 import { roboto } from "@/lib/fonts";
 import Sidebar from "./sidebar";
 import Navbar from "./navbar";
-import { Auth } from "../../../shared/types";
+import { Auth } from "../../types";
 import { ReactElement, RefObject, useEffect, useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/router";

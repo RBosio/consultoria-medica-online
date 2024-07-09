@@ -17,7 +17,7 @@ import {
 } from "react-icons/fa6";
 import Avatar from "./avatar";
 import Link from "next/link";
-import { Auth } from "../../shared/types";
+import { Auth } from "../types";
 
 interface SidebarAdminProps {
   auth: Auth;

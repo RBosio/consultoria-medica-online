@@ -1,6 +1,6 @@
 import React from "react";
 import "moment/locale/es";
-import { Auth } from "../../shared/types";
+import { Auth } from "../types";
 import withAuth from "@/lib/withAuth";
 import Layout from "@/components/layout";
 import { roboto, robotoBold } from "@/lib/fonts";

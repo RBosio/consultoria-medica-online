@@ -1,6 +1,6 @@
 import React, { ReactElement, useEffect, useState } from "react";
 import Avatar from "../avatar";
-import { Auth } from "../../../shared/types";
+import { Auth } from "../../types";
 import {
   Badge,
   Divider,

@@ -1,6 +1,6 @@
 import axios from "axios";
 import { NextPageContext } from "next";
-import { Auth } from "../../shared/types";
+import { Auth } from "../types";
 
 const url = process.env.NEXT_PUBLIC_API_URL;
 

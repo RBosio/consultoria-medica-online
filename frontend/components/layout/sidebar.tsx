@@ -15,7 +15,7 @@ import { GrLogout } from "react-icons/gr";
 import { useTheme } from "@mui/material";
 import { useRouter } from "next/router";
 import Link from "next/link";
-import { Auth } from "../../../shared/types";
+import { Auth } from "../../types";
 import { IoIosCloseCircleOutline } from "react-icons/io";
 import Avatar from "../avatar";
 import { TbReportAnalytics } from "react-icons/tb";

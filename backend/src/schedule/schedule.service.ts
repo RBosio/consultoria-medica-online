@@ -1,6 +1,6 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { MoreThan, MoreThanOrEqual, Repository } from 'typeorm';
 import { createScheduleDto } from './dto/create-schedule.dto';
 import { updateScheduleDto } from './dto/update-schedule.dto';
 import { Schedule } from 'src/entities/schedule.entity';
@@ -16,9 +16,11 @@ export class ScheduleService {
   constructor(
     @InjectRepository(Schedule)
     private scheduleRepository: Repository<Schedule>,
+    @InjectRepository(Meeting)
+    private meetingRepository: Repository<Meeting>,
     private doctorService: DoctorService,
     private meetingService: MeetingService,
-  ) {}
+  ) { }
 
   findAll(doctorId: number): Promise<Schedule[]> {
     return this.scheduleRepository.find({
@@ -113,9 +115,9 @@ export class ScheduleService {
         return available;
       } else if (
         Number(time.split(':')[0]) ===
-          Number(moment(new Date()).format('HH:mm').split(':')[0]) &&
+        Number(moment(new Date()).format('HH:mm').split(':')[0]) &&
         Number(time.split(':')[1]) <
-          Number(moment(new Date()).format('HH:mm').split(':')[1])
+        Number(moment(new Date()).format('HH:mm').split(':')[1])
       ) {
         available = false;
 
@@ -196,6 +198,7 @@ export class ScheduleService {
   }
 
   async delete(id: number) {
+
     const result = await this.scheduleRepository.delete({ id });
 
     if (result.affected == 0) {

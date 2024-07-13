@@ -12,6 +12,7 @@ import {
   FaMoneyBill1Wave,
   FaMoneyBillTransfer,
   FaPlus,
+  FaStar,
   FaStopwatch,
   FaTrash,
   FaUserDoctor,
@@ -51,10 +52,8 @@ import moment from "moment";
 import "moment/locale/es";
 import { pesos } from "@/lib/formatCurrency";
 import { PlanResponseDto } from "@/components/dto/plan.dto";
-import DatePicker from "@/components/dateInput";
-import { UserHealthInsuranceResponseDto } from "@/components/dto/userHealthInsurance.dto";
 import { validCBU } from "@/lib/cbuValidator";
-import { IoAdd } from "react-icons/io5";
+import { IoMdClose } from "react-icons/io";
 
 interface ConfigProps {
   user: UserResponseDto;
@@ -133,6 +132,7 @@ export default function Config(props: ConfigProps) {
     "24:00",
   ];
 
+
   const [modify, setModify] = useState(false);
   const [minutesTo, setMinutesTo] = useState<string[]>([]);
   const [healthInsurance, setHealthInsurance] = useState<any>({
@@ -153,11 +153,10 @@ export default function Config(props: ConfigProps) {
   const [confirmSchedule, setConfirmSchedule] = useState<boolean>(false);
   const [confirmUpdate, setConfirmUpdate] = useState<boolean>(false);
   const [confirmCancelPlan, setConfirmCancelPlan] = useState<boolean>(false);
+  const [confirmDeleteSchedule, setConfirmDeleteSchedule] = useState<any>(null);
   const [confirmHealthInsurance, setConfirmHealthInsurance] =
     useState<boolean>(false);
   const [description, setDescription] = useState<string>("");
-  const [month, setMonth] = useState<number>();
-  const [year, setYear] = useState<number>();
   const [hiToDelete, setHiToDelete] = useState<number>(-1);
   const [confirmDeleteHi, setConfirmDeleteHi] = useState<boolean>(false);
 
@@ -177,11 +176,6 @@ export default function Config(props: ConfigProps) {
     setDescription(props.doctor.description ?? "");
   }, []);
 
-  // useEffect(() => {
-  //   setHealthInsurances(
-
-  //   );
-  // }, []);
 
   const incompleteDoctorData =
     !props.doctor.cbu ||
@@ -324,6 +318,31 @@ export default function Config(props: ConfigProps) {
     router.push("/config");
   };
 
+  const handleClickDeleteSchedule = async () => {
+
+    try {
+      let results: any = await axios.delete(
+        `${process.env.NEXT_PUBLIC_API_URL}/schedule/${confirmDeleteSchedule.id}`,
+        {
+          withCredentials: true,
+          headers: { Authorization: `Bearer ${props.auth.token}` },
+        }
+      );
+
+      results = results.data;
+
+      setMessage("Se eliminó el rango horario con éxito");
+      setSuccess(true);
+
+      router.push("/config");
+
+    }
+    catch {
+      setMessage('Se ha producido un error al eliminar el rango horario')
+      setError(true);
+    }
+  };
+
   const onConfirmClick = () => {
     if (confirmSchedule) {
       addScheduleForm.handleSubmit();
@@ -340,6 +359,9 @@ export default function Config(props: ConfigProps) {
     } else if (confirmDeleteHi) {
       handleClickDeleteHi();
       setConfirmDeleteHi(false);
+    } else if (confirmDeleteSchedule) {
+      handleClickDeleteSchedule();
+      setConfirmDeleteSchedule(null);
     }
   };
 
@@ -374,6 +396,17 @@ export default function Config(props: ConfigProps) {
     setSuccess(true);
 
     router.push("/config");
+  };
+
+  const formatRange = () => {
+    let dayStr = moment().day(confirmDeleteSchedule.day).format('dddd');
+    dayStr = dayStr.charAt(0).toUpperCase() + dayStr.slice(1);
+
+    const startHour = `${confirmDeleteSchedule.start_hour.toString().padStart(2, '0')}:00hs`;
+    const endHour = `${confirmDeleteSchedule.end_hour.toString().padStart(2, '0')}:00hs`;
+
+    return `${dayStr} desde las ${startHour} hasta las ${endHour}`;
+
   };
 
   return (
@@ -435,10 +468,9 @@ export default function Config(props: ConfigProps) {
                       Descripción
                     </h2>
                     <p
-                      className={`text-justify line-clamp-[8] ${
-                        !props.doctor.description &&
+                      className={`text-justify line-clamp-[8] ${!props.doctor.description &&
                         "text-red-400 font-semibold"
-                      }`}
+                        }`}
                     >
                       {props.doctor.description || "No posee descripción"}
                     </p>
@@ -494,9 +526,8 @@ export default function Config(props: ConfigProps) {
           </div>
           <div className="overflow-hidden w-full md:min-w-[70%] lg:h-full">
             <div
-              className={`flex flex-col h-full md:flex-row md:flex-nowrap items-center transition-all ease-in duration-500 ${
-                modify ? "-translate-x-full" : ""
-              } gap-6`}
+              className={`flex flex-col h-full md:flex-row md:flex-nowrap items-center transition-all ease-in duration-500 ${modify ? "-translate-x-full" : ""
+                } gap-6`}
             >
               <div className="bg-white w-full h-full rounded-md p-4 flex flex-col">
                 <div className="flex flex-col">
@@ -520,7 +551,7 @@ export default function Config(props: ConfigProps) {
                       }))}
                       renderInput={(params: any) => (
                         <Input
-                          onChange={() => {}}
+                          onChange={() => { }}
                           name="healthInsuranceId"
                           variant="outlined"
                           {...params}
@@ -561,57 +592,6 @@ export default function Config(props: ConfigProps) {
                       Actualmente no estás trabajando para ninguna obra social{" "}
                     </p>
                   )}
-                  {/* 
-                  ----------------REPORTE DE OBRA SOCIAL (VER DE PASAR A SECCIÓN ESPECÍFICA DE REPORTES) ------------------------
-                  <div className="flex items-center gap-4">
-                    <Autocomplete
-                      className="w-1/2"
-                      onChange={(event, newValue: any) => {
-                        setHealthInsurance(newValue?.id);
-                      }}
-                      disablePortal
-                      noOptionsText="Obra social no encontrada"
-                      options={props.doctor.user.healthInsurances.map(
-                        (hi: UserHealthInsuranceResponseDto) => ({
-                          id: hi.healthInsurance.id,
-                          label: hi.healthInsurance.name,
-                        })
-                      )}
-                      renderInput={(params: any) => (
-                        <Input
-                          onChange={() => { }}
-                          name="healthInsuranceId"
-                          {...params}
-                          label="Obra social"
-                        />
-                      )}
-                    />
-                    <DatePicker
-                      label="Fecha de facturación"
-                      name="meetingsDate"
-                      views={["year", "month"]}
-                      onChange={(date: any) => {
-                        setMonth(+moment(new Date(date.$d)).format("MM"));
-                        setYear(+moment(new Date(date.$d)).format("YYYY"));
-                      }}
-                    />
-                    <a
-                      href={`
-                      ${!month || !year
-                          ? `${process.env.NEXT_PUBLIC_API_URL
-                          }/meeting/report/${props.auth.id}/${new Date().getMonth() + 1
-                          }/${new Date().getFullYear()}/${healthInsurance === 0 ? 0 : healthInsurance
-                          }`
-                          : `${process.env.NEXT_PUBLIC_API_URL
-                          }/meeting/report/${props.auth.id
-                          }/${month}/${year}/${healthInsurance === 0 ? 0 : healthInsurance
-                          }`
-                        }`}
-                      target="_blank"
-                    >
-                      <Button>Generar reporte</Button>
-                    </a>
-                  </div> */}
                 </div>
                 <Divider
                   variant="middle"
@@ -653,21 +633,21 @@ export default function Config(props: ConfigProps) {
                     <p>
                       {props.doctor.plan
                         ? props.doctor.planSince &&
-                          `Miembro desde ${moment(
-                            props.doctor.planSince
-                          ).format("LL")}`
+                        `Miembro desde ${moment(
+                          props.doctor.planSince
+                        ).format("LL")}`
                         : "Actualmente se encuentra sin plan de trabajo, solicite uno para comenzar"}
                     </p>
                     {props.doctor.plan ? (
                       <ButtonGroup>
                         {Math.max(...props.plans.map((a) => a.id)) !==
                           props.doctor.plan.id && (
-                          <Link href={"/"}>
-                            <Button startIcon={<FaCircleUp />} color="info">
-                              Actualizar
-                            </Button>
-                          </Link>
-                        )}
+                            <Link href={"/"}>
+                              <Button startIcon={<FaCircleUp />} color="info">
+                                Actualizar
+                              </Button>
+                            </Link>
+                          )}
                         <Button
                           sx={{
                             "&.MuiButton-contained": {
@@ -808,12 +788,17 @@ export default function Config(props: ConfigProps) {
                                 return (
                                   <div key={s.id}>
                                     {s.day === day.day ? (
-                                      <div className="bg-primary text-xl text-white m-1 my-2 rounded-md border border-slate-600">
+                                      <div className="bg-primary text-xl text-white m-2 my-3 rounded-md border border-slate-600 relative">
+                                        <IconButton onClick={() => {
+                                          setConfirmDeleteSchedule(s);
+                                        }} size="small" className="transition hover:bg-error hover:opacity-75 bg-error absolute top-[-10px] right-[-10px]" color="error">
+                                          <IoMdClose className="text-white size-3" />
+                                        </IconButton>
                                         <p className="text-center p-2 border-b border-slate-600">
                                           {s.start_hour < 10
                                             ? "0".concat(
-                                                s.start_hour.toString()
-                                              )
+                                              s.start_hour.toString()
+                                            )
                                             : s.start_hour}
                                         </p>
                                         <p className="text-center p-2">
@@ -948,7 +933,8 @@ export default function Config(props: ConfigProps) {
               confirmUpdate ||
               confirmCancelPlan ||
               confirmHealthInsurance ||
-              confirmDeleteHi
+              confirmDeleteHi ||
+              Boolean(confirmDeleteSchedule)
             }
             onClose={() => {
               setConfirmSchedule(false);
@@ -956,6 +942,7 @@ export default function Config(props: ConfigProps) {
               setConfirmCancelPlan(false);
               setConfirmHealthInsurance(false);
               setConfirmDeleteHi(false);
+              setConfirmDeleteSchedule(null);
             }}
             aria-labelledby="alert-dialog-title"
             aria-describedby="alert-dialog-description"
@@ -967,28 +954,31 @@ export default function Config(props: ConfigProps) {
               {confirmSchedule
                 ? "Rango horario"
                 : confirmUpdate
-                ? "Datos personales"
-                : confirmCancelPlan
-                ? "Cancelar plan"
-                : confirmHealthInsurance
-                ? "Confirmar obra social"
-                : confirmDeleteHi
-                ? "Eliminar obra social"
-                : ""}
+                  ? "Datos personales"
+                  : confirmCancelPlan
+                    ? "Cancelar plan"
+                    : confirmHealthInsurance
+                      ? "Confirmar obra social"
+                      : confirmDeleteHi
+                        ? "Eliminar obra social"
+                        : Boolean(confirmDeleteSchedule)
+                          ? "Eliminar rango horario"
+                          : ""}
             </DialogTitle>
             <DialogContent>
               <DialogContentText id="alert-dialog-description">
                 {confirmSchedule
                   ? "¿Desea agregar el rango horario?"
                   : confirmUpdate
-                  ? "¿Desea actualizar los datos?"
-                  : confirmCancelPlan
-                  ? "¿Desea cancelar su plan actual?"
-                  : confirmHealthInsurance
-                  ? "¿Desea agregar la obra social?"
-                  : confirmDeleteHi
-                  ? "¿Estás seguro que deseas eliminar la obra social?"
-                  : ""}
+                    ? "¿Desea actualizar los datos?"
+                    : confirmCancelPlan
+                      ? "¿Desea cancelar su plan actual?"
+                      : confirmHealthInsurance
+                        ? "¿Desea agregar la obra social?"
+                        : confirmDeleteHi
+                          ? "¿Estás seguro que deseas eliminar la obra social?"
+                          : Boolean(confirmDeleteSchedule) ? <>¿Estás seguro que deseas eliminar el rango horario del día <span className="font-bold">{formatRange()}</span>?</>
+                            : ""}
               </DialogContentText>
             </DialogContent>
             <DialogActions>
@@ -1001,6 +991,7 @@ export default function Config(props: ConfigProps) {
                   setConfirmCancelPlan(false);
                   setConfirmHealthInsurance(false);
                   setConfirmDeleteHi(false);
+                  setConfirmDeleteSchedule(null);
                 }}
               >
                 Cancelar

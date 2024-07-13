@@ -11,7 +11,6 @@ import {
   FaHandshake,
   FaKitMedical,
   FaMoneyBill,
-  FaSatelliteDish,
   FaUser,
   FaUserDoctor,
 } from "react-icons/fa6";

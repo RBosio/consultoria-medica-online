@@ -328,10 +328,21 @@ const Statistics = (props: AnalyticsProps) => {
   }, []);
 
   return (
-    <div className="px-10 flex flex-col gap-10 items-center">
-      <canvas id="acquisitions1"></canvas>
-      <canvas id="acquisitions2"></canvas>
-      <canvas id="acquisitions3"></canvas>
+    <div className="px-10">
+      <div className="flex flex-col gap-10 items-center m-auto">
+      <div className="flex flex-col items-center w-1/3 gap-4">
+        <h2 className="text-primary text-xl font-semibold">Cantidad de reuniones por año</h2>
+        <canvas id="acquisitions1"></canvas>
+      </div>
+      <div className="flex flex-col items-center w-1/3 gap-4">
+        <h2 className="text-primary text-xl font-semibold">Dinero acumulado por año</h2>
+        <canvas id="acquisitions2"></canvas>
+      </div>
+      <div className="flex flex-col items-center w-1/3 gap-4">
+        <h2 className="text-primary text-xl font-semibold">Especialidades con más reuniones</h2>
+        <canvas id="acquisitions3"></canvas>
+      </div>
+      </div>
     </div>
   );
 };

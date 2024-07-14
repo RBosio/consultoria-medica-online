@@ -640,14 +640,11 @@ export default function Config(props: ConfigProps) {
                     </p>
                     {props.doctor.plan ? (
                       <ButtonGroup>
-                        {Math.max(...props.plans.map((a) => a.id)) !==
-                          props.doctor.plan.id && (
-                            <Link href={"/"}>
-                              <Button startIcon={<FaCircleUp />} color="info">
-                                Actualizar
-                              </Button>
-                            </Link>
-                          )}
+                        <Link href={"/config/plan"}>
+                          <Button startIcon={<FaCircleUp />} color="info">
+                            {Math.max(...props.plans.map((a) => a.id)) !== props.doctor.plan.id ? 'Actualizar' : 'Modificar'}
+                          </Button>
+                        </Link>
                         <Button
                           sx={{
                             "&.MuiButton-contained": {
@@ -662,7 +659,7 @@ export default function Config(props: ConfigProps) {
                         </Button>
                       </ButtonGroup>
                     ) : (
-                      <Link href={"/"}>
+                      <Link href={"/config/plan"}>
                         <Button
                           startIcon={<FaCircleUp />}
                           color="info"

@@ -16,6 +16,7 @@
     "@mui/styled-engine-sc": "^6.0.0-alpha.18",
     "@mui/x-date-pickers": "^6.19.8",
     "@zoom/videosdk": "^1.10.5",
+    "@zoom/videosdk-ui-toolkit": "^1.10.8-2",
     "axios": "^1.6.5",
     "chart.js": "^4.4.2",
     "dayjs": "^1.11.10",

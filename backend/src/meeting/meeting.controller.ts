@@ -111,14 +111,15 @@ export class MeetingController {
   }
 
   @Post('join/:id/:startDatetime')
-  @UseGuards(AuthGuard, RolesGuard)
-  @Roles(RoleEnum.User, RoleEnum.Doctor, RoleEnum.Admin)
+  // @UseGuards(AuthGuard, RolesGuard)
+  // @Roles(RoleEnum.User, RoleEnum.Doctor, RoleEnum.Admin)
   joinMeeting(
     @Req() req: RequestT,
+    @Res() res: Response,
     @Param('id') id: number,
     @Param('startDatetime') startDatetime: Date,
-  ): Promise<joinMeetingResponseDto | HttpException> {
-    return this.meetingService.joinMeeting(req, id, startDatetime);
+  ) {
+    return this.meetingService.joinMeeting(req, res, id, startDatetime);
   }
 
   @Post('create-preference/:doctorId')

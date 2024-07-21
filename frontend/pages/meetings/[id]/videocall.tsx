@@ -32,6 +32,7 @@ import Avatar from "@/components/avatar";
 import { IoIosTimer, IoMdArrowRoundBack } from "react-icons/io";
 import Button from "@/components/button";
 import { BsFillChatLeftTextFill } from "react-icons/bs";
+import '@zoom/videosdk-ui-toolkit/dist/videosdk-ui-toolkit.css'
 
 export default function Meeting(props: any) {
   const theme = useTheme();
@@ -48,11 +49,14 @@ export default function Meeting(props: any) {
   const [showControls, setShowControls] = useState(false);
   const [time, setTime] = useState("00:00");
   const [count, setCount] = useState(0);
+  const [countUsers, setCountUsers] = useState(0);
   const [startTimer, setStartTimer] = useState(false);
   const [loading, setLoading] = useState(false);
   const [cancelDialog, setCancelDialog] = useState(false);
   const [openedChat, setOpenedChat] = useState(false);
   const [rate, setRate] = useState<boolean>(false);
+
+    let uitoolkit: any
 
   const handleOnClose = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     const target = e.target as HTMLDivElement;
@@ -103,100 +107,6 @@ export default function Meeting(props: any) {
     }
   }
 
-  const joinMeeting = async (
-    topic: string,
-    token: string,
-    myVideo: HTMLVideoElement,
-    otherCanvas: HTMLCanvasElement
-  ) => {
-    await client.join(
-      topic,
-      token,
-      `${props.auth.name} ${props.auth.surname}`,
-      ""
-    );
-
-    const stream = client.getMediaStream();
-
-    if (myVideo && otherCanvas) {
-      await stream.startVideo({
-        videoElement: myVideo,
-      });
-
-      await stream.renderVideo(
-        myVideo,
-        client.getCurrentUserInfo().userId,
-        320,
-        180,
-        0,
-        0,
-        2
-      );
-
-      client.getAllUser().forEach((user) => {
-        if (user.bVideoOn) {
-          stream.renderVideo(otherCanvas, user.userId, 768, 432, 0, 0, 1);
-        }
-      });
-
-      await stream.startAudio();
-      await stream.unmuteAudio();
-    }
-  };
-
-  const BindEvents = async () => {
-    const client = await getClient();
-    const stream = client.getMediaStream();
-    const chat = client.getChatClient();
-
-    const otherCanvas = document.getElementById(
-      "other-canvas"
-    ) as HTMLCanvasElement;
-
-    client.on("user-added", async (payload) => {
-      if (payload[0].bVideoOn && self) {
-        await stream.renderVideo(
-          otherCanvas,
-          payload[0].userId,
-          768,
-          432,
-          0,
-          0,
-          2
-        );
-      }
-    });
-  };
-
-  const meeting = async () => {
-    setLoading(true);
-    const ZoomVideo = await (await import("@zoom/videosdk")).default;
-    const resp = await join();
-
-    setUser(resp?.user);
-    setDoctor(resp?.doctor);
-
-    const myVideo = document.getElementById("my-video") as HTMLVideoElement;
-    const otherCanvas = document.getElementById(
-      "other-canvas"
-    ) as HTMLCanvasElement;
-
-    const client = await getClient();
-
-    if (
-      ZoomVideo.checkSystemRequirements().video &&
-      ZoomVideo.checkSystemRequirements().audio
-    ) {
-      await client.init("en-US", "Global", { patchJsMedia: true });
-      await BindEvents();
-
-      await joinMeeting(resp?.tpc, resp?.token, myVideo, otherCanvas);
-    }
-
-    setLoading(false);
-    setStartTimer(true);
-  };
-
   useEffect(() => {
     if (!startTimer) {
       return;
@@ -214,53 +124,19 @@ export default function Meeting(props: any) {
   }, [startTimer]);
 
   useEffect(() => {
-    meeting()
-      .then((res) => {})
-      .catch((err) => {
-        console.error(err);
-      });
+    (async () => {
+      uitoolkit = await (await import("@zoom/videosdk-ui-toolkit")).default;
+
+      getVideoSDKJWT()
+    })()
+    // meeting()
+    //   .then((res) => {})
+    //   .catch((err) => {
+    //     console.error(err);
+    //   });
   }, []);
 
-  const toggleAudio = async () => {
-    const client = await getClient();
-    const stream = client.getMediaStream();
-
-    if (audio) {
-      await stream.muteAudio();
-      setAudio(false);
-    } else {
-      await stream.unmuteAudio();
-      setAudio(true);
-    }
-  };
-
-  const toggleVideo = async () => {
-    const client = await getClient();
-    const stream = client.getMediaStream();
-
-    if (video) {
-      await stream.stopVideo();
-      setVideo(false);
-    } else {
-      const myVideo = document.getElementById("my-video") as HTMLVideoElement;
-      await stream.startVideo({
-        videoElement: myVideo,
-      });
-      await stream.renderVideo(
-        myVideo,
-        client.getCurrentUserInfo().userId,
-        320,
-        180,
-        0,
-        0,
-        2
-      );
-      setVideo(true);
-    }
-  };
-
   const leaveSession = async () => {
-    const client = await getClient();
     setRate(true);
     setCancelDialog(false);
 
@@ -271,34 +147,8 @@ export default function Meeting(props: any) {
       localStorage.setItem("startDatetime", startDatetime);
     }
 
-    client.leave();
     await finish();
     router.push("/");
-  };
-
-  const getClient = async () => {
-    const ZoomVideo = await (await import("@zoom/videosdk")).default;
-    client = ZoomVideo.createClient();
-    return client;
-  };
-
-  const handleSubmit = async ($e: any) => {
-    $e.preventDefault();
-
-    const client = await getClient();
-    const chat = await client.getChatClient();
-
-    await chat.sendToAll(text);
-    const h = chat.getHistory().map((h) => {
-      return {
-        id: h.id,
-        message: h.message,
-        name: h.sender.name,
-      };
-    });
-
-    setHistory(h);
-    setText("");
   };
 
   const initTime = new Date();
@@ -313,10 +163,53 @@ export default function Meeting(props: any) {
     setTime(minute + ":" + second);
   };
 
+  let sessionContainer: HTMLElement
+  let authEndpoint = 'http://localhost:3000/api/meeting/join/1/2020-01-01T08:00:00'
+  let config = {
+      videoSDKJWT: "",
+      sessionName: 'test',
+      userName: 'React',
+      sessionPasscode: '123',
+      features: ['video', 'audio', 'settings', 'users', 'chat', 'share']
+  };
+  let role = 1
+
+  async function getVideoSDKJWT() {
+    sessionContainer = document.getElementById('sessionContainer')!
+
+    axios.post(authEndpoint, {      
+        sessionName:  config.sessionName,
+        role: role,
+    }).then(({ data }) => {
+      if(data.tokenMeeting) {
+        console.log(data.tokenMeeting)
+        config.videoSDKJWT = data.tokenMeeting
+        joinSession()
+      } else {
+        console.log(data)
+      }
+    }).catch((error) => {
+        console.log(error)
+    })
+  }
+
+  function joinSession() {
+    console.log(config)
+    console.log(sessionContainer)
+    uitoolkit.joinSession(sessionContainer, config)
+
+    uitoolkit.onSessionClosed(sessionClosed)
+  }
+
+  var sessionClosed = (() => {
+    uitoolkit.closeSession(sessionContainer)
+    router.push("/");
+  })
+
   return (
     <Layout renderSidebar={false} renderNavbar={false} auth={props.auth}>
-      <div className="flex h-full ">
-        <div className="flex flex-col relative justify-center items-center xl:p-5">
+      <div className="w-1/2 mx-auto">
+        {/* <div className="flex flex-col relative justify-center items-center xl:p-5">
           <div className="w-full my-4">
             {props.auth.role === "doctor" && (
               <a
@@ -386,121 +279,9 @@ export default function Meeting(props: any) {
                       doctor ? doctor.user.surname : ""
                     }`}
               </p>
-              <div
-                className={`absolute ${
-                  showControls ? "bottom-0" : "bottom-[-30%]"
-                } transition-[bottom] ease duration-200 p-4 w-full flex gap-10 justify-center`}
-              >
-                <div
-                  className="w-10 h-10 bg-primary text-white rounded-full flex justify-center items-center hover:opacity-70 hover:cursor-pointer"
-                  onClick={toggleAudio}
-                >
-                  {audio ? (
-                    <FaMicrophone className="text-xl" />
-                  ) : (
-                    <FaMicrophoneSlash className="text-xl" />
-                  )}
-                </div>
-                <div
-                  className="w-10 h-10 bg-primary text-white rounded-full flex justify-center items-center hover:opacity-70 hover:cursor-pointer"
-                  onClick={toggleVideo}
-                >
-                  {video ? (
-                    <FaVideo className="text-xl" />
-                  ) : (
-                    <FaVideoSlash className="text-xl" />
-                  )}
-                </div>
-                <div
-                  className="w-10 h-10 bg-red-600 text-white rounded-full flex justify-center items-center hover:opacity-70 hover:cursor-pointer"
-                  onClick={() => setCancelDialog(true)}
-                >
-                  <FaXmark className="text-xl" />
-                </div>
-              </div>
-            </div>
           </div>
         </div>
-        <Fab
-          color="primary"
-          onClick={() =>
-            openedChat ? setOpenedChat(false) : setOpenedChat(true)
-          }
-          aria-label="chat"
-          className="z-0 bg-secondary hover:bg-[#4F4F4F] absolute bottom-4 right-8 text-white sm:hidden"
-        >
-          <BsFillChatLeftTextFill />
-        </Fab>
-        <div
-          onClick={handleOnClose}
-          id="container"
-          className={
-            openedChat
-              ? "fixed z-50 inset-0 backdrop-blur-sm bg-black bg-opacity-30"
-              : "w-[100%] sm:w-[37.5%] max-h-full bg-white rounded-lg mt-5 sm:mt-0 hidden  sm:inline "
-          }
-        >
-          <section
-            className={
-              openedChat
-                ? "flex flex-col h-5/6  bg-white"
-                : "w-[100%] sm:w-[37.5%] max-h-full bg-white rounded-lg mt-5 sm:mt-0 hidden  sm:inline "
-            }
-          >
-            <div
-              className="overflow-y-scroll"
-              id="scroll"
-              style={{ height: "90%" }}
-            >
-              {history.map((h) => {
-                return (
-                  <div key={h.id}>
-                    <div className="px-4 py-2">
-                      <div
-                        className={`flex flex-col ${
-                          h.name === `${props.auth.name} ${props.auth.surname}`
-                            ? "items-end text-right"
-                            : "items-start text-left"
-                        }`}
-                      >
-                        <div className="flex justify-center items-center">
-                          <h4
-                            className={`text-lg text-primary ${robotoBold.className} ml-2`}
-                          >
-                            {h.name}
-                          </h4>
-                        </div>
-                        <p className="line-clamp-3 mt-[2px] w-3/4">
-                          {h.message}
-                        </p>
-                      </div>
-                      <div
-                        className="bg-emerald-200 w-full mt-1"
-                        style={{ height: "1px" }}
-                      ></div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-            <form
-              className="flex justify-center items-center m-2 text-primary"
-              onSubmit={handleSubmit}
-            >
-              <Input
-                className="w-full"
-                placeholder="Escriba un texto"
-                value={text}
-                onChange={(e) => setText(e.target.value)}
-                id="scroll"
-              />
-              <FaPaperPlane
-                className="hover:cursor-pointer hover:opacity-70"
-                onClick={handleSubmit}
-              />
-            </form>
-          </section>
-        </div>
+        </div> */}
         <Dialog
           open={cancelDialog}
           onClose={() => setCancelDialog(false)}
@@ -532,6 +313,8 @@ export default function Meeting(props: any) {
             </Button>
           </DialogActions>
         </Dialog>
+
+        <div id='sessionContainer'></div>
       </div>
     </Layout>
   );

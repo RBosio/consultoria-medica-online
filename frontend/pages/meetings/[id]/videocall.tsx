@@ -164,7 +164,7 @@ export default function Meeting(props: any) {
   };
 
   let sessionContainer: HTMLElement
-  let authEndpoint = 'http://localhost:3000/api/meeting/join/1/2020-01-01T08:00:00'
+  let authEndpoint = process.env.NEXT_PUBLIC_API_URL +'/meeting/join/1/2020-01-01T08:00:00'
   let config = {
       videoSDKJWT: "",
       sessionName: 'test',

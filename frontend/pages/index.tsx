@@ -4,11 +4,9 @@ import withAuth from "@/lib/withAuth";
 import { Auth } from "../types";
 import Button from "@/components/button";
 import {
-  FaAddressCard,
   FaAngleRight,
   FaCalendarDays,
   FaChevronRight,
-  FaCircleExclamation,
   FaRightLong,
   FaUserDoctor,
 } from "react-icons/fa6";
@@ -29,6 +27,7 @@ import { MdDiscount, MdOutlineAdminPanelSettings } from "react-icons/md";
 import { pesos } from "@/lib/formatCurrency";
 import Alert from "@mui/material/Alert";
 import Rate from "@/components/rate";
+import { robotoBold } from "@/lib/fonts";
 
 export default function Home(props: any) {
   const router = useRouter();
@@ -65,34 +64,61 @@ export default function Home(props: any) {
     }
   }, []);
 
+  const planExpiration = () => {
+    if (!(props.auth.role === "doctor") || !props.doctor.plan) return;
+    const lastPayment = moment(props.doctor.planLastPayment);
+    const planExpiration = lastPayment.add(1, 'months');
+    
+    const diff = moment().diff(planExpiration, 'days');
+    if(diff >= 0) return planExpiration;
+
+  };
+
   return (
     <Layout auth={props.auth}>
-      <section>
+      <section className="flex flex-col h-full overflow-y-auto">
         <h1 className="text-3xl p-4 text-zinc-600">
           ¡Hola de nuevo{" "}
           <span className="text-primary font-semibold">
             {props.auth.surname}, {props.auth.name}!
           </span>
         </h1>
-        <div className="flex flex-col md:flex-row justify-between items-center bg-white w-5/6 mx-auto p-4 rounded-3xl shadow-lg gap-4 md:gap-0">
+        {planExpiration() &&
+          <Alert className="w-5/6 mx-auto mb-4 shadow-md rounded-md" severity="error">
+            Tu plan expirará el {`${planExpiration()?.format('LLL')}hs`}. Por favor, renueva el mismo en <Link href="/config">configuración</Link>
+          </Alert>}
+        {props.auth.role === "doctor" && !props.doctor.plan ? (
+          <Alert className="w-5/6 mx-auto mb-4 shadow-md rounded-md" severity="warning">
+            Para realizar reuniones debes solicitar un <Link href="/config/plan">plan de trabajo</Link>
+          </Alert>
+        ) : incompleteDoctorData ? (
+          <Alert className="w-5/6 mx-auto mb-4 shadow-md rounded-md" severity="warning">
+            Para realizar reuniones debes de completar los datos obligatorios
+            de tu <Link href="/config">configuración</Link>
+          </Alert>
+        ) : props.doctor && props.doctor.schedules.length === 0 ? (
+          <Alert className="w-5/6 mx-auto mb-4 shadow-md rounded-md" severity="warning">
+            Para realizar reuniones debes registrar al menos un rango horario
+            en <Link href="/config">configuración</Link>
+          </Alert>
+        ) : ''}
+        <div className="flex flex-col lg:flex-row justify-between items-center bg-white w-5/6 mx-auto p-4 rounded-md shadow-md gap-4 lg:gap-0">
           {props.lastMeeting?.startDatetime ? (
             <>
-              <div>
-                <h2 className="text-xl text-primary font-semibold underline">
-                  Próxima reunión programada
-                </h2>
-              </div>
+              <h2 className="text-xl text-primary font-semibold">
+                Próxima reunión programada
+              </h2>
               <div>
                 <h2 className="text-xl text-center text-zinc-600">
                   {props.auth.role === "user"
                     ? props.lastMeeting?.doctor.user.surname +
-                      ", " +
-                      props.lastMeeting?.doctor.user.name
+                    ", " +
+                    props.lastMeeting?.doctor.user.name
                     : props.lastMeeting?.user.surname +
-                      ", " +
-                      props.lastMeeting?.user.name}
+                    ", " +
+                    props.lastMeeting?.user.name}
                 </h2>
-                <div className="text-white bg-primary flex justify-center items-center p-2 rounded-lg">
+                <div className="text-white bg-primary flex justify-center items-center p-2 rounded-md">
                   <FaCalendarDays />
                   <p className="ml-1 text-sm sm:text-base">
                     {moment(props.lastMeeting?.startDatetime).format("LLLL")}
@@ -104,15 +130,15 @@ export default function Home(props: any) {
                   const route = `meetings/${btoa(
                     props.auth.role === "user"
                       ? props.auth.id +
-                          "." +
-                          moment(props.lastMeeting?.startDatetime).format(
-                            "YYYY-MM-DDTHH:mm:ss"
-                          )
+                      "." +
+                      moment(props.lastMeeting?.startDatetime).format(
+                        "YYYY-MM-DDTHH:mm:ss"
+                      )
                       : props.lastMeeting?.user.id +
-                          "." +
-                          moment(props.lastMeeting?.startDatetime).format(
-                            "YYYY-MM-DDTHH:mm:ss"
-                          )
+                      "." +
+                      moment(props.lastMeeting?.startDatetime).format(
+                        "YYYY-MM-DDTHH:mm:ss"
+                      )
                   )}`;
                   router.push(route);
                 }}
@@ -121,22 +147,6 @@ export default function Home(props: any) {
                 Ver reunión
               </Button>
             </>
-          ) : props.auth.role === "doctor" &&
-            props.doctor &&
-            !props.doctor.plan ? (
-            <Alert className="w-full rounded-lg" severity="warning">
-              Para realizar reuniones debes solicitar un plan de trabajo
-            </Alert>
-          ) : incompleteDoctorData ? (
-            <Alert className="w-full rounded-lg" severity="warning">
-              Para realizar reuniones debes de completar los datos obligatorios
-              de tu <Link href="/config">configuración</Link>
-            </Alert>
-          ) : props.doctor && props.doctor.schedules.length === 0 ? (
-            <Alert className="w-full rounded-lg" severity="warning">
-              Para realizar reuniones debes registrar al menos un rango horario
-              en <Link href="/config">configuración</Link>
-            </Alert>
           ) : (
             <h2 className="mx-auto text-xl flex flex-col md:flex-row items-center gap-4 text-zinc-600">
               Actualmente no tiene reuniones pendientes{" "}
@@ -151,14 +161,14 @@ export default function Home(props: any) {
             </h2>
           )}
         </div>
-        <div className="flex flex-col 2xl:flex-row justify-between items-center gap-4 w-full xl:w-5/6 mx-auto mt-4 mb-4">
-          <div className="bg-gray-100 w-5/6 xl:w-full p-4 rounded-3xl shadow-lg">
+        <div className="flex flex-col 2xl:flex-row justify-between items-center gap-5 w-full xl:w-5/6 mx-auto my-5">
+          <div className="bg-white w-5/6 xl:w-full p-4 rounded-md shadow-md">
             {props.auth.role === "user" || props.auth.role === "admin" ? (
               <>
                 <h2 className="text-3xl text-center text-zinc-600">
                   Descubra nuestros profesionales recomendados
                 </h2>
-                <div className="flex flex-col lg:flex-row justify-center items-center gap-8 bg-white rounded-3xl">
+                <div className="flex flex-col lg:flex-row justify-center items-center gap-8 bg-white rounded-md">
                   {props.doctors.map((doctor: DoctorResponseDto) => (
                     <div
                       key={doctor.id}
@@ -223,7 +233,7 @@ export default function Home(props: any) {
               </>
             ) : (
               <>
-                <h2 className="text-3xl text-center text-zinc-600 mb-4">
+                <h2 className={`text-2xl text-center text-primary mb-4 ${robotoBold.className}`}>
                   {props.doctor.plan
                     ? "¿Desea actualizar su plan?"
                     : "Solicite un plan de trabajo para comenzar"}
@@ -232,7 +242,7 @@ export default function Home(props: any) {
                   {plans.map((p: PlanResponseDto) => (
                     <div
                       key={p.id}
-                      className="bg-white flex flex-col items-center shadow-xl rounded-md"
+                      className={`bg-white flex flex-col border-2 border-gray-200 items-center shadow-md rounded-md ${p.id === 3 ? 'gold-glow' : ''}`}
                     >
                       <h2 className="text-3xl text-primary font-semibold text-center pt-4">
                         {p.name}
@@ -253,7 +263,7 @@ export default function Home(props: any) {
                       <ul className="my-4 p-4 min-h-28">
                         {p.benefits.map((b: BenefitResponseDto) => (
                           <li key={b.id} className="flex items-center gap-2">
-                            <div className="w-2 h-2 bg-primary rounded-full"></div>
+                            <div className="w-2 h-2 bg-primary rounded-md"></div>
                             {b.name}
                           </li>
                         ))}
@@ -274,7 +284,7 @@ export default function Home(props: any) {
               </>
             )}
           </div>
-          <div className="flex flex-col items-center gap-4 bg-white w-5/6 xl:w-full p-4 rounded-3xl shadow-lg">
+          <div className="flex flex-col items-center justify-center gap-4 bg-white w-5/6 xl:w-full p-4 rounded-md shadow-md h-full">
             {props.auth.role === "user" &&
               (props.lastMeeting?.user?.healthInsurances.length === 0 ? (
                 <>
@@ -289,9 +299,8 @@ export default function Home(props: any) {
                 </>
               ) : (
                 <div
-                  className={`flex flex-col items-center ${
-                    props.notifications.length > 0 && "overflow-y-scroll"
-                  }`}
+                  className={`flex flex-col items-center ${props.notifications.length > 0 && "overflow-y-scroll"
+                    }`}
                 >
                   <h2 className="text-3xl text-center text-zinc-600">
                     Ultimas notificaciones no leídas
@@ -344,15 +353,15 @@ export default function Home(props: any) {
                                 href={
                                   n.type === "comment"
                                     ? `/meetings/${btoa(
-                                        n.meeting.userId +
-                                          "." +
-                                          moment(
-                                            n.meeting.startDatetime
-                                          ).format("YYYY-MM-DDTHH:mm:ss")
-                                      )}`
+                                      n.meeting.userId +
+                                      "." +
+                                      moment(
+                                        n.meeting.startDatetime
+                                      ).format("YYYY-MM-DDTHH:mm:ss")
+                                    )}`
                                     : n.type === "verificationHi"
-                                    ? "/profile"
-                                    : ""
+                                      ? "/profile"
+                                      : ""
                                 }
                                 onClick={() => {
                                   markAsRead(n.id);
@@ -371,8 +380,8 @@ export default function Home(props: any) {
               ))}
             {props.auth.role === "doctor" &&
               (!props.doctor.durationMeeting ||
-              !props.doctor.priceMeeting ||
-              !props.doctor.cbu ? (
+                !props.doctor.priceMeeting ||
+                !props.doctor.cbu ? (
                 <>
                   <h2 className="text-3xl text-center text-zinc-600">
                     Complete los datos de su configuración para comenzar
@@ -384,9 +393,8 @@ export default function Home(props: any) {
                 </>
               ) : (
                 <div
-                  className={`flex flex-col items-center ${
-                    props.notifications.length > 0 && "overflow-y-scroll"
-                  }`}
+                  className={`flex flex-col items-center ${props.notifications.length > 0 && "overflow-y-scroll h-full"
+                    }`}
                 >
                   <h2 className="text-3xl text-center text-zinc-600">
                     Ultimas notificaciones no leidas
@@ -426,16 +434,14 @@ export default function Home(props: any) {
                                   ) : n.type === "verificationHi" ? (
                                     `El administrador ${n.userSend.surname}, ${n.userSend.name} acaba de realizar la verificación de la obra social ${n.healthInsurance.name}`
                                   ) : n.type === "meeting" && n.meeting ? (
-                                    `El usuario ${n.userSend.surname}, ${
-                                      n.userSend.name
+                                    `El usuario ${n.userSend.surname}, ${n.userSend.name
                                     } acaba de solicitar una reunión para el día ${moment(
                                       n.meeting.startDatetime
                                     ).format("LLL")}`
                                   ) : n.type === "verificationDoc" ? (
                                     `El administrador ${n.userSend.surname}, ${n.userSend.name} acaba de realizar la verificación su cuenta`
                                   ) : n.type === "rdatetime" ? (
-                                    `El paciente ${n.userSend.surname}, ${
-                                      n.userSend.name
+                                    `El paciente ${n.userSend.surname}, ${n.userSend.name
                                     } acaba de realizar la modificación de la reunión del día ${moment(
                                       n.mStartDOld
                                     ).format("LLLL")} hs para el día ${moment(
@@ -455,33 +461,33 @@ export default function Home(props: any) {
                                 href={
                                   n.type === "comment"
                                     ? `/meetings/${btoa(
-                                        n.meeting.userId +
-                                          "." +
-                                          moment(
-                                            n.meeting.startDatetime
-                                          ).format("YYYY-MM-DDTHH:mm:ss")
-                                      )}`
+                                      n.meeting.userId +
+                                      "." +
+                                      moment(
+                                        n.meeting.startDatetime
+                                      ).format("YYYY-MM-DDTHH:mm:ss")
+                                    )}`
                                     : n.type === "verificationHi"
-                                    ? "/profile"
-                                    : n.type === "meeting" && n.meeting
-                                    ? `/meetings/${btoa(
-                                        n.meeting.userId +
+                                      ? "/profile"
+                                      : n.type === "meeting" && n.meeting
+                                        ? `/meetings/${btoa(
+                                          n.meeting.userId +
                                           "." +
                                           moment(
                                             n.meeting.startDatetime
                                           ).format("YYYY-MM-DDTHH:mm:ss")
-                                      )}`
-                                    : n.type === "verificationDoc"
-                                    ? "/profile"
-                                    : n.type === "rdatetime"
-                                    ? `/meetings/${btoa(
-                                        n.userIdSend +
-                                          "." +
-                                          moment(n.mStartDNew).format(
-                                            "YYYY-MM-DDTHH:mm:ss"
-                                          )
-                                      )}`
-                                    : ""
+                                        )}`
+                                        : n.type === "verificationDoc"
+                                          ? "/profile"
+                                          : n.type === "rdatetime"
+                                            ? `/meetings/${btoa(
+                                              n.userIdSend +
+                                              "." +
+                                              moment(n.mStartDNew).format(
+                                                "YYYY-MM-DDTHH:mm:ss"
+                                              )
+                                            )}`
+                                            : ""
                                 }
                                 onClick={() => {
                                   markAsRead(n.id);

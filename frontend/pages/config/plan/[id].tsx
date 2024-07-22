@@ -7,6 +7,7 @@ import { useRouter } from "next/router";
 import { robotoBold } from "@/lib/fonts";
 import Message from "@/components/message";
 import { Link } from "@mui/material";
+import { DoctorResponseDto } from "@/components/dto/doctor.dto";
 
 export default function PlanId(props: any) {
   const router = useRouter();
@@ -47,23 +48,14 @@ export default function PlanId(props: any) {
     <Layout auth={props.auth}>
       <div className="p-10">
         <div className={`bg-white p-4 shadow-md rounded-md ${success ? 'pb-10' : ''}`}>
-          <h2 className={`text-primary text-2xl mb-4 ${robotoBold.className} ${success ? 'mb-10' : ''}`}>Adquirir plan de trabajo - {props.plan.name}</h2>
+          <h2 className={`text-primary text-2xl mb-4 ${robotoBold.className} ${success ? 'mb-10' : ''}`}>{props.doctor.planId?.toString() === id ? "Renovar" : "Adquirir"} plan de trabajo - {props.plan.name}</h2>
           {mp?.CardPayment && !success ? (
             <mp.CardPayment
               initialization={{ amount: 2000 }}
               onSubmit={async (data: any) => {
-                /* const response = await axios.post(
-                  `${process.env.NEXT_PUBLIC_API_URL}/plan/subscribe/${id}`,
-                  { cardToken: data.token },
-                  {
-                    withCredentials: true,
-                    headers: { Authorization: `Bearer ${props.auth.token}` },
-                    }
-                    ); */
-
                 await axios.patch(
                   `${process.env.NEXT_PUBLIC_API_URL}/doctor/${props.auth.id}`,
-                  { planId: id, userId: props.auth.id },
+                  { planId: id, userId: props.auth.id, planLastPayment: new Date() },
                   {
                     withCredentials: true,
                     headers: { Authorization: `Bearer ${props.auth.token}` },
@@ -71,7 +63,6 @@ export default function PlanId(props: any) {
                 );
 
                 setSuccess(true);
-
               }}
             />
           ) : <Message message={<p>Serás redirigido automáticamente a la <Link href={"/config"}>configuración</Link></p>} title="Plan adquirido con éxito" />}
@@ -91,6 +82,16 @@ export const getServerSideProps = withAuth(
       },
     };
 
+    let d = await axios.get<DoctorResponseDto>(
+      `${process.env.NEXT_PUBLIC_API_URL}/doctor/user/${auth?.id}`,
+      {
+        withCredentials: true,
+        headers: { Authorization: `Bearer ${context.req.cookies.token}` },
+      }
+    );
+
+    const doctor = d.data;
+
     let plan = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/plan/${context.query.id}`, {
       withCredentials: true,
       headers: { Authorization: `Bearer ${context.req.cookies.token}` },
@@ -101,6 +102,7 @@ export const getServerSideProps = withAuth(
     return {
       props: {
         auth,
+        doctor,
         plan,
       },
     };

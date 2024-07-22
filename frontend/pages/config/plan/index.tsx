@@ -12,11 +12,22 @@ import { pesos } from "@/lib/formatCurrency";
 import { roboto, robotoBold } from "@/lib/fonts";
 import { FaExclamationCircle } from "react-icons/fa";
 import { DoctorResponseDto } from "@/components/dto/doctor.dto";
+import moment from "moment";
 
 export default function Plan(props: any) {
 
     const theme = useTheme();
     const router = useRouter();
+
+    const planExpiration = () => {
+        if (!(props.auth.role === "doctor") || !props.doctor.plan) return;
+        const lastPayment = moment(props.doctor.planLastPayment);
+        const planExpiration = lastPayment.add(1, 'months');
+
+        const diff = moment().diff(planExpiration, 'days');
+        if (diff >= 0) return planExpiration;
+
+    };
 
     return (
         <Layout auth={props.auth}>
@@ -54,23 +65,30 @@ export default function Plan(props: any) {
                                         <ul className="my-4 p-4 min-h-28">
                                             {p.benefits.map((b: BenefitResponseDto) => (
                                                 <li key={b.id} className="flex items-center gap-2">
-                                                    <div className="w-2 h-2 bg-primary rounded-full"></div>
+                                                    <div className="w-2 h-2 bg-primary rounded-md"></div>
                                                     {b.name}
                                                 </li>
                                             ))}
                                         </ul>
                                         <div className="my-4 w-full flex justify-center">
-                                            {p.id === props.doctor.plan?.id ? <Chip
-                                                className="h-9 w-full max-w-36 select-none"
-                                                size="medium"
-                                                variant="filled"
-                                                color="warning"
-                                                label={'Plan actual'}
-                                            /> : <Button
-                                                onClick={() => router.push("/config/plan/" + p.id)}
-                                            >
-                                                Actualizar plan
-                                            </Button>}
+                                            {p.id === props.doctor.plan?.id ?
+                                                planExpiration() ?
+                                                    <Button
+                                                        onClick={() => router.push("/config/plan/" + p.id)}
+                                                    >
+                                                        Renovar plan
+                                                    </Button> :
+                                                    <Chip
+                                                        className="h-9 w-full max-w-36 select-none"
+                                                        size="medium"
+                                                        variant="filled"
+                                                        color="warning"
+                                                        label={'Plan actual'}
+                                                    /> : <Button
+                                                        onClick={() => router.push("/config/plan/" + p.id)}
+                                                    >
+                                                    Actualizar plan
+                                                </Button>}
                                         </div>
                                         <h4 className="px-12 py-4 text-white text-center font-extrabold text-xl bg-primary w-full h-full">
                                             {pesos.format(p.price)} / mes

@@ -12,7 +12,6 @@ import {
   FaMoneyBill1Wave,
   FaMoneyBillTransfer,
   FaPlus,
-  FaStar,
   FaStopwatch,
   FaTrash,
   FaUserDoctor,
@@ -53,7 +52,8 @@ import "moment/locale/es";
 import { pesos } from "@/lib/formatCurrency";
 import { PlanResponseDto } from "@/components/dto/plan.dto";
 import { validCBU } from "@/lib/cbuValidator";
-import { IoMdClose } from "react-icons/io";
+import { IoIosArrowDropup, IoMdClose } from "react-icons/io";
+import { MdAutorenew, MdOutlineCancel } from "react-icons/md";
 
 interface ConfigProps {
   user: UserResponseDto;
@@ -409,6 +409,16 @@ export default function Config(props: ConfigProps) {
 
   };
 
+  const planExpiration = () => {
+    if (!(props.auth.role === "doctor") || !props.doctor.plan) return;
+    const lastPayment = moment(props.doctor.planLastPayment);
+    const planExpiration = lastPayment.add(1, 'months');
+
+    const diff = moment().diff(planExpiration, 'days');
+    if (diff >= 0) return planExpiration;
+
+  };
+
   return (
     <Layout auth={props.auth}>
       <section className="flex px-8 mt-8">
@@ -610,16 +620,20 @@ export default function Config(props: ConfigProps) {
                   >
                     Plan actual
                   </h3>
+                  {planExpiration() &&
+                    <Alert className="w-full shadow-md rounded-md mb-4" severity="error">
+                      Tu plan expirará el {`${planExpiration()?.format('LLL')}hs`}. Por favor, renueva el mismo para seguir operando
+                    </Alert>}
                   {props.auth.role === "doctor" && !props.doctor.plan && (
                     <Alert
-                      className="w-full rounded-lg mb-4"
+                      className="w-full shadow-md rounded-md mb-4"
                       severity="warning"
                     >
                       Para realizar reuniones debes solicitar un plan de trabajo
                     </Alert>
                   )}
                   <div
-                    className={`m-auto w-full bg-secondary flex flex-col gap-2 md:gap-0 md:flex-row sm:justify-between items-center text-white px-8 py-2 mt-2 rounded-md`}
+                    className={`m-auto w-full bg-secondary flex flex-col gap-2 md:gap-0 md:flex-row sm:justify-between items-center text-white px-4 py-2 mt-2 rounded-md`}
                   >
                     <Chip
                       size="medium"
@@ -640,19 +654,25 @@ export default function Config(props: ConfigProps) {
                     </p>
                     {props.doctor.plan ? (
                       <ButtonGroup>
+                        {planExpiration() && <Link href={`/config/plan/${props.doctor.planId}`}>
+                          <Button size="small" startIcon={<MdAutorenew />} color="info">
+                            Renovar
+                          </Button>
+                        </Link>}
                         <Link href={"/config/plan"}>
-                          <Button startIcon={<FaCircleUp />} color="info">
+                          <Button size="small" startIcon={<IoIosArrowDropup />} color="info">
                             {Math.max(...props.plans.map((a) => a.id)) !== props.doctor.plan.id ? 'Actualizar' : 'Modificar'}
                           </Button>
                         </Link>
                         <Button
+                          size="small"
                           sx={{
                             "&.MuiButton-contained": {
                               background: "#AC0606",
                               color: "#fff",
                             },
                           }}
-                          startIcon={<FaCircleXmark />}
+                          startIcon={<MdOutlineCancel />}
                           onClick={() => setConfirmCancelPlan(true)}
                         >
                           Cancelar
@@ -661,6 +681,7 @@ export default function Config(props: ConfigProps) {
                     ) : (
                       <Link href={"/config/plan"}>
                         <Button
+                          size="small"
                           startIcon={<FaCircleUp />}
                           color="info"
                           className="mt-4 md:mt-0"
@@ -690,7 +711,7 @@ export default function Config(props: ConfigProps) {
                   </h3>
                   {props.schedules.length === 0 && (
                     <Alert
-                      className="w-full rounded-lg mb-4"
+                      className="w-full shadow-md rounded-md mb-4"
                       severity="warning"
                     >
                       Para realizar reuniones debes registrar al menos un rango
@@ -834,7 +855,7 @@ export default function Config(props: ConfigProps) {
                       </h3>
                       {incompleteDoctorData && (
                         <Alert
-                          className="w-full rounded-lg my-2"
+                          className="w-full shadow-md rounded-md my-2"
                           severity="warning"
                         >
                           Para realizar reuniones debes de completar los datos

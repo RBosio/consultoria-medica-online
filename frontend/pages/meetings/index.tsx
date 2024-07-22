@@ -15,6 +15,7 @@ import Button from "@/components/button";
 import { IoMdSearch } from "react-icons/io";
 import Alert from "@mui/material/Alert";
 import Link from "@mui/material/Link";
+import moment from "moment";
 
 interface Meeting {
   auth: Auth;
@@ -92,9 +93,8 @@ export default function Meetings(props: Meeting) {
           key={page.toString()}
           onClick={handleClick}
           id={page.toString()}
-          className={`w-4 h-4 rounded-full ${
-            page == index ? "bg-secondary" : "bg-primary"
-          } m-2 hover:cursor-pointer`}
+          className={`w-4 h-4 rounded-full ${page == index ? "bg-secondary" : "bg-primary"
+            } m-2 hover:cursor-pointer`}
         ></div>
       );
     }
@@ -140,6 +140,16 @@ export default function Meetings(props: Meeting) {
     },
   });
 
+  const planExpiration = () => {
+    if (!(props.auth.role === "doctor") || !props.doctor.plan) return;
+    const lastPayment = moment(props.doctor.planLastPayment);
+    const planExpiration = lastPayment.add(1, 'months');
+    
+    const diff = moment().diff(planExpiration, 'days');
+    if(diff >= 0) return planExpiration;
+
+  };
+
   return (
     <Layout auth={props.auth}>
       <main>
@@ -148,9 +158,8 @@ export default function Meetings(props: Meeting) {
           onSubmit={filtersForm.handleSubmit}
         >
           <div
-            className={`${
-              props.auth.role === "user" ? "w-full sm:w-1/3" : "w-full sm:w-1/2"
-            }`}
+            className={`${props.auth.role === "user" ? "w-full sm:w-1/3" : "w-full sm:w-1/2"
+              }`}
           >
             <Input
               name="name"
@@ -163,9 +172,8 @@ export default function Meetings(props: Meeting) {
             />
           </div>
           <div
-            className={`${
-              props.auth.role === "user" ? "w-full sm:w-1/3" : "hidden"
-            }`}
+            className={`${props.auth.role === "user" ? "w-full sm:w-1/3" : "hidden"
+              }`}
           >
             <Autocomplete
               onChange={(event, newValue: any) => {
@@ -191,9 +199,8 @@ export default function Meetings(props: Meeting) {
             />
           </div>
           <div
-            className={`${
-              props.auth.role === "user" ? "w-full sm:w-1/3" : "w-full sm:w-1/2"
-            }`}
+            className={`${props.auth.role === "user" ? "w-full sm:w-1/3" : "w-full sm:w-1/2"
+              }`}
           >
             <Autocomplete
               onChange={(event, newValue: any) => {
@@ -224,19 +231,23 @@ export default function Meetings(props: Meeting) {
         </form>
         <section>
           <div className="w-[95%] overflow-hidden m-auto relative px-[14px] sm:mt-8">
+            {planExpiration() &&
+              <Alert className="w-full shadow-md rounded-md" severity="error">
+                Tu plan expirará el {`${planExpiration()?.format('LLL')}hs`}. Por favor, renueva el mismo en <Link href="/config">configuración</Link>
+              </Alert>}
             {props.auth.role === "doctor" && !props.doctor.plan ? (
-              <Alert className="w-full rounded-lg" severity="warning">
+              <Alert className="w-full shadow-md rounded-md" severity="warning">
                 Para realizar reuniones debes solicitar un{" "}
-                <Link href="/">plan de trabajo</Link>
+                <Link href="/config/plan">plan de trabajo</Link>
               </Alert>
             ) : incompleteDoctorData ? (
-              <Alert className="w-full rounded-lg" severity="warning">
+              <Alert className="w-full shadow-md rounded-md" severity="warning">
                 Para realizar reuniones debes de completar los datos
                 obligatorios de tu <Link href="/config">configuración</Link>
               </Alert>
             ) : props.auth.role === "doctor" &&
               props.doctor.schedules.length === 0 ? (
-              <Alert className="w-full rounded-lg" severity="warning">
+              <Alert className="w-full shadow-md rounded-md" severity="warning">
                 Para realizar reuniones debes registrar al menos un rango
                 horario en <Link href="/config">configuración</Link>
               </Alert>
@@ -276,9 +287,8 @@ export default function Meetings(props: Meeting) {
                 <div
                   onClick={handleClick}
                   id={page.toString()}
-                  className={`w-4 h-4 rounded-full ${
-                    page === index ? "bg-secondary" : "bg-primary"
-                  } m-2 hover:cursor-pointer`}
+                  className={`w-4 h-4 rounded-full ${page === index ? "bg-secondary" : "bg-primary"
+                    } m-2 hover:cursor-pointer`}
                 ></div>
               ) : (
                 ""
@@ -286,8 +296,8 @@ export default function Meetings(props: Meeting) {
 
               {props.meetings.length / (isDesktop ? 4 : 2) > 1
                 ? props.meetings.map((m, i) => {
-                    return points(i);
-                  })
+                  return points(i);
+                })
                 : ""}
             </div>
             {props.meetings.length / (isDesktop ? 4 : 2) > 1 ? (
@@ -343,8 +353,7 @@ export const getServerSideProps = withAuth(
       let meetings;
       if (auth?.role !== "doctor") {
         meetings = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}/meeting/user/${
-            auth?.id
+          `${process.env.NEXT_PUBLIC_API_URL}/meeting/user/${auth?.id
           }?${new URLSearchParams(query).toString()}`,
           {
             withCredentials: true,
@@ -353,8 +362,7 @@ export const getServerSideProps = withAuth(
         );
       } else {
         meetings = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}/meeting/doctor/${
-            auth?.id
+          `${process.env.NEXT_PUBLIC_API_URL}/meeting/doctor/${auth?.id
           }?${new URLSearchParams(query).toString()}`,
           {
             withCredentials: true,

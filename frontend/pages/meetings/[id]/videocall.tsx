@@ -32,7 +32,7 @@ import Avatar from "@/components/avatar";
 import { IoIosTimer, IoMdArrowRoundBack } from "react-icons/io";
 import Button from "@/components/button";
 import { BsFillChatLeftTextFill } from "react-icons/bs";
-import '@zoom/videosdk-ui-toolkit/dist/videosdk-ui-toolkit.css'
+import "@zoom/videosdk-ui-toolkit/dist/videosdk-ui-toolkit.css";
 
 export default function Meeting(props: any) {
   const theme = useTheme();
@@ -55,8 +55,10 @@ export default function Meeting(props: any) {
   const [cancelDialog, setCancelDialog] = useState(false);
   const [openedChat, setOpenedChat] = useState(false);
   const [rate, setRate] = useState<boolean>(false);
+  const [meetingId, setMeetingId] = useState("");
+  const [startDatetimeS, setMeetingStartDatetime] = useState("");
 
-    let uitoolkit: any
+  let uitoolkit: any;
 
   const handleOnClose = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     const target = e.target as HTMLDivElement;
@@ -82,29 +84,40 @@ export default function Meeting(props: any) {
     }
   }
 
-  async function join() {
+  const extract = () => {
     const { id } = router.query;
+    let t: string = "";
+    let startDatetime: string = "";
 
     if (id && typeof id === "string") {
-      const [t, startDatetime] = atob(id).split(".");
-
-      const res = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/meeting/join/${t}/${startDatetime}`,
-        {},
-        {
-          withCredentials: true,
-          headers: { Authorization: `Bearer ${props.auth.token}` },
-        }
-      );
-
-      const resp = {
-        user: res.data.meeting.user,
-        doctor: res.data.meeting.doctor,
-        tpc: res.data.meeting.tpc,
-        token: res.data.tokenMeeting,
-      };
-      return resp;
+      [t, startDatetime] = atob(id).split(".");
     }
+
+    return [t, startDatetime];
+  };
+
+  async function join() {
+    const [t, startDatetime] = extract();
+    console.log(t, startDatetime);
+    setMeetingId(t);
+    setMeetingStartDatetime(startDatetime);
+
+    const res = await axios.post(
+      `${process.env.NEXT_PUBLIC_API_URL}/meeting/join/${t}/${startDatetime}`,
+      {},
+      {
+        withCredentials: true,
+        headers: { Authorization: `Bearer ${props.auth.token}` },
+      }
+    );
+
+    const resp = {
+      user: res.data.meeting.user,
+      doctor: res.data.meeting.doctor,
+      tpc: res.data.meeting.tpc,
+      token: res.data.tokenMeeting,
+    };
+    return resp;
   }
 
   useEffect(() => {
@@ -125,10 +138,13 @@ export default function Meeting(props: any) {
 
   useEffect(() => {
     (async () => {
+      const resp = await join();
+      config.sessionName = "test" // resp.tpc;
+
       uitoolkit = await (await import("@zoom/videosdk-ui-toolkit")).default;
 
-      getVideoSDKJWT()
-    })()
+      getVideoSDKJWT();
+    })();
     // meeting()
     //   .then((res) => {})
     //   .catch((err) => {
@@ -163,63 +179,68 @@ export default function Meeting(props: any) {
     setTime(minute + ":" + second);
   };
 
-  let sessionContainer: HTMLElement
-  let authEndpoint = process.env.NEXT_PUBLIC_API_URL +'/meeting/join/1/2020-01-01T08:00:00'
+  let sessionContainer: HTMLElement;
   let config = {
-      videoSDKJWT: "",
-      sessionName: 'test',
-      userName: 'React',
-      sessionPasscode: '123',
-      features: ['video', 'audio', 'settings', 'users', 'chat', 'share']
+    videoSDKJWT: "",
+    sessionName: "test",
+    userName: props.auth.name,
+    sessionPasscode: "123",
+    features: ["video", "audio", "settings", "chat"],
   };
-  let role = 1
+  let role = 1;
 
   async function getVideoSDKJWT() {
-    sessionContainer = document.getElementById('sessionContainer')!
+    sessionContainer = document.getElementById("sessionContainer")!;
+    const [t, startDatetime] = extract();
 
-    axios.post(authEndpoint, {      
-        sessionName:  config.sessionName,
+    let authEndpoint =
+      process.env.NEXT_PUBLIC_API_URL + `/meeting/join/${t}/${startDatetime}`;
+
+    axios
+      .post(authEndpoint, {
         role: role,
-    }).then(({ data }) => {
-      if(data.tokenMeeting) {
-        console.log(data.tokenMeeting)
-        config.videoSDKJWT = data.tokenMeeting
-        joinSession()
-      } else {
-        console.log(data)
-      }
-    }).catch((error) => {
-        console.log(error)
-    })
+      })
+      .then(({ data }) => {
+        if (data.tokenMeeting) {
+          console.log(data.tokenMeeting);
+          config.videoSDKJWT = data.tokenMeeting;
+          joinSession();
+        } else {
+          console.log(data);
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   }
 
   function joinSession() {
-    console.log(config)
-    console.log(sessionContainer)
-    uitoolkit.joinSession(sessionContainer, config)
+    console.log(config);
+    console.log(sessionContainer);
+    uitoolkit.joinSession(sessionContainer, config);
 
-    uitoolkit.onSessionClosed(sessionClosed)
+    uitoolkit.onSessionClosed(sessionClosed);
   }
 
-  var sessionClosed = (() => {
-    uitoolkit.closeSession(sessionContainer)
-    router.push("/");
-  })
+  var sessionClosed = () => {
+    uitoolkit.closeSession(sessionContainer);
+    leaveSession();
+  };
 
   return (
     <Layout renderSidebar={false} renderNavbar={false} auth={props.auth}>
       <div className="w-1/2 mx-auto">
+        <div className="w-full my-4">
+          {props.auth.role === "doctor" && (
+            <a
+              href={`../../meetings/medical-record/${user?.id}`}
+              target="_blank"
+            >
+              <Button>Ver historia clínica</Button>
+            </a>
+          )}
+        </div>
         {/* <div className="flex flex-col relative justify-center items-center xl:p-5">
-          <div className="w-full my-4">
-            {props.auth.role === "doctor" && (
-              <a
-                href={`../../meetings/medical-record/${user?.id}`}
-                target="_blank"
-              >
-                <Button>Ver historia clínica</Button>
-              </a>
-            )}
-          </div>
           <div className="flex flex-col relative">
             {loading ? (
               <div className="absolute top-0 right-0 w-full h-full bg-black z-10 opacity-75 flex items-center justify-center">
@@ -314,7 +335,7 @@ export default function Meeting(props: any) {
           </DialogActions>
         </Dialog>
 
-        <div id='sessionContainer'></div>
+        <div id="sessionContainer"></div>
       </div>
     </Layout>
   );
@@ -328,5 +349,5 @@ export const getServerSideProps = withAuth(
       },
     };
   },
-  { protected: true, roles: ['user', 'doctor', 'admin'] }
+  { protected: true, roles: ["user", "doctor", "admin"] }
 );

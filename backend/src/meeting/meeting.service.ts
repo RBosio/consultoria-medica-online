@@ -28,9 +28,16 @@ import { HealthInsuranceService } from 'src/health-insurance/health-insurance.se
 import { Doctor } from 'src/entities/doctor.entity';
 import { SpecialityService } from 'src/speciality/speciality.service';
 import { pesos } from 'src/lib/formatCurrency';
-import { inNumberArray, isBetween, isLengthLessThan, isRequired, matchesStringArray, validateRequest } from 'src/validations';
+import {
+  inNumberArray,
+  isBetween,
+  isLengthLessThan,
+  isRequired,
+  matchesStringArray,
+  validateRequest,
+} from 'src/validations';
 import { toStringArray } from 'src/utils';
-import { KJUR } from 'jsrsasign'
+import { KJUR } from 'jsrsasign';
 
 export interface RequestT extends Request {
   user: {
@@ -444,79 +451,106 @@ export class MeetingService {
     id: number,
     startDatetime: Date,
   ) {
-    // const meeting = await this.findOne(id, startDatetime);
+    const meeting = await this.findOne(id, startDatetime);
 
     const { user } = req;
-    // const tpc = meeting.tpc;
 
     const validator = {
-      role: [isRequired, inNumberArray([0, 1])],
-      sessionName: [isRequired, isLengthLessThan(200)],
+      role: [inNumberArray([0, 1])],
+      sessionName: [isLengthLessThan(200)],
       expirationSeconds: isBetween(1800, 172800),
       userIdentity: isLengthLessThan(35),
       sessionKey: isLengthLessThan(36),
-      geoRegions: matchesStringArray(['AU', 'BR', 'CA', 'CN', 'DE', 'HK', 'IN', 'JP', 'MX', 'NL', 'SG', 'US']),
+      geoRegions: matchesStringArray([
+        'AU',
+        'BR',
+        'CA',
+        'CN',
+        'DE',
+        'HK',
+        'IN',
+        'JP',
+        'MX',
+        'NL',
+        'SG',
+        'US',
+      ]),
       cloudRecordingOption: inNumberArray([0, 1]),
       cloudRecordingElection: inNumberArray([0, 1]),
-      audioCompatibleMode: inNumberArray([0, 1])
-    }
-    
+      audioCompatibleMode: inNumberArray([0, 1]),
+    };
+
     const coerceRequestBody = (body) => ({
       ...body,
-      ...['role', 'expirationSeconds', 'cloudRecordingOption', 'cloudRecordingElection', 'audioCompatibleMode'].reduce(
-        (acc, cur) => ({ ...acc, [cur]: typeof body[cur] === 'string' ? parseInt(body[cur]) : body[cur] }),
-        {}
-      )
-    })
-    
-    const joinGeoRegions = (geoRegions) => toStringArray(geoRegions)?.join(',')
+      ...[
+        'role',
+        'expirationSeconds',
+        'cloudRecordingOption',
+        'cloudRecordingElection',
+        'audioCompatibleMode',
+      ].reduce(
+        (acc, cur) => ({
+          ...acc,
+          [cur]:
+            typeof body[cur] === 'string' ? parseInt(body[cur]) : body[cur],
+        }),
+        {},
+      ),
+    });
 
-    const requestBody = coerceRequestBody(req.body)
-  const validationErrors = validateRequest(requestBody, validator)
+    const joinGeoRegions = (geoRegions) => toStringArray(geoRegions)?.join(',');
 
-  if (validationErrors.length > 0) {
-    return res.status(400).json({ errors: validationErrors })
-  }
+    const requestBody = coerceRequestBody(req.body);
+    const validationErrors = validateRequest(requestBody, validator);
 
-  const {
-    role,
-    sessionName,
-    expirationSeconds,
-    userIdentity,
-    sessionKey,
-    geoRegions,
-    cloudRecordingOption,
-    cloudRecordingElection,
-    audioCompatibleMode
-  } = requestBody
+    if (validationErrors.length > 0) {
+      return res.status(400).json({ errors: validationErrors });
+    }
 
-  const iat = Math.floor(Date.now() / 1000)
-  const exp = expirationSeconds ? iat + expirationSeconds : iat + 60 * 60 * 2
-  const oHeader = { alg: 'HS256', typ: 'JWT' }
+    const {
+      role,
+      sessionName,
+      expirationSeconds,
+      userIdentity,
+      sessionKey,
+      geoRegions,
+      cloudRecordingOption,
+      cloudRecordingElection,
+      audioCompatibleMode,
+    } = requestBody;
 
-  const oPayload = {
-    app_key: process.env.ZOOM_VIDEO_SDK_KEY,
-    role_type: role,
-    tpc: sessionName,
-    version: 1,
-    iat,
-    exp,
-    user_identity: userIdentity,
-    session_key: sessionKey,
-    geo_regions: joinGeoRegions(geoRegions),
-    cloud_recording_option: cloudRecordingOption,
-    cloud_recording_election: cloudRecordingElection,
-    audio_compatible_mode: audioCompatibleMode
-  }
+    const iat = Math.floor(Date.now() / 1000);
+    const exp = expirationSeconds ? iat + expirationSeconds : iat + 60 * 60 * 2;
+    const oHeader = { alg: 'HS256', typ: 'JWT' };
 
-  const sHeader = JSON.stringify(oHeader)
-  const sPayload = JSON.stringify(oPayload)
-  const sdkJWT = KJUR.jws.JWS.sign('HS256', sHeader, sPayload, process.env.ZOOM_VIDEO_SDK_SECRET)
+    const oPayload = {
+      app_key: process.env.ZOOM_VIDEO_SDK_KEY,
+      role_type: role,
+      tpc: "test", // meeting.tpc,
+      version: 1,
+      iat,
+      exp,
+      user_identity: userIdentity,
+      session_key: sessionKey,
+      geo_regions: joinGeoRegions(geoRegions),
+      cloud_recording_option: cloudRecordingOption,
+      cloud_recording_election: cloudRecordingElection,
+      audio_compatible_mode: audioCompatibleMode,
+    };
+
+    const sHeader = JSON.stringify(oHeader);
+    const sPayload = JSON.stringify(oPayload);
+    const sdkJWT = KJUR.jws.JWS.sign(
+      'HS256',
+      sHeader,
+      sPayload,
+      process.env.ZOOM_VIDEO_SDK_SECRET,
+    );
 
     return res.status(200).json({
       tokenMeeting: sdkJWT,
-      // meeting,
-    })
+      meeting,
+    });
   }
 
   async finish(id: number, startDatetime: Date) {
@@ -717,7 +751,7 @@ export class MeetingService {
       },
       order: {
         startDatetime: 'DESC',
-      }
+      },
     });
 
     let filtered = meetings;

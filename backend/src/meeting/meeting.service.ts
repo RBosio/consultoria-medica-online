@@ -23,7 +23,7 @@ import { ConfigService } from '@nestjs/config';
 import { v4 as uuid } from 'uuid';
 import * as moment from 'moment';
 import { PreferenceRequest } from 'mercadopago/dist/clients/preference/commonTypes';
-import { Cron } from '@nestjs/schedule';
+import { Cron, CronExpression } from '@nestjs/schedule';
 import { HealthInsuranceService } from 'src/health-insurance/health-insurance.service';
 import { Doctor } from 'src/entities/doctor.entity';
 import { SpecialityService } from 'src/speciality/speciality.service';
@@ -659,7 +659,7 @@ export class MeetingService {
     return meetingFound;
   }
 
-  @Cron('*/30 * * * *')
+  @Cron(CronExpression.EVERY_30_MINUTES)
   async validateMeeting() {
     const meetings = await this.meetingRepository.find({
       where: {

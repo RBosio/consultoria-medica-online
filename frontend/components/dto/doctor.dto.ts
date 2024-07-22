@@ -18,6 +18,7 @@ export interface DoctorResponseDto {
   verifiedSince: Date;
   plan: PlanResponseDto;
   planSince: Date;
+  planLastPayment: Date;
   registration: string;
   title: string;
   cbu: string;

@@ -1,4 +1,5 @@
-import '@/styles/globals.css'
+import '@/styles/globals.css';
+import '@/styles/videocall.css';
 import type { AppProps } from 'next/app'
 import { ThemeProvider, createTheme } from '@mui/material';
 import { PRIMARY_COLOR, SECONDARY_COLOR, PRIMARY_COLOR_LIGHT } from "@/constants";

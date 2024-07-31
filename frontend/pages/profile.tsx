@@ -208,7 +208,7 @@ export default function ProfileView(props: any) {
       setUser({ ...user, image: u.data.image });
 
       localStorage.setItem('refreshSession', '1');
-      
+
       router.push(router.pathname);
     } else {
       setError(true);
@@ -346,12 +346,12 @@ export default function ProfileView(props: any) {
                     </div>
                     <div className="flex items-center">
                       {user.gender ? (
-                        <FaMars className="text-primary size-4" />
-                      ) : (
                         <FaVenus className="text-primary size-4" />
+                      ) : (
+                        <FaMars className="text-primary size-4" />
                       )}
                       <p className="mx-2 text-xl">
-                        {user.gender ? "Masculino" : "Femenino"}
+                        {user.gender ? "Femenino" : "Masculino"}
                       </p>
                     </div>
                   </div>
@@ -379,7 +379,7 @@ export default function ProfileView(props: any) {
                       }))}
                       renderInput={(params: any) => (
                         <Input
-                          onChange={() => {}}
+                          onChange={() => { }}
                           name="healthInsuranceId"
                           {...params}
                           label="Obra social"
@@ -465,7 +465,7 @@ export default function ProfileView(props: any) {
                           label="Nueva contraseña"
                           error={Boolean(
                             changePass.touched.newPassword &&
-                              changePass.errors.newPassword
+                            changePass.errors.newPassword
                           )}
                           helperText={
                             changePass.errors.newPassword &&
@@ -483,7 +483,7 @@ export default function ProfileView(props: any) {
                           label="Repita la contraseña"
                           error={Boolean(
                             changePass.touched.repeatPassword &&
-                              changePass.errors.repeatPassword
+                            changePass.errors.repeatPassword
                           )}
                           helperText={
                             changePass.errors.repeatPassword &&
@@ -514,20 +514,20 @@ export default function ProfileView(props: any) {
                 {confirm
                   ? "Confirmar cambio"
                   : confirmHealthInsurance
-                  ? "Confirmar obra social"
-                  : confirmDeleteHi
-                  ? "Confirmar eliminación"
-                  : ""}
+                    ? "Confirmar obra social"
+                    : confirmDeleteHi
+                      ? "Confirmar eliminación"
+                      : ""}
               </DialogTitle>
               <DialogContent>
                 <DialogContentText id="alert-dialog-description">
                   {confirm
                     ? "¿Estás seguro que deseas cambiar la contraseña?"
                     : confirmHealthInsurance
-                    ? "Estás seguro que deseas agregar la obra social?"
-                    : confirmDeleteHi
-                    ? "Estás seguro que deseas eliminar esta obra social?"
-                    : ""}
+                      ? "Estás seguro que deseas agregar la obra social?"
+                      : confirmDeleteHi
+                        ? "Estás seguro que deseas eliminar esta obra social?"
+                        : ""}
                 </DialogContentText>
               </DialogContent>
               <DialogActions>

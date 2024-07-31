@@ -2,12 +2,6 @@ import { Chip, useTheme } from "@mui/material";
 import React from "react";
 import { robotoBold } from "@/lib/fonts";
 import {
-  FaCircleCheck,
-  FaCircleXmark,
-  FaEnvelope,
-  FaLocationDot,
-  FaPhone,
-  FaSuitcaseMedical,
   FaUserDoctor,
 } from "react-icons/fa6";
 import { MeetingResponseDto } from "./dto/meeting.dto";

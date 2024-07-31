@@ -248,7 +248,6 @@ export default function DetailMeeting(props: MeetingI) {
                 startDatetime={props.meeting.startDatetime}
                 doctor={props.meeting.doctor}
                 user={props.meeting.user}
-                specialities={props.specialities}
                 status={props.meeting.status}
                 tpc={props.meeting.tpc}
                 price={props.meeting.price}

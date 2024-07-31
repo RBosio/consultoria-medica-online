@@ -255,7 +255,7 @@ export default function MedicalRecord(props: MedicalRecordI) {
                   ) : (
                     <FaVenus className="text-primary" />
                   )}
-                  {props.user.gender ? "Masculino" : "Femenino"}
+                  {props.user.gender ? "Femenino" : "Masculino"}
                 </p>
                 <HealthInsurance
                   healthInsurances={props.user.healthInsurances}

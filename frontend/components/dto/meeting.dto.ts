@@ -11,7 +11,7 @@ export interface MeetingResponseDto {
   user: UserResponseDto;
   doctor: DoctorResponseDto;
   price: number;
-  specialities: SpecialityResponseDto[];
+  specialities?: SpecialityResponseDto[];
   repr?: boolean;
   auth?: Auth;
   rate?: number;

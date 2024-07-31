@@ -1,0 +1,36 @@
+#sessionContainer .mat-mdc-progress-spinner .mdc-circular-progress__indeterminate-circle-graphic {
+    stroke: rgb(52, 211, 153);
+}
+
+#sessionContainer .mat-mdc-fab.mat-primary,
+.msger-send-btn,
+.mat-mdc-raised-button.mat-primary {
+    background: rgb(52, 211, 153) !important;
+}
+
+#sessionContainer #self-view-video,
+#sessionContainer #self-view-canvas,
+#sessionContainer #participant-canvas {
+    border-radius: 0.375rem !important;
+
+}
+
+#sessionContainer .videokit {
+    padding: 0;
+}
+
+#sessionContainer .controlskit {
+    margin-bottom: 0;
+}
+
+.mat-mdc-tab.mdc-tab--active .mdc-tab__text-label,
+.mat-mdc-option.mdc-list-item--selected:not(.mdc-list-item--disabled) .mdc-list-item__primary-text,
+.mat-pseudo-checkbox-minimal.mat-pseudo-checkbox-checked::after,
+.mdc-text-field--filled:not(.mdc-text-field--disabled).mdc-text-field--focused .mdc-floating-label,
+.mdc-text-field--filled:not(.mdc-text-field--disabled).mdc-text-field--focused .mdc-floating-label--float-above {
+    color: rgb(52, 211, 153) !important;
+}
+
+.mat-mdc-tab .mdc-tab-indicator__content--underline {
+    border-color: rgb(52, 211, 153) !important;
+}

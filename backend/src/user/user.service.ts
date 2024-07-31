@@ -407,7 +407,7 @@ export class UserService {
       address: 'Laprida 950',
       cuit: '20-33429120-1',
       birthday: new Date('1993-04-01'),
-      gender: true,
+      gender: false,
       city: 82084,
       image: 'user.jpg',
     });
@@ -423,7 +423,7 @@ export class UserService {
       address: 'Corrientes 2351',
       cuit: '20-38233911-1',
       birthday: new Date('1978-08-14'),
-      gender: true,
+      gender: false,
       city: 82084,
     });
 
@@ -437,7 +437,7 @@ export class UserService {
       address: 'Urquiza 1996',
       cuit: '20-33429120-1',
       birthday: new Date('1993-04-01'),
-      gender: false,
+      gender: true,
       city: 82084,
       image: 'user2.jpg',
     });

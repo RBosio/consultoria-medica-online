@@ -66,17 +66,12 @@ export default function Meeting(props: any) {
   useEffect(() => {
     (async () => {
       const resp = await join();
-      config.sessionName = "test" // resp.tpc;
+      config.sessionName = resp.tpc;
 
       uitoolkit = await (await import("@zoom/videosdk-ui-toolkit")).default;
 
       getVideoSDKJWT();
     })();
-    // meeting()
-    //   .then((res) => {})
-    //   .catch((err) => {
-    //     console.error(err);
-    //   });
   }, []);
 
   async function join() {

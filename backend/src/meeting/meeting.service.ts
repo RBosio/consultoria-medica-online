@@ -526,7 +526,7 @@ export class MeetingService {
     const oPayload = {
       app_key: process.env.ZOOM_VIDEO_SDK_KEY,
       role_type: role,
-      tpc: "test", // meeting.tpc,
+      tpc: meeting.tpc,
       version: 1,
       iat,
       exp,

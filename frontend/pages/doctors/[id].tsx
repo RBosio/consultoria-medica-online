@@ -8,6 +8,7 @@ import { FaUserDoctor } from "react-icons/fa6";
 import { robotoBold } from "@/lib/fonts";
 import {
   Alert,
+  Box,
   Chip,
   Dialog,
   DialogActions,
@@ -15,11 +16,14 @@ import {
   DialogContentText,
   DialogTitle,
   Divider,
+  Fade,
   IconButton,
+  Modal,
   Snackbar,
   ToggleButton,
   ToggleButtonGroup,
   Tooltip,
+  Typography,
 } from "@mui/material";
 import Rate from "@/components/rate";
 import { useTheme } from "@mui/material";
@@ -45,6 +49,7 @@ export default function Doctor(props: any) {
   const [meetingError, setMeetingError] = useState(false);
   const [preferenceId, setPreferenceId] = useState<string>();
   const [init, setInit] = useState<string>();
+  const [mp, setMP] = useState<any>();
   const [paid, setPaid] = useState<boolean>(false);
   const [detail, setDetail] = useState<any>();
   const [repr, setRepr] = useState<boolean>(false);
@@ -58,70 +63,47 @@ export default function Doctor(props: any) {
   useEffect(() => {
     const initMP = async () => {
       const MP = await import("@mercadopago/sdk-react");
+      setMP(MP);
       return MP;
     };
 
     initMP().then((res) => {
-      res.initMercadoPago("TEST-e4d600dd-188e-4b56-8f2e-385a4621de19");
+      res.initMercadoPago("TEST-e4d600dd-188e-4b56-8f2e-385a4621de19", { locale: 'es-AR' });
     });
 
-    try {
-      const payment = async () => {
-        const selected = localStorage.getItem("selectedDate");
-        if (
-          router.query.preference_id &&
-          router.query.status === "approved" &&
-          selected
-        ) {
-          let price = null;
-          if (getDiscount()) {
-            price =
-              props.doctor.priceMeeting * (1 - Number(getDiscount().discount));
-          } else {
-            price = props.doctor.priceMeeting;
-          }
-
-          await axios.post(
-            `${process.env.NEXT_PUBLIC_API_URL}/meeting`,
-            {
-              startDatetime: selected,
-              doctorId: router.query.id,
-              price,
-              specialityId: props.doctor.specialities[0].id,
-              healthInsuranceId: getDiscount()?.id ? getDiscount().id : null,
-            },
-            {
-              withCredentials: true,
-              headers: { Authorization: `Bearer ${props.auth.token}` },
-            }
-          );
-
-          await showDetail(selected);
-          localStorage.removeItem("selectedDate");
-          router.push("/doctors/" + router.query.id);
-        } else if (
-          router.query.preference_id &&
-          router.query.status === "rejected" &&
-          selected
-        ) {
-          setPaid(true);
-        }
-      };
-
-      payment();
-    } catch (error) {
-      console.log(error);
-    }
-    const dateT: Date = JSON.parse(localStorage.getItem("repr")!);
-    setDate(dateT);
-
-    return () => {
-      localStorage.removeItem("repr");
-    };
   }, []);
 
-  const showDetail = async (selectedDate: string) => {
+  const getPrice = () => {
+    let price = null;
+    if (getDiscount()) {
+      price =
+        props.doctor.priceMeeting * (1 - Number(getDiscount().discount));
+    } else {
+      price = props.doctor.priceMeeting;
+    }
+
+    return price;
+  };
+
+  const onConfirmTurn = async () => {
     try {
+      // Crear meeting
+      await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/meeting`,
+        {
+          startDatetime: selectedDate,
+          doctorId: router.query.id,
+          price: getPrice(),
+          specialityId: props.doctor.specialities[0].id,
+          healthInsuranceId: getDiscount()?.id ? getDiscount().id : null,
+        },
+        {
+          withCredentials: true,
+          headers: { Authorization: `Bearer ${props.auth.token}` },
+        }
+      );
+
+      // Obtener datos de la meeting
       const meeting = await axios.get(
         `${process.env.NEXT_PUBLIC_API_URL}/meeting/${props.auth.id}/${selectedDate}`,
         {
@@ -129,10 +111,8 @@ export default function Doctor(props: any) {
           headers: { Authorization: `Bearer ${props.auth.token}` },
         }
       );
-      setDetail(meeting.data);
 
-      setPaid(true);
-
+      // Enviar notificación al médico
       await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/notification`,
         {
@@ -147,17 +127,15 @@ export default function Doctor(props: any) {
           headers: { Authorization: `Bearer ${props.auth.token}` },
         }
       );
+
+      setDetail(meeting.data);
+      setPaid(true);
+      setConfirmTurn(false);
+
     } catch (error) {
       console.log(error);
     }
-  };
 
-  const handleDateChange = (
-    event: React.MouseEvent<HTMLElement>,
-    newDate: any
-  ) => {
-    setSelectedDate(newDate);
-    localStorage.setItem("selectedDate", newDate);
   };
 
   const getFormattedSelectedDate = () => {
@@ -170,95 +148,95 @@ export default function Doctor(props: any) {
     return { day, time: selectedDate.split("T")[1].slice(0, -3) };
   };
 
-  const onConfirmClick = async () => {
-    if (!repr) {
-      try {
-        let price = null;
-        if (getDiscount()) {
-          price =
-            props.doctor.priceMeeting * (1 - Number(getDiscount().discount));
-        } else {
-          price = props.doctor.priceMeeting;
-        }
+  // const onConfirmClick = async () => {
+  //   if (!repr) {
+  //     try {
+  //       let price = null;
+  //       if (getDiscount()) {
+  //         price =
+  //           props.doctor.priceMeeting * (1 - Number(getDiscount().discount));
+  //       } else {
+  //         price = props.doctor.priceMeeting;
+  //       }
 
-        const idempotencyKey = uuid();
+  //       const idempotencyKey = uuid();
 
-        const response = await axios.post(
-          `${process.env.NEXT_PUBLIC_API_URL}/meeting/create-preference/${router.query.id}`,
-          {
-            startDatetime: selectedDate,
-            doctorId: router.query.id,
-            price,
-          },
-          {
-            withCredentials: true,
-            headers: {
-              Authorization: `Bearer ${props.auth.token}`,
-              "Content-Type": "application/json",
-              "X-Idempotency-Key": idempotencyKey,
-            },
-          }
-        );
+  //       const response = await axios.post(
+  //         `${process.env.NEXT_PUBLIC_API_URL}/meeting/create-preference/${router.query.id}`,
+  //         {
+  //           startDatetime: selectedDate,
+  //           doctorId: router.query.id,
+  //           price,
+  //         },
+  //         {
+  //           withCredentials: true,
+  //           headers: {
+  //             Authorization: `Bearer ${props.auth.token}`,
+  //             "Content-Type": "application/json",
+  //             "X-Idempotency-Key": idempotencyKey,
+  //           },
+  //         }
+  //       );
 
-        const { id, init } = response.data;
-        setPreferenceId(id);
-        setInit(init);
-      } catch (error) {
-        setMessage(
-          "Se ha producido un error al crear la reunión, inténtelo nuevamente más tarde"
-        );
-        setMeetingError(true);
-      }
-    } else {
-      try {
-        await axios.patch(
-          `${process.env.NEXT_PUBLIC_API_URL}/meeting/repr/${props.auth.id
-          }/${moment(date).format("YYYY-MM-DDTHH:mm:ss")}`,
-          {
-            startDatetime: selectedDate,
-          },
-          {
-            withCredentials: true,
-            headers: { Authorization: `Bearer ${props.auth.token}` },
-          }
-        );
+  //       const { id, init } = response.data;
+  //       setPreferenceId(id);
+  //       setInit(init);
+  //     } catch (error) {
+  //       setMessage(
+  //         "Se ha producido un error al crear la reunión, inténtelo nuevamente más tarde"
+  //       );
+  //       setMeetingError(true);
+  //     }
+  //   } else {
+  //     try {
+  //       await axios.patch(
+  //         `${process.env.NEXT_PUBLIC_API_URL}/meeting/repr/${props.auth.id
+  //         }/${moment(date).format("YYYY-MM-DDTHH:mm:ss")}`,
+  //         {
+  //           startDatetime: selectedDate,
+  //         },
+  //         {
+  //           withCredentials: true,
+  //           headers: { Authorization: `Bearer ${props.auth.token}` },
+  //         }
+  //       );
 
-        await axios.post(
-          `${process.env.NEXT_PUBLIC_API_URL}/notification`,
-          {
-            userIdSend: props.auth.id,
-            userIdReceive: props.doctor.user.id,
-            type: "rdatetime",
-            mStartDOld: moment(date).format("YYYY-MM-DDTHH:mm:ss"),
-            mStartDNew: selectedDate,
-            meetingUserId: props.auth.id,
-            meetingStartDatetime: moment(selectedDate).format(
-              "YYYY-MM-DDTHH:mm:ss"
-            ),
-          },
-          {
-            withCredentials: true,
-            headers: { Authorization: `Bearer ${props.auth.token}` },
-          }
-        );
+  //       await axios.post(
+  //         `${process.env.NEXT_PUBLIC_API_URL}/notification`,
+  //         {
+  //           userIdSend: props.auth.id,
+  //           userIdReceive: props.doctor.user.id,
+  //           type: "rdatetime",
+  //           mStartDOld: moment(date).format("YYYY-MM-DDTHH:mm:ss"),
+  //           mStartDNew: selectedDate,
+  //           meetingUserId: props.auth.id,
+  //           meetingStartDatetime: moment(selectedDate).format(
+  //             "YYYY-MM-DDTHH:mm:ss"
+  //           ),
+  //         },
+  //         {
+  //           withCredentials: true,
+  //           headers: { Authorization: `Bearer ${props.auth.token}` },
+  //         }
+  //       );
 
-        router.push(
-          `/meetings/${btoa(
-            props.auth.id +
-            "." +
-            moment(new Date(selectedDate)).format("YYYY-MM-DDTHH:mm:ss")
-          )}`
-        );
-      } catch (error: any) {
-        setMessage(error.response.data.message);
-        setMeetingError(true);
-      } finally {
-        localStorage.removeItem("repr");
-        setRepr(false);
-        setDate(undefined);
-      }
-    }
-  };
+  //       router.push(
+  //         `/meetings/${btoa(
+  //           props.auth.id +
+  //           "." +
+  //           moment(new Date(selectedDate)).format("YYYY-MM-DDTHH:mm:ss")
+  //         )}`
+  //       );
+  //     } catch (error: any) {
+  //       setMessage(error.response.data.message);
+  //       setMeetingError(true);
+  //     } finally {
+  //       localStorage.removeItem("repr");
+  //       setRepr(false);
+  //       setDate(undefined);
+  //     }
+  //   }
+  // };
 
   const getMax = (foundHealthInsurance: HealthInsuranceResponseDto[]) => {
     let max = foundHealthInsurance[0];
@@ -282,6 +260,67 @@ export default function Doctor(props: any) {
 
     return getMax(foundHealthInsurance);
   };
+
+  //   <Dialog
+  //   open={confirmTurn || repr}
+  //   onClose={() => {
+  //     setConfirmTurn(false);
+  //     setPreferenceId(undefined);
+  //     setRepr(false);
+  //   }}
+  //   aria-labelledby="alert-dialog-title"
+  //   aria-describedby="alert-dialog-description"
+  // >
+  //   <DialogTitle
+  //     className={`${robotoBold.className} text-primary`}
+  //     id="alert-dialog-title"
+  //   >
+  //     {confirmTurn
+  //       ? "Confirmar turno"
+  //       : repr
+  //         ? "Reprogramar reunión"
+  //         : ""}
+  //   </DialogTitle>
+  //   <DialogContent>
+  //     <DialogContentText id="alert-dialog-description">
+  //       {confirmTurn ? (
+  //         <>
+  //           ¿Estás seguro que deseas sacar el turno para el{" "}
+  //           <b>{getFormattedSelectedDate().day}</b> a las{" "}
+  //           <b>{getFormattedSelectedDate().time}</b>?
+  //         </>
+  //       ) : repr ? (
+  //         <>
+  //           ¿Estás seguro que deseas reprogramar la reunión del día{" "}
+  //           {moment(date).format("LLLL")} al{" "}
+  //           <b>{moment(selectedDate).format("LLLL")}</b>?
+  //         </>
+  //       ) : null}
+  //     </DialogContentText>
+  //   </DialogContent>
+  //   <DialogActions>
+  //     <Button
+  //       color="error"
+  //       variant="text"
+  //       onClick={() => {
+  //         setConfirmTurn(false);
+  //         setPreferenceId(undefined);
+  //         setRepr(false);
+  //       }}
+  //     >
+  //       Cancelar
+  //     </Button>
+  //     {repr ? (
+  //       <Button onClick={onConfirmClick} autoFocus>
+  //         Confirmar
+  //       </Button>
+  //     ) : (
+  //       <Button href={init} autoFocus>
+  //         Confirmar
+  //       </Button>
+  //     )}
+  //   </DialogActions>
+  // </Dialog>
 
   return (
     <Layout auth={props.auth}>
@@ -422,7 +461,7 @@ export default function Doctor(props: any) {
                           <ToggleButtonGroup
                             className="flex-wrap"
                             exclusive
-                            onChange={handleDateChange}
+                            onChange={(ev, newDate) => setSelectedDate(newDate)}
                             value={selectedDate}
                             size="small"
                             aria-label="Small sizes"
@@ -472,7 +511,6 @@ export default function Doctor(props: any) {
                       <Button
                         onClick={() => {
                           setConfirmTurn(true);
-                          onConfirmClick();
                         }}
                         disabled={!Boolean(selectedDate)}
                         className="w-40"
@@ -528,75 +566,53 @@ export default function Doctor(props: any) {
               buttonText="Regresar"
               error={true}
               handleClick={() => {
-                setPaid(false);
                 router.push("/doctors/" + router.query.id);
               }}
             />
           )}
         </div>
-        <Dialog
-          open={confirmTurn || repr}
-          onClose={() => {
-            setConfirmTurn(false);
-            setPreferenceId(undefined);
-            setRepr(false);
-          }}
-          aria-labelledby="alert-dialog-title"
-          aria-describedby="alert-dialog-description"
+        <Modal
+          open={confirmTurn}
+          onClose={() => setConfirmTurn(false)}
+          aria-labelledby="report-title"
+          aria-describedby="report-description"
         >
-          <DialogTitle
-            className={`${robotoBold.className} text-primary`}
-            id="alert-dialog-title"
-          >
-            {confirmTurn
-              ? "Confirmar turno"
-              : repr
-                ? "Reprogramar reunión"
-                : ""}
-          </DialogTitle>
-          <DialogContent>
-            <DialogContentText id="alert-dialog-description">
-              {confirmTurn ? (
-                <>
-                  ¿Estás seguro que deseas sacar el turno para el{" "}
-                  <b>{getFormattedSelectedDate().day}</b> a las{" "}
-                  <b>{getFormattedSelectedDate().time}</b>?
-                </>
-              ) : repr ? (
-                <>
-                  ¿Estás seguro que deseas reprogramar la reunión del día{" "}
-                  {moment(date).format("LLLL")} al{" "}
-                  <b>{moment(selectedDate).format("LLLL")}</b>?
-                </>
-              ) : null}
-            </DialogContentText>
-          </DialogContent>
-          <DialogActions>
-            <Button
-              color="error"
-              variant="text"
-              onClick={() => {
-                setConfirmTurn(false);
-                setPreferenceId(undefined);
-                setRepr(false);
+          <Fade in={confirmTurn}>
+            <Box
+              className="w-11/12 sm:w-auto"
+              sx={{
+                position: "absolute" as "absolute",
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+                bgcolor: "background.paper",
+                boxShadow: 24,
+                p: 4,
+                outline: "none",
               }}
             >
-              Cancelar
-            </Button>
-            {repr ? (
-              <Button onClick={onConfirmClick} autoFocus>
-                Confirmar
-              </Button>
-            ) : (
-              <Button href={init} autoFocus>
-                Confirmar
-              </Button>
-            )}
-            {/* {mp?.Wallet && preferenceId && (
-              <mp.Wallet initialization={{ preferenceId }} />
-            )} */}
-          </DialogActions>
-        </Dialog>
+              <Typography
+                id="modal-title"
+                variant="h6"
+                component="h2"
+                className={`text-primary text-2xl ${robotoBold.className} mb-5`}
+              >
+                Sacar turno
+              </Typography>
+              <p className="mb-4 text-lg text-center">
+                Vas a sacar turno para el{" "}
+                <b className="underline">{getFormattedSelectedDate().day}</b> a las{" "}
+                <b className="underline">{getFormattedSelectedDate().time}</b>
+              </p>
+              {mp?.CardPayment && confirmTurn && (
+                <mp.CardPayment
+                  initialization={{ amount: getPrice() }}
+                  onSubmit={async (data: any) => onConfirmTurn()}
+                />
+              )}
+            </Box>
+          </Fade>
+        </Modal>
         <Snackbar
           open={meetingError}
           anchorOrigin={{ vertical: "top", horizontal: "center" }}

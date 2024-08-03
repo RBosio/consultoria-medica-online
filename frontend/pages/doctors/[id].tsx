@@ -409,7 +409,11 @@ export default function Doctor(props: any) {
                 </div>
                 {props.doctorAvailability.length > 0 ? (
                   <div className="my-6 flex justify-center items-center">
+<<<<<<< HEAD
                     {!reprDate ? (
+=======
+                    {!date ? (
+>>>>>>> development
                       <Button
                         onClick={() => {
                           setConfirmTurn(true);

@@ -38,7 +38,6 @@ import Message from "@/components/message";
 import { pesos } from "@/lib/formatCurrency";
 import { UserHealthInsuranceResponseDto } from "@/components/dto/userHealthInsurance.dto";
 import { HealthInsuranceResponseDto } from "@/components/dto/healthInsurance.dto";
-import { v4 as uuid } from "uuid";
 import { MdDiscount } from "react-icons/md";
 
 export default function Doctor(props: any) {
@@ -46,21 +45,17 @@ export default function Doctor(props: any) {
   const router = useRouter();
   const [selectedDate, setSelectedDate] = useState("");
   const [confirmTurn, setConfirmTurn] = useState(false);
+  const [confirmReprTurn, setConfirmReprTurn] = useState(false)
   const [meetingError, setMeetingError] = useState(false);
-  const [preferenceId, setPreferenceId] = useState<string>();
-  const [init, setInit] = useState<string>();
   const [mp, setMP] = useState<any>();
   const [paid, setPaid] = useState<boolean>(false);
   const [detail, setDetail] = useState<any>();
-  const [repr, setRepr] = useState<boolean>(false);
-  const [date, setDate] = useState<Date>();
+  const [reprDate, setReprDate] = useState<Date>();
   const [message, setMessage] = useState<string>();
 
   useEffect(() => {
     moment.locale("es");
-  }, []);
 
-  useEffect(() => {
     const initMP = async () => {
       const MP = await import("@mercadopago/sdk-react");
       setMP(MP);
@@ -70,6 +65,13 @@ export default function Doctor(props: any) {
     initMP().then((res) => {
       res.initMercadoPago("TEST-e4d600dd-188e-4b56-8f2e-385a4621de19", { locale: 'es-AR' });
     });
+
+    const dateT: Date = JSON.parse(localStorage.getItem("repr")!);
+    setReprDate(dateT);
+
+    return () => {
+      localStorage.removeItem("repr");
+    };
 
   }, []);
 
@@ -133,9 +135,59 @@ export default function Doctor(props: any) {
       setConfirmTurn(false);
 
     } catch (error) {
-      console.log(error);
+      setMessage("Se ha producido un error al crear la reunión, inténtelo nuevamente más tarde");
+      setMeetingError(true);
     }
 
+  };
+
+  const onReprTurn = async () => {
+    try {
+      // Modificar reunión
+      await axios.patch(
+        `${process.env.NEXT_PUBLIC_API_URL}/meeting/repr/${props.auth.id
+        }/${moment(reprDate).format("YYYY-MM-DDTHH:mm:ss")}`,
+        {
+          startDatetime: selectedDate,
+        },
+        {
+          withCredentials: true,
+          headers: { Authorization: `Bearer ${props.auth.token}` },
+        }
+      );
+
+      // Enviar notificación de aviso
+      await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/notification`,
+        {
+          userIdSend: props.auth.id,
+          userIdReceive: props.doctor.user.id,
+          type: "rdatetime",
+          mStartDOld: moment(reprDate).format("YYYY-MM-DDTHH:mm:ss"),
+          mStartDNew: selectedDate,
+          meetingUserId: props.auth.id,
+          meetingStartDatetime: moment(selectedDate).format(
+            "YYYY-MM-DDTHH:mm:ss"
+          ),
+        },
+        {
+          withCredentials: true,
+          headers: { Authorization: `Bearer ${props.auth.token}` },
+        }
+      );
+
+      // Redirigir a la meeting en cuestión
+      router.push(
+        `/meetings/${btoa(
+          props.auth.id +
+          "." +
+          moment(new Date(selectedDate)).format("YYYY-MM-DDTHH:mm:ss")
+        )}`
+      );
+    } catch (error: any) {
+      setMessage("Se ha producido un error al reprogramar la reunión, inténtelo nuevamente más tarde");
+      setMeetingError(true);
+    };
   };
 
   const getFormattedSelectedDate = () => {
@@ -148,95 +200,6 @@ export default function Doctor(props: any) {
     return { day, time: selectedDate.split("T")[1].slice(0, -3) };
   };
 
-  // const onConfirmClick = async () => {
-  //   if (!repr) {
-  //     try {
-  //       let price = null;
-  //       if (getDiscount()) {
-  //         price =
-  //           props.doctor.priceMeeting * (1 - Number(getDiscount().discount));
-  //       } else {
-  //         price = props.doctor.priceMeeting;
-  //       }
-
-  //       const idempotencyKey = uuid();
-
-  //       const response = await axios.post(
-  //         `${process.env.NEXT_PUBLIC_API_URL}/meeting/create-preference/${router.query.id}`,
-  //         {
-  //           startDatetime: selectedDate,
-  //           doctorId: router.query.id,
-  //           price,
-  //         },
-  //         {
-  //           withCredentials: true,
-  //           headers: {
-  //             Authorization: `Bearer ${props.auth.token}`,
-  //             "Content-Type": "application/json",
-  //             "X-Idempotency-Key": idempotencyKey,
-  //           },
-  //         }
-  //       );
-
-  //       const { id, init } = response.data;
-  //       setPreferenceId(id);
-  //       setInit(init);
-  //     } catch (error) {
-  //       setMessage(
-  //         "Se ha producido un error al crear la reunión, inténtelo nuevamente más tarde"
-  //       );
-  //       setMeetingError(true);
-  //     }
-  //   } else {
-  //     try {
-  //       await axios.patch(
-  //         `${process.env.NEXT_PUBLIC_API_URL}/meeting/repr/${props.auth.id
-  //         }/${moment(date).format("YYYY-MM-DDTHH:mm:ss")}`,
-  //         {
-  //           startDatetime: selectedDate,
-  //         },
-  //         {
-  //           withCredentials: true,
-  //           headers: { Authorization: `Bearer ${props.auth.token}` },
-  //         }
-  //       );
-
-  //       await axios.post(
-  //         `${process.env.NEXT_PUBLIC_API_URL}/notification`,
-  //         {
-  //           userIdSend: props.auth.id,
-  //           userIdReceive: props.doctor.user.id,
-  //           type: "rdatetime",
-  //           mStartDOld: moment(date).format("YYYY-MM-DDTHH:mm:ss"),
-  //           mStartDNew: selectedDate,
-  //           meetingUserId: props.auth.id,
-  //           meetingStartDatetime: moment(selectedDate).format(
-  //             "YYYY-MM-DDTHH:mm:ss"
-  //           ),
-  //         },
-  //         {
-  //           withCredentials: true,
-  //           headers: { Authorization: `Bearer ${props.auth.token}` },
-  //         }
-  //       );
-
-  //       router.push(
-  //         `/meetings/${btoa(
-  //           props.auth.id +
-  //           "." +
-  //           moment(new Date(selectedDate)).format("YYYY-MM-DDTHH:mm:ss")
-  //         )}`
-  //       );
-  //     } catch (error: any) {
-  //       setMessage(error.response.data.message);
-  //       setMeetingError(true);
-  //     } finally {
-  //       localStorage.removeItem("repr");
-  //       setRepr(false);
-  //       setDate(undefined);
-  //     }
-  //   }
-  // };
 
   const getMax = (foundHealthInsurance: HealthInsuranceResponseDto[]) => {
     let max = foundHealthInsurance[0];
@@ -260,67 +223,6 @@ export default function Doctor(props: any) {
 
     return getMax(foundHealthInsurance);
   };
-
-  //   <Dialog
-  //   open={confirmTurn || repr}
-  //   onClose={() => {
-  //     setConfirmTurn(false);
-  //     setPreferenceId(undefined);
-  //     setRepr(false);
-  //   }}
-  //   aria-labelledby="alert-dialog-title"
-  //   aria-describedby="alert-dialog-description"
-  // >
-  //   <DialogTitle
-  //     className={`${robotoBold.className} text-primary`}
-  //     id="alert-dialog-title"
-  //   >
-  //     {confirmTurn
-  //       ? "Confirmar turno"
-  //       : repr
-  //         ? "Reprogramar reunión"
-  //         : ""}
-  //   </DialogTitle>
-  //   <DialogContent>
-  //     <DialogContentText id="alert-dialog-description">
-  //       {confirmTurn ? (
-  //         <>
-  //           ¿Estás seguro que deseas sacar el turno para el{" "}
-  //           <b>{getFormattedSelectedDate().day}</b> a las{" "}
-  //           <b>{getFormattedSelectedDate().time}</b>?
-  //         </>
-  //       ) : repr ? (
-  //         <>
-  //           ¿Estás seguro que deseas reprogramar la reunión del día{" "}
-  //           {moment(date).format("LLLL")} al{" "}
-  //           <b>{moment(selectedDate).format("LLLL")}</b>?
-  //         </>
-  //       ) : null}
-  //     </DialogContentText>
-  //   </DialogContent>
-  //   <DialogActions>
-  //     <Button
-  //       color="error"
-  //       variant="text"
-  //       onClick={() => {
-  //         setConfirmTurn(false);
-  //         setPreferenceId(undefined);
-  //         setRepr(false);
-  //       }}
-  //     >
-  //       Cancelar
-  //     </Button>
-  //     {repr ? (
-  //       <Button onClick={onConfirmClick} autoFocus>
-  //         Confirmar
-  //       </Button>
-  //     ) : (
-  //       <Button href={init} autoFocus>
-  //         Confirmar
-  //       </Button>
-  //     )}
-  //   </DialogActions>
-  // </Dialog>
 
   return (
     <Layout auth={props.auth}>
@@ -446,8 +348,8 @@ export default function Doctor(props: any) {
                   Solicitar Turno
                 </h2>
               </div>
-              <div className="flex flex-col w-full xl:w-[calc(100%-224px)]">
-                <div className="flex flex-col gap-4">
+              <div className="flex flex-col w-full">
+                <div className="flex flex-col gap-4 w-full xl:w-[calc(100%-224px)]">
                   {props.doctorAvailability.map((da: any) => {
                     let [day, date] = da.formattedDate.split(", ");
                     day = day.charAt(0).toUpperCase() + day.slice(1);
@@ -506,8 +408,8 @@ export default function Doctor(props: any) {
                   })}
                 </div>
                 {props.doctorAvailability.length > 0 ? (
-                  <div className="my-6 flex justify-center items-center xl:-0">
-                    {!date ? (
+                  <div className="my-6 flex justify-center items-center">
+                    {!reprDate ? (
                       <Button
                         onClick={() => {
                           setConfirmTurn(true);
@@ -520,7 +422,7 @@ export default function Doctor(props: any) {
                     ) : (
                       <Button
                         disabled={!Boolean(selectedDate)}
-                        onClick={() => setRepr(true)}
+                        onClick={() => setConfirmReprTurn(true)}
                         className="w-40"
                       >
                         Reprogramar
@@ -613,6 +515,42 @@ export default function Doctor(props: any) {
             </Box>
           </Fade>
         </Modal>
+        <Dialog
+          open={confirmReprTurn}
+          onClose={() => {
+            setConfirmReprTurn(false);
+          }}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <DialogTitle
+            className={`${robotoBold.className} text-primary`}
+            id="alert-dialog-title"
+          >
+            Reprogramar reunión
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+              ¿Estás seguro que deseas reprogramar la reunión del día{" "}
+              {moment(reprDate).format("LLLL")} al{" "}
+              <b>{moment(selectedDate).format("LLLL")}</b>?
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button
+              color="error"
+              variant="text"
+              onClick={() => {
+                setConfirmReprTurn(false);
+              }}
+            >
+              Cancelar
+            </Button>
+            <Button onClick={onReprTurn} autoFocus>
+              Confirmar
+            </Button>
+          </DialogActions>
+        </Dialog>
         <Snackbar
           open={meetingError}
           anchorOrigin={{ vertical: "top", horizontal: "center" }}

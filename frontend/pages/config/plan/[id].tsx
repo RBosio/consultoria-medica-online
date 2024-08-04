@@ -51,7 +51,7 @@ export default function PlanId(props: any) {
           <h2 className={`text-primary text-2xl mb-4 ${robotoBold.className} ${success ? 'mb-10' : ''}`}>{props.doctor.planId?.toString() === id ? "Renovar" : "Adquirir"} plan de trabajo - {props.plan.name}</h2>
           {mp?.CardPayment && !success ? (
             <mp.CardPayment
-              initialization={{ amount: 2000 }}
+              initialization={{ amount: props.plan.price }}
               onSubmit={async (data: any) => {
                 await axios.patch(
                   `${process.env.NEXT_PUBLIC_API_URL}/doctor/${props.auth.id}`,

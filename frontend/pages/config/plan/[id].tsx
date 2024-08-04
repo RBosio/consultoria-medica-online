@@ -15,6 +15,8 @@ export default function PlanId(props: any) {
   const [success, setSuccess] = useState<boolean>(false);
   const [id, setId] = useState<any>();
 
+  let redirectTimeout: any = null;
+
   useEffect(() => {
     const { id } = router.query;
     setId(id);
@@ -35,12 +37,15 @@ export default function PlanId(props: any) {
       // Una vez que el pago se efectuó
       if (success) {
         // Esperar 5 segundos para redirigir a config
-        await new Promise((res) => setTimeout(() => res(1), 5000));
+        await new Promise((res) => redirectTimeout = setTimeout(() => res(1), 5000));
         router.push("/config");
       }
     };
 
     redirectToConfig();
+    
+    return () => { clearTimeout(redirectTimeout); redirectTimeout = null }
+
     // Si se efectuó el pago de forma exitosa
   }, [success])
 

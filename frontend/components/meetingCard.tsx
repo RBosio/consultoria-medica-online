@@ -54,7 +54,7 @@ const MeetingCard: React.FC<MeetingResponseDto> = (props) => {
               {props.doctor.user.name} {props.doctor.user.surname}
             </h2>
             <div className="flex mb-2">
-              {props.specialities.map((s) => {
+              {props.specialities?.map((s) => {
                 return (
                   <Chip
                     className="mt-1 mb-2 text-xs sm:text-sm"

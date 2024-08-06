@@ -184,7 +184,7 @@ export default function Meeting(props: any) {
         {meeting &&
           <div className="h-full flex grow overflow-y-hidden">
             <VideocallSidebar auth={props.auth} time={time} openedMeetingData={openedMeetingData} setOpenedMeetingData={setOpenedMeetingData} user={meeting.user} doctor={meeting.doctor} />
-            <div className="overflow-y-auto p-4 flex">
+            <div className="overflow-y-auto p-4 flex w-full">
               <div className="w-full xl:w-9/12 m-auto" id="sessionContainer">
               </div>
             </div>

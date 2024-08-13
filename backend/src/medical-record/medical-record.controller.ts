@@ -66,7 +66,7 @@ export class MedicalRecordController {
             'file',
             {
                 storage: diskStorage({
-                    destination: './public/uploads/medical-record',
+                    destination: './public/api/uploads/medical-record',
                     filename: (req, file, cb) => {
                         req.body.url = uuidv4() + '.' + file.originalname.split('.').slice(-1)
                         req.body.name = file.originalname

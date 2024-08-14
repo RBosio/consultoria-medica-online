@@ -59,7 +59,7 @@ export default function Home(props: any) {
   useEffect(() => {
     if (props.doctor) {
       setPlans(
-        props.plans.filter((plan: any) => plan.id > props.doctor.planId)
+        props.plans.filter((plan: any) => plan.id > props.doctor.planId || plan.id === 3)
       );
     }
   }, []);
@@ -68,9 +68,12 @@ export default function Home(props: any) {
     if (!(props.auth.role === "doctor") || !props.doctor.plan) return;
     const lastPayment = moment(props.doctor.planLastPayment);
     const planExpiration = lastPayment.add(1, 'months');
-    
+
     const diff = moment().diff(planExpiration, 'days');
-    if(diff >= 0) return planExpiration;
+
+    // Si luego de un mes del último pago, pasaron más de N días, entonces el plan expirará cuando N = 5, o sea, pasaron 5 días luego
+    // de que haya pasado un mes del último pago
+    if (diff >= 0) return planExpiration.add(5, 'days');
 
   };
 
@@ -235,9 +238,10 @@ export default function Home(props: any) {
               <>
                 <h2 className={`text-2xl text-center text-primary mb-4 ${robotoBold.className}`}>
                   {props.doctor.plan
-                    ? "¿Desea actualizar su plan?"
+                    ? props.doctor.plan.id === 3 ? "¡Felicidades!" : "¿Desea actualizar su plan?"
                     : "Solicite un plan de trabajo para comenzar"}
                 </h2>
+                {props.doctor.plan?.id === 3 && <p className="font-bold text-center mb-4 text-md">¡Ya estás disfrutando todos los beneficios del mejor plan de trabajo de la plataforma!</p>}
                 <div className="flex flex-col w-full 2xl:flex-row justify-center items-center gap-8">
                   {plans.map((p: PlanResponseDto) => (
                     <div
@@ -268,16 +272,22 @@ export default function Home(props: any) {
                           </li>
                         ))}
                       </ul>
-                      <div className="my-4">
-                        <Button
+                      <div className="my-4 w-full flex justify-center">
+                        {props.doctor.plan?.id !== 3 ? <Button
                           onClick={() => router.push("/config/plan/" + p.id)}
                         >
                           Actualizar plan
-                        </Button>
+                        </Button> : <Chip
+                          className="h-9 w-full max-w-36 select-none"
+                          size="medium"
+                          variant="filled"
+                          color="warning"
+                          label={'Plan actual'}
+                        />}
                       </div>
-                      <h4 className="px-12 py-4 text-white text-center font-extrabold text-xl bg-primary w-full">
+                      {props.doctor.plan?.id !== 3 && <h4 className="px-12 py-4 text-white text-center font-extrabold text-xl bg-primary w-full">
                         {pesos.format(p.price)} / mes
-                      </h4>
+                      </h4>}
                     </div>
                   ))}
                 </div>

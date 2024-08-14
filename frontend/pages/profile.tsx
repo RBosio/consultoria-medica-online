@@ -204,7 +204,7 @@ export default function ProfileView(props: any) {
       );
 
       setSuccess(true);
-      setMessage("Imagen actualizada con éxito!");
+      setMessage("Imágen actualizada con éxito!");
       setUser({ ...user, image: u.data.image });
 
       localStorage.setItem('refreshSession', '1');

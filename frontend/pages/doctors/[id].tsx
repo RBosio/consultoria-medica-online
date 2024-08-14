@@ -407,8 +407,8 @@ export default function Doctor(props: any) {
                   Solicitar Turno
                 </h2>
               </div>
-              <div className="flex flex-col w-full xl:w-[calc(100%-224px)]">
-                <div className="flex flex-col gap-4">
+              <div className="flex flex-col w-full">
+                <div className="flex flex-col gap-4 w-full xl:w-[calc(100%-224px)]">
                   {props.doctorAvailability.map((da: any) => {
                     let [day, date] = da.formattedDate.split(", ");
                     day = day.charAt(0).toUpperCase() + day.slice(1);
@@ -467,7 +467,7 @@ export default function Doctor(props: any) {
                   })}
                 </div>
                 {props.doctorAvailability.length > 0 ? (
-                  <div className="my-6 flex justify-center items-center xl:-0">
+                  <div className="my-6 flex justify-center items-center">
                     {!date ? (
                       <Button
                         onClick={() => {

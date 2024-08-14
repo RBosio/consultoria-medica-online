@@ -105,7 +105,7 @@ export class UserController {
   @UseInterceptors(
     FileInterceptor('file', {
       storage: diskStorage({
-        destination: './public/uploads/user/images',
+        destination: './public/api/uploads/user/images',
         filename: (req, file, cb) => {
           req.body.url =
             uuidv4() + '.' + file.originalname.split('.').slice(-1);
@@ -124,7 +124,7 @@ export class UserController {
   @UseInterceptors(
     FileInterceptor('file', {
       storage: diskStorage({
-        destination: './public/uploads/user/healthInsurances',
+        destination: './public/api/uploads/user/healthInsurances',
         filename: (req, file, cb) => {
           req.body.url =
             uuidv4() + '.' + file.originalname.split('.').slice(-1);

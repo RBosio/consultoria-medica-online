@@ -57,7 +57,7 @@ export class CommentController {
             'file',
             {
                 storage: diskStorage({
-                    destination: './public/uploads/user/files',
+                    destination: './public/api/uploads/user/files',
                     filename: (req, file, cb) => {
                         req.body.url = uuidv4() + '.' + file.originalname.split('.').slice(-1)
                         req.body.name = file.originalname

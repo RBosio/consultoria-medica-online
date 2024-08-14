@@ -15,6 +15,8 @@ export default function PlanId(props: any) {
   const [success, setSuccess] = useState<boolean>(false);
   const [id, setId] = useState<any>();
 
+  let redirectTimeout: any = null;
+
   useEffect(() => {
     const { id } = router.query;
     setId(id);
@@ -35,12 +37,15 @@ export default function PlanId(props: any) {
       // Una vez que el pago se efectuó
       if (success) {
         // Esperar 5 segundos para redirigir a config
-        await new Promise((res) => setTimeout(() => res(1), 5000));
+        await new Promise((res) => redirectTimeout = setTimeout(() => res(1), 5000));
         router.push("/config");
       }
     };
 
     redirectToConfig();
+    
+    return () => { clearTimeout(redirectTimeout); redirectTimeout = null }
+
     // Si se efectuó el pago de forma exitosa
   }, [success])
 
@@ -51,7 +56,7 @@ export default function PlanId(props: any) {
           <h2 className={`text-primary text-2xl mb-4 ${robotoBold.className} ${success ? 'mb-10' : ''}`}>{props.doctor.planId?.toString() === id ? "Renovar" : "Adquirir"} plan de trabajo - {props.plan.name}</h2>
           {mp?.CardPayment && !success ? (
             <mp.CardPayment
-              initialization={{ amount: 2000 }}
+              initialization={{ amount: props.plan.price }}
               onSubmit={async (data: any) => {
                 await axios.patch(
                   `${process.env.NEXT_PUBLIC_API_URL}/doctor/${props.auth.id}`,

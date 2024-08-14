@@ -77,44 +77,6 @@ export class DoctorController {
     return this.doctorService.delete(id);
   }
 
-  // @UseInterceptors(
-  //   FileInterceptor('file', {
-  //     storage: diskStorage({
-  //       destination: './public/uploads/doctor/registration',
-  //       filename: (req, file, cb) => {
-  //         req.body.url =
-  //           uuidv4() + '.' + file.originalname.split('.').slice(-1);
-  //         cb(null, req.body.url);
-  //       },
-  //     }),
-  //   }),
-  // )
-  // @Post(':id/registration')
-  // uploadRegistration(@Param('id') id: number, @Req() request: Request) {
-  //   const { body } = request;
-
-  //   return this.doctorService.uploadRegistration(id, body.url);
-  // }
-
-  // @UseInterceptors(
-  //   FileInterceptor('file', {
-  //     storage: diskStorage({
-  //       destination: './public/uploads/doctor/title',
-  //       filename: (req, file, cb) => {
-  //         req.body.url =
-  //           uuidv4() + '.' + file.originalname.split('.').slice(-1);
-  //         cb(null, req.body.url);
-  //       },
-  //     }),
-  //   }),
-  // )
-  // @Post(':id/title')
-  // uploadTitle(@Param('id') id: number, @Req() request: Request) {
-  //   const { body } = request;
-
-  //   return this.doctorService.uploadTitle(id, body.url);
-  // }
-
   @Post('signup')
   @UseGuards(AuthGuard)
   @FormDataRequest()

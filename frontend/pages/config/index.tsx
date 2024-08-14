@@ -415,7 +415,10 @@ export default function Config(props: ConfigProps) {
     const planExpiration = lastPayment.add(1, 'months');
 
     const diff = moment().diff(planExpiration, 'days');
-    if (diff >= 0) return planExpiration;
+
+    // Si luego de un mes del último pago, pasaron más de N días, entonces el plan expirará cuando N = 5, o sea, pasaron 5 días luego
+    // de que haya pasado un mes del último pago
+    if (diff >= 0) return planExpiration.add(5, 'days');
 
   };
 

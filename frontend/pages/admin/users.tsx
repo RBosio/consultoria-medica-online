@@ -166,6 +166,8 @@ export default function Home(props: Speciality) {
         headers: { Authorization: `Bearer ${props.auth.token}` },
       }
     );
+
+    if(router.query.page && router.query.name) router.push(`/admin/users?page=${router.query.page}&name=${router.query.name}`);
   };
 
   const filterChange = (name: string) => {

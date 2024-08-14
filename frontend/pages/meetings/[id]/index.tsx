@@ -106,7 +106,7 @@ export default function DetailMeeting(props: MeetingI) {
           );
 
           const c = await axios.get(
-            `${process.env.NEXT_PUBLIC_API_URL}/comment/${t}`,
+            `${process.env.NEXT_PUBLIC_API_URL}/comment/${res.data.id}`,
             {
               withCredentials: true,
               headers: { Authorization: `Bearer ${token}` },

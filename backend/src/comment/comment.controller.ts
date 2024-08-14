@@ -23,10 +23,10 @@ export class CommentController {
         return this.commentService.findAll()
     }
     
-    @Get(':userId')
+    @Get(':id')
     @Roles(RoleEnum.User, RoleEnum.Doctor)
-    getComment(@Param('userId') userId: number): Promise<Comment | HttpException> {
-        return this.commentService.findOne(userId)
+    getComment(@Param('id') id: number): Promise<Comment | HttpException> {
+        return this.commentService.findOne(id)
     }
     
     @Get('meeting/:userId/:meetingStartDatetime')
@@ -57,7 +57,7 @@ export class CommentController {
             'file',
             {
                 storage: diskStorage({
-                    destination: './public/uploads/user/files',
+                    destination: './public/api/uploads/user/files',
                     filename: (req, file, cb) => {
                         req.body.url = uuidv4() + '.' + file.originalname.split('.').slice(-1)
                         req.body.name = file.originalname

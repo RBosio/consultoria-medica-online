@@ -23,10 +23,10 @@ export class CommentController {
         return this.commentService.findAll()
     }
     
-    @Get(':userId')
+    @Get(':id')
     @Roles(RoleEnum.User, RoleEnum.Doctor)
-    getComment(@Param('userId') userId: number): Promise<Comment | HttpException> {
-        return this.commentService.findOne(userId)
+    getComment(@Param('id') id: number): Promise<Comment | HttpException> {
+        return this.commentService.findOne(id)
     }
     
     @Get('meeting/:userId/:meetingStartDatetime')

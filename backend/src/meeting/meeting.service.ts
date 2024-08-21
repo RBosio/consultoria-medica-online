@@ -56,7 +56,7 @@ export class MeetingService {
     private healthInsruanceService: HealthInsuranceService,
     private specialityService: SpecialityService,
     private configService: ConfigService,
-  ) {}
+  ) { }
 
   async findAll(): Promise<Meeting[]> {
     return this.meetingRepository.find({
@@ -643,17 +643,14 @@ export class MeetingService {
     const updateMeeting = Object.assign(meetingFound, meeting);
     await this.meetingRepository.save(updateMeeting);
 
-    const avgRate = await this.meetingRepository.average('rate', {
-      doctorId: meetingFound.doctorId,
-    });
+    const doctor = await this.doctorService.findOne(meetingFound.doctorId);
 
-    if (avgRate) {
-      const doctor = await this.doctorService.findOne(meetingFound.doctorId);
-      await this.doctorService.update(meetingFound.doctorId, {
-        avgRate,
-        count: doctor.count + 1,
-      });
-    }
+    const avgRate = (doctor.count * doctor.avgRate + meeting.rate) / (doctor.count + 1);
+
+    await this.doctorService.update(meetingFound.doctorId, {
+      avgRate,
+      count: doctor.count + 1,
+    });
 
     return updateMeeting;
   }
@@ -772,8 +769,8 @@ export class MeetingService {
           (hi) => hi.healthInsurance?.id === meeting.healthInsurance?.id,
         )[0]
           ? meeting.user.healthInsurances.filter(
-              (hi) => hi.healthInsurance.id === meeting.healthInsurance.id,
-            )[0].healthInsurance.name
+            (hi) => hi.healthInsurance.id === meeting.healthInsurance.id,
+          )[0].healthInsurance.name
           : '-',
         user: meeting.user.surname + ', ' + meeting.user.name,
         date: moment(meeting.startDatetime).format('LLL'),
@@ -783,8 +780,8 @@ export class MeetingService {
           (hi) => hi.healthInsurance?.id === meeting.healthInsurance?.id,
         )[0]
           ? meeting.user.healthInsurances.filter(
-              (hi) => hi.healthInsurance.id === meeting.healthInsurance.id,
-            )[0].cod
+            (hi) => hi.healthInsurance.id === meeting.healthInsurance.id,
+          )[0].cod
           : '-',
         price: pesos.format(meeting.price),
         doctor: meeting.doctor.user.surname + ', ' + meeting.doctor.user.name,

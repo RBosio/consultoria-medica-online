@@ -225,6 +225,8 @@ export default function DetailMeeting(props: MeetingI) {
       setRated(true);
       setSuccessfulRated(true);
 
+      router.push(`/meetings/${id}`);
+
     }
   };
 

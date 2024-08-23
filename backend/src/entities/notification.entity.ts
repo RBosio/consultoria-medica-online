@@ -51,7 +51,7 @@ export class Notification {
   userReceive: User;
 
   @ManyToOne(() => Meeting, (meeting) => meeting.notifications, {
-    onUpdate: 'SET NULL',
+    onUpdate: 'CASCADE',
   })
   meeting: Meeting;
 

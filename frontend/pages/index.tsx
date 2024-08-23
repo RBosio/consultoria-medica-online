@@ -313,7 +313,7 @@ export default function Home(props: any) {
                     }`}
                 >
                   <h2 className="text-3xl text-center text-zinc-600">
-                    Ultimas notificaciones no leídas
+                    Últimas notificaciones no leídas
                   </h2>
                   {props.notifications.length === 0 && (
                     <h2 className="text-primary text-center font-semibold mt-8">
@@ -407,7 +407,7 @@ export default function Home(props: any) {
                     }`}
                 >
                   <h2 className="text-3xl text-center text-zinc-600">
-                    Ultimas notificaciones no leidas
+                    Últimas notificaciones no leidas
                   </h2>
                   {props.notifications.length === 0 && (
                     <h2 className="text-primary font-semibold mt-8">

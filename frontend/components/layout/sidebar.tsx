@@ -83,7 +83,7 @@ const Sidebar: React.FC<SidebarProps> = (props) => {
         hide: props.auth.role !== "admin",
       },
       {
-        name: "Analítica",
+        name: "Análisis",
         path: "/analytics",
         icon: <TbReportAnalytics />,
         hide: props.auth.role === 'user',

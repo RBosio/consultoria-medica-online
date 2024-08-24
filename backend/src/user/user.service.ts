@@ -14,7 +14,7 @@ export class UserService {
     @InjectRepository(UserHealthInsurance)
     private userHealthInsuranceRepository: Repository<UserHealthInsurance>,
     private healthInsuranceService: HealthInsuranceService,
-  ) {}
+  ) { }
 
   async findAll(
     page: number,
@@ -440,6 +440,20 @@ export class UserService {
       gender: true,
       city: 82084,
       image: 'user2.jpg',
+    });
+
+    await this.create({
+      dni: '33419160',
+      email: 'martin@mail.com',
+      name: 'Martín',
+      surname: 'Yodice',
+      password: '123456',
+      phone: '0115612324',
+      address: 'Urquiza 1996',
+      cuit: '20-33419160-1',
+      birthday: new Date('1995-05-26'),
+      gender: true,
+      city: 82084,
     });
   }
 }

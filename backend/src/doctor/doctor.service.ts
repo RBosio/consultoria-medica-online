@@ -505,7 +505,7 @@ export class DoctorService {
     return result;
   }
 
-  @Cron(CronExpression.EVERY_5_SECONDS)
+  @Cron(CronExpression.EVERY_30_MINUTES)
   async checkPlanExpiration() {
 
     const doctors = await this.doctorRepository.find({

@@ -1,6 +1,12 @@
-export class createBillingDto {
+export class CreateBillingDto {
   month: number;
   year: number;
   doctorId: number;
-  billings: number[];
+  billings: BillingDto[];
+}
+
+class BillingDto {
+  doctorId: number;
+  total: number;
+  cbu: string;
 }

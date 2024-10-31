@@ -10,5 +10,6 @@ import { MeetingModule } from 'src/meeting/meeting.module';
   imports: [TypeOrmModule.forFeature([Billing]), DoctorModule, MeetingModule],
   controllers: [BillingController],
   providers: [BillingService],
+  exports: [BillingService],
 })
 export class BillingModule {}

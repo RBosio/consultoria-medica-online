@@ -15,9 +15,11 @@ import { GrLogout } from "react-icons/gr";
 import { useTheme } from "@mui/material";
 import { useRouter } from "next/router";
 import Link from "next/link";
-import { Auth } from "../../../shared/types";
+import { Auth } from "../../types";
 import { IoIosCloseCircleOutline } from "react-icons/io";
 import Avatar from "../avatar";
+import { TbReportAnalytics } from "react-icons/tb";
+import { FaQuestionCircle } from "react-icons/fa";
 
 interface SidebarProps {
   auth: Auth;
@@ -79,6 +81,18 @@ const Sidebar: React.FC<SidebarProps> = (props) => {
         path: "/admin",
         icon: <MdOutlineAdminPanelSettings />,
         hide: props.auth.role !== "admin",
+      },
+      {
+        name: "Análisis",
+        path: "/analytics",
+        icon: <TbReportAnalytics />,
+        hide: props.auth.role === 'user',
+      },
+      {
+        name: "Preguntas frecuentes",
+        path: "/faq",
+        icon: <FaQuestionCircle/>,
+        hide: false,
       },
       {
         name: "Cerrar sesión",

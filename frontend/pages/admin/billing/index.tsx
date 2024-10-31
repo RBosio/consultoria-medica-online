@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import Layout from "@/components/layout";
 import withAuth from "@/lib/withAuth";
 import SidebarAdmin from "@/components/sidebarAdmin";
-import { Auth } from "../../../../shared/types";
+import { Auth } from "../../../types";
 import axios from "axios";
 import {
   Alert,
@@ -73,7 +73,11 @@ export default function Home(props: BillingProps) {
   const payAll = async () => {
     const billings = billingsMonth
       .filter((billing) => !billing.paid)
-      .map((billing) => billing.doctor.id);
+      .map((billing) => ({
+        doctorId: billing.doctor.id,
+        total: billing.price * 0.95,
+        cbu: billing.doctor.cbu,
+      }));
     try {
       if (!month || !year) {
         await axios.post(
@@ -483,5 +487,5 @@ export const getServerSideProps = withAuth(
       },
     };
   },
-  { protected: true }
+  { protected: true, roles: ['admin'] }
 );

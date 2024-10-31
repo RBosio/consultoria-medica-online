@@ -1,6 +1,6 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, IsNull, MoreThan, Not, Repository } from 'typeorm';
+import { In, IsNull, LessThan, LessThanOrEqual, Not, Repository } from 'typeorm';
 import { updateDoctorDto } from './dto/update-doctor.dto';
 import { Doctor } from 'src/entities/doctor.entity';
 import { UserService } from 'src/user/user.service';
@@ -15,6 +15,7 @@ import { v4 as uuidv4 } from 'uuid';
 import * as fs from 'fs';
 import * as path from 'path';
 import { Speciality } from 'src/entities/speciality.entity';
+import { Cron, CronExpression } from '@nestjs/schedule';
 
 @Injectable()
 export class DoctorService {
@@ -26,7 +27,7 @@ export class DoctorService {
     private specialityService: SpecialityService,
     private planService: PlanService,
     private healthInsuranceService: HealthInsuranceService,
-  ) {}
+  ) { }
 
   async create(userIdToAssociate: number, doctor: createDoctorDto) {
     const user = await this.userService.findOne(userIdToAssociate);
@@ -65,9 +66,8 @@ export class DoctorService {
         HttpStatus.NOT_FOUND,
       );
     }
-    const registrationFilename = `${uuidv4()}.${
-      doctor.registration.fileType.ext
-    }`;
+    const registrationFilename = `${uuidv4()}.${doctor.registration.fileType.ext
+      }`;
 
     if (!validMimeTypes.includes(doctor.title.mimeType)) {
       throw new HttpException(
@@ -89,6 +89,7 @@ export class DoctorService {
       '..',
       '..',
       'public',
+      'api',
       'uploads',
       'doctor',
       'registration',
@@ -98,6 +99,7 @@ export class DoctorService {
       '..',
       '..',
       'public',
+      'api',
       'uploads',
       'doctor',
       'title',
@@ -145,7 +147,7 @@ export class DoctorService {
     } = query;
     const moment = extendMoment(Moment);
 
-    let doctorsFound = [];
+    let doctorsFound: Doctor[] = [];
 
     doctorsFound = await this.doctorRepository.find({
       where: {
@@ -154,14 +156,24 @@ export class DoctorService {
         priceMeeting: Not(IsNull()),
         durationMeeting: Not(IsNull()),
         cbu: Not(IsNull()),
-        // Por el momento haremos que el alias NO sea obligatorio
       },
       order: {
         plan: {
           price: 'DESC',
         },
       },
-      relations: ['user', 'specialities', 'plan', 'user.healthInsurances'],
+      relations: {
+        user: {
+          healthInsurances: true,
+        },
+        specialities: true,
+        plan: true,
+        schedules: true,
+      },
+    });
+
+    doctorsFound = doctorsFound.filter((doctor) => {
+      return doctor.schedules.length > 0;
     });
 
     // FILTER
@@ -230,11 +242,11 @@ export class DoctorService {
     return paginatedItems;
   }
 
-  async findAllPremium() {
+  async findAllAdvertisedDoctors() {
     let doctorsFound = await this.doctorRepository.find({
       where: {
         plan: {
-          id: 2,
+          id: In([2, 3]),
         },
         verified: true,
       },
@@ -265,7 +277,7 @@ export class DoctorService {
     const set = new Set();
     const d = [];
 
-    for (let i = 0; i < max; ) {
+    for (let i = 0; i < max;) {
       const randomIndex = Math.floor(Math.random() * doctors.length);
       if (!set.has(randomIndex)) {
         set.add(randomIndex);
@@ -277,7 +289,19 @@ export class DoctorService {
     return d;
   }
 
-  paginate(items, page = 1, perPage = 10) {
+  paginate(items, page, perPage = 10) {
+
+    if (!page) {
+      return {
+        previousPage: null,
+        currentPage: 1,
+        nextPage: null,
+        total: items.length,
+        totalPages: 1,
+        items: items,
+      }
+    };
+
     const offset = perPage * (page - 1);
     const totalPages = Math.ceil(items.length / perPage);
     const paginatedItems = items.slice(offset, perPage * page);
@@ -383,6 +407,7 @@ export class DoctorService {
         },
         specialities: true,
         plan: true,
+        schedules: true,
       },
     });
 
@@ -410,7 +435,7 @@ export class DoctorService {
   }
 
   async update(id: number, doctor: updateDoctorDto) {
-    let doctorFound = null;
+    let doctorFound: Doctor = null;
     if (doctor.userId) {
       doctorFound = await this.doctorRepository.findOne({
         where: {
@@ -434,10 +459,15 @@ export class DoctorService {
     }
 
     if (doctor.planId) {
-      const plan = await this.planService.findOne(doctor.planId);
-      doctorFound.plan = plan;
-      doctorFound.planSince = new Date();
-    }
+      // Si los planes ingresados y el actual del médico no coinciden, es porque, o no tiene ningún plan aún o actualiza su plan a otro,
+      // de lo contrario, mantiene el plan y lo que hace es renovarlo
+      if ( doctorFound.planId?.toString() !== doctor.planId.toString()) {
+        const plan = await this.planService.findOne(doctor.planId);
+        doctorFound.plan = plan;
+        doctorFound.planSince = new Date();
+      };
+      doctorFound.planLastPayment = new Date();
+    };
 
     const updateDoctor = Object.assign(doctorFound, doctor);
     return this.doctorRepository.save(updateDoctor);
@@ -449,7 +479,9 @@ export class DoctorService {
       throw new HttpException('Médico no encontrado', HttpStatus.NOT_FOUND);
     }
 
-    doctor.plan = null;
+    doctor.planId = null;
+    doctor.planLastPayment = null;
+    doctor.planSince = null;
 
     this.doctorRepository.save(doctor);
   }
@@ -472,4 +504,31 @@ export class DoctorService {
 
     return result;
   }
+
+  @Cron(CronExpression.EVERY_30_MINUTES)
+  async checkPlanExpiration() {
+
+    const doctors = await this.doctorRepository.find({
+      where: {
+        planId: Not(IsNull()),
+      }
+    });
+
+    // Comprobar expiración de plan. Si supera 1 mes + 5 días, eliminar plan
+    doctors.forEach(doctor => {
+      const planExpiration = new Date(doctor.planLastPayment);
+      planExpiration.setMonth(planExpiration.getMonth() + 1);
+      planExpiration.setDate(planExpiration.getDate() + 5);
+
+      if (planExpiration < new Date()) {
+        doctor.planLastPayment = null
+        doctor.planId = null;
+        doctor.planSince = null;
+      };
+
+    });
+
+    this.doctorRepository.save(doctors);
+  };
+
 }

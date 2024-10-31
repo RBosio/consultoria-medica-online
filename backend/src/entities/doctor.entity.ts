@@ -60,6 +60,9 @@ export class Doctor {
   @Column({ nullable: true })
   planSince: Date;
 
+  @Column({nullable: true})
+  planLastPayment: Date;
+
   @Column({ nullable: true })
   cbu: string;
 

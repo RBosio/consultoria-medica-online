@@ -1,0 +1,78 @@
+{
+    "both": [
+        {
+            "id": 1,
+            "question": "¿Cuáles son los métodos de pago?",
+            "answer": "Los métodos de pago disponibles son todos los aceptados por la plataforma de Mercado Pago."
+        },
+        {
+            "id": 2,
+            "question": "¿Es obligatorio registrar una obra social?",
+            "answer": "No, no es necesario que registres una obra social para operar, tanto si eres paciente como si trabajas como profesional médico."
+        }
+    ],
+    "user": [
+        {
+            "id": 3,
+            "question": "¿Tiene un costo usar la aplicación como paciente?",
+            "answer": "No, puede registrarse y comenzar a usar la aplicación sin costo más que el de cada consulta que programes con un profesional médico."
+        },
+        {
+            "id": 4,
+            "question": "¿Es obligatorio tener obra social para programar una consulta?",
+            "answer": " No, no es obligatorio tener obra social para programar una consulta con un profesional médico."
+        },
+        {
+            "id": 5,
+            "question": "¿Cómo programo una consulta?",
+            "answer": "Para programar una consulta en primer lugar tiene que buscar el médico que mejor se adapte a lo que necesite. Puede encontrarlo en los profesionales sugeridos en el Dashboard."
+        },
+        {
+            "id": 6,
+            "question": "¿Es posible cancelar o reprogramar una reunión ya pagada?",
+            "answer": "Puede reprogramarse una reunión ya pagada dirigiéndose al menú de la misma en el apartado de reuniones y tocando el botón de \"Reprogramar\"."
+        },
+        {
+            "id": 7,
+            "question": "¿Dónde se encuentran las recetas que me haga un médico?",
+            "answer": "Puede ver las recetas y observaciones en el apartado de \"Historia Clínica\". Las recetas u otro tipo de adjuntos que pueda haberle enviado su médico estarán atados en cada registro al que corresponde el archivo."
+        },
+        {
+            "id": 8,
+            "question": "¿Cómo puedo registrarme como médico? ¿Qué necesito para hacerlo?",
+            "answer": "Para registrarte como médico debes dirigirte al apartado \"¿Eres un profesional médico?\" que se encuentra en la esquina inferior izquierda. Para poder hacerlo necesitas adjuntar tu matrícula, título universitario y especificar tu especialidad médica."
+        }
+    ],
+    "doctor": [
+        {
+            "id": 9,
+            "question": "¿Qué datos debo completar en mi perfil antes de tener visibilidad?",
+            "answer": "Antes de tener visibilidad es necesario completar los rangos horarios de disponibilidad, su CBU, la duración y el valor de la consulta. Además de ya estar suscrito a un plan de trabajo."
+        },
+        {
+            "id": 10,
+            "question": "¿Cómo me entero cuando tengo nuevas reuniones?",
+            "answer": "Cuando un paciente programe una consulta con usted recibirá un aviso en el apartado de notificaciones."
+        },
+        {
+            "id": 11,
+            "question": "¿Cómo me conecto con los pacientes?",
+            "answer": "Los pacientes se conectarán con usted cuando programen y paguen una consulta. Luego el día programado se conectaran por videollamada para la consulta. También tendrá a disposición el chat de la reunión."
+        },
+        {
+            "id": 12,
+            "question": "¿Puedo cambiar mi plan de trabajo en cualquier momento?",
+            "answer": "Sí, desde el dashboard puede actualizar su plan de trabajo a uno mejor en cualquier momento."
+        },
+        {
+            "id": 13,
+            "question": "¿De qué forma puedo actualizar la historia clínica del paciente después de una consulta?",
+            "answer": "Luego de una consulta en el menú de la misma encontrará un botón que dice “Historia Clínica” allí podrá generar un nuevo registro de la historia clínica del paciente asignado a esa consulta."
+        },
+        {
+            "id": 14,
+            "question": "¿Qué tipo de información puedo brindarle al paciente en la historia clínica?",
+            "answer": "En la Historia Clínica puede dar un detalle de la reunión que tuvo con el paciente, observaciones respecto a la misma y adjuntar archivos tales como recetas, certificados médicos, etc."
+        }
+    ]
+}

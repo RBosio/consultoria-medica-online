@@ -2,12 +2,6 @@ import { Chip, useTheme } from "@mui/material";
 import React from "react";
 import { robotoBold } from "@/lib/fonts";
 import {
-  FaCircleCheck,
-  FaCircleXmark,
-  FaEnvelope,
-  FaLocationDot,
-  FaPhone,
-  FaSuitcaseMedical,
   FaUserDoctor,
 } from "react-icons/fa6";
 import { MeetingResponseDto } from "./dto/meeting.dto";
@@ -23,7 +17,7 @@ const DoctorCard: React.FC<MeetingResponseDto> = (props) => {
           <img
             src={`${process.env.NEXT_PUBLIC_API_URL}/uploads/user/images/${props.doctor.user.image}`}
             alt="Profile photo"
-            className="max-h-32 sm:h-56 object-cover object-center w-full"
+            className="min-h-96 sm:h-56 object-cover object-center w-full"
           />
         ) : (
           <>

@@ -14,7 +14,7 @@ const Comment: React.FC<CommentResponseDto> = (props) => {
 
   async function handleClick(name: string, type: string) {
     await axios({
-      url: `http://localhost:3000/uploads/user/files/${props.files.url}`,
+      url: `${process.env.NEXT_PUBLIC_API_URL}/uploads/user/files/${props.files.url}`,
       method: "GET",
       responseType: "blob",
     }).then((response) => {
@@ -62,7 +62,7 @@ const Comment: React.FC<CommentResponseDto> = (props) => {
               <Link
                 key={props.files.url}
                 target="_blank"
-                href={`http://localhost:3000/uploads/user/files/${props.files.url}`}
+                href={`${process.env.NEXT_PUBLIC_API_URL}/uploads/user/files/${props.files.url}`}
               >
                 <p className="text-primary mt-[2px] p-[2px] rounded-sm hover:cursor-pointer hover:opacity-70 underline">
                   {props.files.name}

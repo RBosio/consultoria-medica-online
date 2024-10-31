@@ -12,6 +12,15 @@ export class Billing {
   @Column()
   year: number;
 
+  @Column({ default: () => 'CURRENT_TIMESTAMP' })
+  date: Date;
+
+  @Column()
+  total: number;
+
+  @Column()
+  cbu: string;
+
   @ManyToOne(() => Doctor, (doctor) => doctor.billings)
   doctor: Doctor;
 }

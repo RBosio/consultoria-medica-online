@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import Layout from "@/components/layout";
 import withAuth from "@/lib/withAuth";
 import SidebarAdmin from "@/components/sidebarAdmin";
-import { Auth } from "../../../../shared/types";
+import { Auth } from "../../../types";
 import axios from "axios";
 import { SpecialityResponseDto } from "@/components/dto/speciality.dto";
 import {
@@ -24,24 +24,20 @@ import {
   TableHead,
   TableRow,
   Typography,
-  useTheme,
 } from "@mui/material";
-import {
-  FaChevronLeft,
-  FaChevronRight,
-  FaPlus,
-  FaXmark,
-} from "react-icons/fa6";
+import { FaPlus, FaXmark } from "react-icons/fa6";
 import { FaEdit } from "react-icons/fa";
 import Button from "@/components/button";
 import Input from "@/components/input";
 import { useFormik } from "formik";
 import { useRouter } from "next/router";
 import { PRIMARY_COLOR } from "@/constants";
+import Paginator from "@/components/paginator";
 
 interface Speciality {
   auth: Auth;
   specialities: SpecialityResponseDto[];
+  count: number;
 }
 
 export default function Home(props: Speciality) {
@@ -61,9 +57,12 @@ export default function Home(props: Speciality) {
 
   useEffect(() => {
     setPage(1);
-    setSpecialities(
-      props.specialities.filter((sp, idx) => idx >= 4 * 0 && idx < 4)
-    );
+
+    if (!router.query.page) {
+      router.push("/admin/specialities?page=1");
+    }
+
+    setSpecialities(props.specialities);
   }, []);
 
   const pagination = (p: number, sp?: SpecialityResponseDto[]) => {
@@ -123,7 +122,7 @@ export default function Home(props: Speciality) {
 
       setMessage("Especialidad agregada correctamente!");
       setSuccess(true);
-      router.push(`/admin/specialities`);
+      router.push(`/admin/specialities?page=${router.query.page}`);
     },
   });
 
@@ -169,7 +168,7 @@ export default function Home(props: Speciality) {
       setSpecialities(specialities.data);
       pagination(page, specialities.data);
 
-      router.push(`/admin/specialities`);
+      router.push(`/admin/specialities?page=${router.query.page}`);
     },
   });
 
@@ -193,7 +192,7 @@ export default function Home(props: Speciality) {
       props.specialities.filter((sp) => sp.id != Number(id))
     );
 
-    router.push(`/admin/specialities`);
+    router.push(`/admin/specialities?page=${router.query.page}`);
   };
 
   const onConfirmClick = () => {
@@ -232,7 +231,7 @@ export default function Home(props: Speciality) {
   return (
     <Layout auth={props.auth}>
       <div className="flex justify-center">
-        <div className="flex flex-col md:flex-row justify-center gap-4 w-[90%] mt-12">
+        <div className="flex flex-col xl:flex-row justify-center gap-4 w-[90%] mt-12">
           <div>
             <SidebarAdmin
               auth={props.auth}
@@ -255,25 +254,11 @@ export default function Home(props: Speciality) {
                     Agregar
                   </Button>
                 </div>
-                <div className="flex justify-end items-center gap-2 text-primary py-4">
-                  <FaChevronLeft
-                    className="text-2xl hover:cursor-pointer"
-                    onClick={() => {
-                      pagination(page - 1);
-                    }}
-                  />
-
-                  <FaChevronRight
-                    className="text-2xl hover:cursor-pointer"
-                    onClick={() => {
-                      pagination(page + 1);
-                    }}
-                  />
-
-                  <p className="text-md">
-                    Página {page ? page : 1} -{" "}
-                    {Math.ceil(props.specialities.length / 4)}
-                  </p>
+                <div className="my-4">
+                  <Paginator
+                    pages={Math.ceil(props.count / 10)}
+                    route="/admin/specialities"
+                  ></Paginator>
                 </div>
                 <TableContainer component={Paper}>
                   <Table aria-label="medical record table">
@@ -312,7 +297,7 @@ export default function Home(props: Speciality) {
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {specialities.map((row) => (
+                      {props.specialities.map((row) => (
                         <TableRow
                           key={row.id}
                           sx={{
@@ -524,8 +509,9 @@ export const getServerSideProps = withAuth(
       };
     }
 
+    const { page } = context.query;
     let specialities = await axios.get(
-      `${process.env.NEXT_PUBLIC_API_URL}/speciality`,
+      `${process.env.NEXT_PUBLIC_API_URL}/speciality?page=${page}`,
       {
         withCredentials: true,
         headers: { Authorization: `Bearer ${context.req.cookies.token}` },
@@ -534,12 +520,23 @@ export const getServerSideProps = withAuth(
 
     specialities = specialities.data;
 
+    let count = await axios.get(
+      `${process.env.NEXT_PUBLIC_API_URL}/speciality/count`,
+      {
+        withCredentials: true,
+        headers: { Authorization: `Bearer ${context.req.cookies.token}` },
+      }
+    );
+
+    count = count.data;
+
     return {
       props: {
         auth,
         specialities,
+        count,
       },
     };
   },
-  { protected: true }
+  { protected: true, roles: ['admin'] }
 );

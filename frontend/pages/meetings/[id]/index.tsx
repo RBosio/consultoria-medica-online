@@ -1,5 +1,5 @@
 import withAuth from "@/lib/withAuth";
-import { Auth } from "@/../shared/types";
+import { Auth } from "@/types";
 import axios from "axios";
 import Layout from "@/components/layout";
 import { Alert, Box, Fab, Fade, Modal, Rating, Snackbar, Typography, useTheme } from "@mui/material";
@@ -106,7 +106,7 @@ export default function DetailMeeting(props: MeetingI) {
           );
 
           const c = await axios.get(
-            `${process.env.NEXT_PUBLIC_API_URL}/comment/${t}`,
+            `${process.env.NEXT_PUBLIC_API_URL}/comment/${res.data.id}`,
             {
               withCredentials: true,
               headers: { Authorization: `Bearer ${token}` },
@@ -225,6 +225,8 @@ export default function DetailMeeting(props: MeetingI) {
       setRated(true);
       setSuccessfulRated(true);
 
+      router.push(`/meetings/${id}`);
+
     }
   };
 
@@ -240,7 +242,6 @@ export default function DetailMeeting(props: MeetingI) {
                 user={props.meeting.user}
                 specialities={props.specialities}
                 status={props.meeting.status}
-                motive={props.meeting.motive}
                 tpc={props.meeting.tpc}
                 price={props.meeting.price}
               />
@@ -249,9 +250,7 @@ export default function DetailMeeting(props: MeetingI) {
                 startDatetime={props.meeting.startDatetime}
                 doctor={props.meeting.doctor}
                 user={props.meeting.user}
-                specialities={props.specialities}
                 status={props.meeting.status}
-                motive={props.meeting.motive}
                 tpc={props.meeting.tpc}
                 price={props.meeting.price}
               />
@@ -557,5 +556,5 @@ export const getServerSideProps = withAuth(
       };
     }
   },
-  { protected: true }
+  { protected: true, roles: ['user', 'doctor', 'admin'] }
 );

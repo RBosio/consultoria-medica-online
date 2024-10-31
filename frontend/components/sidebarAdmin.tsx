@@ -11,13 +11,12 @@ import {
   FaHandshake,
   FaKitMedical,
   FaMoneyBill,
-  FaSatelliteDish,
   FaUser,
   FaUserDoctor,
 } from "react-icons/fa6";
 import Avatar from "./avatar";
 import Link from "next/link";
-import { Auth } from "../../shared/types";
+import { Auth } from "../types";
 
 interface SidebarAdminProps {
   auth: Auth;
@@ -56,11 +55,6 @@ const SidebarAdmin: React.FC<SidebarAdminProps> = (props) => {
         path: "/admin/billing",
         icon: <FaMoneyBill />,
       },
-      {
-        name: "Estadísticas",
-        path: "/admin/charts",
-        icon: <FaSatelliteDish />,
-      },
     ],
     bottom: [],
   };
@@ -68,10 +62,10 @@ const SidebarAdmin: React.FC<SidebarAdminProps> = (props) => {
   return (
     <section
       className={`
-        w-full md:w-60
+        w-full xl:w-60
         bg-white
-        shadow-lg md:static
-        mt-4 md:mt-0 rounded-lg`}
+        shadow-lg xl:static
+        mt-4 xl:mt-0 rounded-lg`}
     >
       <div className="flex flex-col h-[calc(100%-5rem)] items-center md:justify-between">
         <Avatar

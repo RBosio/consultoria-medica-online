@@ -35,11 +35,8 @@ export class Meeting {
   @Column({ nullable: true })
   tpc: string;
 
-  @Column({ default: 0, type: 'decimal', precision: 6, scale: 2 })
+  @Column({ default: 0, type: 'decimal', precision: 8, scale: 2 })
   price: number;
-
-  @Column({ nullable: true })
-  motive: string;
 
   @Column({ default: false })
   repr: boolean;

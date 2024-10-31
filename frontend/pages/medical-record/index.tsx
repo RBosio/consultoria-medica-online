@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Layout from "@/components/layout";
 import withAuth from "@/lib/withAuth";
-import { Auth } from "../../../shared/types";
+import { Auth } from "../../types";
 
 import { robotoBold } from "@/lib/fonts";
 import Table from "@mui/material/Table";
@@ -47,9 +47,8 @@ export default function MedicalRecord(props: MedicalRecordI) {
     <Layout auth={props.auth}>
       <section className="bg-white w-5/6 mx-auto">
         <div
-          className={`flex flex-col md:flex-row ${
-            props.auth.role === "doctor" ? "justify-between" : "justify-center"
-          } items-center px-8 pt-8`}
+          className={`flex flex-col md:flex-row ${props.auth.role === "doctor" ? "justify-between" : "justify-center"
+            } items-center px-8 pt-8`}
         >
           <div className="flex flex-col md:flex-row items-center">
             {props.user.image ? (
@@ -121,7 +120,6 @@ export default function MedicalRecord(props: MedicalRecordI) {
                       color: "#fff",
                       padding: "1.2rem",
                       fontSize: "1.2rem",
-                      width: "30%",
                     }}
                   >
                     <div className="flex justify-center items-center gap-2">
@@ -196,7 +194,7 @@ export default function MedicalRecord(props: MedicalRecordI) {
                       align="center"
                       sx={{ padding: "1.2rem", fontSize: "1.2rem" }}
                     >
-                      <div className="flex justify-center items-center gap-2">
+                      <div className="flex justify-center items-center gap-2 xl:break-words">
                         {row.detail}
                       </div>
                     </TableCell>
@@ -205,22 +203,26 @@ export default function MedicalRecord(props: MedicalRecordI) {
                       align="center"
                       sx={{ padding: "1.2rem", fontSize: "1.2rem" }}
                     >
-                      {row.observations ? row.observations : "-"}
+                      <div className="xl:break-words">
+                        {row.observations ? row.observations : "-"}
+                      </div>
                     </TableCell>
                     <TableCell
                       className="text-sm"
                       align="center"
                       sx={{ padding: "1.2rem", fontSize: "1.2rem" }}
                     >
-                      <div className="flex justify-center">
-                        <FaFile
-                          onClick={() => {
-                            setFilesU(row.files);
-                            setModal(true);
-                          }}
-                          className="text-primary text-lg hover:cursor-pointer hover:opacity-70"
-                        />
-                      </div>
+                      {row.files.length > 0 ? (
+                        <div className="flex justify-center">
+                          <FaFile
+                            onClick={() => {
+                              setFilesU(row.files);
+                              setModal(true);
+                            }}
+                            className="text-primary text-lg hover:cursor-pointer hover:opacity-70"
+                          />
+                        </div>
+                      ) : '-'}
                     </TableCell>
                   </TableRow>
                 ))}
@@ -252,37 +254,30 @@ export default function MedicalRecord(props: MedicalRecordI) {
                 p: 4,
               }}
             >
-              <div className="flex flex-col gap-6">
+              <div className="flex flex-col gap-2">
                 <h2
                   className={`${robotoBold.className} text-primary text-xl mb-2`}
                 >
                   Archivos
                 </h2>
                 <div>
-                  <div className="flex flex-wrap gap-2 mt-4">
-                    {filesU.length > 0 ? (
-                      filesU.map((f) => {
-                        return (
-                          <a
-                            target="_blank"
-                            href={`http://localhost:3000/uploads/medical-record/${f.url}`}
-                          >
-                            <Chip
-                              size="medium"
-                              variant="outlined"
-                              color="primary"
-                              className={`${robotoBold.className} hover:bg-primary hover:text-white`}
-                              label={f.name}
-                            />
-                          </a>
-                        );
-                      })
-                    ) : (
-                      <p>
-                        Aún no has cargado ningún archivo a esta historia
-                        clínica
-                      </p>
-                    )}
+                  <div className="flex flex-col gap-3">
+                    {filesU.map((f) => {
+                      return (
+                        <a
+                          target="_blank"
+                          href={`${process.env.NEXT_PUBLIC_API_URL}/uploads/medical-record/${f.url}`}
+                        >
+                          <Chip
+                            size="medium"
+                            variant="outlined"
+                            color="primary"
+                            className={`${robotoBold.className} hover:bg-primary hover:text-white`}
+                            label={f.name}
+                          />
+                        </a>
+                      );
+                    })}
                   </div>
                 </div>
               </div>
@@ -349,5 +344,5 @@ export const getServerSideProps = withAuth(
       },
     };
   },
-  { protected: true }
+  { protected: true, roles: ['user', 'admin'] }
 );

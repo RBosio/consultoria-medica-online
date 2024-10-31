@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Billing } from 'src/entities/billing.entity';
 import { Repository } from 'typeorm';
-import { createBillingDto } from './dto/create-billing.dto';
+import { CreateBillingDto } from './dto/create-billing.dto';
 import { DoctorService } from 'src/doctor/doctor.service';
 import { MeetingService } from 'src/meeting/meeting.service';
 
@@ -13,6 +13,23 @@ export class BillingService {
     private doctorService: DoctorService,
     private meetingService: MeetingService,
   ) {}
+
+  async getBillings(month: number, year: number) {
+    return this.billingRepository.find({
+      where: {
+        month,
+        year,
+      },
+      relations: {
+        doctor: {
+          user: true,
+        },
+      },
+      order:{
+        date: 'DESC',
+      }
+    });
+  }
 
   async getBillingsByMonthAndYear(month: number, year: number) {
     const meetings = await this.meetingService.findByMonthAndYear(month, year);
@@ -77,16 +94,18 @@ export class BillingService {
     return billing;
   }
 
-  async save(createBillingDto: createBillingDto) {
+  async save(createBillingDto: CreateBillingDto) {
     if (createBillingDto.billings) {
       Promise.all(
         createBillingDto.billings.map(async (billing) => {
           const b = this.billingRepository.create({
             month: createBillingDto.month,
             year: createBillingDto.year,
+            total: billing.total,
+            cbu: billing.cbu,
           });
 
-          const doctor = await this.doctorService.findOne(billing);
+          const doctor = await this.doctorService.findOne(billing.doctorId);
           b.doctor = doctor;
 
           return this.billingRepository.save(b);

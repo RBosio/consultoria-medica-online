@@ -21,7 +21,7 @@ const HealthInsurance: React.FC<HIProps> = (props) => {
           {props.healthInsurances.length > 0
             ? props.healthInsurances.map((hi) => {
               return (
-                <p className="text-sm">
+                <p key={hi.cod} className="text-sm">
                   {hi.healthInsurance.name} ({hi.cod})
                 </p>
               );

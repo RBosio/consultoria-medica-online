@@ -2,11 +2,12 @@ import React, { useEffect, useState } from "react";
 import Layout from "@/components/layout";
 import withAuth from "@/lib/withAuth";
 import SidebarAdmin from "@/components/sidebarAdmin";
-import { Auth } from "../../../shared/types";
+import { Auth } from "../../types";
 import axios from "axios";
 import { SpecialityResponseDto } from "@/components/dto/speciality.dto";
 import {
   Alert,
+  Autocomplete,
   Box,
   Chip,
   CircularProgress,
@@ -32,8 +33,6 @@ import {
 } from "@mui/material";
 import {
   FaBriefcaseMedical,
-  FaChevronLeft,
-  FaChevronRight,
   FaCircleInfo,
   FaClock,
   FaFile,
@@ -54,10 +53,13 @@ import { BsCurrencyDollar, BsFillCreditCard2FrontFill } from "react-icons/bs";
 import { MdHealthAndSafety } from "react-icons/md";
 import { pesos } from "@/lib/formatCurrency";
 import { CiMedicalClipboard } from "react-icons/ci";
+import Paginator from "@/components/paginator";
+import { useRouter } from "next/router";
 
 interface Speciality {
   auth: Auth;
-  users: UserResponseDto[];
+  users: UserResponseDtoExt[];
+  count: number;
 }
 
 interface UserResponseDtoExt extends UserResponseDto {
@@ -76,12 +78,18 @@ export default function Home(props: Speciality) {
   const [o, setO] = useState(false);
   const [verify, setVerify] = useState<boolean>(false);
   const [name, setName] = useState<string>("");
+  const [role, setRole] = useState<any>({ id: 0, label: "" });
   const [directionName, setDirectionName] = useState<string>("asc");
   const [cityLoading, setCityLoading] = useState(false);
 
+  const router = useRouter();
   const theme = useTheme();
 
   useEffect(() => {
+    if (!router.query.page || !router.query.name) {
+      router.push("/admin/users?page=1&name=");
+    }
+
     async function updateDepartment() {
       if (!o || !user?.city) return;
       setCityLoading(true);
@@ -101,9 +109,8 @@ export default function Home(props: Speciality) {
 
   useEffect(() => {
     setPage(1);
-    const filter = props.users.filter((sp, idx) => idx >= 10 * 0 && idx < 10);
     setUsers(props.users);
-    setUsersFiltered(filter);
+    setUsersFiltered(props.users);
   }, []);
 
   const pagination = (p: number, sp?: SpecialityResponseDto[]) => {
@@ -135,10 +142,6 @@ export default function Home(props: Speciality) {
     setSuccess(true);
     setMessage("Doctor verificado con éxito");
 
-    const userAux = users.filter((u) => u.doctor?.id === doctorId)[0];
-    userAux.doctor.verified = true;
-    setUsers(props.users.map((u) => (u.doctor?.id === doctorId ? userAux : u)));
-
     setO(false);
     setVerify(false);
 
@@ -163,6 +166,8 @@ export default function Home(props: Speciality) {
         headers: { Authorization: `Bearer ${props.auth.token}` },
       }
     );
+
+    if(router.query.page && router.query.name) router.push(`/admin/users?page=${router.query.page}&name=${router.query.name}`);
   };
 
   const filterChange = (name: string) => {
@@ -180,25 +185,36 @@ export default function Home(props: Speciality) {
   const handleOrderChange = (filter: string) => {
     setName("");
     if (filter === "name") {
-      setUsersFiltered(
-        usersFiltered.sort((a, b) => {
-          if (directionName === "asc") {
-            return a.name.localeCompare(b.name);
-          } else {
-            return b.name.localeCompare(a.name);
-          }
-        })
-      );
+      if (+router.query.ascName! === 2 || !router.query.ascName) {
+        router.push(
+          `/admin/users?page=1&name=${router.query.name}&role=${
+            router.query.role ? router.query.role : ""
+          }&ascName=1`
+        );
+      }
+
+      if (+router.query.ascName! === 1) {
+        router.push(
+          `/admin/users?page=1&name=${router.query.name}&role=${
+            router.query.role ? router.query.role : ""
+          }&ascName=2`
+        );
+      }
     } else {
-      setUsersFiltered(
-        usersFiltered.sort((a, b) => {
-          if (directionName === "asc") {
-            return a.surname.localeCompare(b.surname);
-          } else {
-            return b.surname.localeCompare(a.surname);
-          }
-        })
-      );
+      if (+router.query.ascSurname! === 2 || !router.query.ascSurname) {
+        router.push(
+          `/admin/users?page=1&name=${router.query.name}&role=${
+            router.query.role ? router.query.role : ""
+          }&ascSurname=1`
+        );
+      }
+      if (+router.query.ascSurname! === 1) {
+        router.push(
+          `/admin/users?page=1&name=${router.query.name}&role=${
+            router.query.role ? router.query.role : ""
+          }&ascSurname=2`
+        );
+      }
     }
 
     if (directionName === "asc") {
@@ -211,7 +227,7 @@ export default function Home(props: Speciality) {
   return (
     <Layout auth={props.auth}>
       <div id="scroller" className="flex justify-center">
-        <div className="flex flex-col md:flex-row justify-center gap-4 w-[90%] mt-12">
+        <div className="flex flex-col xl:flex-row justify-center gap-4 w-[90%] mt-12">
           <div>
             <SidebarAdmin
               auth={props.auth}
@@ -222,8 +238,8 @@ export default function Home(props: Speciality) {
           <div className="bg-white p-4 w-full h-full rounded-lg shadow-lg">
             <section className="w-full rounded-md flex flex-col items-center relative">
               <div className="w-5/6">
-                {
-                  <div className="flex justify-between items-center py-4">
+                <div className="flex justify-between items-end md:items-center py-4 gap-4">
+                  <div className="flex flex-col md:flex-row md:items-center gap-4 md:w-full">
                     <Input
                       name="name"
                       value={name}
@@ -232,37 +248,63 @@ export default function Home(props: Speciality) {
                       onChange={($e: any) => {
                         setName($e.target.value.toLowerCase());
                         filterChange($e.target.value.toLowerCase());
+                        router.push(
+                          `/admin/users?page=1&name=${$e.target.value.toLowerCase()}&role=${
+                            router.query.role ? router.query.role : ""
+                          }`
+                        );
                       }}
                       startadornment={
                         <FaUserDoctor color={theme.palette.primary.main} />
                       }
-                      className="w-4/12"
+                      className="md:w-4/12"
                       label="Usuario"
                     />
-                    <div className="flex gap-2 text-primary">
-                      <FaChevronLeft
-                        className="text-2xl hover:cursor-pointer"
-                        onClick={() => {
-                          pagination(page - 1);
-                          setName("");
+                    <div className="md:w-1/3">
+                      <Autocomplete
+                        value={role}
+                        className={"w-full"}
+                        onChange={(event, newValue: any) => {
+                          setRole(newValue);
+                          if (newValue) {
+                            router.push(
+                              `/admin/users?page=1&name=${router.query.name}&role=${newValue.id}`
+                            );
+                          } else {
+                            router.push(
+                              `/admin/users?page=1&name=${router.query.name}`
+                            );
+                          }
                         }}
+                        disablePortal
+                        options={[
+                          { id: 1, name: "Paciente" },
+                          { id: 2, name: "Doctor" },
+                        ].map((hi: any) => ({
+                          id: hi.id,
+                          label: hi.name,
+                        }))}
+                        renderInput={(params: any) => (
+                          <Input
+                            onChange={() => {}}
+                            name="roleId"
+                            variant="outlined"
+                            {...params}
+                            label="Rol"
+                          />
+                        )}
                       />
-
-                      <FaChevronRight
-                        className="text-2xl hover:cursor-pointer"
-                        onClick={() => {
-                          pagination(page + 1);
-                          setName("");
-                        }}
-                      />
-
-                      <p className="text-md">
-                        Página {page ? page : 1} -
-                        {Math.ceil(props.users.length / 10)}
-                      </p>
                     </div>
                   </div>
-                }
+                  <div className="w-full md:w-1/3">
+                    <Paginator
+                      pages={Math.ceil(props.count / 10)}
+                      route="/admin/users"
+                      users={true}
+                      role={Number(router.query.role)}
+                    ></Paginator>
+                  </div>
+                </div>
                 <TableContainer component={Paper}>
                   <Table aria-label="medical record table">
                     <TableHead sx={{ bgcolor: PRIMARY_COLOR }}>
@@ -342,7 +384,7 @@ export default function Home(props: Speciality) {
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {usersFiltered.map((row) => (
+                      {props.users.map((row) => (
                         <TableRow
                           key={row.id}
                           sx={{
@@ -378,7 +420,7 @@ export default function Home(props: Speciality) {
                             <div className="flex justify-center items-center gap-2">
                               {row.healthInsurances.length > 0
                                 ? row.healthInsurances
-                                    ?.map((hi: any) => hi.healthInsurance.name)
+                                    ?.map((hi: any) => hi.healthInsurance?.name)
                                     .join(", ")
                                 : "-"}
                             </div>
@@ -431,6 +473,13 @@ export default function Home(props: Speciality) {
                     </TableBody>
                   </Table>
                 </TableContainer>
+                {props.users.length === 0 && (
+                  <div className="flex justify-center items-center mt-4">
+                    <p className="text-lg">
+                      No se encontraron resultados para la búsqueda
+                    </p>
+                  </div>
+                )}
                 <Modal
                   open={o}
                   onClose={() => setO(false)}
@@ -583,7 +632,7 @@ export default function Home(props: Speciality) {
                                     {user.doctor?.registration && (
                                       <Link
                                         target="_blank"
-                                        href={`http://localhost:3000/uploads/doctor/registration/${user.doctor.registration}`}
+                                        href={`${process.env.NEXT_PUBLIC_API_URL}/uploads/doctor/registration/${user.doctor.registration}`}
                                         className="flex justify-center gap-2 text-sm text-cyan-600 hover:underline"
                                       >
                                         Matrícula profesional
@@ -592,7 +641,7 @@ export default function Home(props: Speciality) {
                                     {user.doctor?.title && (
                                       <Link
                                         target="_blank"
-                                        href={`http://localhost:3000/uploads/doctor/title/${user.doctor.title}`}
+                                        href={`${process.env.NEXT_PUBLIC_API_URL}/uploads/doctor/title/${user.doctor.title}`}
                                         className="flex justify-center gap-2 text-sm text-cyan-600 hover:underline"
                                       >
                                         Título universitario
@@ -717,19 +766,34 @@ export const getServerSideProps = withAuth(
       };
     }
 
-    let users = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/user`, {
-      withCredentials: true,
-      headers: { Authorization: `Bearer ${context.req.cookies.token}` },
-    });
+    const { page, name, role, ascName, ascSurname } = context.query;
+    let users = await axios.get(
+      `${process.env.NEXT_PUBLIC_API_URL}/user?page=${page}&name=${name}&role=${role}&ascName=${ascName}&ascSurname=${ascSurname}`,
+      {
+        withCredentials: true,
+        headers: { Authorization: `Bearer ${context.req.cookies.token}` },
+      }
+    );
 
     users = users.data;
+
+    let count = await axios.get(
+      `${process.env.NEXT_PUBLIC_API_URL}/user/count?name=${name}&role=${role}`,
+      {
+        withCredentials: true,
+        headers: { Authorization: `Bearer ${context.req.cookies.token}` },
+      }
+    );
+
+    count = count.data;
 
     return {
       props: {
         auth,
         users,
+        count,
       },
     };
   },
-  { protected: true }
+  { protected: true, roles: ['admin'] }
 );

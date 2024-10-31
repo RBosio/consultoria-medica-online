@@ -1,10 +1,9 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { IsNull, Like, Not, Repository } from 'typeorm';
 import { createUserDto } from './dto/create-user.dto';
 import { updateUserDto } from './dto/update-user.dto';
 import { User } from 'src/entities/user.entity';
-import { Doctor } from 'src/entities/doctor.entity';
 import { HealthInsuranceService } from 'src/health-insurance/health-insurance.service';
 import { UserHealthInsurance } from 'src/entities/userHealthInsurances.entity';
 
@@ -12,13 +11,18 @@ import { UserHealthInsurance } from 'src/entities/userHealthInsurances.entity';
 export class UserService {
   constructor(
     @InjectRepository(User) private userRepository: Repository<User>,
-    @InjectRepository(Doctor) private doctorRepository: Repository<Doctor>,
     @InjectRepository(UserHealthInsurance)
     private userHealthInsuranceRepository: Repository<UserHealthInsurance>,
     private healthInsuranceService: HealthInsuranceService,
   ) { }
 
-  async findAll(): Promise<User[]> {
+  async findAll(
+    page: number,
+    name: any,
+    role: number,
+    ascName: number,
+    ascSurname: number,
+  ): Promise<User[]> {
     const usersFound = await this.userRepository.find({
       relations: {
         healthInsurances: {
@@ -31,11 +35,96 @@ export class UserService {
       },
       where: {
         admin: false,
+        name: Like(`%${name}%`),
+        doctor: {
+          id: (() => {
+            if (role) {
+              if (role === 1) {
+                return IsNull();
+              }
+
+              if (role === 2) {
+                return Not(IsNull());
+              }
+            }
+          })(),
+        },
       },
+      skip: page ? (page - 1) * 10 : 0,
+      take: 10,
     });
+
     usersFound.map((user) => (user.password = ''));
 
+    if (ascName === 1) {
+      return usersFound.sort((a, b) => (a.name > b.name ? 1 : -1));
+    } else if (ascName === 2) {
+      return usersFound.sort((a, b) => (a.name < b.name ? 1 : -1));
+    }
+
+    if (ascSurname === 1) {
+      return usersFound.sort((a, b) => (a.surname > b.surname ? 1 : -1));
+    } else if (ascSurname === 2) {
+      return usersFound.sort((a, b) => (a.surname < b.surname ? 1 : -1));
+    }
+
     return usersFound;
+  }
+
+  async count(name: any, role: number) {
+    if (name && name !== '' && role) {
+      if (role === 1) {
+        return this.userRepository.count({
+          where: {
+            name: Like(`%${name}%`),
+            doctor: {
+              id: IsNull(),
+            },
+          },
+        });
+      }
+
+      if (role === 2) {
+        return this.userRepository.count({
+          where: {
+            name: Like(`%${name}%`),
+            doctor: {
+              id: Not(IsNull()),
+            },
+          },
+        });
+      }
+    }
+
+    if (name && name !== '') {
+      return this.userRepository.count({
+        where: {
+          name: Like(`%${name}%`),
+        },
+      });
+    }
+
+    if (role && role === 1) {
+      return this.userRepository.count({
+        where: {
+          doctor: {
+            id: IsNull(),
+          },
+        },
+      });
+    }
+
+    if (role && role === 2) {
+      return this.userRepository.count({
+        where: {
+          doctor: {
+            id: Not(IsNull()),
+          },
+        },
+      });
+    }
+
+    return this.userRepository.count();
   }
 
   async findOne(id: number) {
@@ -244,14 +333,20 @@ export class UserService {
   }
 
   async unsetHI(hi_id: number, req: any) {
-    const result = await this.userHealthInsuranceRepository.delete({ userId: req.user.id, healthInsuranceId: hi_id });
+    const result = await this.userHealthInsuranceRepository.delete({
+      userId: req.user.id,
+      healthInsuranceId: hi_id,
+    });
 
     if (result.affected === 0) {
-      throw new HttpException('No se ha podido eliminar la obra social', HttpStatus.BAD_REQUEST);
-    };
+      throw new HttpException(
+        'No se ha podido eliminar la obra social',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
 
     return result;
-  };
+  }
 
   async delete(dni: string) {
     const result = await this.userRepository.delete({ dni });
@@ -298,9 +393,6 @@ export class UserService {
       );
     }
 
-    hi.file_url = url;
-    hi.file_name = name;
-
     await this.userHealthInsuranceRepository.save(hi);
   }
 
@@ -315,8 +407,9 @@ export class UserService {
       address: 'Laprida 950',
       cuit: '20-33429120-1',
       birthday: new Date('1993-04-01'),
-      gender: true,
+      gender: false,
       city: 82084,
+      image: 'user.jpg',
     });
 
     await this.create({
@@ -325,11 +418,12 @@ export class UserService {
       name: 'Sebastián',
       surname: 'López',
       password: '123456',
+      image: 'doctor8m.jpg',
       phone: '3416712356',
       address: 'Corrientes 2351',
       cuit: '20-38233911-1',
       birthday: new Date('1978-08-14'),
-      gender: true,
+      gender: false,
       city: 82084,
     });
 
@@ -343,7 +437,22 @@ export class UserService {
       address: 'Urquiza 1996',
       cuit: '20-33429120-1',
       birthday: new Date('1993-04-01'),
-      gender: false,
+      gender: true,
+      city: 82084,
+      image: 'user2.jpg',
+    });
+
+    await this.create({
+      dni: '33419160',
+      email: 'martin@mail.com',
+      name: 'Martín',
+      surname: 'Yodice',
+      password: '123456',
+      phone: '0115612324',
+      address: 'Urquiza 1996',
+      cuit: '20-33419160-1',
+      birthday: new Date('1995-05-26'),
+      gender: true,
       city: 82084,
     });
   }

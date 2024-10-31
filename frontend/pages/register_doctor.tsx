@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Auth } from "../../shared/types";
+import { Auth } from "../types";
 import withAuth from "@/lib/withAuth";
 import Layout from "@/components/layout";
 import { roboto } from "@/lib/fonts";
@@ -80,6 +80,9 @@ const RegisterDoctorForm: React.FC<any> = (props) => {
                         headers: { Authorization: `Bearer ${props.auth.token}` },
                     }
                 );
+
+                // Indicar que el token debe ser actualizado
+                localStorage.setItem('refreshSession', '1');
 
                 props.setVerifiedDoctor(true);
 
@@ -187,6 +190,7 @@ const RegisterDoctorForm: React.FC<any> = (props) => {
                     label="Año de inicio de actividades"
                     name="employmentDate"
                     views={["year"]}
+                    max={dayjs()}
                     onChange={(date: Dayjs) =>
                         registerDoctorForm.setFieldValue("employmentDate", date)
                     }
@@ -304,5 +308,5 @@ export const getServerSideProps = withAuth(
             },
         };
     },
-    { protected: true }
+    { protected: true, roles: ['user'] }
 );

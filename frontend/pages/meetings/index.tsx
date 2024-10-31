@@ -1,5 +1,5 @@
 import withAuth from "@/lib/withAuth";
-import { Auth } from "../../../shared/types";
+import { Auth } from "../../types";
 import axios from "axios";
 import Layout from "@/components/layout";
 import { Autocomplete, useTheme } from "@mui/material";
@@ -13,8 +13,9 @@ import { MeetingResponseDto } from "@/components/dto/meeting.dto";
 import { SpecialityResponseDto } from "@/components/dto/speciality.dto";
 import Button from "@/components/button";
 import { IoMdSearch } from "react-icons/io";
-import Alert from '@mui/material/Alert';
+import Alert from "@mui/material/Alert";
 import Link from "@mui/material/Link";
+import moment from "moment";
 
 interface Meeting {
   auth: Auth;
@@ -30,7 +31,11 @@ export default function Meetings(props: Meeting) {
   const [index, setIndex] = useState(0);
   const [position, setPosition] = useState(0);
 
-  const incompleteDoctorData = props.doctor && (!props.doctor.cbu || !props.doctor.priceMeeting || !props.doctor.durationMeeting);
+  const incompleteDoctorData =
+    props.doctor &&
+    (!props.doctor.cbu ||
+      !props.doctor.priceMeeting ||
+      !props.doctor.durationMeeting);
 
   const isClient = typeof window === "object";
 
@@ -135,6 +140,19 @@ export default function Meetings(props: Meeting) {
     },
   });
 
+  const planExpiration = () => {
+    if (!(props.auth.role === "doctor") || !props.doctor.plan) return;
+    const lastPayment = moment(props.doctor.planLastPayment);
+    const planExpiration = lastPayment.add(1, 'months');
+
+    const diff = moment().diff(planExpiration, 'days');
+
+    // Si luego de un mes del último pago, pasaron más de N días, entonces el plan expirará cuando N = 5, o sea, pasaron 5 días luego
+    // de que haya pasado un mes del último pago
+    if (diff >= 0) return planExpiration.add(5, 'days');
+
+  };
+
   return (
     <Layout auth={props.auth}>
       <main>
@@ -216,19 +234,36 @@ export default function Meetings(props: Meeting) {
         </form>
         <section>
           <div className="w-[95%] overflow-hidden m-auto relative px-[14px] sm:mt-8">
-            {props.auth.role === "doctor" && !props.doctor.plan ?
-              <Alert className="w-full rounded-lg" severity="warning">Para realizar reuniones debes solicitar un <Link href="/">plan de trabajo</Link></Alert>
-              : incompleteDoctorData ?
-                <Alert className="w-full rounded-lg" severity="warning">Para realizar reuniones debes de completar los datos obligatorios de tu <Link href="/config">configuración</Link></Alert> :
-                ""
-            }
+            {planExpiration() &&
+              <Alert className="w-full shadow-md rounded-md" severity="error">
+                Tu plan expirará el {`${planExpiration()?.format('LLL')}hs`}. Por favor, renueva el mismo en <Link href="/config">configuración</Link>
+              </Alert>}
+            {props.auth.role === "doctor" && !props.doctor.plan ? (
+              <Alert className="w-full shadow-md rounded-md" severity="warning">
+                Para realizar reuniones debes solicitar un{" "}
+                <Link href="/config/plan">plan de trabajo</Link>
+              </Alert>
+            ) : incompleteDoctorData ? (
+              <Alert className="w-full shadow-md rounded-md" severity="warning">
+                Para realizar reuniones debes de completar los datos
+                obligatorios de tu <Link href="/config">configuración</Link>
+              </Alert>
+            ) : props.auth.role === "doctor" &&
+              props.doctor.schedules.length === 0 ? (
+              <Alert className="w-full shadow-md rounded-md" severity="warning">
+                Para realizar reuniones debes registrar al menos un rango
+                horario en <Link href="/config">configuración</Link>
+              </Alert>
+            ) : (
+              ""
+            )}
             <div
               className="flex flex-nowrap items-center transition-all ease-in "
               style={{ transitionDuration: ".5s" }}
               id="carouselInner"
             >
               {props.meetings.length === 0 ? (
-                <h2 className="text-xl">No se encontraron resultados</h2>
+                <h2 className="text-xl mt-4">No se encontraron resultados</h2>
               ) : (
                 ""
               )}
@@ -356,7 +391,7 @@ export const getServerSideProps = withAuth(
           meetings,
           specialities,
           auth,
-          doctor
+          doctor,
         },
       };
     } catch {
@@ -368,5 +403,5 @@ export const getServerSideProps = withAuth(
       };
     }
   },
-  { protected: true }
+  { protected: true, roles: ['user', 'doctor', 'admin'] }
 );

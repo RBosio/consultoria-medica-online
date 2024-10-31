@@ -61,18 +61,18 @@ const UserCard: React.FC<MeetingResponseDto> = (props) => {
           </div>
           <div className="flex items-center">
             {props.user.gender ? (
-              <FaMars className="text-primary" />
-            ) : (
               <FaVenus className="text-primary" />
+            ) : (
+              <FaMars className="text-primary" />
             )}
 
             <p className="px-2">
-              {props.user.gender ? "Masculino" : "Femenino"}
+              {props.user.gender ? "Femenino" : "Masculino"}
             </p>
           </div>
-            <HealthInsurance
-              healthInsurances={props.user.healthInsurances}
-            ></HealthInsurance>
+          <HealthInsurance
+            healthInsurances={props.user.healthInsurances}
+          ></HealthInsurance>
         </div>
         <div className="w-3/4 h-2 border-b-2 border-emerald-200"></div>
         <Link href={`/meetings/medical-record/${props.user.id}`}>

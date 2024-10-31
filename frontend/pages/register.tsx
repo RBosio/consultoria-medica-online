@@ -6,7 +6,7 @@ import { robotoBold, roboto } from "@/lib/fonts";
 import { Autocomplete, useTheme } from "@mui/material";
 import Image from "next/image";
 import withAuth from "@/lib/withAuth";
-import { Auth } from "../../shared/types";
+import { Auth } from "../types";
 import axios from "axios";
 import * as Yup from "yup";
 import Alert from "@mui/material/Alert";

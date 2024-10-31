@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import Layout from "@/components/layout";
 import withAuth from "@/lib/withAuth";
 import SidebarAdmin from "@/components/sidebarAdmin";
-import { Auth } from "../../../../shared/types";
+import { Auth } from "../../../types";
 import axios from "axios";
 import {
   Alert,
@@ -257,7 +257,7 @@ export default function Home(props: Plan) {
   return (
     <Layout auth={props.auth}>
       <div className="flex justify-center items-start">
-        <div className="flex flex-col md:flex-row justify-center gap-4 w-[90%] mt-12">
+        <div className="flex flex-col xl:flex-row justify-center gap-4 w-[90%] mt-12">
           <div>
             <SidebarAdmin
               auth={props.auth}
@@ -656,5 +656,5 @@ export const getServerSideProps = withAuth(
       },
     };
   },
-  { protected: true }
+  { protected: true, roles: ['admin'] }
 );

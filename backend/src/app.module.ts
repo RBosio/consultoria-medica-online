@@ -36,6 +36,7 @@ import { UserHealthInsurance } from './entities/userHealthInsurances.entity';
 import { Billing } from './entities/billing.entity';
 import { BillingModule } from './billing/billing.module';
 import { NestjsFormDataModule } from 'nestjs-form-data';
+import { ReportsModule } from './reports/reports.module';
 
 @Module({
   imports: [
@@ -89,6 +90,7 @@ import { NestjsFormDataModule } from 'nestjs-form-data';
     BenefitModule,
     NotificationModule,
     BillingModule,
+    ReportsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

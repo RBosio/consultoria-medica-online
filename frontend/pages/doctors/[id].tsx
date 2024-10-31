@@ -1,7 +1,7 @@
 import Layout from "@/components/layout";
 import withAuth from "@/lib/withAuth";
 import React, { useEffect, useState } from "react";
-import { Auth } from "../../../shared/types";
+import { Auth } from "../../types";
 import axios from "axios";
 import Avatar from "@/components/avatar";
 import { FaUserDoctor } from "react-icons/fa6";
@@ -15,16 +15,17 @@ import {
   DialogContentText,
   DialogTitle,
   Divider,
+  IconButton,
   Snackbar,
   ToggleButton,
   ToggleButtonGroup,
+  Tooltip,
 } from "@mui/material";
 import Rate from "@/components/rate";
 import { useTheme } from "@mui/material";
 import { GoDotFill } from "react-icons/go";
 import { IoIosPricetag } from "react-icons/io";
 import { IoTimeSharp } from "react-icons/io5";
-import { CiDiscount1 } from "react-icons/ci";
 import Button from "@/components/button";
 import { useRouter } from "next/router";
 import moment from "moment";
@@ -34,6 +35,7 @@ import { pesos } from "@/lib/formatCurrency";
 import { UserHealthInsuranceResponseDto } from "@/components/dto/userHealthInsurance.dto";
 import { HealthInsuranceResponseDto } from "@/components/dto/healthInsurance.dto";
 import { v4 as uuid } from "uuid";
+import { MdDiscount } from "react-icons/md";
 
 export default function Doctor(props: any) {
   const theme = useTheme();
@@ -43,7 +45,6 @@ export default function Doctor(props: any) {
   const [meetingError, setMeetingError] = useState(false);
   const [preferenceId, setPreferenceId] = useState<string>();
   const [init, setInit] = useState<string>();
-  const [mp, setMP] = useState<any>();
   const [paid, setPaid] = useState<boolean>(false);
   const [detail, setDetail] = useState<any>();
   const [repr, setRepr] = useState<boolean>(false);
@@ -57,7 +58,6 @@ export default function Doctor(props: any) {
   useEffect(() => {
     const initMP = async () => {
       const MP = await import("@mercadopago/sdk-react");
-      setMP(MP);
       return MP;
     };
 
@@ -212,8 +212,7 @@ export default function Doctor(props: any) {
     } else {
       try {
         await axios.patch(
-          `${process.env.NEXT_PUBLIC_API_URL}/meeting/repr/${
-            props.auth.id
+          `${process.env.NEXT_PUBLIC_API_URL}/meeting/repr/${props.auth.id
           }/${moment(date).format("YYYY-MM-DDTHH:mm:ss")}`,
           {
             startDatetime: selectedDate,
@@ -246,8 +245,8 @@ export default function Doctor(props: any) {
         router.push(
           `/meetings/${btoa(
             props.auth.id +
-              "." +
-              moment(new Date(selectedDate)).format("YYYY-MM-DDTHH:mm:ss")
+            "." +
+            moment(new Date(selectedDate)).format("YYYY-MM-DDTHH:mm:ss")
           )}`
         );
       } catch (error: any) {
@@ -337,10 +336,9 @@ export default function Doctor(props: any) {
                   <div className="flex flex-col items-center gap-2">
                     <h2 className="text-primary text-xl">Descripción</h2>
                     <p
-                      className={`text-justify line-clamp-[8] ${
-                        !props.doctor.description &&
+                      className={`text-justify line-clamp-[8] ${!props.doctor.description &&
                         "text-red-400 font-semibold"
-                      }`}
+                        }`}
                     >
                       {props.doctor.description ||
                         "El profesional no posee descripción"}
@@ -368,7 +366,7 @@ export default function Doctor(props: any) {
           </div>
           {!paid ? (
             <div className="flex flex-col bg-white p-4 gap-2 shadow-md grow xl:rounded-md relative">
-              <div className="w-full h-32 flex items-center justify-center bg-primary absolute right-0 top-0 xl:w-56 xl:h-56 xl:rounded-tr-md">
+              {!date && <div className="w-full h-32 flex items-center justify-center bg-primary absolute right-0 top-0 xl:w-56 xl:h-56 xl:rounded-tr-md">
                 <span className="hidden xl:block absolute bottom-0 w-0 h-0 border-x-solid border-x-transparent border-x-[7rem] border-b-[3rem] border-b-solid border-b-white" />
                 <div className="flex flex-col text-white w-full h-full py-2">
                   <div className="flex items-center gap-1 px-2 pb-1 rounded-tr-md border-b-[1px] border-white">
@@ -377,42 +375,40 @@ export default function Doctor(props: any) {
                   </div>
                   <div className="flex flex-col gap-1 grow items-center justify-center xl:mb-5">
                     {Boolean(getDiscount()) ? (
-                      <div className="flex gap-1 items-center">
+                      <div className="flex items-center">
                         <p
                           className={`text-lg text-primary_light line-through`}
                         >
                           {pesos.format(props.doctor.priceMeeting)}
                         </p>
-                        <Chip
-                          className="mx-1 border-white text-white"
-                          size="small"
-                          variant="outlined"
-                          icon={<CiDiscount1 size={20} color="#ffffff" />}
-                          label={`${Math.floor(
-                            Number(getDiscount().discount) * 100
-                          )}% (${getDiscount().name})`}
-                        />
+                        <Tooltip title={`${Math.floor(
+                          Number(getDiscount().discount) * 100
+                        )}% (${getDiscount().name})`}>
+                          <IconButton disableTouchRipple>
+                            <MdDiscount color="#ffffff" />
+                          </IconButton>
+                        </Tooltip>
                       </div>
                     ) : null}
                     <p className={`text-3xl ${robotoBold.className}`}>
                       {getDiscount()
                         ? pesos.format(
-                            props.doctor.priceMeeting *
-                              (1 - Number(getDiscount().discount))
-                          )
+                          props.doctor.priceMeeting *
+                          (1 - Number(getDiscount().discount))
+                        )
                         : pesos.format(props.doctor.priceMeeting)}
                     </p>
                   </div>
                 </div>
-              </div>
-              <div className="mt-[7.7rem] flex gap-2 items-center mb-2 xl:mt-0">
+              </div>}
+              <div className="mt-[9rem] flex gap-2 items-center mb-2 xl:mt-0">
                 <IoTimeSharp size={20} color={theme.palette.primary.main} />
                 <h2 className={`text-primary text-2xl ${robotoBold.className}`}>
-                  Solicitar Turno
+                  {!date ? 'Solicitar Turno' : 'Reprogramar turno'}
                 </h2>
               </div>
-              <div className="flex flex-col">
-                <div className="flex flex-col gap-4">
+              <div className="flex flex-col w-full">
+                <div className="flex flex-col gap-4 w-full xl:w-[calc(100%-224px)]">
                   {props.doctorAvailability.map((da: any) => {
                     let [day, date] = da.formattedDate.split(", ");
                     day = day.charAt(0).toUpperCase() + day.slice(1);
@@ -437,14 +433,14 @@ export default function Doctor(props: any) {
                                 <ToggleButton
                                   sx={{
                                     "&.MuiToggleButton-root , &.MuiToggleButton-root.Mui-disabled, &.MuiToggleButton-root.MuiToggleButtonGroup-grouped":
-                                      {
-                                        border: `1px solid ${theme.palette.primary.light}`,
-                                        transition: "background .2s ease",
-                                      },
+                                    {
+                                      border: `1px solid ${theme.palette.primary.light}`,
+                                      transition: "background .2s ease",
+                                    },
                                     "&:hover, &.MuiToggleButton-root.Mui-selected:hover":
-                                      {
-                                        background: theme.palette.primary.light,
-                                      },
+                                    {
+                                      background: theme.palette.primary.light,
+                                    },
                                     "&.Mui-disabled": {
                                       background: "#F7F7F7",
                                     },
@@ -471,7 +467,7 @@ export default function Doctor(props: any) {
                   })}
                 </div>
                 {props.doctorAvailability.length > 0 ? (
-                  <div className="my-6 flex justify-center items-center xl:-0">
+                  <div className="my-6 flex justify-center items-center">
                     {!date ? (
                       <Button
                         onClick={() => {
@@ -484,7 +480,11 @@ export default function Doctor(props: any) {
                         Aceptar
                       </Button>
                     ) : (
-                      <Button onClick={() => setRepr(true)} className="w-40">
+                      <Button
+                        disabled={!Boolean(selectedDate)}
+                        onClick={() => setRepr(true)}
+                        className="w-40"
+                      >
                         Reprogramar
                       </Button>
                     )}
@@ -515,8 +515,8 @@ export default function Doctor(props: any) {
                 router.push(
                   `/meetings/${btoa(
                     props.auth.id +
-                      "." +
-                      moment(detail.startDatetime).format("YYYY-MM-DDTHH:mm:ss")
+                    "." +
+                    moment(detail.startDatetime).format("YYYY-MM-DDTHH:mm:ss")
                   )}`
                 )
               }
@@ -551,8 +551,8 @@ export default function Doctor(props: any) {
             {confirmTurn
               ? "Confirmar turno"
               : repr
-              ? "Reprogramar reunión"
-              : ""}
+                ? "Reprogramar reunión"
+                : ""}
           </DialogTitle>
           <DialogContent>
             <DialogContentText id="alert-dialog-description">
@@ -672,5 +672,5 @@ export const getServerSideProps = withAuth(
       };
     }
   },
-  { protected: true }
+  { protected: true, roles: ['user', 'admin'] }
 );

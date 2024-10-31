@@ -1,6 +1,6 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { MoreThan, MoreThanOrEqual, Repository } from 'typeorm';
 import { createScheduleDto } from './dto/create-schedule.dto';
 import { updateScheduleDto } from './dto/update-schedule.dto';
 import { Schedule } from 'src/entities/schedule.entity';
@@ -16,9 +16,11 @@ export class ScheduleService {
   constructor(
     @InjectRepository(Schedule)
     private scheduleRepository: Repository<Schedule>,
+    @InjectRepository(Meeting)
+    private meetingRepository: Repository<Meeting>,
     private doctorService: DoctorService,
     private meetingService: MeetingService,
-  ) {}
+  ) { }
 
   findAll(doctorId: number): Promise<Schedule[]> {
     return this.scheduleRepository.find({
@@ -36,6 +38,15 @@ export class ScheduleService {
 
   async findByDoctor(doctorId: number): Promise<ScheduleResponseDto[]> {
     let response: ScheduleResponseDto[] = [];
+    response.push(
+      { schedule: [], day: 0 },
+      { schedule: [], day: 1 },
+      { schedule: [], day: 2 },
+      { schedule: [], day: 3 },
+      { schedule: [], day: 4 },
+      { schedule: [], day: 5 },
+      { schedule: [], day: 6 },
+    );
     const moment = extendMoment(Moment);
 
     const schedulesFound = await this.scheduleRepository.find({
@@ -51,7 +62,6 @@ export class ScheduleService {
 
     const meetingsFound = await this.meetingService.findByDoctor(doctorId);
 
-    let dayAnt = -1;
     schedulesFound.map((schedule) => {
       const day_start = moment().startOf('day').hours(schedule.start_hour);
       const day_end = moment().startOf('day').hours(schedule.end_hour);
@@ -64,29 +74,24 @@ export class ScheduleService {
 
       const s = test.map((time) => {
         return {
+          day: schedule.day,
           time,
           available: this.isAvailable(meetingsFound, time, schedule.day),
         };
       });
 
-      if (schedule.day === dayAnt) {
-        response[dayAnt].schedule = response[dayAnt].schedule.concat(s);
-      } else {
-        response.push({
-          day: schedule.day,
-          schedule: s,
-        });
-      }
-      dayAnt = schedule.day;
+      response[s[0].day].schedule = response[s[0].day].schedule.concat(s);
     });
 
     const temp = response.filter((s) => s.day >= new Date().getDay());
     const temp2 = response.filter((s) => s.day < new Date().getDay());
+
     response = temp.concat(temp2);
 
     moment.locale('es');
+
     let day = 0;
-    response = response.map((res) => {
+    return response.map((res) => {
       const d = moment(new Date()).add(day, 'd').format('LLLL').split(' ')[0];
       return {
         formattedDate: d + ' ' + moment(new Date()).add(day, 'd').format('LL'),
@@ -94,8 +99,6 @@ export class ScheduleService {
         date: moment(new Date()).add(day++, 'd').local().format('YYYY-MM-DD'),
       };
     });
-
-    return response;
   }
 
   isAvailable(meetings: Meeting[], time: string, day: number): boolean {
@@ -112,9 +115,9 @@ export class ScheduleService {
         return available;
       } else if (
         Number(time.split(':')[0]) ===
-          Number(moment(new Date()).format('HH:mm').split(':')[0]) &&
+        Number(moment(new Date()).format('HH:mm').split(':')[0]) &&
         Number(time.split(':')[1]) <
-          Number(moment(new Date()).format('HH:mm').split(':')[1])
+        Number(moment(new Date()).format('HH:mm').split(':')[1])
       ) {
         available = false;
 
@@ -195,6 +198,7 @@ export class ScheduleService {
   }
 
   async delete(id: number) {
+
     const result = await this.scheduleRepository.delete({ id });
 
     if (result.affected == 0) {

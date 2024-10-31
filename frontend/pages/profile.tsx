@@ -36,7 +36,7 @@ import {
   Snackbar,
 } from "@mui/material";
 import { useRouter } from "next/router";
-import { Auth } from "../../shared/types";
+import { Auth } from "../types";
 import { HealthInsuranceResponseDto } from "../components/dto/healthInsurance.dto";
 import withAuth from "@/lib/withAuth";
 import Layout from "@/components/layout";
@@ -53,14 +53,17 @@ export default function ProfileView(props: any) {
   const [healthInsurances, setHealthInsurances] = useState<
     HealthInsuranceResponseDto[]
   >([]);
-  const [healthInsurance, setHealthInsurance] = useState<any>(null);
+  const [healthInsurance, setHealthInsurance] = useState<any>({
+    id: 0,
+    label: "",
+  });
 
   const [success, setSuccess] = useState<boolean>(false);
   const [message, setMessage] = useState<string>("");
   const [confirmDeleteHi, setConfirmDeleteHi] = useState<boolean>(false);
   const [confirmHealthInsurance, setConfirmHealthInsurance] =
     useState<boolean>(false);
-  const [cod, setCod] = useState<string>('');
+  const [cod, setCod] = useState<string>("");
   const [hiToDelete, setHiToDelete] = useState<number>(-1);
 
   useEffect(() => {
@@ -135,7 +138,6 @@ export default function ProfileView(props: any) {
   });
 
   const handleClickDeleteHi = async () => {
-
     await axios.delete(
       `${process.env.NEXT_PUBLIC_API_URL}/user/unsetHI/${hiToDelete}`,
       {
@@ -160,7 +162,7 @@ export default function ProfileView(props: any) {
     } else if (confirmDeleteHi) {
       handleClickDeleteHi();
       setConfirmDeleteHi(false);
-    };
+    }
   };
 
   function handleClickFile($e: any, hi?: boolean) {
@@ -202,8 +204,10 @@ export default function ProfileView(props: any) {
       );
 
       setSuccess(true);
-      setMessage("Imagen actualizada con éxito!");
+      setMessage("Imágen actualizada con éxito!");
       setUser({ ...user, image: u.data.image });
+
+      localStorage.setItem('refreshSession', '1');
 
       router.push(router.pathname);
     } else {
@@ -246,11 +250,10 @@ export default function ProfileView(props: any) {
     };
 
     fetchUser();
-
   }, [healthInsurance, hiToDelete]);
 
   const handleClickHealthInsurance = async () => {
-    if (!healthInsurance) {
+    if (healthInsurance.id === 0) {
       setMessage("Debes seleccionar una obra social!");
       setError(true);
       return;
@@ -265,7 +268,7 @@ export default function ProfileView(props: any) {
     await axios.patch(
       `${process.env.NEXT_PUBLIC_API_URL}/user/healthInsurance/${props.auth.id}`,
       {
-        healthInsuranceId: healthInsurance,
+        healthInsuranceId: healthInsurance.id,
         cod,
       },
       {
@@ -343,12 +346,12 @@ export default function ProfileView(props: any) {
                     </div>
                     <div className="flex items-center">
                       {user.gender ? (
-                        <FaMars className="text-primary size-4" />
-                      ) : (
                         <FaVenus className="text-primary size-4" />
+                      ) : (
+                        <FaMars className="text-primary size-4" />
                       )}
                       <p className="mx-2 text-xl">
-                        {user.gender ? "Masculino" : "Femenino"}
+                        {user.gender ? "Femenino" : "Masculino"}
                       </p>
                     </div>
                   </div>
@@ -364,11 +367,12 @@ export default function ProfileView(props: any) {
                   <div className="flex flex-col lg:flex-row gap-4 my-4 w-full">
                     <Autocomplete
                       className={"w-full"}
+                      value={healthInsurance}
                       onChange={(event, newValue: any) => {
-                        setHealthInsurance(newValue?.id);
+                        setHealthInsurance(newValue);
                       }}
                       disablePortal
-                      noOptionsText="Especialidad no encontrada"
+                      noOptionsText="Obra social no encontrada"
                       options={healthInsurances.map((hi: any) => ({
                         id: hi.id,
                         label: hi.name,
@@ -408,7 +412,13 @@ export default function ProfileView(props: any) {
                               <p className="text-md">
                                 {h.healthInsurance.name} (num. {h.cod})
                               </p>
-                              <IconButton size="small" onClick={() => { setHiToDelete(h.healthInsurance.id); setConfirmDeleteHi(true) }}>
+                              <IconButton
+                                size="small"
+                                onClick={() => {
+                                  setHiToDelete(h.healthInsurance.id);
+                                  setConfirmDeleteHi(true);
+                                }}
+                              >
                                 <FaTrash className="text-error" size={15} />
                               </IconButton>
                             </div>
@@ -505,7 +515,9 @@ export default function ProfileView(props: any) {
                   ? "Confirmar cambio"
                   : confirmHealthInsurance
                     ? "Confirmar obra social"
-                    : confirmDeleteHi ? 'Confirmar eliminación' : ''}
+                    : confirmDeleteHi
+                      ? "Confirmar eliminación"
+                      : ""}
               </DialogTitle>
               <DialogContent>
                 <DialogContentText id="alert-dialog-description">
@@ -513,7 +525,9 @@ export default function ProfileView(props: any) {
                     ? "¿Estás seguro que deseas cambiar la contraseña?"
                     : confirmHealthInsurance
                       ? "Estás seguro que deseas agregar la obra social?"
-                      : confirmDeleteHi ? 'Estás seguro que deseas eliminar esta obra social?' : ''}
+                      : confirmDeleteHi
+                        ? "Estás seguro que deseas eliminar esta obra social?"
+                        : ""}
                 </DialogContentText>
               </DialogContent>
               <DialogActions>
@@ -581,5 +595,5 @@ export const getServerSideProps = withAuth(
       },
     };
   },
-  { protected: true }
+  { protected: true, roles: ['user', 'doctor', 'admin'] }
 );

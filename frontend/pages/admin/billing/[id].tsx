@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Layout from "@/components/layout";
 import withAuth from "@/lib/withAuth";
-import { Auth } from "../../../../shared/types";
+import { Auth } from "../../../types";
 import axios from "axios";
 import { useRouter } from "next/router";
 import { MeetingResponseDto } from "@/components/dto/meeting.dto";
@@ -197,7 +197,13 @@ export default function Home(props: any) {
       {
         month: monthDay,
         year,
-        doctorId: props.lastMeetings[0]?.doctor.id,
+        billings: [
+          {
+            doctorId: props.lastMeetings[0]?.doctor.id,
+            total: total * 0.95,
+            cbu: props.lastMeetings[0]?.doctor.cbu,
+          },
+        ],
       },
       {
         withCredentials: true,
@@ -380,7 +386,7 @@ export default function Home(props: any) {
           </div>
           <div className="flex flex-col items-center xl:items-start">
             <h3 className="text-2xl text-primary">Total a pagar</h3>
-            <p className="text-xl">{pesos.format(total - total * 0.05)}</p>
+            <p className="text-xl">{pesos.format(total * 0.95)}</p>
           </div>
           <div className="flex flex-col items-center xl:items-start">
             <h3 className="text-2xl text-primary">Estado</h3>
@@ -479,5 +485,5 @@ export const getServerSideProps = withAuth(
       },
     };
   },
-  { protected: true }
+  { protected: true, roles: ['admin'] }
 );

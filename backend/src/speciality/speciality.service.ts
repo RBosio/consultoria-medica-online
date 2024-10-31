@@ -12,8 +12,19 @@ export class SpecialityService {
     private specialityRepository: Repository<Speciality>,
   ) {}
 
-  findAll(): Promise<Speciality[]> {
-    return this.specialityRepository.find();
+  findAll(page?: number): Promise<Speciality[]> {
+    if (!page) {
+      return this.specialityRepository.find();
+    }
+
+    return this.specialityRepository.find({
+      skip: page ? (page - 1) * 10 : 0,
+      take: 10,
+    });
+  }
+
+  count() {
+    return this.specialityRepository.count();
   }
 
   async findOne(id: number): Promise<Speciality> {

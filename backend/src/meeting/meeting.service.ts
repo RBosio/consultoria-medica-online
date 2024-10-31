@@ -23,12 +23,21 @@ import { ConfigService } from '@nestjs/config';
 import { v4 as uuid } from 'uuid';
 import * as moment from 'moment';
 import { PreferenceRequest } from 'mercadopago/dist/clients/preference/commonTypes';
-import { Cron } from '@nestjs/schedule';
-import { Workbook } from 'exceljs';
+import { Cron, CronExpression } from '@nestjs/schedule';
 import { HealthInsuranceService } from 'src/health-insurance/health-insurance.service';
 import { Doctor } from 'src/entities/doctor.entity';
 import { SpecialityService } from 'src/speciality/speciality.service';
-import { HealthInsurance } from 'src/entities/health-insurance.entity';
+import { pesos } from 'src/lib/formatCurrency';
+import {
+  inNumberArray,
+  isBetween,
+  isLengthLessThan,
+  isRequired,
+  matchesStringArray,
+  validateRequest,
+} from 'src/validations';
+import { toStringArray } from 'src/utils';
+import { KJUR } from 'jsrsasign';
 
 export interface RequestT extends Request {
   user: {
@@ -47,7 +56,7 @@ export class MeetingService {
     private healthInsruanceService: HealthInsuranceService,
     private specialityService: SpecialityService,
     private configService: ConfigService,
-  ) {}
+  ) { }
 
   async findAll(): Promise<Meeting[]> {
     return this.meetingRepository.find({
@@ -164,6 +173,7 @@ export class MeetingService {
         doctor: {
           user: true,
           specialities: true,
+          schedules: true,
         },
       },
       where: {
@@ -437,28 +447,110 @@ export class MeetingService {
 
   async joinMeeting(
     req: RequestT,
+    res: Response,
     id: number,
     startDatetime: Date,
-  ): Promise<joinMeetingResponseDto | HttpException> {
+  ) {
     const meeting = await this.findOne(id, startDatetime);
 
     const { user } = req;
-    const { role } = user;
-    const tpc = meeting.tpc;
 
-    const payloadMeeting = {
+    const validator = {
+      role: [inNumberArray([0, 1])],
+      sessionName: [isLengthLessThan(200)],
+      expirationSeconds: isBetween(1800, 172800),
+      userIdentity: isLengthLessThan(35),
+      sessionKey: isLengthLessThan(36),
+      geoRegions: matchesStringArray([
+        'AU',
+        'BR',
+        'CA',
+        'CN',
+        'DE',
+        'HK',
+        'IN',
+        'JP',
+        'MX',
+        'NL',
+        'SG',
+        'US',
+      ]),
+      cloudRecordingOption: inNumberArray([0, 1]),
+      cloudRecordingElection: inNumberArray([0, 1]),
+      audioCompatibleMode: inNumberArray([0, 1]),
+    };
+
+    const coerceRequestBody = (body) => ({
+      ...body,
+      ...[
+        'role',
+        'expirationSeconds',
+        'cloudRecordingOption',
+        'cloudRecordingElection',
+        'audioCompatibleMode',
+      ].reduce(
+        (acc, cur) => ({
+          ...acc,
+          [cur]:
+            typeof body[cur] === 'string' ? parseInt(body[cur]) : body[cur],
+        }),
+        {},
+      ),
+    });
+
+    const joinGeoRegions = (geoRegions) => toStringArray(geoRegions)?.join(',');
+
+    const requestBody = coerceRequestBody(req.body);
+    const validationErrors = validateRequest(requestBody, validator);
+
+    if (validationErrors.length > 0) {
+      return res.status(400).json({ errors: validationErrors });
+    }
+
+    const {
+      role,
+      sessionName,
+      expirationSeconds,
+      userIdentity,
+      sessionKey,
+      geoRegions,
+      cloudRecordingOption,
+      cloudRecordingElection,
+      audioCompatibleMode,
+    } = requestBody;
+
+    const iat = Math.floor(Date.now() / 1000);
+    const exp = expirationSeconds ? iat + expirationSeconds : iat + 60 * 60 * 2;
+    const oHeader = { alg: 'HS256', typ: 'JWT' };
+
+    const oPayload = {
       app_key: process.env.ZOOM_VIDEO_SDK_KEY,
-      role_type: role === 'doctor' ? 1 : 0,
-      tpc,
+      role_type: role,
+      tpc: meeting.tpc,
       version: 1,
+      iat,
+      exp,
+      user_identity: userIdentity,
+      session_key: sessionKey,
+      geo_regions: joinGeoRegions(geoRegions),
+      cloud_recording_option: cloudRecordingOption,
+      cloud_recording_election: cloudRecordingElection,
+      audio_compatible_mode: audioCompatibleMode,
     };
 
-    return {
-      tokenMeeting: await this.jwtService.signAsync(payloadMeeting, {
-        secret: process.env.ZOOM_VIDEO_SDK_SECRET,
-      }),
+    const sHeader = JSON.stringify(oHeader);
+    const sPayload = JSON.stringify(oPayload);
+    const sdkJWT = KJUR.jws.JWS.sign(
+      'HS256',
+      sHeader,
+      sPayload,
+      process.env.ZOOM_VIDEO_SDK_SECRET,
+    );
+
+    return res.status(200).json({
+      tokenMeeting: sdkJWT,
       meeting,
-    };
+    });
   }
 
   async finish(id: number, startDatetime: Date) {
@@ -491,9 +583,9 @@ export class MeetingService {
         },
       ],
       back_urls: {
-        success: `http://localhost:4200/doctors/${doctorId}`,
-        failure: `http://localhost:4200/doctors/${doctorId}`,
-        pending: `http://localhost:4200/doctors/${doctorId}`,
+        success: `${process.env.FRONTEND_URL}/doctors/${doctorId}`,
+        failure: `${process.env.FRONTEND_URL}/doctors/${doctorId}`,
+        pending: `${process.env.FRONTEND_URL}/doctors/${doctorId}`,
       },
       auto_return: 'approved',
       payment_methods: {
@@ -551,17 +643,14 @@ export class MeetingService {
     const updateMeeting = Object.assign(meetingFound, meeting);
     await this.meetingRepository.save(updateMeeting);
 
-    const avgRate = await this.meetingRepository.average('rate', {
-      doctorId: meetingFound.doctorId,
-    });
+    const doctor = await this.doctorService.findOne(meetingFound.doctorId);
 
-    if (avgRate) {
-      const doctor = await this.doctorService.findOne(meetingFound.doctorId);
-      await this.doctorService.update(meetingFound.doctorId, {
-        avgRate,
-        count: doctor.count + 1,
-      });
-    }
+    const avgRate = (doctor.count * doctor.avgRate + meeting.rate) / (doctor.count + 1);
+
+    await this.doctorService.update(meetingFound.doctorId, {
+      avgRate,
+      count: doctor.count + 1,
+    });
 
     return updateMeeting;
   }
@@ -601,7 +690,7 @@ export class MeetingService {
     return meetingFound;
   }
 
-  @Cron('*/30 * * * *')
+  @Cron(CronExpression.EVERY_30_MINUTES)
   async validateMeeting() {
     const meetings = await this.meetingRepository.find({
       where: {
@@ -629,15 +718,17 @@ export class MeetingService {
     year: number,
     hi: number,
   ): Promise<DataList[]> {
+    moment.locale('es');
+
     const meetings = await this.meetingRepository.find({
       where: {
         doctor: {
           user: {
-            id: doctor.user.id,
+            id: !doctor ? null : +doctor.user.id,
           },
         },
         healthInsurance: {
-          id: hi === 0 ? null : hi,
+          id: !hi ? null : +hi,
         },
       },
       relations: {
@@ -655,154 +746,51 @@ export class MeetingService {
         },
         healthInsurance: true,
       },
+      order: {
+        startDatetime: 'DESC',
+      },
     });
 
-    const filtered = meetings.filter((meeting) => {
-      return (
-        meeting.startDatetime.getFullYear() === year &&
-        meeting.startDatetime.getMonth() + 1 === month
-      );
-    });
-
-    const users: { hi: string; cod: string; meetings: any[] }[] = [];
-    doctor.user.healthInsurances.map((hi) => {
-      users.push({
-        hi: hi.healthInsurance.name,
-        cod: hi.cod,
-        meetings: filtered.filter(
-          (meeting) => meeting.healthInsurance.id === hi.healthInsurance.id,
-        ),
+    let filtered = meetings;
+    if (month && year) {
+      filtered = meetings.filter((meeting) => {
+        return (
+          meeting.startDatetime.getFullYear() === +year &&
+          meeting.startDatetime.getMonth() + 1 === +month
+        );
       });
-    });
+    }
 
     const response: DataList[] = [];
 
-    users.map((u) => {
-      const resp = {
-        hi: u.hi,
-        user: '',
-        date: '',
-        dni: '',
-        num: '',
-      };
-
-      u.meetings.map((meeting) => {
-        response.push({
-          hi: u.hi,
-          user: meeting.user.surname + ', ' + meeting.user.name,
-          date: moment(meeting.startDatetime).format('YYYY-MM-DD HH:mm:ss'),
-          dni: meeting.user.dni,
-          num: u.cod,
-        });
-
-        return resp;
+    filtered.map((meeting: Meeting) => {
+      response.push({
+        hi: meeting.user.healthInsurances.filter(
+          (hi) => hi.healthInsurance?.id === meeting.healthInsurance?.id,
+        )[0]
+          ? meeting.user.healthInsurances.filter(
+            (hi) => hi.healthInsurance.id === meeting.healthInsurance.id,
+          )[0].healthInsurance.name
+          : '-',
+        user: meeting.user.surname + ', ' + meeting.user.name,
+        date: moment(meeting.startDatetime).format('LLL'),
+        startDatetime: meeting.startDatetime,
+        dni: meeting.user.dni,
+        num: meeting.user.healthInsurances.filter(
+          (hi) => hi.healthInsurance?.id === meeting.healthInsurance?.id,
+        )[0]
+          ? meeting.user.healthInsurances.filter(
+            (hi) => hi.healthInsurance.id === meeting.healthInsurance.id,
+          )[0].cod
+          : '-',
+        price: pesos.format(meeting.price),
+        doctor: meeting.doctor.user.surname + ', ' + meeting.doctor.user.name,
       });
     });
 
-    return response;
-  }
-
-  async generateReport(
-    userId: number,
-    res: Response,
-    month: number,
-    year: number,
-    hi: number,
-  ) {
-    const workbook = new Workbook();
-    const worksheet = workbook.addWorksheet('0');
-
-    worksheet.columns = [
-      {
-        header: 'Paciente',
-        key: 'user',
-        width: 24,
-        outlineLevel: 1,
-      },
-      {
-        header: 'Fecha de la reunión',
-        key: 'date',
-        width: 24,
-        outlineLevel: 1,
-      },
-      {
-        header: 'Dni',
-        key: 'dni',
-        width: 24,
-        outlineLevel: 1,
-      },
-      {
-        header: '# de afiliado',
-        key: 'num',
-        width: 24,
-        outlineLevel: 1,
-      },
-      {
-        header: 'Obra social',
-        key: 'hi',
-        width: 24,
-        outlineLevel: 1,
-      },
-    ];
-
-    const header = ['A', 'B', 'C', 'D', 'E'];
-
-    const doctor = await this.doctorService.findOneByUserId(userId);
-    const data: DataList[] = await this.getData(doctor, month, year, hi);
-
-    data.forEach((val, i, _) => {
-      worksheet.addRow(val);
+    return response.sort((a, b) => {
+      return moment(b.startDatetime).diff(moment(a.startDatetime));
     });
-
-    worksheet.eachRow(function (row, rowNumber) {
-      if (rowNumber === 1) {
-        worksheet.columns.map((_, idx: number) => {
-          worksheet.getCell(`${header[idx]}1`).fill = {
-            type: 'pattern',
-            pattern: 'solid',
-            fgColor: { argb: '34d399' },
-          };
-          worksheet.getCell(`${header[idx]}1`).font = {
-            name: 'Arial',
-            color: { argb: 'FFFFFF' },
-            family: 1,
-            size: 14,
-          };
-          worksheet.getCell(`${header[idx]}1`).alignment = {
-            vertical: 'middle',
-            horizontal: 'center',
-          };
-        });
-      } else {
-        worksheet.columns.map((_, idx: number) => {
-          worksheet.getCell(`${header[idx]}${rowNumber}`).font = {
-            name: 'Arial',
-            family: 1,
-            size: 10,
-          };
-          worksheet.getCell(`${header[idx]}${rowNumber}`).alignment = {
-            vertical: 'middle',
-            horizontal: 'center',
-          };
-        });
-      }
-    });
-
-    const buffer = await workbook.xlsx.writeBuffer();
-
-    let h: HealthInsurance;
-    if (hi !== 0) {
-      h = await this.healthInsruanceService.findOne(hi);
-    }
-
-    return res
-      .set(
-        'Content-Disposition',
-        `attachment; filename=${year}-${month}_${doctor.user.surname}-${
-          doctor.user.name
-        }${h !== undefined ? '-' + h.name.replace(' ', '-') : ''}.xlsx`,
-      )
-      .send(buffer);
   }
 
   async charts() {
@@ -868,10 +856,13 @@ export class MeetingService {
   }
 }
 
-interface DataList {
+export interface DataList {
   user: string;
   date: string;
   dni: string;
   hi: string;
   num: string;
+  price: string;
+  startDatetime: Date;
+  doctor: string;
 }

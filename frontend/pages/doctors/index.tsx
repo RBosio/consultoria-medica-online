@@ -1,5 +1,5 @@
 import withAuth from "@/lib/withAuth";
-import { Auth } from "../../../shared/types";
+import { Auth } from "../../types";
 import axios from "axios";
 import Layout from "@/components/layout";
 import {
@@ -81,6 +81,7 @@ export default function Doctors(props: any) {
                 photo={doctor.user.image}
                 seniority={doctor.seniority}
                 experience={doctor.employmentDate}
+                planId={doctor.planId}
               />
             ))
           )}
@@ -356,6 +357,8 @@ export const getServerSideProps = withAuth(
 
     let { query } = context;
 
+    query['page'] = query['page'] ?? 1;
+
     try {
       let doctors = await axios.get(
         `${process.env.NEXT_PUBLIC_API_URL}/doctor?${new URLSearchParams(
@@ -406,5 +409,5 @@ export const getServerSideProps = withAuth(
       };
     }
   },
-  { protected: true }
+  { protected: true, roles: ['user', 'admin'] }
 );

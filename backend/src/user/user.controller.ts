@@ -31,8 +31,18 @@ export class UserController {
 
   @Get()
   @Roles(RoleEnum.Admin)
-  getUsers(): Promise<User[]> {
-    return this.userService.findAll();
+  getUsers(@Req() req: Request): Promise<User[]> {
+    const { page, name, role, ascName, ascSurname } = req.query;
+
+    return this.userService.findAll(+page, name, +role, +ascName, +ascSurname);
+  }
+
+  @Get('count')
+  @Roles(RoleEnum.Admin)
+  count(@Req() req: Request) {
+    const { name, role } = req.query;
+
+    return this.userService.count(name, +role);
   }
 
   @Get('admin')
@@ -84,7 +94,7 @@ export class UserController {
   @UseGuards(AuthGuard)
   unsetHI(@Param('hi_id', ParseIntPipe) hi_id: number, @Req() req) {
     return this.userService.unsetHI(hi_id, req);
-  };
+  }
 
   @Delete(':dni')
   @Roles(RoleEnum.Admin)
@@ -95,7 +105,7 @@ export class UserController {
   @UseInterceptors(
     FileInterceptor('file', {
       storage: diskStorage({
-        destination: './public/uploads/user/images',
+        destination: './public/api/uploads/user/images',
         filename: (req, file, cb) => {
           req.body.url =
             uuidv4() + '.' + file.originalname.split('.').slice(-1);
@@ -114,7 +124,7 @@ export class UserController {
   @UseInterceptors(
     FileInterceptor('file', {
       storage: diskStorage({
-        destination: './public/uploads/user/healthInsurances',
+        destination: './public/api/uploads/user/healthInsurances',
         filename: (req, file, cb) => {
           req.body.url =
             uuidv4() + '.' + file.originalname.split('.').slice(-1);

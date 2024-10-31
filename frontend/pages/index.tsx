@@ -1,14 +1,12 @@
 import React, { useEffect } from "react";
 import Layout from "@/components/layout";
 import withAuth from "@/lib/withAuth";
-import { Auth } from "../../shared/types";
+import { Auth } from "../types";
 import Button from "@/components/button";
 import {
-  FaAddressCard,
   FaAngleRight,
   FaCalendarDays,
   FaChevronRight,
-  FaCircleExclamation,
   FaRightLong,
   FaUserDoctor,
 } from "react-icons/fa6";
@@ -20,15 +18,16 @@ import { Chip, Divider, Rating, useTheme } from "@mui/material";
 import { GoDotFill } from "react-icons/go";
 import { DoctorResponseDto } from "@/components/dto/doctor.dto";
 import Avatar from "@/components/avatar";
-import Link from "next/link";
+import Link from "@mui/material/Link";
 import { NotificationResponseDto } from "@/components/dto/notification.dto";
 import { PiGearSix } from "react-icons/pi";
 import { PlanResponseDto } from "@/components/dto/plan.dto";
 import { BenefitResponseDto } from "@/components/dto/benefit.dto";
 import { MdDiscount, MdOutlineAdminPanelSettings } from "react-icons/md";
 import { pesos } from "@/lib/formatCurrency";
-import Alert from '@mui/material/Alert';
+import Alert from "@mui/material/Alert";
 import Rate from "@/components/rate";
+import { robotoBold } from "@/lib/fonts";
 
 export default function Home(props: any) {
   const router = useRouter();
@@ -40,7 +39,11 @@ export default function Home(props: any) {
 
   const [plans, setPlans] = React.useState<PlanResponseDto[]>([]);
 
-  const incompleteDoctorData = props.doctor && (!props.doctor.cbu || !props.doctor.priceMeeting || !props.doctor.durationMeeting);
+  const incompleteDoctorData =
+    props.doctor &&
+    (!props.doctor.cbu ||
+      !props.doctor.priceMeeting ||
+      !props.doctor.durationMeeting);
 
   const markAsRead = async (id: number) => {
     await axios.patch(
@@ -56,28 +59,58 @@ export default function Home(props: any) {
   useEffect(() => {
     if (props.doctor) {
       setPlans(
-        props.plans.filter((plan: any) => plan.id > props.doctor.planId)
+        props.plans.filter((plan: any) => plan.id > props.doctor.planId || plan.id === 3)
       );
     }
   }, []);
 
+  const planExpiration = () => {
+    if (!(props.auth.role === "doctor") || !props.doctor.plan) return;
+    const lastPayment = moment(props.doctor.planLastPayment);
+    const planExpiration = lastPayment.add(1, 'months');
+
+    const diff = moment().diff(planExpiration, 'days');
+
+    // Si luego de un mes del último pago, pasaron más de N días, entonces el plan expirará cuando N = 5, o sea, pasaron 5 días luego
+    // de que haya pasado un mes del último pago
+    if (diff >= 0) return planExpiration.add(5, 'days');
+
+  };
+
   return (
     <Layout auth={props.auth}>
-      <section>
+      <section className="flex flex-col h-full overflow-y-auto">
         <h1 className="text-3xl p-4 text-zinc-600">
           ¡Hola de nuevo{" "}
           <span className="text-primary font-semibold">
             {props.auth.surname}, {props.auth.name}!
           </span>
         </h1>
-        <div className="flex flex-col md:flex-row justify-between items-center bg-white w-5/6 mx-auto p-4 rounded-3xl shadow-lg gap-4 md:gap-0">
+        {planExpiration() &&
+          <Alert className="w-5/6 mx-auto mb-4 shadow-md rounded-md" severity="error">
+            Tu plan expirará el {`${planExpiration()?.format('LLL')}hs`}. Por favor, renueva el mismo en <Link href="/config">configuración</Link>
+          </Alert>}
+        {props.auth.role === "doctor" && !props.doctor.plan ? (
+          <Alert className="w-5/6 mx-auto mb-4 shadow-md rounded-md" severity="warning">
+            Para realizar reuniones debes solicitar un <Link href="/config/plan">plan de trabajo</Link>
+          </Alert>
+        ) : incompleteDoctorData ? (
+          <Alert className="w-5/6 mx-auto mb-4 shadow-md rounded-md" severity="warning">
+            Para realizar reuniones debes de completar los datos obligatorios
+            de tu <Link href="/config">configuración</Link>
+          </Alert>
+        ) : props.doctor && props.doctor.schedules.length === 0 ? (
+          <Alert className="w-5/6 mx-auto mb-4 shadow-md rounded-md" severity="warning">
+            Para realizar reuniones debes registrar al menos un rango horario
+            en <Link href="/config">configuración</Link>
+          </Alert>
+        ) : ''}
+        <div className="flex flex-col lg:flex-row justify-between items-center bg-white w-5/6 mx-auto p-4 rounded-md shadow-md gap-4 lg:gap-0">
           {props.lastMeeting?.startDatetime ? (
             <>
-              <div>
-                <h2 className="text-xl text-primary font-semibold underline">
-                  Próxima reunión programada
-                </h2>
-              </div>
+              <h2 className="text-xl text-primary font-semibold">
+                Próxima reunión programada
+              </h2>
               <div>
                 <h2 className="text-xl text-center text-zinc-600">
                   {props.auth.role === "user"
@@ -88,7 +121,7 @@ export default function Home(props: any) {
                     ", " +
                     props.lastMeeting?.user.name}
                 </h2>
-                <div className="text-white bg-primary flex justify-center items-center p-2 rounded-lg">
+                <div className="text-white bg-primary flex justify-center items-center p-2 rounded-md">
                   <FaCalendarDays />
                   <p className="ml-1 text-sm sm:text-base">
                     {moment(props.lastMeeting?.startDatetime).format("LLLL")}
@@ -117,33 +150,28 @@ export default function Home(props: any) {
                 Ver reunión
               </Button>
             </>
-          ) : props.auth.role === "doctor" && !props.doctor.plan ?
-            <Alert className="w-full rounded-lg" severity="warning">Para realizar reuniones debes solicitar un plan de trabajo</Alert>
-            : incompleteDoctorData ?
-              <Alert className="w-full rounded-lg" severity="warning">Para realizar reuniones debes de completar los datos obligatorios de tu <Link href="/config">configuración</Link></Alert>
-              :
-              (
-                <h2 className="mx-auto text-xl flex flex-col md:flex-row items-center gap-4 text-zinc-600">
-                  Actualmente no tiene reuniones pendientes{" "}
-                  {(props.auth.role === "user" || props.auth.role === "admin") && (
-                    <Button
-                      onClick={() => router.push("/doctors")}
-                      startIcon={<FaChevronRight />}
-                    >
-                      Solicite una
-                    </Button>
-                  )}
-                </h2>
+          ) : (
+            <h2 className="mx-auto text-xl flex flex-col md:flex-row items-center gap-4 text-zinc-600">
+              Actualmente no tiene reuniones pendientes{" "}
+              {(props.auth.role === "user" || props.auth.role === "admin") && (
+                <Button
+                  onClick={() => router.push("/doctors")}
+                  startIcon={<FaChevronRight />}
+                >
+                  Solicite una
+                </Button>
               )}
+            </h2>
+          )}
         </div>
-        <div className="flex flex-col lg:flex-row justify-between items-center gap-4 w-5/6 mx-auto mt-4 mb-4">
-          <div className="bg-gray-100 w-full lg:w-2/3 p-4 rounded-3xl shadow-lg">
+        <div className="flex flex-col 2xl:flex-row justify-between items-center gap-5 w-full xl:w-5/6 mx-auto my-5">
+          <div className="bg-white w-5/6 xl:w-full p-4 rounded-md shadow-md">
             {props.auth.role === "user" || props.auth.role === "admin" ? (
               <>
                 <h2 className="text-3xl text-center text-zinc-600">
                   Descubra nuestros profesionales recomendados
                 </h2>
-                <div className="flex flex-col md:flex-row justify-center items-center gap-8 bg-white rounded-3xl">
+                <div className="flex flex-col lg:flex-row justify-center items-center gap-8 bg-white rounded-md">
                   {props.doctors.map((doctor: DoctorResponseDto) => (
                     <div
                       key={doctor.id}
@@ -208,16 +236,17 @@ export default function Home(props: any) {
               </>
             ) : (
               <>
-                <h2 className="text-3xl text-center text-zinc-600 mb-4">
+                <h2 className={`text-2xl text-center text-primary mb-4 ${robotoBold.className}`}>
                   {props.doctor.plan
-                    ? "¿Desea actualizar su plan?"
+                    ? props.doctor.plan.id === 3 ? "¡Felicidades!" : "¿Desea actualizar su plan?"
                     : "Solicite un plan de trabajo para comenzar"}
                 </h2>
-                <div className="flex flex-col md:flex-row justify-center items-center gap-8">
+                {props.doctor.plan?.id === 3 && <p className="font-bold text-center mb-4 text-md">¡Ya estás disfrutando todos los beneficios del mejor plan de trabajo de la plataforma!</p>}
+                <div className="flex flex-col w-full 2xl:flex-row justify-center items-center gap-8">
                   {plans.map((p: PlanResponseDto) => (
                     <div
                       key={p.id}
-                      className="bg-white flex flex-col items-center shadow-xl rounded-md"
+                      className={`bg-white flex flex-col border-2 border-gray-200 items-center shadow-md rounded-md ${p.id === 3 ? 'gold-glow' : ''}`}
                     >
                       <h2 className="text-3xl text-primary font-semibold text-center pt-4">
                         {p.name}
@@ -238,33 +267,40 @@ export default function Home(props: any) {
                       <ul className="my-4 p-4 min-h-28">
                         {p.benefits.map((b: BenefitResponseDto) => (
                           <li key={b.id} className="flex items-center gap-2">
-                            <div className="w-2 h-2 bg-primary rounded-full"></div>
+                            <div className="w-2 h-2 bg-primary rounded-md"></div>
                             {b.name}
                           </li>
                         ))}
                       </ul>
-                      <div className="my-4">
-                        <Button
+                      <div className="my-4 w-full flex justify-center">
+                        {props.doctor.plan?.id !== 3 ? <Button
                           onClick={() => router.push("/config/plan/" + p.id)}
                         >
                           Actualizar plan
-                        </Button>
+                        </Button> : <Chip
+                          className="h-9 w-full max-w-36 select-none"
+                          size="medium"
+                          variant="filled"
+                          color="warning"
+                          label={'Plan actual'}
+                        />}
                       </div>
-                      <h4 className="px-12 py-4 text-white text-center font-extrabold text-xl bg-primary w-full">
+                      {props.doctor.plan?.id !== 3 && <h4 className="px-12 py-4 text-white text-center font-extrabold text-xl bg-primary w-full">
                         {pesos.format(p.price)} / mes
-                      </h4>
+                      </h4>}
                     </div>
                   ))}
                 </div>
               </>
             )}
           </div>
-          <div className="flex flex-col items-center gap-4 bg-white w-full lg:w-1/3 p-4 rounded-3xl shadow-lg min-h-[200px]">
+          <div className="flex flex-col items-center justify-center gap-4 bg-white w-5/6 xl:w-full p-4 rounded-md shadow-md h-full">
             {props.auth.role === "user" &&
               (props.lastMeeting?.user?.healthInsurances.length === 0 ? (
                 <>
                   <h2 className="text-2xl text-center text-zinc-600">
-                    Si tienes una obra social, podrás acceder a los descuentos disponibles para los profesionales
+                    Si tienes una obra social, podrás acceder a los descuentos
+                    disponibles para los profesionales
                   </h2>
                   <MdDiscount className="text-primary text-9xl" />
                   <Button onClick={() => router.push("/profile")}>
@@ -277,7 +313,7 @@ export default function Home(props: any) {
                     }`}
                 >
                   <h2 className="text-3xl text-center text-zinc-600">
-                    Ultimas notificaciones no leídas
+                    Últimas notificaciones no leídas
                   </h2>
                   {props.notifications.length === 0 && (
                     <h2 className="text-primary text-center font-semibold mt-8">
@@ -367,11 +403,11 @@ export default function Home(props: any) {
                 </>
               ) : (
                 <div
-                  className={`flex flex-col items-center ${props.notifications.length > 0 && "overflow-y-scroll"
+                  className={`flex flex-col items-center ${props.notifications.length > 0 && "overflow-y-scroll h-full"
                     }`}
                 >
                   <h2 className="text-3xl text-center text-zinc-600">
-                    Ultimas notificaciones no leidas
+                    Últimas notificaciones no leidas
                   </h2>
                   {props.notifications.length === 0 && (
                     <h2 className="text-primary font-semibold mt-8">
@@ -529,7 +565,7 @@ export const getServerSideProps = withAuth(
 
     try {
       doctors = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/doctor/premium`,
+        `${process.env.NEXT_PUBLIC_API_URL}/doctor/advertised_doctors`,
         {
           withCredentials: true,
           headers: { Authorization: `Bearer ${context.req.cookies.token}` },
@@ -577,5 +613,5 @@ export const getServerSideProps = withAuth(
       },
     };
   },
-  { protected: true }
+  { protected: true, roles: ['user', 'doctor', 'admin'] }
 );
